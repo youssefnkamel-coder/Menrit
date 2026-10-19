@@ -1,0 +1,2093 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>المتابعة الروحية</title>
+<script>
+// إعدادات السيرفر (مشروع Supabase). المفتاح ده publishable ومعمول إنه يبقى علني.
+window.RUHIYA_CONFIG = {
+  url: "https://bchxqstesohcsdczvvvv.supabase.co",
+  key: "sb_publishable_Hn7BrtGV8Rt5qon0_MHYIg_NHXr28Sj",
+  appUrl: ""
+};
+</script>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Color+Emoji&display=swap">
+<style>
+/* Layout: a modern mobile app. A season-coloured gradient card opens the page, white rounded cards hold each screen,
+   every section and tab carries its own coloured icon tile, and the nav is a bottom app bar on phones. */
+:root{
+  --a:#0f766e; --b:#1e40af;
+  --bg:#f6efe1; --surface:#fffdf8; --surface-2:#fbf5e9; --line:#ebe1cc;
+  --ink:#172033; --ink-2:#64708a; --on-a:#ffffff;
+  --ok:#16a34a; --warn:#d97706; --bad:#e11d48;
+  --shadow:0 1px 2px rgba(23,32,51,.05), 0 6px 20px rgba(23,32,51,.06);
+  --f-head:"Cairo","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Noto Sans Arabic",Tahoma,system-ui,sans-serif;
+  --f-scripture:"Amiri","Noto Naskh Arabic",serif;
+  --nav-h:68px; --r:20px;
+  --gold:#c9a227; --gold-2:#e9c96b; --gold-d:#8a6414;
+  --gold-grad:linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a);
+  --gold-line:color-mix(in oklab,var(--gold) 45%,transparent);
+  --f-emoji:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a1730; --surface:#11244a; --surface-2:#162d58; --line:#24406e; --ink:#eef2fa; --ink-2:#a3b1cc;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#fb7185; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0a1730; --surface:#11244a; --surface-2:#162d58; --line:#24406e; --ink:#eef2fa; --ink-2:#a3b1cc;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#fb7185; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme:dark;}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;direction:rtl;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:820px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-head);font-weight:800;text-wrap:balance;margin:0;line-height:1.35}
+h2{font-size:1.22rem} h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.muted{color:var(--ink-2)} .small{font-size:.85rem} .num{font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{background:var(--surface-2);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0;color:var(--ink)}
+textarea{min-height:100px;resize:vertical;line-height:1.85}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px color-mix(in oklab,var(--gold) 20%,transparent)}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+label{display:grid;gap:5px;font-size:.86rem;color:var(--ink-2);font-weight:600}
+a{color:var(--a);font-weight:600}
+.btn{border:0;background:linear-gradient(135deg,var(--a),var(--b));color:var(--on-a);border-radius:12px;padding:9px 18px;cursor:pointer;font-weight:700;white-space:nowrap;
+  box-shadow:0 4px 14px color-mix(in oklab,var(--a) 30%,transparent)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:color-mix(in oklab,var(--a) 12%,var(--surface));color:var(--a);box-shadow:none}
+.btn.quiet{background:var(--surface-2);color:var(--ink-2);box-shadow:none;border:1px solid var(--line)}
+.btn.sm{padding:4px 12px;font-size:.84rem;border-radius:10px}
+
+/* colourful icon tiles */
+.ico{--c:#64708a;display:inline-grid;place-items:center;flex:none;width:36px;height:36px;border-radius:11px;
+  background:color-mix(in oklab,var(--c) 15%,var(--surface));color:var(--c)}
+.ico svg{width:20px;height:20px}
+.ico.lg{width:44px;height:44px;border-radius:14px}.ico.lg svg{width:24px;height:24px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:22px 22px 20px;color:#fff;
+  background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 12px 30px color-mix(in oklab,var(--a) 30%,transparent);display:grid;gap:10px}
+.hero::after{content:"";position:absolute;inset-inline-start:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.12)}
+.hero::before{content:"";position:absolute;inset-inline-end:-60px;bottom:-80px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero-top{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.cross{width:40px;height:40px;padding:7px;border-radius:12px;background:rgba(255,255,255,.2);color:#fff}
+.brand{display:grid}
+.brand .eyebrow{font-size:.8rem;opacity:.9;font-weight:600}
+.brand h1{font-size:1.6rem;color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:relative;z-index:1}
+.glass{background:rgba(255,255,255,.2);backdrop-filter:blur(6px);border-radius:999px;padding:3px 12px;font-size:.85rem;font-weight:600;color:#fff;display:inline-flex;gap:6px;align-items:center}
+.coptic{font-family:var(--f-head);font-weight:800;font-size:1rem}
+#gregDate{opacity:.95}
+.season-chip i{width:8px;height:8px;border-radius:50%;background:#fff}
+#feastLine{position:relative;z-index:1;font-weight:700}
+#feastLine:empty{display:none}
+#noticeSlot:empty{display:none}
+.notice{color:var(--ink);margin-top:12px;padding:10px 14px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow);font-size:.86rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.notice .btn{background:var(--surface-2);color:var(--ink-2);box-shadow:none;border:1px solid var(--line)}
+.notice .btn.on{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-color:transparent}
+
+/* nav */
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;padding-block:14px;background:var(--bg)}
+nav.tabs .wrap{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+nav.tabs button{position:relative;border:0;background:var(--surface);box-shadow:var(--shadow);padding:5px 14px 5px 6px;border-radius:14px;cursor:pointer;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center;font-weight:700;font-family:var(--f-head)}
+nav.tabs button .ico{width:30px;height:30px;border-radius:10px}
+nav.tabs button .ico svg{width:18px;height:18px}
+nav.tabs button[aria-current="page"]{color:var(--ink)}
+nav.tabs button[aria-current="page"] .ico{background:var(--c);color:#fff}
+nav.tabs .badge{min-width:18px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:.7rem;line-height:18px;text-align:center;font-weight:700}
+@media (max-width:720px){
+  nav.tabs{position:fixed;inset:auto 0 0 0;top:auto;background:var(--surface);padding:6px max(6px, env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px, env(safe-area-inset-left,0px));
+    box-shadow:0 -4px 20px rgba(23,32,51,.08);border-top:1px solid var(--line)}
+  nav.tabs .wrap{flex-wrap:nowrap;justify-content:space-around;gap:0}
+  nav.tabs button{flex:1;flex-direction:column;gap:2px;padding:2px;font-size:.7rem;box-shadow:none;background:transparent}
+  nav.tabs .badge{position:absolute;top:-2px;inset-inline-start:calc(50% + 8px)}
+}
+
+main{display:grid;gap:18px}
+section{display:grid;gap:10px}
+.sec-head{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.sec-head h2{display:flex;align-items:center;gap:10px}
+.card{background:var(--surface);border-radius:var(--r);padding:16px;display:grid;gap:10px;min-width:0;box-shadow:var(--shadow)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row.between{justify-content:space-between}
+.form{display:grid;gap:12px}
+.form .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{border:0;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r);padding:14px;display:grid;gap:6px;cursor:pointer;text-align:start;color:var(--ink);justify-items:start}
+.stat b{font-family:var(--f-head);font-size:1.8rem;font-weight:800;line-height:1}
+.stat span:last-child{font-size:.8rem;color:var(--ink-2);font-weight:600}
+.stat.alert b{color:var(--bad)}
+@media (max-width:480px){.stats{grid-template-columns:1fr 1fr}}
+
+ul.list{list-style:none;margin:0;padding:4px 0;display:grid;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+ul.list li{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+ul.list li:first-child{border-top:0}
+ul.list li.click{cursor:pointer}
+ul.list li.click:hover{background:var(--surface-2)}
+.who{display:grid;min-width:0}
+.who strong{font-weight:700}
+.pill{display:inline-block;padding:0 10px;border-radius:999px;font-size:.76rem;font-weight:600;line-height:24px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.pill.warn{background:color-mix(in oklab,var(--warn) 15%,var(--surface));color:var(--warn)}
+.pill.bad{background:color-mix(in oklab,var(--bad) 15%,var(--surface));color:var(--bad)}
+.pill.ok{background:color-mix(in oklab,var(--ok) 15%,var(--surface));color:var(--ok)}
+.pill.acc{background:linear-gradient(135deg,var(--a),var(--b));color:#fff}
+.empty{padding:22px;border:2px dashed var(--line);border-radius:var(--r);color:var(--ink-2);text-align:center;font-weight:600}
+.family-head{font-family:var(--f-head);font-weight:800;font-size:.95rem;color:var(--a)}
+
+.reading{display:grid;gap:6px}
+.reading .ref{display:inline-block;width:max-content;font-size:.76rem;font-weight:700;color:#0d9488;background:color-mix(in oklab,#14b8a6 14%,var(--surface));padding:0 10px;border-radius:999px}
+.auto-read{display:grid;gap:10px}
+.rsec{border:1px solid var(--gold-line);border-radius:14px;padding:10px 14px;display:grid;gap:8px}
+.rsec>summary{cursor:pointer;list-style:none;font-weight:700}
+.rsec>summary::-webkit-details-marker{display:none}
+.rsec>summary::before{content:"▸ ";color:#0d9488}
+.rsec[open]>summary::before{content:"▾ "}
+.rsub{margin:6px 0 0;font-size:.95rem;color:#0f766e}
+.syn{font-family:var(--f-body)!important;font-size:1.02rem!important}
+.reading .text{font-family:var(--f-scripture);font-size:1.18rem;line-height:2;white-space:pre-wrap;max-width:65ch}
+.medit{display:grid;gap:6px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,color-mix(in oklab,#8b5cf6 10%,var(--surface)),color-mix(in oklab,#ec4899 8%,var(--surface)))}
+.medit h3{color:#8b5cf6}
+.medit .text{font-family:var(--f-scripture);font-size:1.22rem;line-height:2;white-space:pre-wrap;max-width:60ch}
+
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.check{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;color:var(--ink);font-weight:600;font-size:.92rem}
+.check input{width:18px;height:18px;accent-color:#22c55e;flex:none}
+.check:has(input:checked){border-color:var(--gold);background:color-mix(in oklab,#22c55e 10%,var(--surface))}
+.days{display:grid;grid-template-columns:repeat(14,1fr);gap:4px}
+.day{aspect-ratio:1;max-width:100%;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-size:.68rem;color:var(--ink-2);font-weight:600}
+.day.l1{background:color-mix(in oklab,#22c55e 30%,var(--surface))}
+.day.l2{background:color-mix(in oklab,#22c55e 62%,var(--surface));color:#fff}
+.day.l3{background:#16a34a;color:#fff}
+.detail{outline:0;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:12px;font-size:.9rem;font-weight:600;z-index:20}
+footer{margin-top:24px;font-size:.8rem;color:var(--ink-2);text-align:center}
+@media (max-width:480px){.days{gap:2px}}
+
+/* verse ticker + welcome (from the service program) */
+.ticker{margin-bottom:12px;padding:10px 16px;border-radius:14px;background:var(--surface);box-shadow:var(--shadow);text-align:center;min-height:46px;display:grid;place-items:center}
+#verse{font-family:var(--f-scripture);font-size:1.08rem;font-weight:700;line-height:1.7;transition:opacity .45s}
+.welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px 12px;position:relative;z-index:1;font-weight:700}
+#liveClock{font-size:.84rem;opacity:.95;font-variant-numeric:tabular-nums}
+.hero-logo{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;flex:none}
+body.locked .ticker{display:none}
+.chart svg{width:100%;height:auto;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip-btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;font-size:.84rem;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.chip-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--a);background:color-mix(in oklab,var(--a) 10%,var(--surface))}
+.kid-row{display:grid;grid-template-columns:1fr 150px auto;gap:8px;align-items:center}
+@media (max-width:480px){.kid-row{grid-template-columns:1fr 1fr auto}}
+.warnbox{background:color-mix(in oklab,var(--warn) 12%,var(--surface));color:var(--warn);border-radius:14px;padding:10px 14px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.dev-id{display:inline-flex;align-items:center;gap:8px}
+.dev-id img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none}
+.gate-church{width:120px;height:120px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:var(--shadow);background:#fff}
+.gate-cross{width:96px;height:96px;margin:0 auto;border-radius:28px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--a),var(--b))}
+.gate-cross svg{width:56px;height:56px}
+.gate-priest{font-family:var(--f-head);font-weight:700;color:var(--a);font-size:1rem}
+.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;font-family:var(--f-head);font-weight:800;font-size:1.1rem;color:#fff;background:linear-gradient(135deg,#3b82f6,#8b5cf6);box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in oklab,var(--a) 45%,transparent)}
+.avatar.lg{width:96px;height:96px;font-size:2.2rem}
+.person-line{display:flex;align-items:center;gap:12px;min-width:0}
+.photo-box{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+/* login gate */
+body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{display:none}
+#gate{min-height:calc(100dvh - 32px);display:grid;place-items:center;padding-block:12px}
+.gate-card{width:100%;max-width:400px;background:var(--surface);border-radius:26px;border:3px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a) border-box;box-shadow:0 0 0 1px rgba(138,90,18,.25),0 0 0 6px color-mix(in oklab,#d4a630 18%,transparent),var(--shadow);padding:26px 22px 20px;display:grid;gap:16px;text-align:center}
+.gate-logo{width:132px;height:132px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
+.gate-card h1{font-size:1.5rem}
+.gate-card .form{text-align:start}
+.pw{position:relative}
+.pw input{padding-inline-end:48px}
+.pw button{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--a);font-weight:700;font-size:.82rem;cursor:pointer;padding:4px 8px}
+.gate-err{color:var(--bad);font-weight:600;font-size:.88rem;min-height:1.2em}
+.linkish{border:0;background:none;color:var(--a);font-weight:600;cursor:pointer;font-size:.86rem;padding:0}
+.dev{display:grid;gap:4px;justify-items:center;padding-top:14px;border-top:1px solid var(--line);font-size:.84rem;color:var(--ink-2)}
+.dev strong{font-family:var(--f-head);font-weight:800;font-size:1.05rem;letter-spacing:.02em;color:#b8860b;
+  background:linear-gradient(180deg,#fff3b0 0%,#f5d061 28%,#c9972b 55%,#8a5a12 78%,#e9c46a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.6)) drop-shadow(0 2px 1px rgba(90,55,5,.45))}
+.dev .phone{display:inline-flex;gap:8px;align-items:center;direction:ltr;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.logout{border:0;cursor:pointer;margin-inline-start:auto}
+footer .dev{border-top:0;padding-top:0}
+
+/* elegant gold finish */
+.card, ul.list, .stat, .ticker, .notice{border:1px solid var(--gold-line)}
+.hero{background:linear-gradient(135deg,#0f766e 0%,#0e7490 50%,#1e3a8a 100%);border:1.5px solid transparent;
+  background:linear-gradient(135deg,#0f766e 0%,#0e7490 50%,#1e3a8a 100%) padding-box,var(--gold-grad) border-box;box-shadow:0 14px 34px rgba(14,60,110,.28)}
+.brand h1{letter-spacing:.01em;text-shadow:0 2px 10px rgba(0,0,0,.18)}
+.hero .glass{border:1px solid rgba(255,230,160,.35)}
+.sec-head h2::after{content:"";display:inline-block;width:34px;height:3px;border-radius:3px;background:var(--gold-grad);margin-inline-start:4px}
+.ico{background:color-mix(in oklab,var(--c) 12%,var(--surface));border:1px solid color-mix(in oklab,var(--c) 22%,transparent)}
+.ico .emo{font-family:var(--f-emoji);font-size:20px;line-height:1}
+.ico.lg .emo{font-size:25px}
+nav.tabs button .ico .emo{font-size:17px}
+nav.tabs button[aria-current="page"] .ico{background:color-mix(in oklab,var(--gold) 18%,var(--surface));border:1.5px solid var(--gold)}
+nav.tabs button[aria-current="page"]{color:var(--gold-d)}
+.btn{background:linear-gradient(135deg,#0f766e,#0e7490 60%,#1e40af)}
+.btn.gold{background:var(--gold-grad);color:#3b2a05}
+.avatar{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--gold)}
+.gate-church{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--gold),var(--shadow)}
+.rsec>summary::before,.reading .ref{color:var(--gold-d)}
+.reading .ref{background:color-mix(in oklab,var(--gold) 14%,var(--surface))}
+.rsub{color:#0e7490}
+.stat:hover,ul.list li.click:hover{background:color-mix(in oklab,var(--gold) 6%,var(--surface))}
+.emoji-h{font-family:var(--f-emoji)}
+.pw button.eye{font-family:var(--f-emoji);font-size:1.2rem;line-height:1;padding:4px 6px}
+.gate-cross{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--gold),0 10px 24px rgba(14,60,110,.25)}
+.notice .btn.on{background:linear-gradient(135deg,#0f766e,#1e40af)}
+
+/* confession preparation */
+.prep{gap:12px}
+.prep>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px}
+.prep>summary::-webkit-details-marker{display:none}
+.prep>summary::after{content:"▾";margin-inline-start:auto;color:var(--gold-d);transition:transform .2s}
+.prep:not([open])>summary::after{transform:rotate(90deg)}
+.prep-emo{font-family:var(--f-emoji);font-size:24px;width:46px;height:46px;display:grid;place-items:center;border-radius:14px;flex:none;
+  background:color-mix(in oklab,var(--gold) 14%,var(--surface));border:1px solid var(--gold-line)}
+.prep-t{display:grid}
+.prep-t strong{font-family:var(--f-head);font-size:1.02rem}
+.prep-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.prep-list li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line);line-height:1.8}
+.prep-list .emo{font-family:var(--f-emoji);font-size:18px;line-height:1.6;flex:none}
+.prayer{font-family:var(--f-scripture);font-size:1.2rem;line-height:2.1;white-space:pre-wrap;max-width:62ch;padding:14px 16px;border-radius:14px;
+  background:linear-gradient(135deg,color-mix(in oklab,var(--gold) 8%,var(--surface)),var(--surface));border-inline-start:3px solid var(--gold)}
+
+/* accounts & admin */
+.acc-row{display:grid!important;grid-template-columns:1fr auto;gap:8px 10px}
+.acc-tools{grid-column:1/-1;display:grid;gap:8px;padding:10px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--gold-line)}
+.pw-shown{border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
+.pw-big{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.8rem;font-weight:800;letter-spacing:.18em;text-align:center;padding:10px;border-radius:14px;background:var(--surface-2)}
+.stat .prep-emo{width:38px;height:38px;font-size:20px;border-radius:12px}
+.or{text-align:center;color:var(--ink-2);font-weight:700;font-size:.85rem}
+
+/* header: saint image + signed-in person */
+.hero{grid-template-columns:1fr auto;align-items:start;column-gap:14px}
+.hero-main{display:grid;gap:10px;min-width:0;position:relative;z-index:1}
+.hero-side{display:grid;gap:10px;justify-items:center;position:relative;z-index:1}
+.me-box{display:flex;align-items:center;gap:6px}
+.me-box .logout{margin:0}
+#meAvatar .avatar{width:38px;height:38px;font-size:.95rem;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 3.5px var(--gold)}
+.saint{margin:0;width:104px;aspect-ratio:3/4;border-radius:52px 52px 16px 16px;padding:3px;background:var(--gold-grad);box-shadow:0 10px 24px rgba(0,0,0,.28)}
+.saint img{width:100%;height:100%;object-fit:cover;border-radius:49px 49px 13px 13px;display:block;background:#0b2f4f}
+@media (max-width:420px){.saint{width:88px}}
+
+/* clock chip + every round picture fits its circle with a gold rim */
+.clock-chip{font-family:var(--f-head);font-size:1.35rem;font-weight:800;padding:4px 16px;letter-spacing:.02em}
+img.avatar, .hero-logo, .dev-logo, .gate-church, .gate-logo, #meAvatar img{
+  aspect-ratio:1/1;object-fit:cover;object-position:center 30%;border-radius:50%;flex:none;display:block;
+  padding:2.5px;background:var(--gold-grad);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+img.avatar{height:auto}
+.avatar:not(img){aspect-ratio:1/1;flex:none;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
+#meAvatar img.avatar{width:42px;height:42px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.gate-church{padding:4px}
+
+/* developer signature */
+.dev{display:grid;gap:10px;justify-items:center;border-top:0!important;padding-top:6px!important}
+.dev-rule{display:flex;align-items:center;gap:10px;width:min(260px,80%);color:var(--gold);font-size:.8rem}
+.dev-rule i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.dev-rule i:last-child{background:linear-gradient(90deg,var(--gold),transparent)}
+.dev-card{display:flex;align-items:center;gap:14px;padding:10px 18px 10px 12px;border-radius:999px;max-width:100%;
+  border:1.5px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box;
+  box-shadow:0 6px 18px rgba(120,80,10,.12)}
+.dev-logo{width:58px!important;height:58px!important;padding:3px!important}
+.dev-text{display:grid;gap:1px;text-align:start;min-width:0}
+.dev-label{font-size:.72rem;color:var(--ink-2);font-weight:600;letter-spacing:.02em}
+.dev-text strong{font-size:1.02rem!important;line-height:1.35;white-space:nowrap}
+.dev-phone{display:inline-flex;align-items:center;gap:6px;width:max-content;margin-top:3px;padding:1px 12px;border-radius:999px;font-weight:700;font-size:.85rem;
+  color:var(--gold-d);text-decoration:none;border:1px solid var(--gold-line);background:color-mix(in oklab,var(--gold) 10%,var(--surface));font-variant-numeric:tabular-nums}
+.dev-phone .emo{font-family:var(--f-emoji);font-size:.9rem}
+:root[data-theme="dark"] .dev-phone{color:var(--gold-2)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .dev-phone{color:var(--gold-2)}}
+@media (max-width:360px){.dev-text strong{font-size:.9rem!important}.dev-logo{width:48px!important;height:48px!important}}
+footer{margin-top:28px}
+
+.danger-card{border-color:color-mix(in oklab,var(--bad) 45%,transparent)!important}
+.reset-warn{display:grid;gap:10px;padding:12px 14px;border-radius:14px;background:color-mix(in oklab,var(--bad) 8%,var(--surface));border:1px solid color-mix(in oklab,var(--bad) 35%,transparent)}
+.btn.danger{background:linear-gradient(135deg,#e11d48,#9f1239);box-shadow:0 4px 14px rgba(225,29,72,.3)}
+
+/* every section in a gold frame */
+.card, ul.list, .stat, .ticker, .notice, .rsec{border:1.5px solid transparent!important;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box!important}
+.empty{border:1.5px dashed var(--gold)!important;background:color-mix(in oklab,var(--gold) 4%,var(--surface))}
+.prep-list li, .acc-tools, .reset-warn{border-color:var(--gold-line)!important}
+ul.list li{border-top-color:var(--gold-line)!important}
+
+/* header frame = signed-in person's photo */
+.saint{position:relative}
+.saint-init{width:100%;height:100%;display:grid;place-items:center;border-radius:49px 49px 13px 13px;color:#fff;font-family:var(--f-head);font-size:2.6rem;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.3)}
+.saint img[hidden], .saint-init[hidden]{display:none}
+.saint figcaption{position:absolute;inset-inline:6px;bottom:6px;padding:2px 6px;border-radius:0 0 10px 10px;font-size:.72rem;font-weight:700;color:#fff;text-align:center;
+  background:linear-gradient(transparent,rgba(5,20,45,.82));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saint figcaption:empty{display:none}
+
+/* verse ticker: sky-blue news strip */
+.ticker{display:block!important;padding:0!important;overflow:hidden;direction:ltr;position:relative;min-height:48px;
+  background:linear-gradient(90deg,#d6effd,#a9dcfb 50%,#d6effd) padding-box,var(--gold-grad) border-box!important}
+.ticker::before,.ticker::after{content:"";position:absolute;top:0;bottom:0;width:36px;z-index:1;pointer-events:none}
+.ticker::before{left:0;background:linear-gradient(90deg,var(--sky-edge),transparent)}
+.ticker::after{right:0;background:linear-gradient(-90deg,var(--sky-edge),transparent)}
+.tick-track{display:flex;width:max-content;animation:tick var(--tick-dur,60s) linear infinite;will-change:transform}
+.ticker:hover .tick-track{animation-play-state:paused}
+.tick-copy{direction:rtl;white-space:nowrap;display:flex;align-items:center;padding:10px 0;color:var(--sky-ink);font-family:var(--f-scripture);font-size:1.08rem;font-weight:700;line-height:1.7}
+.tick-copy span{padding-inline:22px}
+.tick-copy b{color:var(--gold-d);font-size:.9rem}
+@keyframes tick{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+body.locked .ticker{display:none!important}
+@media (prefers-reduced-motion: reduce){.tick-track{animation-duration:calc(var(--tick-dur,60s) * 2)}}
+:root{--sky-edge:#d6effd;--sky-ink:#0b2a52}
+</style>
+</head>
+<body>
+
+
+
+<div class="wrap ticker" id="ticker"><div class="tick-track" id="verse"></div></div>
+<header class="band"><div class="wrap hero"><div class="hero-main">
+  <div class="hero-top"><img class="hero-logo" id="heroLogo" alt="" hidden><svg class="cross" id="heroCross" viewBox="0 0 48 48" aria-hidden="true" fill="currentColor"><rect x="20" y="8" width="8" height="32" rx="1"/><rect x="8" y="20" width="32" height="8" rx="1"/>
+<circle cx="24" cy="5" r="3"/><circle cx="19.5" cy="7" r="2.2"/><circle cx="28.5" cy="7" r="2.2"/>
+<circle cx="24" cy="43" r="3"/><circle cx="19.5" cy="41" r="2.2"/><circle cx="28.5" cy="41" r="2.2"/>
+<circle cx="5" cy="24" r="3"/><circle cx="7" cy="19.5" r="2.2"/><circle cx="7" cy="28.5" r="2.2"/>
+<circle cx="43" cy="24" r="3"/><circle cx="41" cy="19.5" r="2.2"/><circle cx="41" cy="28.5" r="2.2"/>
+</svg><div class="brand"><span class="eyebrow" id="roleLabel">المتابعة الروحية</span><h1 id="appTitle">المتابعة الروحية</h1></div></div>
+  <div class="hero-meta"><span class="glass coptic" id="copticDate">…</span><span class="glass num" id="gregDate">…</span><span class="glass clock-chip num" id="liveClock"></span><span id="seasonName" hidden></span></div>
+  <span id="feastLine"></span>
+  <div class="welcome"><span id="welcomeText"></span></div>
+</div><div class="hero-side"><div class="me-box"><button class="glass logout" id="logoutBtn" type="button">خروج</button></div><figure class="saint" id="saintBox" hidden><img id="saintImg" alt="" hidden><span class="saint-init" id="saintInit" aria-hidden="true"></span><figcaption id="saintName"></figcaption></figure></div></div>
+<div class="wrap" id="noticeSlot"></div>
+</header>
+<div id="gate" hidden></div>
+<nav class="tabs" aria-label="أقسام البرنامج"><div class="wrap" id="tabs"></div></nav>
+<div class="wrap"><main id="app"><div class="empty">جاري التحميل…</div></main>
+<footer><div id="devFooter"></div></footer></div>
+<div id="toastSlot"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (k === "value") el.value = v;
+    else if (k === "checked") el.checked = !!v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat(9)){ if (c == null || c === false) continue; el.append(c.nodeType ? c : document.createTextNode(String(c))); }
+  return el;
+}
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseYmd = s => { if(!s) return null; const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const dayNum = d => Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())/86400000);
+const daysBetween = (a,b) => dayNum(b) - dayNum(a);
+const clean = o => { const r = {}; for (const [k,v] of Object.entries(o)) if (k!=="id" && v!==undefined) r[k]=v; return r; };
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const arDigits = s => String(s).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+const GMONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const WDAYS = ["الأحد","الاتنين","التلات","الأربع","الخميس","الجمعة","السبت"];
+const copShort = d => { const c = toCoptic(new Date(d.getFullYear(), d.getMonth(), d.getDate())); return arDigits(c.d)+" "+CMONTHS[c.m-1]; };
+const fmtG = d => d ? arDigits(d.getDate())+" "+GMONTHS[d.getMonth()]+" "+arDigits(d.getFullYear())+" ("+copShort(d)+")" : "";
+const fmtShort = s => { const d = parseYmd(s); return d ? arDigits(d.getDate())+" "+GMONTHS[d.getMonth()]+" · "+copShort(d) : "—"; };
+function agoText(s){
+  if (!s) return "ولا مرة";
+  const n = daysBetween(parseYmd(s), TODAY);
+  if (n <= 0) return "النهارده"; if (n === 1) return "امبارح";
+  if (n < 30) return "من "+arDigits(n)+" يوم";
+  const m = Math.round(n/30); return "من "+arDigits(m)+(m<=10?" شهور":" شهر");
+}
+function toast(msg){ const t = h("div",{class:"toast",role:"status"},msg); $("#toastSlot").replaceChildren(t); setTimeout(()=>t.remove(), 2600); }
+
+/* ---------- Coptic calendar ---------- */
+const CMONTHS = ["توت","بابه","هاتور","كيهك","طوبه","أمشير","برمهات","برموده","بشنس","بؤونه","أبيب","مسرى","النسيء"];
+const COPTIC_EPOCH = 1825030;
+function jdn(y,m,d){ const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3; return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045; }
+const copticToJd = (y,m,d) => COPTIC_EPOCH-1+365*(y-1)+Math.floor(y/4)+30*(m-1)+d;
+function toCoptic(date){
+  const jd = jdn(date.getFullYear(), date.getMonth()+1, date.getDate());
+  const y = Math.floor((4*(jd-COPTIC_EPOCH)+1463)/1461);
+  const m = Math.floor((jd-copticToJd(y,1,1))/30)+1;
+  return {y, m, d: jd+1-copticToJd(y,m,1)};
+}
+function copticEaster(y){
+  const a=y%4,b=y%7,c=y%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7;
+  const month=Math.floor((d+e+114)/31), day=((d+e+114)%31)+1;
+  const dt=new Date(y,month-1,day); dt.setDate(dt.getDate()+13); return dt;
+}
+const SEASONS = {
+  ordinary:    {name:"الأيام العادية",            a:"#10b981", b:"#0ea5e9"},
+  nayrouz:     {name:"زمن النيروز وتذكار الشهداء", a:"#ef4444", b:"#f97316"},
+  cross:       {name:"عيد الصليب المجيد",          a:"#e11d48", b:"#f59e0b"},
+  nativityFast:{name:"صوم الميلاد",               a:"#8b5cf6", b:"#6366f1"},
+  kiahk:       {name:"صوم الميلاد · شهر كيهك",       a:"#6366f1", b:"#3b82f6"},
+  nativity:    {name:"أعياد الميلاد والغطاس",        a:"#d97706", b:"#eab308"},
+  nineveh:     {name:"صوم يونان (نينوى)",           a:"#7c3aed", b:"#a855f7"},
+  greatLent:   {name:"الصوم الكبير",                a:"#9333ea", b:"#c026d3"},
+  palm:        {name:"أحد الشعانين",                a:"#65a30d", b:"#22c55e"},
+  holyWeek:    {name:"أسبوع الآلام",                a:"#334155", b:"#64748b"},
+  khamseen:    {name:"الخماسين المقدسة",             a:"#d97706", b:"#f59e0b"},
+  apostles:    {name:"صوم الرسل",                   a:"#dc2626", b:"#ea580c"},
+  virgin:      {name:"صوم السيدة العذراء",           a:"#2563eb", b:"#06b6d4"}
+};
+function seasonOf(t){
+  const c = toCoptic(t), E = copticEaster(t.getFullYear()), x = daysBetween(E, t);
+  const m = t.getMonth()+1, d = t.getDate();
+  if (x>=-69 && x<=-67) return "nineveh";
+  if (x>=-55 && x<=-8) return "greatLent";
+  if (x===-7) return "palm";
+  if (x>=-6 && x<=-1) return "holyWeek";
+  if (x>=0 && x<=49) return "khamseen";
+  if (x>=50 && (m<7 || (m===7 && d<=11))) return "apostles";
+  if (m===8 && d>=7 && d<=21) return "virgin";
+  if (c.m===1 && c.d<=16) return "nayrouz";
+  if (c.m===1 && c.d<=19) return "cross";
+  if ((m===11 && d>=25) || m===12 || (m===1 && d<=6)) return c.m===4 ? "kiahk" : "nativityFast";
+  if (m===1 && d<=21) return "nativity";
+  return "ordinary";
+}
+const FIXED_FEASTS = {"1-1":"عيد النيروز (رأس السنة القبطية)","1-17":"عيد الصليب المجيد","6-8":"دخول المسيح الهيكل","7-29":"عيد البشارة","9-24":"دخول السيد المسيح أرض مصر","11-5":"استشهاد الرسولين بطرس وبولس","12-13":"عيد التجلي","12-16":"عيد صعود جسد السيدة العذراء"};
+const MOVABLE = {"-7":"أحد الشعانين","-3":"خميس العهد","-2":"الجمعة العظيمة","0":"عيد القيامة المجيد","39":"عيد الصعود","49":"عيد العنصرة"};
+function feastsOf(t){
+  const c = toCoptic(t), out = [];
+  const mv = MOVABLE[String(daysBetween(copticEaster(t.getFullYear()), t))]; if (mv) out.push(mv);
+  if (FIXED_FEASTS[c.m+"-"+c.d]) out.push(FIXED_FEASTS[c.m+"-"+c.d]);
+  const g = (t.getMonth()+1)+"-"+t.getDate();
+  if (g==="1-7") out.push("عيد الميلاد المجيد"); if (g==="1-19") out.push("عيد الغطاس المجيد"); if (g==="1-21") out.push("عرس قانا الجليل");
+  if (c.d===12) out.push("تذكار رئيس الملائكة ميخائيل");
+  if (c.d===21) out.push("تذكار السيدة العذراء");
+  if (c.d===29 && c.m!==5 && c.m!==6) out.push("تذكار الأعياد السيدية");
+  return out;
+}
+const copticText = c => arDigits(c.d)+" "+CMONTHS[c.m-1]+" "+arDigits(c.y)+" ش";
+
+const TODAY = (()=>{ const n=new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); })();
+const TODAY_S = ymd(TODAY);
+const TODAY_C = toCoptic(TODAY);
+const SEASON = seasonOf(TODAY);
+
+function applySeason(){
+  const s = SEASONS[SEASON], r = document.documentElement.style;
+  
+  $("#seasonName").textContent = s.name;
+  $("#copticDate").textContent = copticText(TODAY_C);
+  $("#gregDate").textContent = WDAYS[TODAY.getDay()]+" "+arDigits(TODAY.getDate())+" "+GMONTHS[TODAY.getMonth()]+" "+arDigits(TODAY.getFullYear());
+  const f = feastsOf(TODAY); $("#feastLine").textContent = f.join(" · ");
+}
+
+/* ---------- data layer: live db or in-page demo ---------- */
+const Store = {
+  mode:"demo", db:null, ext:null, onErr(e){ console.warn(e); },
+  listen(path, opts, cb){
+    if (this.ext) return this.ext.listen(path, opts, cb);
+    if (this.mode === "live"){
+      const even = path.split("/").length % 2 === 0;
+      if (even) return this.db.doc(path).onSnapshot(s => cb(s.exists ? Object.assign({id:s.id}, s.data()) : null), this.onErr);
+      let q = this.db.collection(path);
+      if (opts && opts.orderBy) q = q.orderBy(opts.orderBy, opts.dir || "asc");
+      if (opts && opts.limit) q = q.limit(opts.limit);
+      return q.onSnapshot(s => cb(s.docs.map(d => Object.assign({id:d.id}, d.data()))), this.onErr);
+    }
+    return Mem.listen(path, opts, cb);
+  },
+  async list(path){ if (this.ext) return this.ext.list(path); if (this.mode==="live"){ const s = await this.db.collection(path).get(); return s.docs.map(d=>Object.assign({id:d.id}, d.data())); } return Mem.snapshot({path}); },
+  async get(path){ if (this.ext) return this.ext.get(path); if (this.mode==="live"){ const d = await this.db.doc(path).get(); return d.exists ? d.data() : null; } const v = Mem.data.get(path); return v ? JSON.parse(JSON.stringify(v)) : null; },
+  async set(path, data){ if (this.ext) return this.ext.set(path, data); return this.mode==="live" ? this.db.doc(path).set(data) : Mem.set(path, data); },
+  async update(path, data){ if (this.ext) return this.ext.update(path, data); return this.mode==="live" ? this.db.doc(path).update(data) : Mem.set(path, Object.assign({}, Mem.data.get(path)||{}, data)); },
+  async del(path){ if (this.ext) return this.ext.del(path); return this.mode==="live" ? this.db.doc(path).delete() : Mem.del(path); }
+};
+const Mem = {
+  data:new Map(), subs:new Set(),
+  parent(p){ return p.split("/").slice(0,-1).join("/"); },
+  snapshot(sub){
+    const even = sub.path.split("/").length % 2 === 0;
+    if (even){ const v = this.data.get(sub.path); return v ? Object.assign({id:sub.path.split("/").pop()}, v) : null; }
+    let rows = [];
+    for (const [k,v] of this.data) if (this.parent(k) === sub.path) rows.push(Object.assign({id:k.split("/").pop()}, v));
+    const o = sub.opts || {};
+    if (o.orderBy){ const f=o.orderBy, s=o.dir==="desc"?-1:1; rows.sort((a,b)=> (a[f]>b[f]?1:a[f]<b[f]?-1:0)*s); }
+    if (o.limit) rows = rows.slice(0, o.limit);
+    return rows;
+  },
+  listen(path, opts, cb){ const sub={path,opts,cb}; this.subs.add(sub); queueMicrotask(()=>cb(this.snapshot(sub))); return ()=>this.subs.delete(sub); },
+  notify(p){ for (const s of this.subs) if (s.path===p || s.path===this.parent(p)) s.cb(this.snapshot(s)); },
+  set(p, v){ this.data.set(p, JSON.parse(JSON.stringify(v))); this.notify(p); },
+  del(p){ this.data.delete(p); this.notify(p); }
+};
+function seedDemo(){
+  Mem.data.clear();
+  const ago = n => { const d=new Date(TODAY); d.setDate(d.getDate()-n); return ymd(d); };
+  const soon = (n, yearsAgo) => { const d=new Date(TODAY); d.setDate(d.getDate()+n); d.setFullYear(d.getFullYear()-yearsAgo); return ymd(d); };
+  const P = "priest/main/people/";
+  Mem.set("members/demo-me", {name:"مينا عادل (مثال)", phone:"0100 000 0001", birthday:soon(0,29), wedding:soon(5,3), spouse:"مارينا", joined:ago(40),
+    request:{id:"r1", preferred:"الخميس بعد القداس", note:"محتاج أقعد مع حضرتك شوية", at:ago(1)}});
+  Mem.set(P+"demo-me", {onApp:true, familyName:"عائلة مينا ومارينا", lastConfession:ago(52), lastVisit:ago(120), notes:"بيمر بضغط في الشغل", area:"شبرا", job:"محاسب", children:[{name:"يوسف",birthday:soon(2,6)}], confessions:[ago(140),ago(95),ago(52)], visits:[{date:ago(120),type:"زيارة منزلية",note:"اتكلمنا عن الشغل"}]});
+  Mem.set("members/demo-2", {name:"مارينا سمير (مثال)", birthday:soon(3,27), wedding:soon(5,3), spouse:"مينا"});
+  Mem.set(P+"demo-2", {onApp:true, familyName:"عائلة مينا ومارينا", lastConfession:ago(20), lastVisit:ago(120), area:"شبرا", confessions:[ago(80),ago(20)]});
+  Mem.set(P+"p_demo3", {name:"عم جرجس فهمي (مثال)", phone:"0122 000 0003", birthday:soon(12,70), familyName:"", lastConfession:ago(95), lastVisit:ago(30), notes:"مش بيستخدم موبايل، بنتصل بيه", area:"روض الفرج", confessions:[ago(160),ago(95)], visits:[{date:ago(30),type:"مكالمة تليفون",note:""}]});
+  Mem.set("members/demo-4", {name:"كيرلس ناجي (مثال)", birthday:soon(40,19)});
+  for (let i=1;i<=12;i++){ if (i%3===0) continue;
+    Mem.set("members/demo-me/notebook/"+ago(i), {date:ago(i), items:{bakr:true, noum:i%2===0, bible:true, khloa:i%4!==0, liturgy:i===2||i===9}, metanias:i%2?12:0, portion:"يوحنا "+arDigits(i), reflection:""}); }
+  Mem.set("members/demo-me/inbox/w1", {type:"greeting", title:"كل سنة وانت طيب", text:"ربنا يفرّح قلبك في عيد ميلادك ويديك سنة مليانة بركة.", at:new Date().toISOString()});
+  Mem.set("meditations/m1", {title:"تأمل اليوم (مثال)", text:"«تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم» (مت ١١: ٢٨).\nمش محتاج تشيل الحِمل لوحدك. قدّمه النهارده في صلاة باكر وسيبه بين إيدين ربنا.", at:new Date().toISOString(), date:TODAY_S});
+}
+
+/* ---------- app state ---------- */
+const S = {
+  ready:false, role:"member", isOwner:false, uid:null, liveAvailable:false,
+  tab:null, members:[], people:[], meditations:[], inbox:[], notebook:[], profile:null, reading:null,
+  sel:null, selNotebook:[], selInbox:[], draft:{}, unsubs:[], selUnsubs:[], settings:{}, meta:{}, authName:""
+};
+const NOTE_ITEMS = [["bakr","صلاة باكر"],["noum","صلاة النوم"],["agpeya","باقي صلوات الأجبية"],["bible","قراءة الكتاب المقدس"],["khloa","صلاة المخدع (شخصية)"],["liturgy","حضور القداس والتناول"],["fast","الصوم"],["spiritual","قراءة روحية"]];
+const CONFESS_DAYS = 45, VISIT_DAYS = 90;
+
+let dirty = false;
+function scheduleRender(){
+  const a = document.activeElement;
+  if (a && $("#app").contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && a.type!=="checkbox"){
+    if (!dirty){ dirty = true; a.addEventListener("blur", ()=>{ dirty=false; render(); }, {once:true}); }
+    return;
+  }
+  render();
+}
+function stopAll(){ S.unsubs.forEach(u=>u()); S.unsubs=[]; S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; }
+
+function subscribe(){
+  stopAll();
+  const L = (p,o,f) => S.unsubs.push(Store.listen(p,o,f));
+  L("meditations", {orderBy:"at", dir:"desc", limit:30}, r => { S.meditations=r; scheduleRender(); });
+  L("readings/"+TODAY_C.m+"-"+TODAY_C.d, null, r => { S.reading=r; scheduleRender(); });
+  L("readings/"+AUTO_ID, null, r => { S.autoDb=r; scheduleRender(); });
+  loadAutoReadings(false);
+  L("settings/app", null, r => { S.settings=r||{}; applySettings(); scheduleRender(); });
+  if (["admin","supervisor"].includes(accRole())){
+    L("accounts", null, r => { S.accounts=r; scheduleRender(); });
+    L("pwreq", null, r => { S.pwreqs=r; scheduleRender(); });
+    L("log", {orderBy:"at", dir:"desc", limit:60}, r => { S.log=r; scheduleRender(); });
+    if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
+  }
+  if (S.role === "priest"){
+    L("members", null, r => { S.members=r; scheduleRender(); });
+    L("priest/main/people", null, r => { S.people=r; scheduleRender(); });
+    L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
+  } else if (S.uid){
+    L("members/"+S.uid, null, r => { S.profile=r; S.profileLoaded=true; scheduleRender(); });
+    L("members/"+S.uid+"/inbox", {orderBy:"at", dir:"desc", limit:50}, r => { S.inbox=r; scheduleRender(); });
+    L("members/"+S.uid+"/notebook", {orderBy:"date", dir:"desc", limit:60}, r => { S.notebook=r; scheduleRender(); });
+  }
+}
+function selectPerson(id){
+  S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.selNotebook=[]; S.sel=id;
+  const p = merged().find(x=>x.id===id);
+  if (p && p.onApp){
+    S.selUnsubs.push(Store.listen("members/"+id+"/notebook", {orderBy:"date", dir:"desc", limit:30}, r=>{ S.selNotebook=r; scheduleRender(); }));
+  }
+  render();
+  const d = $("#detail"); if (d) d.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* merged view of people for the priest */
+function merged(){
+  const map = new Map();
+  for (const m of S.members) if (!String(m.id).startsWith("preview-")) map.set(m.id, {id:m.id, onApp:true, self:m, name:m.name});
+  for (const p of S.people){
+    if (String(p.id).startsWith("preview-")) continue;
+    const e = map.get(p.id) || {id:p.id, onApp:!!p.onApp, self:null};
+    Object.assign(e, {pr:p, name:p.name || (e.self && e.self.name) || "بدون اسم"});
+    map.set(p.id, e);
+  }
+  return [...map.values()].map(e => {
+    const s = e.self || {}, p = e.pr || {};
+    return Object.assign(e, {
+      name: p.name || s.name || "بدون اسم", phone: p.phone || s.phone || "",
+      birthday: p.birthday || s.birthday || "", wedding: p.wedding || s.wedding || "", spouse: p.spouse || s.spouse || "",
+      familyName: p.familyName || "", lastConfession: p.lastConfession || "", lastVisit: p.lastVisit || "", notes: p.notes || "",
+      photo: p.photo || s.photo || "", area: p.area || "", address: p.address || "", job: p.job || "", children: p.children || [], visits: p.visits || [], confessions: p.confessions || [],
+      request: s.request && s.request.id !== p.handledRequest ? s.request : null, isNew: e.onApp && !e.pr
+    });
+  }).sort((a,b)=>a.name.localeCompare(b.name,"ar"));
+}
+function nextOccurrence(s){
+  const d = parseYmd(s); if (!d) return null;
+  let n = new Date(TODAY.getFullYear(), d.getMonth(), d.getDate()); if (n < TODAY) n.setFullYear(n.getFullYear()+1);
+  return {date:n, inDays:daysBetween(TODAY,n), years:n.getFullYear()-d.getFullYear()};
+}
+function occasions(people, within){
+  const out = [];
+  for (const p of people){
+    for (const [k,label] of [["birthday","عيد ميلاد"],["wedding","عيد جواز"]]){
+      const o = nextOccurrence(p[k]); if (o && o.inDays <= within) out.push({p, kind:k, label, ...o});
+    }
+    for (const c of (p.children||[])){ const o = nextOccurrence(c.birthday); if (o && c.name && o.inDays <= within) out.push({p, kind:"child", child:c.name, label:"عيد ميلاد "+c.name+" (من أولاد "+p.name.split(" ")[0]+")", ...o}); }
+  }
+  return out.sort((a,b)=>a.inDays-b.inDays);
+}
+
+/* ---------- shared pieces ---------- */
+const AV_COLORS = [["#3b82f6","#8b5cf6"],["#ec4899","#f97316"],["#14b8a6","#22c55e"],["#f59e0b","#ef4444"],["#6366f1","#06b6d4"]];
+function avatar(p, cls){
+  const name = (p && p.name) || "";
+  if (p && p.photo) return h("img",{class:"avatar"+(cls?" "+cls:""), src:p.photo, alt:"صورة "+name});
+  const c = AV_COLORS[[...name].reduce((a,ch)=>a+ch.charCodeAt(0),0) % AV_COLORS.length];
+  return h("span",{class:"avatar"+(cls?" "+cls:""), style:"background:linear-gradient(135deg,"+c[0]+","+c[1]+")", "aria-hidden":"true"}, name.trim().charAt(0) || "؟");
+}
+function photoPickerSized(id, label, size, onPick){
+  return [h("label",{class:"btn sm ghost", for:id, style:"cursor:pointer"}, label),
+    h("input",{id, type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, size, onPick); e.target.value=""; }})];
+}
+function photoPicker(id, label, onPick){
+  return [h("label",{class:"btn sm ghost", for:id, style:"cursor:pointer"}, label),
+    h("input",{id, type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 240, onPick); e.target.value=""; }})];
+}
+const P2 = n => String(n).padStart(2,"0");
+const AUTO_ID = "auto-"+TODAY.getFullYear()+"-"+P2(TODAY.getMonth()+1)+"-"+P2(TODAY.getDate());
+function htmlText(s){
+  if (!s) return "";
+  const d = new DOMParser().parseFromString(String(s), "text/html");
+  const ps = [...d.body.querySelectorAll("p")].map(p=>p.textContent.trim()).filter(Boolean);
+  return ps.length ? ps.join("\n\n") : d.body.textContent.trim();
+}
+function parseKatameros(j){
+  const rd = r => ({title:r.title||"", intro:htmlText(r.introduction), concl:htmlText(r.conclusion), body:htmlText(r.html),
+    passages:(r.passages||[]).map(p=>({ref:(p.bookTranslation||"")+" \u2066"+(p.ref||"")+"\u2069", text:(p.verses||[]).map(v=>v.text).join(" ")}))});
+  // The liturgy (قداس) nests البولس…السنكسار…الإنجيل as subsections, sometimes deeper; every block that holds
+  // several subsections is opened out so each reading, the synaxarium included, gets its own section.
+  const out = [];
+  const walk = (node, parent) => {
+    const subs = node.subSections || [];
+    const title = node.title || "", intro = htmlText(node.introduction);
+    if (subs.length > 1 || subs.some(x => x.subSections && x.subSections.length)){
+      if ((node.readings||[]).length) out.push({title, intro, subs:[{title:"", intro:"", readings:node.readings.map(rd)}]});
+      subs.forEach(x => walk(x, title));
+    } else if (subs.length === 1){
+      const x = subs[0];
+      out.push({title: parent ? title : title, intro, subs:[{title:(x.title && x.title!==title) ? x.title : "", intro:htmlText(x.introduction), readings:(x.readings||[]).map(rd)}]});
+    } else {
+      out.push({title, intro, subs:[{title:"", intro:"", readings:(node.readings||[]).map(rd)}]});
+    }
+  };
+  (j.sections||[]).forEach(sec => walk(sec, ""));
+  return {source:"katameros", v:2, date:AUTO_ID.slice(5), period:j.periodInfo||"", title:j.title||"", copticDate:j.copticDate||"",
+    sections: out.filter(x => x.intro || x.subs.some(u => u.readings.length))};
+}
+async function loadAutoReadings(force){
+  const lsKey = "ruhiya_v2_"+AUTO_ID;
+  try { Object.keys(localStorage).filter(k => k.startsWith("ruhiya_v2_") && k !== lsKey).forEach(k => localStorage.removeItem(k)); } catch(e){}
+  if (Store.mode === "local") for (const k of [...Mem.data.keys()]) if (k.startsWith("readings/auto-")) Mem.del(k);
+  if (!force){ try{ const c = localStorage.getItem(lsKey); if (c){ S.auto = JSON.parse(c); scheduleRender(); return; } }catch(e){} }
+  S.autoLoading = true; S.autoFailed = false; scheduleRender();
+  try{
+    const res = await fetch("https://api.katameros.app/readings/gregorian/"+P2(TODAY.getDate())+"-"+P2(TODAY.getMonth()+1)+"-"+TODAY.getFullYear()+"?languageId=3");
+    if (!res.ok) throw new Error("http "+res.status);
+    const a = parseKatameros(await res.json());
+    if (!a.sections.length) throw new Error("empty");
+    S.auto = a;
+    try{ localStorage.setItem(lsKey, JSON.stringify(a)); }catch(e){}
+    if (S.role === "priest" && Store.mode !== "local" && Store.mode !== "cloud") Store.set("readings/"+AUTO_ID, a).catch(()=>{});
+    if (force) toast("القراءات اتحدّثت");
+  }catch(e){ S.autoFailed = true; if (force) toast("مقدرتش أوصل لموقع القطمارس دلوقتي"); }
+  S.autoLoading = false; scheduleRender();
+}
+function autoBlock(a){
+  const box = h("div",{class:"auto-read"});
+  if (a.period || a.title) box.append(h("p",{class:"small muted"}, [a.title, a.period].filter(Boolean).join(" · ")));
+  a.sections.forEach((sec, i) => {
+    const isSyn = /سنكسار/.test(sec.title);
+    const d = h("details",{class:"rsec", open: isSyn || i === a.sections.length-1},
+      h("summary",null, h("span",{class:"ref"}, sec.title)));
+    if (sec.intro) d.append(h("p",{class:"small muted"}, sec.intro));
+    for (const sub of sec.subs){
+      if (sub.title) d.append(h("h4",{class:"rsub"}, sub.title));
+      if (sub.intro) d.append(h("p",{class:"small muted"}, sub.intro));
+      for (const r of sub.readings){
+        if (r.title) d.append(h("h4",{class:"rsub"}, r.title));
+        if (r.intro) d.append(h("p",{class:"small muted"}, r.intro));
+        for (const p of r.passages) d.append(h("div",{class:"reading"}, h("span",{class:"small muted"}, p.ref), h("div",{class:"text"}, p.text)));
+        if (r.body) d.append(h("div",{class:"text syn"}, r.body));
+        if (r.concl) d.append(h("p",{class:"small muted"}, r.concl));
+      }
+    }
+    box.append(d);
+  });
+  box.append(h("p",{class:"small muted"},"المصدر: ", h("a",{href:"https://katameros.app/", target:"_blank", rel:"noopener"},"katameros.app"), " · بتتحدّث لوحدها كل يوم"));
+  return box;
+}
+function readingCard(editable){
+  const r = S.reading;
+  const auto = S.auto || (S.autoDb && S.autoDb.v === 2 ? S.autoDb : null);
+  if (auto && auto.sections){
+    const c = h("div",{class:"card reading"},
+      h("div",{class:"row between"}, h("h3",null,"قراءات اليوم · "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]),
+        editable ? h("button",{class:"btn sm ghost", onclick:()=>{S.tab="readings"; render();}},"القراءات") : null),
+      autoBlock(auto));
+    if (r && r.note) c.append(h("div",{class:"reading"}, h("span",{class:"ref"},"كلمة من أبونا"), h("div",{class:"text"}, r.note)));
+    return c;
+  }
+  if (S.autoLoading && !(r && (r.synaxarium || r.gospel))) return h("div",{class:"card reading"}, h("h3",null,"قراءات اليوم"), h("p",{class:"muted"},"بنزّل قراءات النهارده..."));
+  const c = h("div",{class:"card reading"},
+    h("div",{class:"row between"}, h("h3",null,"قراءات اليوم · "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]),
+      editable ? h("button",{class:"btn sm ghost", onclick:()=>{S.tab="readings"; render();}},"تعديل القراءات") : null));
+  if (!r || (!r.synaxarium && !r.gospel)){
+    c.append(h("p",{class:"muted"},"قراءات النهارده لسه ما اتضافتش في البرنامج."),
+      h("p",{class:"small muted"},"تقدر تقرأها من مصادرها: ",
+        h("a",{href:"https://katamars.avabishoy.com/", target:"_blank", rel:"noopener"},"القطمارس (موقع الأنبا بيشوي)"), " · ",
+        h("a",{href:"https://st-takla.org/Full-Free-Coptic-Books/Synaxarium-or-Synexarion/index.html", target:"_blank", rel:"noopener"},"السنكسار (موقع الأنبا تكلا)")));
+    return c;
+  }
+  const part = (t, v) => v ? h("div",{class:"reading"}, h("span",{class:"ref"},t), h("div",{class:"text"},v)) : null;
+  c.append(part("السنكسار", r.synaxarium), part("المزمور", r.psalm), part("البولس", r.pauline), part("الكاثوليكون", r.catholic), part("الإبركسيس", r.acts), part("الإنجيل", r.gospel));
+  return c;
+}
+function meditationBlock(m){
+  return h("div",{class:"medit"}, m.title ? h("h3",null,m.title) : null, h("div",{class:"text"}, m.text||""),
+    h("span",{class:"small muted"}, m.date ? fmtShort(m.date) : ""));
+}
+const HEAD_ICONS = [["الأدمن","admin"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أولادي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
+function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.includes(w)); return h("div",{class:"sec-head"}, h("h2",null, m ? icon(m[1]) : null, title), extra||null); }
+
+/* ---------- PRIEST ---------- */
+function priestTabs(all){
+  const req = all.filter(p=>p.request).length;
+  const t = [["today","النهارده"],["people","أولادي"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
+  if (accRole() === "admin") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
+  return t;
+}
+function priestToday(all){
+  const occ = occasions(all, 7);
+  const overdueC = all.filter(p => !p.lastConfession || daysBetween(parseYmd(p.lastConfession),TODAY) > CONFESS_DAYS);
+  const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > VISIT_DAYS);
+  const reqs = all.filter(p=>p.request), fresh = all.filter(p=>p.isNew);
+  const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
+  const wrap = h("div",{style:"display:grid;gap:22px"});
+  const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
+  if (Store.mode !== "demo" && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
+    h("span",null, lb ? "آخر نسخة احتياطية كانت من "+arDigits(lbDays)+" يوم." : "لسه ماعملتش نسخة احتياطية من بياناتك."),
+    h("button",{class:"btn sm", onclick:()=>{ S.tab="settings"; render(); }},"اعمل نسخة دلوقتي")));
+  wrap.append(h("section",null,
+    h("div",{class:"stats"},
+      stat(all.length,"أولاد في الاعتراف","people",false,"people"),
+      stat(reqs.length,"طلبات اعتراف مستنية","requests",true,"confession"),
+      stat(overdueC.length,"عدّى "+arDigits(CONFESS_DAYS)+" يوم من آخر اعتراف","people",true,"bell"),
+      stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
+  if (fresh.length) wrap.append(h("section",null, sectionHead("ناس جديدة دخلت البرنامج"),
+    h("ul",{class:"list"}, fresh.map(p => h("li",null, h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, p.phone||"")),
+      h("button",{class:"btn sm", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, {onApp:true}); toast("اتضاف لقايمة أولادك"); }},"ضيفه لأولادي"))))));
+  wrap.append(h("section",null, sectionHead("أعياد الأسبوع ده"),
+    occ.length ? h("ul",{class:"list"}, occ.map(o => h("li",null,
+      h("div",{class:"who"}, h("strong",null,o.p.name), h("span",{class:"small muted"}, o.label+(o.years>0?" ("+arDigits(o.years)+")":"")+" · "+(o.inDays===0?"النهارده":WDAYS[o.date.getDay()]+" "+fmtShort(ymd(o.date))))),
+      h("div",{class:"row"}, o.inDays===0 ? h("span",{class:"pill acc"},"النهارده") : null,
+        o.p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>sendGreeting(o)},"ابعت تهنئة") : (o.p.phone ? h("span",{class:"pill"}, "اتصل: "+o.p.phone) : null)))))
+    : h("div",{class:"empty"},"مفيش أعياد ميلاد أو جواز في السبع أيام الجايين.")));
+  wrap.append(h("section",null, sectionHead("الاعترافات في آخر ٦ شهور"), h("div",{class:"card chart"}, confessionChart(all))));
+  const attention = [...new Set([...overdueC, ...overdueV])].slice(0,8);
+  wrap.append(h("section",null, sectionHead("محتاجين سؤال"),
+    attention.length ? h("ul",{class:"list"}, attention.map(p => personRow(p))) : h("div",{class:"empty"},"كل أولادك متابَعين. ربنا يبارك.")));
+  wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(true)));
+  return wrap;
+}
+async function sendGreeting(o){
+  const text = o.kind==="birthday" ? "كل سنة وانت طيب. ربنا يفرّح قلبك في عيد ميلادك ويديك سنة جديدة مليانة نعمة وبركة." :
+    o.kind==="child" ? "كل سنة و"+o.child+" طيب. ربنا يباركه ويحفظه وينمّيه في النعمة والقامة." :
+    "كل سنة وانتوا طيبين بمناسبة عيد جوازكم. ربنا يحفظ بيتكم ويملاه سلام ومحبة.";
+  await Store.set("members/"+o.p.id+"/inbox/"+newId(), {type:"greeting", title:"كل سنة وانت طيب", text, at:new Date().toISOString()});
+  toast("التهنئة وصلت لـ "+o.p.name);
+}
+function personRow(p){
+  const cD = p.lastConfession ? daysBetween(parseYmd(p.lastConfession),TODAY) : null;
+  const vD = p.lastVisit ? daysBetween(parseYmd(p.lastVisit),TODAY) : null;
+  return h("li",{class:"click", tabindex:"0", onclick:()=>selectPerson(p.id), onkeydown:e=>{ if(e.key==="Enter") selectPerson(p.id); }},
+    h("div",{class:"person-line"}, avatar(p), h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, (p.onApp?"على البرنامج":"مش على البرنامج")+(p.phone?" · "+p.phone:"")))),
+    h("div",{class:"row"},
+      h("span",{class:"pill "+(cD===null||cD>CONFESS_DAYS?"warn":"ok")},"اعتراف: "+agoText(p.lastConfession)),
+      h("span",{class:"pill "+(vD===null||vD>VISIT_DAYS?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
+      p.request ? h("span",{class:"pill acc"},"طالب اعتراف") : null));
+}
+function priestPeople(all){
+  const q = (S.draft.q||"").trim();
+  const list = q ? all.filter(p => (p.name+" "+p.familyName+" "+p.phone+" "+p.area).includes(q)) : all;
+  const by = S.draft.groupBy || "family";
+  const groups = new Map();
+  for (const p of list){ const k = (by==="area" ? p.area : p.familyName) || ""; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
+  const keys = [...groups.keys()].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b,"ar"));
+  const wrap = h("div",{style:"display:grid;gap:18px"});
+  wrap.append(sectionHead("أولادي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; render(); }},"ضيف شخص مش على البرنامج")));
+  wrap.append(h("input",{id:"q", type:"search", placeholder:"دوّر بالاسم أو العيلة أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
+  wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"تجميع حسب:"),
+    [["family","العيلة"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
+    h("button",{class:"chip-btn", onclick:exportExcel},"تصدير Excel")));
+  if (S.sel) wrap.append(personDetail(all));
+  if (!list.length) wrap.append(h("div",{class:"empty"}, all.length ? "مفيش نتايج." : "لسه مفيش حد. لما حد من أولادك يفتح البرنامج ويكتب بياناته هيظهر هنا، أو ضيف شخص بنفسك."));
+  for (const k of keys){
+    wrap.append(h("section",null, h("div",{class:"family-head"}, k || (keys.length>1?"أفراد":"")), h("ul",{class:"list"}, groups.get(k).map(personRow))));
+  }
+  return wrap;
+}
+function personDetail(all){
+  const isNew = S.sel === "__new";
+  const p = isNew ? {id:"p_"+newId(), onApp:false, name:"", self:null} : all.find(x=>x.id===S.sel);
+  if (!p) return null;
+  const pr = (p.pr) || {};
+  const self = p.self || {};
+  const families = [...new Set(all.map(x=>x.familyName).filter(Boolean))];
+  const f = id => document.getElementById(id).value.trim();
+  const save = async () => {
+    const data = Object.assign({}, pr, {onApp:!!p.onApp, familyName:f("fFam"), lastConfession:f("fConf"), lastVisit:f("fVisit"), notes:f("fNotes"),
+      area:f("fArea"), address:f("fAddr"), job:f("fJob"), children:(S.draft.kids||[]).filter(k=>k.name.trim()).map(k=>({name:k.name.trim(), birthday:k.birthday||""}))});
+    if (!p.onApp || isNew){ Object.assign(data, {name:f("fName"), phone:f("fPhone"), birthday:f("fBirth"), wedding:f("fWed"), spouse:f("fSpouse")}); if(!data.name){ toast("اكتب الاسم الأول"); return; } }
+    delete data.id;
+    await Store.set("priest/main/people/"+p.id, data); toast("اتحفظ"); if (isNew) S.sel = p.id; render();
+  };
+  const quick = async (field) => {
+    const extra = {[field]:TODAY_S};
+    if (field==="lastConfession") extra.confessions = [...new Set([...(pr.confessions||[]), TODAY_S])].sort();
+    if (field==="lastVisit") extra.visits = [...(pr.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}];
+    await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp}, extra))); toast("اتسجل النهارده"); };
+  if (S.draft.kidsFor !== p.id){ S.draft.kidsFor = p.id; S.draft.kids = (pr.children||[]).map(k=>Object.assign({}, k)); }
+  const card = h("div",{class:"card detail", id:"detail"},
+    h("div",{class:"row between"}, h("div",{class:"person-line"}, isNew ? null : avatar(p,"lg"), h("div",{class:"who"}, h("h2",null, isNew ? "شخص جديد" : p.name),
+        isNew ? null : h("div",{class:"row", style:"margin-top:6px"}, photoPicker("prPhoto", p.photo ? "غيّر الصورة" : "ضيف صورة", async url => { await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, photo:url}))); toast("الصورة اتحفظت"); }),
+          pr.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, photo:""}))); toast("الصورة اتشالت"); }},"شيل الصورة") : null))),
+      h("button",{class:"btn sm quiet", onclick:()=>{ selectPersonClear(); }},"قفل")));
+  if (!isNew) card.append(h("div",{class:"row"},
+    h("button",{class:"btn sm", onclick:()=>quick("lastConfession")},"اعترف النهارده"),
+    h("button",{class:"btn sm ghost", onclick:()=>quick("lastVisit")},"افتقدته النهارده"),
+    p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
+  const ro = p.onApp && !isNew;
+  card.append(h("div",{class:"form"},
+    ro ? h("p",{class:"small muted"},"البيانات الشخصية كتبها بنفسه على البرنامج: ", [self.phone, self.birthday?"ميلاد "+fmtShort(self.birthday):"", self.wedding?"جواز "+fmtShort(self.wedding):"", self.spouse?"شريك الحياة: "+self.spouse:""].filter(Boolean).join(" · ") || "لسه ما كتبش.") :
+    h("div",{class:"two"},
+      h("label",null,"الاسم", h("input",{id:"fName", value:pr.name||""})),
+      h("label",null,"التليفون", h("input",{id:"fPhone", value:pr.phone||"", inputmode:"tel"})),
+      h("label",null,"عيد الميلاد", h("input",{id:"fBirth", type:"date", value:pr.birthday||""})),
+      h("label",null,"عيد الجواز", h("input",{id:"fWed", type:"date", value:pr.wedding||""})),
+      h("label",null,"اسم شريك الحياة", h("input",{id:"fSpouse", value:pr.spouse||""}))),
+    h("div",{class:"two"},
+      h("label",null,"العيلة (لربط الأسرة ببعض)", h("input",{id:"fFam", value:pr.familyName||"", list:"famList", placeholder:"مثلاً: عائلة مينا ومارينا"}), h("datalist",{id:"famList"}, families.map(x=>h("option",{value:x})))),
+      h("label",null,"آخر اعتراف", h("input",{id:"fConf", type:"date", value:pr.lastConfession||""})),
+      h("label",null,"آخر افتقاد", h("input",{id:"fVisit", type:"date", value:pr.lastVisit||""}))),
+    h("div",{class:"two"},
+      h("label",null,"المنطقة", h("input",{id:"fArea", value:pr.area||"", list:"areaList", placeholder:"عشان تجمّع القريبين من بعض"}), h("datalist",{id:"areaList"}, [...new Set(all.map(x=>x.area).filter(Boolean))].map(x=>h("option",{value:x})))),
+      h("label",null,"العنوان بالتفصيل", h("input",{id:"fAddr", value:pr.address||""})),
+      h("label",null,"الشغل", h("input",{id:"fJob", value:pr.job||""}))),
+    kidsEditor(),
+    h("label",null,"ملاحظات أبونا (المعترفين مابيشوفوهاش)", h("textarea",{id:"fNotes"}, pr.notes||"")),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:save},"حفظ"),
+      !isNew && !p.onApp ? h("button",{class:"btn quiet", onclick:async()=>{ await Store.del("priest/main/people/"+p.id); selectPersonClear(); toast("اتشال من القايمة"); }},"شيله من القايمة") : null)));
+  if (!isNew) card.append(historyBlock(p, pr));
+  if (p.familyName){
+    const fam = all.filter(x=>x.familyName===p.familyName && x.id!==p.id);
+    if (fam.length) card.append(h("p",{class:"small"}, "من نفس العيلة: ", fam.map(x=>x.name).join("، ")));
+  }
+  if (p.onApp && !isNew){
+    card.append(h("h3",null,"النوتة الروحية"), notebookGrid(S.selNotebook));
+    const last = S.selNotebook.slice(0,5);
+    card.append(last.length ? h("ul",{class:"list"}, last.map(n => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(n.date)),
+      h("span",{class:"small muted"}, NOTE_ITEMS.filter(([k])=>n.items&&n.items[k]).map(([,l])=>l).join("، ") || "ما سجلش حاجة"),
+      n.portion ? h("span",{class:"small"},"القراءة: "+n.portion) : null, n.reflection ? h("span",{class:"small"}, "«"+n.reflection+"»") : null),
+      n.metanias ? h("span",{class:"pill"}, arDigits(n.metanias)+" ميطانية") : null))) : h("div",{class:"empty"},"لسه ما سجلش في النوتة."));
+  }
+  return card;
+}
+function selectPersonClear(){ S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.sel=null; render(); }
+
+function priestRequests(all){
+  const reqs = all.filter(p=>p.request);
+  const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف"));
+  if (!reqs.length) wrap.append(h("div",{class:"empty"},"مفيش طلبات مستنية. لما حد يطلب ميعاد اعتراف هيظهر هنا."));
+  for (const p of reqs){
+    const idT = "t_"+p.id, idN = "n_"+p.id;
+    wrap.append(h("div",{class:"card"},
+      h("div",{class:"row between"}, h("h3",null,p.name), h("span",{class:"small muted"}, "طلب "+agoText(p.request.at))),
+      p.request.preferred ? h("p",null,"الميعاد اللي يناسبه: ", h("strong",null,p.request.preferred)) : null,
+      p.request.note ? h("p",{class:"muted"}, "«"+p.request.note+"»") : null,
+      h("div",{class:"form two"},
+        h("label",null,"حدد الميعاد", h("input",{id:idT, type:"datetime-local"})),
+        h("label",null,"رسالة معاه (اختياري)", h("input",{id:idN, placeholder:"مثلاً: في مكتب أبونا بعد عشية"}))),
+      h("div",{class:"row"},
+        h("button",{class:"btn", onclick:async()=>{
+          const when = document.getElementById(idT).value; if(!when){ toast("اختار الميعاد الأول"); return; }
+          const note = document.getElementById(idN).value.trim();
+          await Store.set("members/"+p.id+"/inbox/"+newId(), {type:"appointment", title:"ميعاد الاعتراف", when, text:note, reqId:p.request.id, at:new Date().toISOString()});
+          await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, {handledRequest:p.request.id, nextConfession:when})));
+          toast("الميعاد اتبعت لـ "+p.name);
+        }},"ابعت الميعاد"),
+        h("button",{class:"btn quiet", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, {handledRequest:p.request.id}))); toast("اتشال من الطلبات"); }},"تم من غير ميعاد"))));
+  }
+  const upcoming = all.filter(p=>p.pr && p.pr.nextConfession && new Date(p.pr.nextConfession) >= TODAY).sort((a,b)=>a.pr.nextConfession.localeCompare(b.pr.nextConfession));
+  if (upcoming.length) wrap.append(h("section",null, sectionHead("مواعيد جاية"), h("ul",{class:"list"}, upcoming.map(p => h("li",null,
+    h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted num"}, fmtWhen(p.pr.nextConfession))),
+    h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(p.pr.confessions||[]), TODAY_S])].sort()}))); toast("اتسجل الاعتراف"); }},"اعترف"))))));
+  return wrap;
+}
+function fmtWhen(s){ if(!s) return ""; const d = new Date(s); return WDAYS[d.getDay()]+" "+fmtG(d)+" · "+arDigits(pad(d.getHours()))+":"+arDigits(pad(d.getMinutes())); }
+
+function priestMeditations(all){
+  const onApp = all.filter(p=>p.onApp);
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("التأملات الروحية"));
+  const send = async () => {
+    const title = $("#mTitle").value.trim(), text = $("#mText").value.trim(), to = $("#mTo").value;
+    if (!text){ toast("اكتب التأمل الأول"); return; }
+    const doc = {title, text, at:new Date().toISOString(), date:TODAY_S};
+    if (to === "all") await Store.set("meditations/"+newId(), doc);
+    else await Store.set("members/"+to+"/inbox/"+newId(), Object.assign({type:"meditation"}, doc));
+    S.draft.mTitle=""; S.draft.mText=""; S.draft.medTo="all";
+    toast(to==="all" ? "التأمل وصل لكل الناس" : "التأمل وصل"); render();
+  };
+  wrap.append(h("div",{class:"card form"},
+    h("label",null,"يوصل لمين", h("select",{id:"mTo", onchange:e=>S.draft.medTo=e.target.value},
+      h("option",{value:"all"},"كل الناس على البرنامج"),
+      onApp.map(p=>h("option",{value:p.id, selected:S.draft.medTo===p.id},p.name)))),
+    h("label",null,"العنوان (اختياري)", h("input",{id:"mTitle", value:S.draft.mTitle||"", oninput:e=>S.draft.mTitle=e.target.value})),
+    h("label",null,"التأمل", h("textarea",{id:"mText", rows:"6", oninput:e=>S.draft.mText=e.target.value}, S.draft.mText||"")),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:send},"ابعت التأمل"),
+      h("span",{class:"small muted"},"التأمل الخاص بيوصل للشخص لوحده ومحدش تاني بيشوفه."))));
+  wrap.append(h("section",null, h("h3",null,"اللي اتبعت للكل"),
+    S.meditations.length ? h("div",{style:"display:grid;gap:14px"}, S.meditations.slice(0,10).map(m => h("div",{class:"card"}, meditationBlock(m),
+      h("div",null, h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("اتمسح"); }},"امسح"))))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
+  return wrap;
+}
+function priestReadings(){
+  const r = S.reading || {};
+  const fld = (id,label,rows) => h("label",null,label, h("textarea",{id, rows:String(rows||3)}, r[id]||""));
+  return h("div",{style:"display:grid;gap:16px"},
+    sectionHead("قراءات "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]),
+    h("div",{class:"card"}, h("p",null, (S.auto||(S.autoDb&&S.autoDb.v===2)) ? "✅ القطمارس والسنكسار بتوع النهارده نزلوا لوحدهم من katameros.app، وبيتحدّثوا كل يوم من غير ما حد يعمل حاجة." : S.autoLoading ? "بنزّل قراءات النهارده..." : "⚠️ مقدرتش أوصل لموقع القطمارس دلوقتي، فهتظهر القراءات اللي تكتبها تحت بدالها."),
+      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>loadAutoReadings(true)},"حدّث القراءات دلوقتي"))),
+    h("label",{class:"card form"},"كلمة منك تظهر تحت القراءات (اختياري)", h("textarea",{id:"note", rows:"3"}, r.note||""),
+      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ await Store.set("readings/"+TODAY_C.m+"-"+TODAY_C.d, Object.assign({}, clean(S.reading||{}), {note:document.getElementById("note").value.trim(), copticMonth:TODAY_C.m, copticDay:TODAY_C.d})); toast("اتحفظت"); }},"احفظ الكلمة"))),
+    h("h3",null,"لو النت مش شغال: اكتب القراءات بإيدك"),
+    h("p",{class:"muted small"},"القراءات اللي تحطها هنا بتظهر بس لو التحميل التلقائي ما اشتغلش. انسخها من ",
+      h("a",{href:"https://katamars.avabishoy.com/", target:"_blank", rel:"noopener"},"القطمارس"), " و",
+      h("a",{href:"https://st-takla.org/Full-Free-Coptic-Books/Synaxarium-or-Synexarion/index.html", target:"_blank", rel:"noopener"},"السنكسار"), "."),
+    h("div",{class:"card form"}, fld("synaxarium","سنكسار اليوم",6), fld("psalm","المزمور",2), fld("pauline","البولس",3), fld("catholic","الكاثوليكون",3), fld("acts","الإبركسيس",3), fld("gospel","الإنجيل",4),
+      h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+        const data = {copticMonth:TODAY_C.m, copticDay:TODAY_C.d, note:(S.reading&&S.reading.note)||""};
+        for (const k of ["synaxarium","psalm","pauline","catholic","acts","gospel"]) data[k] = document.getElementById(k).value.trim();
+        await Store.set("readings/"+TODAY_C.m+"-"+TODAY_C.d, data); toast("القراءات اتحفظت");
+      }},"احفظ القراءات"))),
+    h("h3",null,"معاينة"), readingCard(false));
+}
+
+
+const VISIT_TYPES = ["زيارة منزلية","مكالمة تليفون","مقابلة في الكنيسة","رسالة"];
+function kidsEditor(){
+  const kids = S.draft.kids || (S.draft.kids = []);
+  const box = h("div",{class:"form"}, h("span",{class:"small muted", style:"font-weight:600"},"الأبناء (أعياد ميلادهم بتظهر في أعياد الأسبوع)"));
+  kids.forEach((k,i) => box.append(h("div",{class:"kid-row"},
+    h("input",{id:"kidN"+i, value:k.name||"", placeholder:"اسم الابن/البنت", oninput:e=>k.name=e.target.value}),
+    h("input",{id:"kidB"+i, type:"date", value:k.birthday||"", oninput:e=>k.birthday=e.target.value}),
+    h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ kids.splice(i,1); render(); }},"شيل"))));
+  box.append(h("div",null, h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ kids.push({name:"",birthday:""}); render(); }},"+ ضيف ابن أو بنت")));
+  return box;
+}
+function historyBlock(p, pr){
+  const visits = [...(pr.visits||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  const conf = [...(pr.confessions||[])].sort().reverse();
+  const addVisit = async () => {
+    const date = $("#vDate").value || TODAY_S, type = $("#vType").value, note = $("#vNote").value.trim();
+    const vs = [...(pr.visits||[]), {date, type, note}];
+    const last = vs.map(v=>v.date).sort().pop();
+    await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, visits:vs, lastVisit:last}))); toast("الافتقاد اتسجل");
+  };
+  return h("div",{class:"form"},
+    h("h3",null,"سجل الافتقاد"),
+    h("div",{class:"two"},
+      h("label",null,"التاريخ", h("input",{id:"vDate", type:"date", value:TODAY_S, max:TODAY_S})),
+      h("label",null,"نوع الافتقاد", h("select",{id:"vType"}, VISIT_TYPES.map(t=>h("option",{value:t},t)))),
+      h("label",null,"ملاحظة", h("input",{id:"vNote", placeholder:"اختياري"}))),
+    h("div",null, h("button",{class:"btn sm", type:"button", onclick:addVisit},"سجّل الافتقاد")),
+    visits.length ? h("ul",{class:"list"}, visits.slice(0,6).map(v => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(v.date)), v.note ? h("span",{class:"small muted"}, v.note) : null), h("span",{class:"pill"}, v.type)))) : h("p",{class:"small muted"},"لسه مفيش افتقاد متسجل."),
+    h("h3",null,"سجل الاعتراف"),
+    conf.length ? h("p",{class:"small"}, "اعترف "+arDigits(conf.length)+" مرة متسجلة. آخر مرات: "+conf.slice(0,6).map(fmtShort).join("، ")) : h("p",{class:"small muted"},"لسه مفيش اعترافات متسجلة."));
+}
+function confessionChart(all){
+  const months = [];
+  for (let i=5;i>=0;i--){ const d = new Date(TODAY.getFullYear(), TODAY.getMonth()-i, 1); months.push({y:d.getFullYear(), m:d.getMonth(), n:0}); }
+  for (const p of all){
+    const dates = (p.confessions && p.confessions.length) ? p.confessions : (p.lastConfession ? [p.lastConfession] : []);
+    for (const s of dates){ const d = parseYmd(s); const b = months.find(x=>x.y===d.getFullYear() && x.m===d.getMonth()); if (b) b.n++; }
+  }
+  const max = Math.max(1, ...months.map(x=>x.n)), W=600, H=200, pad=28, bw=(W-pad*2)/months.length;
+  const colors = ["#3b82f6","#8b5cf6","#ec4899","#f97316","#14b8a6","#22c55e"];
+  const ns="http://www.w3.org/2000/svg", svg=document.createElementNS(ns,"svg");
+  svg.setAttribute("viewBox","0 0 "+W+" "+(H+30)); svg.setAttribute("role","img"); svg.setAttribute("aria-label","عدد الاعترافات في كل شهر");
+  const el=(t,a,txt)=>{ const e=document.createElementNS(ns,t); for(const k in a) e.setAttribute(k,a[k]); if(txt!=null) e.textContent=txt; svg.append(e); return e; };
+  el("line",{x1:pad,x2:W-pad,y1:H,y2:H,stroke:"currentColor","stroke-opacity":".15"});
+  months.forEach((b,i)=>{
+    const x = W-pad-(i+1)*bw+bw*.2, w = bw*.6, hgt = (H-30)*b.n/max, y = H-hgt;
+    el("rect",{x, y, width:w, height:Math.max(hgt, b.n?2:0), rx:8, fill:colors[i]});
+    el("text",{x:x+w/2, y:y-6, "text-anchor":"middle", "font-size":"15", "font-weight":"700", fill:"currentColor"}, arDigits(b.n));
+    el("text",{x:x+w/2, y:H+20, "text-anchor":"middle", "font-size":"13", fill:"currentColor", "fill-opacity":".65"}, GMONTHS[b.m]);
+  });
+  return svg;
+}
+
+/* ---- settings, backup, Excel (from the service program) ---- */
+const DEFAULT_VERSES = [
+  "إن اعترفنا بخطايانا فهو أمين وعادل حتى يغفر لنا خطايانا (١ يو ١: ٩)",
+  "تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم (مت ١١: ٢٨)",
+  "الرب راعيّ فلا يعوزني شيء (مز ٢٣: ١)",
+  "قلبًا نقيًا اخلق فيّ يا الله وروحًا مستقيمًا جدده في داخلي (مز ٥١: ١٠)",
+  "اعترفوا بعضكم لبعض بالزلات وصلّوا بعضكم لأجل بعض لكي تُشفوا (يع ٥: ١٦)",
+  "توبوا وارجعوا لتُمحى خطاياكم (أع ٣: ١٩)",
+  "اسهروا وصلّوا لئلا تدخلوا في تجربة (مت ٢٦: ٤١)",
+  "صلّوا بلا انقطاع (١ تس ٥: ١٧)",
+  "افرحوا في الرب كل حين (في ٤: ٤)",
+  "كنت مريضًا فزرتموني (مت ٢٥: ٣٦)"
+];
+function meInfo(){
+  const st = S.settings || {};
+  if (S.account){ const r = S.account.role;
+    return {name:S.account.name, photo: S.account.photo || (r==="user" && S.profile ? S.profile.photo : "") || (r==="priest" ? st.priestPhoto : "") || ""}; }
+  if (S.role === "priest") return {name: st.priestName || "أبونا", photo: st.priestPhoto || ""};
+  return {name: (S.profile && S.profile.name) || S.authName || "", photo: (S.profile && S.profile.photo) || ""};
+}
+function renderMe(){
+  const m = meInfo(), slot = $("#saintBox"); if (!slot) return;
+  const key = m.name+"|"+(m.photo||"").length; if (renderMe.key === key) return; renderMe.key = key;
+  const box = slot, img = $("#saintImg"), ini = $("#saintInit");
+  box.hidden = !m.name; box.title = m.name; $("#saintName").textContent = m.name;
+  if (m.photo){ img.src = m.photo; img.alt = "صورة " + m.name; img.hidden = false; ini.hidden = true; }
+  else { img.hidden = true; img.removeAttribute("src"); ini.hidden = false; ini.textContent = m.name.trim().charAt(0) || "؟";
+    const c = AV_COLORS[[...m.name].reduce((a,ch)=>a+ch.charCodeAt(0),0) % AV_COLORS.length];
+    ini.style.background = "linear-gradient(135deg,"+c[0]+","+c[1]+")"; }
+}
+function applySettings(){
+  const st = S.settings || {};
+  const title = st.title || "المتابعة الروحية";
+  $("#appTitle").textContent = title;
+  const hl = $("#heroLogo"), hc = $("#heroCross");
+  if (st.logo){ hl.src = st.logo; hl.hidden = false; hc.style.display = "none"; } else { hl.hidden = true; hc.style.display = ""; }
+  const verses = (st.verses && st.verses.length) ? st.verses : DEFAULT_VERSES;
+  const key = verses.join("|");
+  if (applySettings.key === key) return; applySettings.key = key;
+  const el = $("#verse");
+  const copy = () => h("div",{class:"tick-copy"}, ...verses.flatMap(v => [h("b",null,"✝"), h("span",null,v)]));
+  const c2 = copy(); c2.setAttribute("aria-hidden","true");
+  el.replaceChildren(copy(), c2);
+  el.style.setProperty("--tick-dur", Math.max(30, Math.round(verses.join("").length * 0.22)) + "s");
+}
+let clockTimer = null;
+function startWelcome(){
+  const hr = new Date().getHours(), g = hr < 12 ? "صباح الخير" : hr < 17 ? "مساء النور" : "مساء الخير";
+  $("#welcomeText").textContent = g + (S.authName ? " يا " + S.authName : "");
+  const tick = () => { const n = new Date();
+    $("#liveClock").textContent = "🕰️ " + n.toLocaleTimeString("ar-EG",{hour:"numeric", minute:"2-digit", hour12:true}); };
+  tick(); if (!clockTimer) clockTimer = setInterval(tick, 15000);
+  if (!window.__dayTimer) window.__dayTimer = setInterval(()=>{
+    const a = document.activeElement, typing = a && /INPUT|TEXTAREA/.test(a.tagName) && a.value;
+    if (new Date().getDate() !== TODAY.getDate() && !typing) location.reload(); }, 60000);
+}
+async function saveFile(filename, data, mime){
+  if (window.claude && window.claude.use){
+    const dl = await window.claude.use("downloads");
+    if (dl){ try { await dl.save({filename, data: data instanceof ArrayBuffer ? data : new Blob([data],{type:mime})}); return true; } catch(e){ if (e && e.code === "declined") return false; } }
+  }
+  try { const url = URL.createObjectURL(new Blob([data],{type:mime})); const a = h("a",{href:url, download:filename}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000); return true; }
+  catch(e){ toast("مقدرناش ننزل الملف"); return false; }
+}
+async function exportExcel(){
+  if (!window.XLSX){ toast("مكتبة Excel لسه ما اتحملتش، جرب تاني"); return; }
+  const rows = merged().map(p => ({"الاسم":p.name, "التليفون":p.phone, "العيلة":p.familyName, "المنطقة":p.area, "العنوان":p.address, "الشغل":p.job,
+    "عيد الميلاد":p.birthday, "عيد الجواز":p.wedding, "شريك الحياة":p.spouse, "الأبناء":(p.children||[]).map(c=>c.name+(c.birthday?" ("+c.birthday+")":"")).join("، "),
+    "آخر اعتراف":p.lastConfession, "مرات الاعتراف":(p.confessions||[]).length, "آخر افتقاد":p.lastVisit, "على البرنامج":p.onApp?"أيوه":"لأ"}));
+  const ws = XLSX.utils.json_to_sheet(rows); ws["!cols"] = Object.keys(rows[0]||{"الاسم":1}).map(()=>({wch:18}));
+  const wb = XLSX.utils.book_new(); wb.Workbook = {Views:[{RTL:true}]}; XLSX.utils.book_append_sheet(wb, ws, "أولادي");
+  const buf = XLSX.write(wb, {type:"array", bookType:"xlsx"});
+  if (await saveFile("أولادي-في-الاعتراف-"+TODAY_S+".xlsx", buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) toast("الملف اتنزل");
+}
+async function collectBackup(){
+  const docs = {};
+  const add = async (col) => { for (const d of await Store.list(col)){ const {id, ...rest} = d; docs[col+"/"+id] = rest; } };
+  for (const c of ["settings","meditations","readings","members","priest/main/people","accounts"]) await add(c);
+  for (const k of Object.keys(docs)) if (/^members\/[^/]+$/.test(k)){ await add(k+"/inbox"); await add(k+"/notebook"); }
+  const meta = await Store.get("priest/meta"); if (meta) docs["priest/meta"] = meta;
+  return {app:"ruhiya", version:1, created:new Date().toISOString(), docs};
+}
+// Restore writes only the app's own collections. Accounts come back only for an admin, and never the
+// signed-in admin's own record, so a restored file cannot change who is admin or lock the admin out.
+const RESTORE_OK = /^(settings\/app|meditations\/[^/]+|readings\/[^/]+|priest\/meta|priest\/main\/people\/[^/]+|members\/[^/]+(\/(inbox|notebook)\/[^/]+)?|accounts\/[^/]+)$/;
+async function restoreDocs(docs){
+  let n = 0;
+  for (const [k, v] of Object.entries(docs || {})){
+    if (!RESTORE_OK.test(k) || !v || typeof v !== "object") continue;
+    if (k.startsWith("accounts/") && (Store.mode === "cloud" || accRole() !== "admin" || k === "accounts/"+S.account.id)) continue;
+    await Store.set(k, v); n++;
+  }
+  if (S.account) await logAct("رجّع نسخة احتياطية ("+n+" سجل)");
+  return n;
+}
+function backupCard(){
+  const lb = S.meta && S.meta.lastBackup;
+  const restoreBox = h("div",{class:"form"});
+  return h("div",{class:"card form"}, h("h3",null,"💾 النسخة الاحتياطية"),
+    h("p",{class:"small "+(lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "muted" : ""), style: lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "" : "color:var(--warn);font-weight:600"}, lb ? "آخر نسخة احتياطية: "+fmtShort(lb)+" ("+agoText(lb)+")" : "لسه ماعملتش أي نسخة احتياطية."),
+    h("div",{class:"row"},
+      h("button",{class:"btn sm", onclick:async()=>{ const b = await collectBackup();
+        if (await saveFile("نسخة-احتياطية-المتابعة-الروحية-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("النسخة اتنزلت"); } }},"نزّل نسخة احتياطية كاملة"),
+      h("label",{class:"btn sm ghost", for:"stRestore", style:"cursor:pointer"},"رجّع من نسخة احتياطية"),
+      h("input",{id:"stRestore", type:"file", accept:".json,application/json", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+        r.onload=()=>{ let b; try { b = JSON.parse(r.result); } catch(_){ toast("الملف ده مش نسخة احتياطية سليمة"); return; }
+          if (!b || b.app!=="ruhiya" || !b.docs){ toast("الملف ده مش نسخة احتياطية من البرنامج ده"); return; }
+          const n = Object.keys(b.docs).length;
+          restoreBox.replaceChildren(h("div",{class:"warnbox"}, h("span",null,"هيترجع "+arDigits(n)+" سجل من نسخة "+fmtShort(b.created.slice(0,10))+" فوق البيانات الحالية. متأكد؟"),
+            h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ const n = await restoreDocs(b.docs); restoreBox.replaceChildren(); toast("رجع "+arDigits(n)+" سجل"); }},"أيوه رجّعها"),
+              h("button",{class:"btn sm quiet", onclick:()=>restoreBox.replaceChildren()},"إلغاء")))); };
+        r.readAsText(f); e.target.value=""; }})),
+    restoreBox);
+}
+function resetCard(){
+  const box = h("div",{class:"form"});
+  const ask = () => box.replaceChildren(h("div",{class:"reset-warn"},
+    h("p",null,h("strong",null,"⚠️ ده هيمسح كل حاجة: "),"أولاد الاعتراف، الطلبات، التأملات، النوتة، الرسائل، القراءات، الإعدادات، السجل، وكل الحسابات ما عدا حسابك إنت. مفيش رجوع غير من نسخة احتياطية."),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ const b = await collectBackup();
+      if (await saveFile("نسخة-قبل-التصفير-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("النسخة اتنزلت"); } }},"💾 نزّل نسخة احتياطية الأول")),
+    h("label",null,"اكتب كلمة «تصفير» للتأكيد", h("input",{id:"rsWord", autocomplete:"off"})),
+    h("label",null,"كلمة السر بتاعتك", pwInput("rsPw","كلمة السر","current-password")),
+    h("div",{class:"row"},
+      h("button",{class:"btn sm danger", onclick:async()=>{
+        if ($("#rsWord").value.trim() !== "تصفير"){ toast("اكتب كلمة «تصفير» بالظبط"); return; }
+        const me = await Store.get("accounts/"+S.account.id);
+        if (!me || !(await checkPw(me, $("#rsPw").value))){ toast("كلمة السر مش صح"); return; }
+        const keep = "accounts/"+S.account.id;
+        for (const k of [...Mem.data.keys()]) if (k !== keep) Mem.data.delete(k);
+        Mem.set(keep, Object.assign({}, me, {logins:me.logins||0}));
+        await Store.set("log/"+newId(), {at:new Date().toISOString(), who:S.account.name, role:"admin", action:"صفّر البرنامج"});
+        try { Object.keys(localStorage).filter(k=>k.startsWith("ruhiya_v2_")).forEach(k=>localStorage.removeItem(k)); } catch(e){}
+        toast("البرنامج اتصفّر"); if (Mem.flush) await Mem.flush(); setTimeout(()=>location.reload(), 300);
+      }},"🧹 صفّر البرنامج نهائي"),
+      h("button",{class:"btn sm quiet", onclick:()=>box.replaceChildren()},"إلغاء"))));
+  return h("div",{class:"card form danger-card"}, h("h3",null,"🧹 تصفير البرنامج"),
+    h("p",{class:"small muted"},"يرجّع البرنامج جديد ويمسح كل البيانات اللي على الجهاز، ويسيب حسابك إنت بس عشان تقدر تدخل."),
+    h("div",{class:"row"}, h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:ask},"تصفير البرنامج…")), box);
+}
+function priestSettings(){
+  const st = S.settings || {};
+  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"));
+  const saveSt = async (patch, msg) => { await Store.set("settings/app", clean(Object.assign({}, st, patch))); toast(msg||"اتحفظ"); };
+  wrap.append(h("div",{class:"card form"}, h("h3",null,"اسم البرنامج والشعار"),
+    h("label",null,"اسم البرنامج (بيظهر فوق وفي شاشة الدخول)", h("input",{id:"stTitle", value:st.title||"", placeholder:"المتابعة الروحية"})),
+    h("label",null,"اسم أبونا (بيظهر تحت شعار الكنيسة في شاشة الدخول)", h("input",{id:"stPriest", value:st.priestName||"", placeholder:"مثلاً: القمص فلان الفلاني"})),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({title:$("#stTitle").value.trim(), priestName:$("#stPriest").value.trim()})},"احفظ")),
+    h("div",{class:"row"}, st.logo ? h("img",{src:st.logo, alt:"الشعار الحالي", class:"hero-logo"}) : h("span",{class:"small muted"},"مفيش شعار للكنيسة لسه."),
+      h("label",{class:"btn sm ghost", for:"stLogo", style:"cursor:pointer"},"ارفع شعار الكنيسة"),
+      h("input",{id:"stLogo", type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 256, url=>saveSt({logo:url},"الشعار اتحفظ")); }}),
+      st.logo ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({logo:""},"الشعار اتشال")},"شيل الشعار") : null)));
+  wrap.append(h("div",{class:"card form"}, h("h3",null,"🖼️ صورة أبونا"),
+    h("div",{class:"row"}, avatar({name:st.priestName||"أبونا", photo:st.priestPhoto}),
+      photoPicker("stPriestPhoto", st.priestPhoto ? "غيّر صورة أبونا" : "ارفع صورة أبونا", url=>saveSt({priestPhoto:url},"صورة أبونا اتحفظت")),
+      st.priestPhoto ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({priestPhoto:""},"الصورة اتشالت")},"شيل") : null)));
+  wrap.append(h("div",{class:"card form"}, h("h3",null,"الآيات اللي بتلف فوق"),
+    h("label",null,"كل آية في سطر", h("textarea",{id:"stVerses", rows:"8"}, ((st.verses&&st.verses.length)?st.verses:DEFAULT_VERSES).join("\n"))),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({verses:$("#stVerses").value.split("\n").map(x=>x.trim()).filter(Boolean)},"الآيات اتحفظت")},"احفظ الآيات"),
+      h("button",{class:"btn sm quiet", onclick:()=>saveSt({verses:[]},"رجعت الآيات الأصلية")},"رجّع الآيات الأصلية"))));
+  if (S.account) wrap.append(myPasswordCard());
+  if (!S.account) wrap.append(backupCard());
+  wrap.append(h("div",{class:"card form"}, h("h3",null,"تصدير"),
+    h("p",{class:"small muted"},"نزّل قايمة أولادك ببياناتهم وتواريخ الاعتراف والافتقاد في ملف Excel."),
+    h("div",null, h("button",{class:"btn sm", onclick:exportExcel},"تصدير Excel"))));
+  return wrap;
+}
+function resizeImage(file, max, cb){
+  const img = new Image(), url = URL.createObjectURL(file);
+  img.onload = () => { const sc = Math.min(1, max/Math.max(img.width, img.height)); const c = document.createElement("canvas");
+    c.width = Math.round(img.width*sc); c.height = Math.round(img.height*sc); c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(url); cb(c.toDataURL("image/jpeg", .85)); };
+  img.onerror = () => toast("الصورة دي مش هتنفع");
+  img.src = url;
+}
+
+/* ---------- MEMBER ---------- */
+function memberTabs(){
+  const unread = S.inbox.filter(m => !S.draft.seen || m.at > S.draft.seen).length;
+  return [["today","النهارده"],["notebook","النوتة"],["confession","الاعتراف"],["inbox","الرسائل", S.tab==="inbox"?0:unread],["me","بياناتي"]];
+}
+function memberToday(){
+  const wrap = h("div",{style:"display:grid;gap:22px"});
+  const name = S.profile && S.profile.name ? S.profile.name.split(" ")[0] : "";
+  wrap.append(h("section",null, h("div",{class:"person-line"}, S.profile ? avatar(S.profile) : null, h("h2",null, (name ? "سلام ونعمة يا "+name : "سلام ونعمة"))),
+    h("p",{class:"muted"},"إحنا في "+SEASONS[SEASON].name+". "+(feastsOf(TODAY).length ? "النهارده "+feastsOf(TODAY).join(" و")+"." : ""))));
+  if (S.profileLoaded && !S.profile) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلاً بيك في البرنامج"),
+    h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. محدش غير أبونا بيشوفها."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"اكتب بياناتي"))));
+  const appt = S.inbox.find(m => m.type==="appointment" && new Date(m.when) >= TODAY);
+  if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,"ميعاد اعترافك"), h("p",{class:"num"}, fmtWhen(appt.when)), appt.text ? h("p",{class:"muted"},appt.text) : null));
+  const med = S.meditations[0], personal = S.inbox.find(m=>m.type==="meditation");
+  const pick = personal && (!med || personal.at > med.at) ? personal : med;
+  wrap.append(h("section",null, sectionHead("تأمل اليوم"), pick ? h("div",{class:"card"}, meditationBlock(pick), pick===personal ? h("span",{class:"pill acc", style:"width:max-content"},"مبعوت ليك مخصوص") : null) : h("div",{class:"empty"},"أبونا لسه ما بعتش تأمل النهارده.")));
+  const todayNote = S.notebook.find(n=>n.date===TODAY_S);
+  wrap.append(h("section",null, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), notebookGrid(S.notebook)));
+  wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(false)));
+  return wrap;
+}
+function notebookGrid(rows){
+  const by = new Map(rows.map(r=>[r.date,r]));
+  const cells = [];
+  for (let i=13;i>=0;i--){ const d=new Date(TODAY); d.setDate(d.getDate()-i); const s=ymd(d), r=by.get(s);
+    const n = r && r.items ? Object.values(r.items).filter(Boolean).length : 0;
+    cells.push(h("div",{class:"day num "+(n>=5?"l3":n>=3?"l2":n>=1?"l1":""), title:fmtShort(s)+": "+arDigits(n)+" من "+arDigits(NOTE_ITEMS.length)}, arDigits(d.getDate()))); }
+  return h("div",{style:"display:grid;gap:6px"}, h("div",{class:"days"}, cells), h("span",{class:"small muted"},"آخر ١٤ يوم. اللون الأغمق يعني ممارسات أكتر."));
+}
+function memberNotebook(){
+  const date = S.draft.nbDate || TODAY_S;
+  const ex = S.notebook.find(n=>n.date===date) || {};
+  if (!S.draft.nb || S.draft.nb.date !== date) S.draft.nb = {date, items:Object.assign({}, ex.items||{}), metanias:ex.metanias||"", portion:ex.portion||"", reflection:ex.reflection||""};
+  const nb = S.draft.nb;
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("النوتة الروحية",
+    h("input",{id:"nbDate", type:"date", value:date, max:TODAY_S, style:"width:auto", onchange:e=>{ S.draft.nbDate=e.target.value; S.draft.nb=null; render(); }})));
+  wrap.append(h("p",{class:"small muted"}, "سجّل ممارساتك كل يوم. أبونا بيقدر يشوف النوتة عشان يتابعك، ومحدش غيره بيشوفها."));
+  wrap.append(h("div",{class:"checks"}, NOTE_ITEMS.map(([k,l]) => h("label",{class:"check"},
+    h("input",{type:"checkbox", id:"nb_"+k, checked:!!nb.items[k], onchange:e=>{ nb.items[k]=e.target.checked; }}), l))));
+  wrap.append(h("div",{class:"card form"},
+    h("div",{class:"two"},
+      h("label",null,"عدد الميطانيات", h("input",{id:"nbMet", type:"number", min:"0", inputmode:"numeric", value:nb.metanias, oninput:e=>nb.metanias=e.target.value})),
+      h("label",null,"قريت إيه في الكتاب المقدس", h("input",{id:"nbPor", value:nb.portion, placeholder:"مثلاً: يوحنا ١٥", oninput:e=>nb.portion=e.target.value}))),
+    h("label",null,"محاسبة النفس / آية لمستني", h("textarea",{id:"nbRef", oninput:e=>nb.reflection=e.target.value}, nb.reflection)),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+      await Store.set("members/"+S.uid+"/notebook/"+date, {date, items:nb.items, metanias:Number(nb.metanias)||0, portion:nb.portion.trim(), reflection:nb.reflection.trim()});
+      toast("النوتة اتحفظت. ربنا يقويك");
+    }},"احفظ النوتة"))));
+  wrap.append(h("section",null, h("h3",null,"متابعتك"), notebookGrid(S.notebook)));
+  return wrap;
+}
+const PREP_GUIDE = [
+  ["🕯️","صلّي قبل الاعتراف واطلب من ربنا ينوّر قلبك ويكشف لك أخطاءك."],
+  ["🪞","حاسب نفسك بصدق عن الفترة من آخر اعتراف لحد النهارده."],
+  ["✝️","علاقتك بربنا: الصلاة، الإنجيل، القداس، التناول، تنفيذ الوصايا، والتوبة."],
+  ["🏠","علاقتك بالناس: البيت، الأسرة، الأصدقاء، الزملاء، المحبة، التسامح، والغضب."],
+  ["💬","كلامك وتصرفاتك: الكذب، الإدانة، النميمة، الشتيمة، الغضب، والكلام الجارح."],
+  ["💭","أفكارك ومشاعرك: الكبرياء، الحسد، الغيرة، الحقد، الشهوة، والنجاسة."],
+  ["⚖️","أمانتك ومسؤولياتك: الصدق، الأمانة في المال والعمل، والوفاء بوعودك."],
+  ["📝","اكتب خطاياك في ورقة عشان ما تنساش حاجة وإنت بتعترف."],
+  ["🗣️","اعترف بخطاياك بوضوح وصراحة من غير تبرير لنفسك أو لوم على غيرك."],
+  ["💧","اندم على الخطية واعزم على تركها، واطلب إرشاد أب اعترافك إزاي تغلبها."],
+  ["👂","اسمع النصيحة والتدريب الروحي اللي يديهولك أب الاعتراف وحاول تنفّذه."],
+  ["🌅","بعد الاعتراف اشكر ربنا وابدأ من جديد، وما تيأسش لو بتحارب خطية متكررة."]];
+const PREP_BEFORE = `أيها الآب القدوس، الذي يحب رجوع الخطاة، وقد وعدت أنك مستعد لقبولهم، انظر يا رب الآن إلى نفس خاطئة قد ضلت وتاهت في أودية العصيان زمانًا طويلًا، فيه تمررت وشعرت بشقاوتها، لبعدها عن ينبوع خلاصها.
+
+الآن تتقدم إليك، تطلب منك تطهيرها من الأدناس والأقذار التي توحلت فيها. اقبلها ولا ترفضها، فإنك إن نظرت إليها بحنوك وعاملتها برحمتك تنقت وخلصت.
+
+امنحني يا رب نعمة بها أتقوى على الدنو منك بإيمان وطيد ورجاء تام، لأعترف بذنوبي وأكره العودة إليها. وليبكتني روحك على آثامي.
+
+أنر قلبي لأرى كم أخطأت وأسأت وتركت وأهملت، وامنحني عزمًا على عدم الرجوع إلى الإثم، لأثبت في حفظ وصاياك، وأحيا لمجد اسمك القدوس.
+
+آمين.`;
+const PREP_AFTER = `أشكر صلاحك أيها الآب محب البشر، لأنك لم تشأ هلاكي، بل أيقظتني من غفلتي، وهديتني إلى طريقك، ورددتني من وادي الهلاك إلى حمى حصنك الأمين. فاملأني بالرجاء والإيمان.
+
+أقبلت إليك يا رب كالمريض إلى الطبيب الشافي، وكالمفتقر الجائع إلى الغذاء المشبع، وكالعطشان إلى ينابيع المياه الحية، وكالفقير إلى مصدر الغنى، وكالخاطئ إلى المخلص، وكالمائت إلى ينبوع الحياة.
+
+لأنك خلاصي، وطبيبي، وقوتي، وتعزيتي، وسعادتي، وفيك راحتي.
+
+فأعنّي واحفظني وسيّج حولي، وعلّمني أن أضع بين يديك كل إرادتي، لأسير حسب ما تشاء.
+
+أعن ضعفي كي أثبت وأدوم أمينًا لك إلى النهاية.
+
+آمين.`;
+const PREP_REMIND = [["🤍","ما تخافش وما تتكسفش تعترف بخطاياك."],["🎯","ما تنشغلش بخطايا غيرك، ركّز على نفسك."],["🩺","ما تكتفيش بذكر الخطية، اطلب علاجها والتغيير الحقيقي."],["🌱","اخرج من الاعتراف برجاء في رحمة ربنا، وبقرار عملي تبدأ حياة جديدة."]];
+function prepBlock(){
+  const pts = list => h("ul",{class:"prep-list"}, list.map(([e,t]) => h("li",null, h("span",{class:"emo"},e), h("span",null,t))));
+  const sec = (emo, title, sub, body, open) => h("details",{class:"card prep", open},
+    h("summary",null, h("span",{class:"prep-emo"},emo), h("span",{class:"prep-t"}, h("strong",null,title), sub ? h("span",{class:"small muted"},sub) : null)), body);
+  return h("section",null, sectionHead("استعداد للاعتراف"),
+    sec("🧭","مرشد الاعتراف","راجع نفسك نقطة نقطة", pts(PREP_GUIDE), true),
+    sec("🙏","صلاة قبل الاعتراف","من كتاب الصلوات القبطي", h("div",{class:"prayer"}, PREP_BEFORE)),
+    sec("🕊️","صلاة بعد الاعتراف","من كتاب الصلوات القبطي", h("div",{class:"prayer"}, PREP_AFTER)),
+    sec("✨","تذكّر قبل ما تدخل لأب الاعتراف","", pts(PREP_REMIND)));
+}
+function memberConfession(){
+  const req = S.profile && S.profile.request;
+  const answered = req && S.inbox.find(m=>m.type==="appointment" && m.reqId===req.id);
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("حجز اعتراف"));
+  if (!S.profile){ wrap.append(h("div",{class:"empty"},"اكتب بياناتك الأول من «بياناتي» عشان أبونا يعرفك."), prepBlock()); return wrap; }
+  if (req && !answered) wrap.append(h("div",{class:"card detail"}, h("h3",null,"طلبك وصل لأبونا"), h("p",{class:"muted"}, "بعته "+agoText(req.at)+(req.preferred?" · يناسبك: "+req.preferred:"")+". أبونا هيحدد الميعاد ويبعتهولك هنا في الرسائل.")));
+  if (answered) wrap.append(h("div",{class:"card detail"}, h("h3",null,"ميعادك"), h("p",{class:"num"}, fmtWhen(answered.when)), answered.text ? h("p",{class:"muted"},answered.text) : null));
+  wrap.append(h("div",{class:"card form"},
+    h("h3",null, req ? "اطلب ميعاد تاني" : "اطلب ميعاد اعتراف"),
+    h("label",null,"إمتى يناسبك", h("input",{id:"rPref", placeholder:"مثلاً: الخميس بعد القداس أو السبت بالليل"})),
+    h("label",null,"حاجة تحب أبونا يعرفها (اختياري)", h("textarea",{id:"rNote", rows:"3"})),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+      const r = {id:newId(), preferred:$("#rPref").value.trim(), note:$("#rNote").value.trim(), at:TODAY_S};
+      await Store.update("members/"+S.uid, {request:r}); toast("الطلب وصل لأبونا");
+    }},"ابعت الطلب"))), prepBlock());
+  return wrap;
+}
+function memberInbox(){
+  if (S.inbox[0]) S.draft.seen = S.inbox[0].at;
+  const kind = {appointment:"ميعاد", greeting:"تهنئة", meditation:"تأمل"};
+  return h("div",{style:"display:grid;gap:14px"}, sectionHead("رسائل أبونا"),
+    S.inbox.length ? S.inbox.map(m => h("div",{class:"card"},
+      h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(m.at.slice(0,10)) : "")),
+      m.type==="appointment" ? h("div",null, h("h3",null,"ميعاد الاعتراف"), h("p",{class:"num"}, fmtWhen(m.when)), m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
+    : h("div",{class:"empty"},"مفيش رسائل لسه. أي تأمل أو ميعاد أو تهنئة من أبونا هيوصلك هنا."));
+}
+function memberMe(){
+  const p = S.profile || {};
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead(S.profile ? "بياناتي" : "أهلاً بيك"));
+  if (!S.profile) wrap.append(h("p",null,"اكتب بياناتك عشان أبونا يعرفك ويفتكرك في أعيادك. بياناتك بيشوفها أبونا بس، ومحدش من الناس التانية يعرف إنك على البرنامج."));
+  const shown = Object.assign({}, p, S.draft.photo ? {photo:S.draft.photo} : {}, {name:p.name||S.draft.loginName||""});
+  wrap.append(h("div",{class:"card photo-box"}, avatar(shown,"lg"), h("div",{class:"form", style:"gap:6px"}, h("strong",null,"صورتك"),
+    h("span",{class:"small muted"},"بتظهر جنب اسمك، وأبونا بس اللي بيشوفها."),
+    h("div",{class:"row"}, photoPicker("pPhoto", shown.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
+      if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); toast("صورتك اتحفظت"); } else { S.draft.photo = url; render(); toast("هتتحفظ لما تدوس احفظ"); } }),
+      shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); toast("الصورة اتشالت"); }},"شيل الصورة") : null))));
+  wrap.append(h("div",{class:"card form"}, h("div",{class:"two"},
+    h("label",null,"الاسم", h("input",{id:"pName", value:p.name||S.draft.loginName||(S.account && S.account.name)||"", autocomplete:"name"})),
+    h("label",null,"التليفون", h("input",{id:"pPhone", value:p.phone||"", inputmode:"tel"})),
+    h("label",null,"عيد الميلاد", h("input",{id:"pBirth", type:"date", value:p.birthday||""})),
+    h("label",null,"عيد الجواز (لو متجوز)", h("input",{id:"pWed", type:"date", value:p.wedding||""})),
+    h("label",null,"اسم شريك الحياة", h("input",{id:"pSpouse", value:p.spouse||""}))),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+      const data = Object.assign({}, p, {name:$("#pName").value.trim(), phone:$("#pPhone").value.trim(), birthday:$("#pBirth").value, wedding:$("#pWed").value, spouse:$("#pSpouse").value.trim()});
+      delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
+      if (S.draft.photo && !data.photo) data.photo = S.draft.photo;
+      if (!data.joined) data.joined = TODAY_S;
+      try { await Store.set("members/"+S.uid, data); toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
+      catch(e){ toast("مقدرناش نحفظ. اتأكد إن أبونا ضافك على البرنامج."); }
+    }},"احفظ"))));
+  if (S.account && S.account.role === "user") wrap.append(myPasswordCard());
+  return wrap;
+}
+
+/* ---------- render ---------- */
+const ICONS = {
+  today:"M12 3c1.6 2 1.6 3.6 0 5.2-1.6-1.6-1.6-3.2 0-5.2zM9 10.5h6V21H9zM7 21h10",
+  people:"M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2.5 20c0-3.2 2.5-5.6 5.5-5.6s5.5 2.4 5.5 5.6M16 5.2a3 3 0 0 1 0 5.6M18 14.6c2.2.6 3.5 2.7 3.5 5.4",
+  requests:"M4 6h16v14H4zM4 10h16M8 3v5M16 3v5", confession:"M4 6h16v14H4zM4 10h16M8 3v5M16 3v5M12 13v5M9.5 15.5h5",
+  meditations:"M3 5h7a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H3zM21 5h-7a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h7z",
+  readings:"M6 3h9l3 3v15H6zM12 8v9M9 11h6", notebook:"M6 3h12v18H6zM9 7h6M9 11h6M9 15h4",
+  inbox:"M3 6h18v12H3zM3 7l9 6 9-6", me:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4.4 3.6-8 8-8s8 3.6 8 8",
+  cake:"M4 21h16v-8H4zM4 16c2 1.5 4 1.5 6 0s4-1.5 6 0 3 1 4 0M12 13V9M12 4c1 1 1 2 0 3-1-1-1-2 0-3",
+  bell:"M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 21h4", newuser:"M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21c0-4 3-7 7-7s7 3 7 7M19 8v6M16 11h6",
+  visit:"M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
+  settings:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
+};
+const ICON_COLORS = {admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
+const EMOJI = {admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
+function icon(k, size){
+  return h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||"#64708a"), "aria-hidden":"true"}, h("span",{class:"emo"}, EMOJI[k]||"✝️")); }
+
+function render(){
+  if (!S.ready) return;
+  const priest = S.role === "priest", sup = S.role === "supervisor";
+  const all = priest ? merged() : [];
+  const tabs = priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
+  if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
+  $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
+  $("#roleLabel").textContent = S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
+  renderNotice(); renderMe();
+  let view;
+  if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
+  else if (priest) view = ({today:priestToday, people:priestPeople, requests:priestRequests, meditations:priestMeditations, readings:priestReadings, settings:priestSettings, admin:adminView}[S.tab])(all);
+  else if (sup) view = ({admin:adminView, meditations:priestMeditations, readings:priestReadings}[S.tab])([]);
+  else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
+  $("#app").replaceChildren(view);
+}
+function renderNotice(){
+  const slot = $("#noticeSlot"); slot.replaceChildren();
+  const roleBtns = () => h("div",{class:"row"},
+    h("button",{class:"btn sm "+(S.role==="priest"?"on":""), onclick:()=>switchRole("priest")},"شاشة أبونا"),
+    h("button",{class:"btn sm "+(S.role==="member"?"on":""), onclick:()=>switchRole("member")},"شاشة المعترف"));
+  if (Store.mode === "cloud"){
+    const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
+    const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
+      : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
+    const staff = S.account && ["admin","priest"].includes(S.account.role);
+    if (lic || staff) slot.append(h("div",{class:"notice"}, lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), staff ? roleBtns() : null));
+  } else if (Store.mode === "demo"){
+    slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
+      h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"ارجع للبيانات الحقيقية") : null)));
+  } else if (S.isOwner){
+    slot.append(h("div",{class:"notice"}, h("span",null, S.role==="priest" ? "إنت شايف شاشة أبونا." : "دي معاينة لشاشة المعترف ببياناتك إنت."),
+      h("div",{class:"row"}, roleBtns(), h("button",{class:"btn sm quiet", onclick:()=>goDemo()},"جرّب بأمثلة"))));
+  }
+}
+function switchRole(r){
+  S.role = r; S.tab = null; S.sel = null; S.draft = {};
+  if (Store.mode === "demo") S.uid = r==="member" ? "demo-me" : S.uid;
+  else S.uid = S.account ? (r === "member" ? "preview-"+S.account.id : S.account.id) : S.realUid;
+  S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[];
+  subscribe(); render();
+}
+function goDemo(){ Store.mode="demo"; seedDemo(); S.uid = S.role==="member" ? "demo-me" : S.realUid; S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[]; S.tab=null; subscribe(); render(); }
+function goLive(){ Store.mode="live"; S.uid=S.realUid; S.role = S.isOwner ? "priest" : "member"; S.tab=null; S.sel=null; S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[]; subscribe(); render(); }
+
+
+/* ---------- login gate ---------- */
+// only the SHA-256 of the activation key ships in the file
+const ACTIVATION_HASH = "c50b817c6b0af67b359b63dc114847797afbfd5e047ae88aea07fd3a0b74e5e7";
+const DEV = {name:"Pinshti & Solutions Software", phone:"01507261628", logo:"data:image/jpeg;base64,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"};
+async function sha256(t){ const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+async function keyOk(k){ return await sha256(String(k||"").trim()) === ACTIVATION_HASH; }
+/* Passwords: PBKDF2-SHA256 with a per-password salt. Records saved by older versions (single salted SHA-256)
+   still verify and are upgraded on the next successful login. */
+const KDF_ITER = 120000;
+async function pbkdf2(pw, salt, iter){
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({name:"PBKDF2", salt:new TextEncoder().encode(salt), iterations:iter, hash:"SHA-256"}, km, 256);
+  return [...new Uint8Array(bits)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function makeHash(pw){ const salt = newId()+newId(); return {salt, hash: await pbkdf2(pw, salt, KDF_ITER), kdf:"pbkdf2", iter:KDF_ITER}; }
+async function checkPw(rec, pw){
+  if (!rec || !rec.hash || !rec.salt) return false;
+  if (rec.kdf === "pbkdf2") return await pbkdf2(pw, rec.salt, rec.iter || KDF_ITER) === rec.hash;
+  return await sha256(rec.salt+"|"+pw) === rec.hash;
+}
+/* Login throttling: after 5 wrong tries the gate waits, doubling each further round of 5 (max 10 minutes). */
+const LOCK_KEY = "ruhiya_lock";
+function lockGet(){ try { return JSON.parse(localStorage.getItem(LOCK_KEY)||"null") || {n:0, until:0}; } catch(e){ return lockGet.mem || {n:0, until:0}; } }
+function lockPut(o){ lockGet.mem = o; try { localStorage.setItem(LOCK_KEY, JSON.stringify(o)); } catch(e){} }
+function lockWait(){ const l = lockGet(); return Math.max(0, Math.ceil((l.until - Date.now())/1000)); }
+function lockFail(){ const l = lockGet(); l.n = (l.n||0)+1; if (l.n >= 5) l.until = Date.now() + Math.min(600, 30 * 2 ** Math.floor((l.n-5)/5)) * 1000; lockPut(l); }
+function lockOk(){ lockPut({n:0, until:0}); }
+const waitMsg = s => "محاولات كتير غلط. استنى "+arDigits(s)+" ثانية وجرّب تاني.";
+const authPath = () => "data/users/"+S.uid+"/auth";
+const okKey = () => Store.mode === "local" || Store.mode === "cloud" ? "ruhiya_ok_"+Store.mode : "ruhiya_ok_"+Store.mode+"_"+S.uid;
+function ssGet(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
+function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k,v); } catch(e){} }
+function devBlock(withLogo){
+  return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
+    h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
+    h("div",{class:"dev-card"},
+      h("img",{class:"dev-logo", src:DEV.logo, alt:"شعار "+DEV.name}),
+      h("div",{class:"dev-text"},
+        h("span",{class:"dev-label"},"تصميم وتطوير · Created by"),
+        h("strong",null,DEV.name),
+        h("a",{class:"dev-phone", href:"tel:"+DEV.phone}, h("span",{class:"emo"},"📞"), h("span",{dir:"ltr"},DEV.phone)))));
+}
+function churchMark(){
+  const st = S.settings || {};
+  if (st.logo) return h("img",{class:"gate-church", src:st.logo, alt:"شعار الكنيسة"});
+  const box = h("div",{class:"gate-cross", "aria-hidden":"true"}); box.innerHTML = document.getElementById("heroCross").outerHTML.replace('id="heroCross"','').replace('style="display: none;"',''); return box;
+}
+async function showGate(){
+  if (Store.mode === "local") return showLocalGate();
+  if (Store.mode === "cloud") return showCloudGate();
+  document.body.classList.add("locked");
+  const gate = $("#gate"); gate.hidden = false;
+  let mode = "login", saved = null;
+  try { saved = await Store.get(authPath()); } catch(e){ saved = null; }
+  if (!saved) mode = "create";
+  const draw = () => {
+    const err = h("p",{class:"gate-err", role:"alert"});
+    const pwField = (id, ph, ac) => { const inp = h("input",{id, type:"password", placeholder:ph, autocomplete:ac, required:true});
+      return h("div",{class:"pw"}, inp, h("button",{type:"button", class:"eye", title:"إظهار كلمة السر", "aria-label":"إظهار كلمة السر", onclick:e=>{ const b=e.currentTarget; inp.type = inp.type==="password"?"text":"password"; const shown = inp.type!=="password"; b.textContent = shown?"🙈":"👁️"; b.title = b.ariaLabel = shown?"إخفاء كلمة السر":"إظهار كلمة السر"; }},"👁️")); };
+    const form = h("form",{class:"form", onsubmit:async e=>{
+      e.preventDefault(); err.textContent="";
+      const name = $("#gName").value.trim(), pw = $("#gPw").value;
+      if (!name || !pw){ err.textContent = "اكتب الاسم وكلمة السر."; return; }
+      if (mode === "create"){
+        if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+        if (pw !== $("#gPw2").value){ err.textContent = "كلمتين السر مش زي بعض."; return; }
+        if (Store.mode === "local" && !(await keyOk($("#gKey").value))){ err.textContent = "مفتاح التفعيل غلط. اطلبه من المطوّر على 01507261628."; return; }
+        try { await Store.set(authPath(), Object.assign({name, at:new Date().toISOString()}, await makeHash(pw))); }
+        catch(_){ err.textContent = "مقدرناش نحفظ الحساب. اتأكد إن أبونا ضافك على البرنامج."; return; }
+        S.draft.loginName = name;
+      } else {
+        const w = lockWait(); if (w){ err.textContent = waitMsg(w); return; }
+        const good = saved && name.toLowerCase() === String(saved.name||"").toLowerCase() && await checkPw(saved, pw);
+        if (!good){ lockFail(); err.textContent = "الاسم أو كلمة السر مش صح."; $("#gPw").value=""; return; }
+        lockOk();
+        if (saved.kdf !== "pbkdf2"){ try { await Store.set(authPath(), Object.assign({}, clean(saved), await makeHash(pw))); } catch(_){} }
+      }
+      S.authName = name; ssSet(okKey(), name); unlock();
+    }},
+      h("label",null,"الاسم", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك", value: saved&&mode==="login" ? "" : ""})),
+      h("label",null,"كلمة السر", pwField("gPw","كلمة السر", mode==="create"?"new-password":"current-password")),
+      mode==="create" ? h("label",null,"اكتب كلمة السر تاني", pwField("gPw2","تأكيد كلمة السر","new-password")) : null,
+      mode==="create" && Store.mode==="local" ? h("label",null,"مفتاح التفعيل", h("input",{id:"gKey", autocomplete:"off", placeholder:"المفتاح اللي أخدته من المطوّر"})) : null,
+      err,
+      h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"}, mode==="create" ? "إنشاء حسابي ودخول" : "دخول"));
+    gate.replaceChildren(h("div",{class:"gate-card"},
+      churchMark(),
+      h("div",null, h("h1",null,(S.settings&&S.settings.title)||"المتابعة الروحية"),
+        S.settings && S.settings.priestName ? h("p",{class:"gate-priest"}, S.settings.priestName) : null,
+        h("p",{class:"muted small"}, mode==="create" ? "أول مرة؟ اختار اسم وكلمة سر عشان تدخل بيهم بعد كده." : "أهلاً بيك. ادخل باسمك وكلمة السر.")),
+      Store.mode==="demo" ? h("p",{class:"small", style:"background:var(--surface-2);border-radius:10px;padding:6px 10px"},"وضع التجربة: اكتب أي اسم وكلمة سر.") : null,
+      form,
+      mode==="login" ? h("button",{class:"linkish", type:"button", onclick:async()=>{
+        await Store.del(authPath()); saved=null; mode="create"; draw(); toast("اختار كلمة سر جديدة");
+      }},"نسيت كلمة السر؟ اعمل واحدة جديدة") : null,
+      devBlock()));
+    const n = $("#gName"); if (n) n.focus();
+  };
+  draw();
+}
+function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); document.body.classList.remove("locked"); S.ready = true; subscribe(); render(); startWelcome(); bumpIdle(); }
+const IDLE_MS = 3*60*1000; let idleTimer = null;
+function bumpIdle(){ if (document.body.classList.contains("locked")) return; clearTimeout(idleTimer); idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, IDLE_MS); }
+["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
+function logout(){ clearTimeout(idleTimer); if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+/* ---------- accounts & roles (standalone file) ----------
+   On the shared device every person signs in with their own account. The admin follows the program and sets
+   passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
+   a user gets the confessee screens. Passwords are kept only as salted SHA-256 hashes. */
+const ROLES = {
+  admin:{label:"أدمن", emo:"👑", note:"كل الصلاحيات ومتابعة البرنامج"},
+  priest:{label:"أبونا", emo:"⛪", note:"شاشات أبونا وأولاده في الاعتراف"},
+  supervisor:{label:"مشرف", emo:"🛡️", note:"متابعة الحسابات وكلمات سر المستخدمين"},
+  user:{label:"مستخدم", emo:"🙋", note:"شاشة المعترف بس"}};
+const viewFor = role => (role==="admin"||role==="priest") ? "priest" : role==="supervisor" ? "supervisor" : "member";
+const accRole = () => S.account ? S.account.role : null;
+const PW_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
+let PW_MIN = 4;
+const pwShort = () => "كلمة السر لازم تكون "+arDigits(PW_MIN)+" حروف أو أرقام على الأقل";
+function genPassword(){ const a = new Uint32Array(6); crypto.getRandomValues(a); return [...a].map(n=>PW_CHARS[n % PW_CHARS.length]).join(""); }
+const hashed = makeHash;
+async function listAccounts(){ try { return await Store.list("accounts"); } catch(e){ return []; } }
+const findAcc = (list, name) => list.find(a => String(a.name||"").trim().toLowerCase() === String(name||"").trim().toLowerCase());
+async function logAct(action, who){
+  const a = S.account || {};
+  try { await Store.set("log/"+newId(), {at:new Date().toISOString(), who: who || a.name || "", role: a.role || "", action}); } catch(e){}
+  if (Store.mode === "local"){ const logs = [...Mem.data.entries()].filter(([k])=>k.startsWith("log/"));
+    if (logs.length > 400){ logs.sort((x,y)=>String(x[1].at).localeCompare(String(y[1].at))); logs.slice(0, logs.length-300).forEach(([k])=>Mem.data.delete(k)); Mem.save && Mem.save(); } }
+}
+function applyAccount(acc){
+  S.account = acc; S.uid = acc.id; S.authName = acc.name; S.role = viewFor(acc.role);
+  S.tab = null; S.sel = null; S.draft = {}; S.profile = null; S.profileLoaded = false; S.inbox = []; S.notebook = [];
+}
+async function migrateLegacy(){
+  // the single priest login from earlier versions becomes the first admin, keeping its data under the same id
+  const old = await Store.get("data/users/local-me/auth").catch(()=>null);
+  if (!old || !old.hash) return [];
+  await Store.set("accounts/local-me", {name:old.name, role:"admin", salt:old.salt, hash:old.hash, active:true, createdAt:old.at||new Date().toISOString(), logins:0});
+  await Store.del("data/users/local-me/auth");
+  return listAccounts();
+}
+function pwInput(id, ph, ac){
+  const inp = h("input",{id, type:"password", placeholder:ph, autocomplete:ac, required:true});
+  return h("div",{class:"pw"}, inp, h("button",{type:"button", class:"eye", title:"إظهار كلمة السر", "aria-label":"إظهار كلمة السر", onclick:e=>{
+    const b = e.currentTarget; inp.type = inp.type==="password" ? "text" : "password"; const shown = inp.type !== "password";
+    b.textContent = shown ? "🙈" : "👁️"; b.title = b.ariaLabel = shown ? "إخفاء كلمة السر" : "إظهار كلمة السر"; }},"👁️"));
+}
+async function showLocalGate(){
+  document.body.classList.add("locked");
+  const gate = $("#gate"); gate.hidden = false;
+  let accounts = await listAccounts();
+  if (!accounts.length) accounts = await migrateLegacy();
+  let mode = accounts.length ? "login" : "create";
+  const head = sub => [churchMark(), h("div",null, h("h1",null,(S.settings&&S.settings.title)||"المتابعة الروحية"),
+    S.settings && S.settings.priestName ? h("p",{class:"gate-priest"}, S.settings.priestName) : null, h("p",{class:"muted small"}, sub))];
+  const draw = () => {
+    const err = h("p",{class:"gate-err", role:"alert"});
+    const v = id => ($("#"+id) ? $("#"+id).value : "");
+    let form, sub, extra = [];
+    if (mode === "create"){
+      sub = "أول تشغيل: اعمل حساب الأدمن. بعد كده الأدمن هو اللي يعمل حسابات أبونا والمشرفين والمستخدمين.";
+      form = h("form",{class:"form", onsubmit:async e=>{ e.preventDefault(); err.textContent = "";
+        const name = v("gName").trim(), pw = v("gPw");
+        if (!name || !pw){ err.textContent = "اكتب الاسم وكلمة السر."; return; }
+        if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+        if (pw !== v("gPw2")){ err.textContent = "كلمتين السر مش زي بعض."; return; }
+        if (!(await keyOk(v("gKey")))){ err.textContent = "مفتاح التفعيل غلط. اطلبه من المطوّر على "+DEV.phone+"."; return; }
+        const acc = Object.assign({name, role:"admin", active:true, createdAt:new Date().toISOString(), logins:1, lastLogin:new Date().toISOString()}, await hashed(pw));
+        await Store.set("accounts/local-me", acc);
+        applyAccount(Object.assign({id:"local-me"}, acc)); await logAct("عمل حساب الأدمن");
+        ssSet(okKey(), S.account.id); unlock(); }},
+        h("label",null,"اسم الأدمن", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
+        h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","new-password")),
+        h("label",null,"اكتب كلمة السر تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
+        h("label",null,"مفتاح التفعيل", h("input",{id:"gKey", autocomplete:"off", placeholder:"المفتاح اللي أخدته من المطوّر"})),
+        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"إنشاء حساب الأدمن ودخول"));
+    } else if (mode === "login"){
+      sub = "أهلاً بيك. ادخل باسمك وكلمة السر.";
+      form = h("form",{class:"form", onsubmit:async e=>{ e.preventDefault(); err.textContent = "";
+        const w = lockWait(); if (w){ err.textContent = waitMsg(w); return; }
+        accounts = await listAccounts();
+        const acc = findAcc(accounts, v("gName")), pw = v("gPw");
+        const good = acc && await checkPw(acc, pw);
+        if (!good){ lockFail(); err.textContent = "الاسم أو كلمة السر مش صح."; $("#gPw").value = ""; return; }
+        lockOk();
+        if (acc.active === false){ err.textContent = "الحساب ده متوقف. كلّم الأدمن."; return; }
+        const upd = Object.assign({lastLogin:new Date().toISOString(), logins:(acc.logins||0)+1}, acc.kdf === "pbkdf2" ? {} : await makeHash(pw));
+        await Store.set("accounts/"+acc.id, clean(Object.assign({}, acc, upd)));
+        applyAccount(Object.assign({}, acc, upd)); await logAct("دخل البرنامج");
+        if (acc.mustChange){ mode = "change"; draw(); return; }
+        ssSet(okKey(), acc.id); unlock(); }},
+        h("label",null,"الاسم", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
+        h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","current-password")),
+        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"دخول"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟")];
+    } else if (mode === "change"){
+      sub = "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
+      form = h("form",{class:"form", onsubmit:async e=>{ e.preventDefault(); err.textContent = "";
+        const pw = v("gPw");
+        if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+        if (pw !== v("gPw2")){ err.textContent = "كلمتين السر مش زي بعض."; return; }
+        const acc = await Store.get("accounts/"+S.account.id);
+        await Store.set("accounts/"+S.account.id, clean(Object.assign({}, acc, await makeHash(pw), {mustChange:false})));
+        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false;
+        ssSet(okKey(), S.account.id); unlock(); toast("كلمة السر اتغيّرت"); }},
+        h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
+        h("label",null,"اكتبها تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
+        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"احفظ وادخل"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ S.account = null; S.uid = "local-me"; mode = "login"; draw(); }},"رجوع")];
+    } else {
+      sub = "ابعت طلب للأدمن يعملك كلمة سر جديدة، أو لو معاك مفتاح التفعيل غيّرها بنفسك.";
+      form = h("div",{class:"form"},
+        h("label",null,"اسمك في البرنامج", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
+        h("button",{class:"btn", type:"button", style:"width:100%", onclick:async()=>{ err.textContent = "";
+          const acc = findAcc(await listAccounts(), v("gName"));
+          if (!acc){ err.textContent = "مفيش حساب بالاسم ده."; return; }
+          if (acc.active === false){ err.textContent = "الحساب ده متوقف. كلّم الأدمن."; return; }
+          await Store.set("pwreq/"+acc.id, {name:acc.name, accId:acc.id, at:new Date().toISOString()});
+          await logAct("طلب كلمة سر جديدة", acc.name);
+          mode = "login"; draw(); toast("الطلب وصل للأدمن، هيبلّغك بكلمة السر الجديدة"); }},"📨 ابعت طلب للأدمن"),
+        h("div",{class:"or"},"أو"),
+        h("label",null,"مفتاح التفعيل", h("input",{id:"gKey", autocomplete:"off"})),
+        h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
+        h("button",{class:"btn quiet", type:"button", style:"width:100%", onclick:async()=>{ err.textContent = "";
+          const acc = findAcc(await listAccounts(), v("gName")), pw = v("gPw");
+          if (!acc){ err.textContent = "مفيش حساب بالاسم ده."; return; }
+          const w = lockWait(); if (w){ err.textContent = waitMsg(w); return; }
+          if (!(await keyOk(v("gKey")))){ lockFail(); err.textContent = "مفتاح التفعيل غلط."; return; }
+          if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+          await Store.set("accounts/"+acc.id, clean(Object.assign({}, acc, await hashed(pw), {mustChange:false})));
+          await Store.del("pwreq/"+acc.id).catch(()=>{});
+          await logAct("غيّر كلمة السر بمفتاح التفعيل", acc.name);
+          mode = "login"; draw(); toast("كلمة السر اتغيّرت، ادخل بيها"); }},"🔑 غيّر كلمة السر بالمفتاح"),
+        err);
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"رجوع للدخول")];
+    }
+    gate.replaceChildren(h("div",{class:"gate-card"}, ...head(sub), form, ...extra, devBlock()));
+    const n = $("#gName"); if (n) n.focus();
+  };
+  draw();
+}
+async function restoreLocalSession(){
+  const id = ssGet(okKey()); if (!id) return false;
+  const acc = await Store.get("accounts/"+id).catch(()=>null);
+  if (!acc || acc.active === false || acc.mustChange) return false;
+  applyAccount(Object.assign({id}, acc)); return true;
+}
+
+/* ---------- admin / supervisor screen ---------- */
+function newPwDialog(acc, pw){
+  S.draft.shownPw = {name:acc.name, pw}; render();
+}
+async function setPassword(acc, pw, why){
+  await Store.set("accounts/"+acc.id, clean(Object.assign({}, acc, await hashed(pw), {pwSetAt:new Date().toISOString(), mustChange: acc.id !== S.account.id})));
+  await Store.del("pwreq/"+acc.id).catch(()=>{});
+  await logAct((why||"غيّر كلمة سر")+" "+acc.name);
+}
+/* account operations: the standalone file keeps hashes on the device; the server version replaces these */
+async function createAccount(name, role, pw){
+  if (findAcc(await listAccounts(), name)){ toast("فيه حساب بالاسم ده"); return false; }
+  await Store.set("accounts/u"+newId(), Object.assign({name, role, active:true, mustChange:true, createdAt:new Date().toISOString(), logins:0, by:S.account.name}, await hashed(pw)));
+  return true;
+}
+async function saveAccount(acc, patch){
+  const cur = await Store.get("accounts/"+acc.id) || acc;
+  await Store.set("accounts/"+acc.id, clean(Object.assign({}, cur, patch)));
+}
+async function deleteAccount(acc){ await Store.del("accounts/"+acc.id); await Store.del("pwreq/"+acc.id).catch(()=>{}); }
+async function changeOwnPassword(oldPw, pw){
+  const acc = await Store.get("accounts/"+S.account.id);
+  if (!acc || !(await checkPw(acc, oldPw))) return false;
+  await Store.set("accounts/"+S.account.id, clean(Object.assign({}, acc, await hashed(pw))));
+  return true;
+}
+async function dismissPwreq(id){ await Store.del("pwreq/"+id); }
+function canManage(target){
+  const me = accRole();
+  if (me === "admin") return true;
+  if (me === "supervisor") return target.role === "user" || target.id === S.account.id;
+  return target.id === (S.account && S.account.id);
+}
+function myPasswordCard(){
+  if (!S.account) return null;
+  const m = meInfo();
+  const photoRow = S.account.role === "user" ? null : h("div",{class:"photo-box"}, avatar(m,"lg"), h("div",{class:"form", style:"gap:6px"},
+    h("strong",null,"صورتك"), h("span",{class:"small muted"},"بتظهر فوق جنب زرار الخروج."),
+    h("div",{class:"row"}, photoPicker("accPhoto", m.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
+      await saveAccount(S.account, {photo:url});
+      S.account.photo = url; toast("صورتك اتحفظت"); render(); }),
+      S.account.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await saveAccount(S.account, {photo:""}); S.account.photo = ""; toast("الصورة اتشالت"); render(); }},"شيل الصورة") : null)));
+  return h("div",{class:"card form"}, h("h3",null,"👤 حسابي"), photoRow, h("h3",null,"🔐 كلمة السر بتاعتي"),
+    h("label",null,"كلمة السر الحالية", pwInput("myOld","الحالية","current-password")),
+    h("label",null,"كلمة السر الجديدة", pwInput("myNew","الجديدة","new-password")),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{
+      const oldPw = $("#myOld").value, pw = $("#myNew").value;
+      if (pw.length < PW_MIN){ toast(pwShort()); return; }
+      if (!(await changeOwnPassword(oldPw, pw))){ toast("كلمة السر الحالية مش صح"); return; }
+      await logAct("غيّر كلمة السر بتاعته"); toast("كلمة السر اتغيّرت"); render();
+    }},"غيّر كلمة السر")));
+}
+function adminView(all){
+  const me = accRole(), isAdmin = me === "admin";
+  const accs = (S.accounts||[]).slice().sort((a,b)=>Object.keys(ROLES).indexOf(a.role)-Object.keys(ROLES).indexOf(b.role) || String(a.name).localeCompare(String(b.name),"ar"));
+  const reqs = S.pwreqs || [];
+  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead(isAdmin ? "الأدمن" : "المتابعة"));
+  if (S.draft.shownPw){ const sp = S.draft.shownPw;
+    wrap.append(h("div",{class:"card pw-shown"}, h("h3",null,"🔑 كلمة السر الجديدة لـ "+sp.name),
+      h("div",{class:"pw-big", dir:"ltr"}, sp.pw), h("p",{class:"small muted"},"بلّغها لصاحبها. مش هتظهر تاني بعد ما تقفل الرسالة دي."),
+      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ S.draft.shownPw = null; render(); }},"تمام")))); }
+  const today = TODAY_S, logs = S.log || [];
+  const byRole = r => accs.filter(a=>a.role===r).length;
+  const stat = (emo, n, label, alert) => h("div",{class:"stat"+(alert?" alert":"")}, h("span",{class:"prep-emo"},emo), h("b",{class:"num"}, arDigits(n)), h("span",null,label));
+  const st = [stat("👥", accs.length, "كل الحسابات"), stat("👑", byRole("admin"), "أدمن"), stat("⛪", byRole("priest"), "أبونا"), stat("🛡️", byRole("supervisor"), "مشرفين"),
+    stat("🙋", byRole("user"), "مستخدمين"), stat("🟢", accs.filter(a=>a.lastLogin && ymd(new Date(a.lastLogin))===today).length, "دخلوا النهارده"),
+    stat("📨", reqs.length, "طلبات كلمة سر", reqs.length>0)];
+  if (isAdmin){ st.push(stat("🙏", all.length, "أولاد في الاعتراف"), stat("📅", all.filter(p=>p.request).length, "طلبات اعتراف"), stat("🕊️", (S.meditations||[]).length, "تأملات اتبعتت"));
+    const lb = S.meta && S.meta.lastBackup; st.push(stat("💾", lb ? daysBetween(parseYmd(lb.slice(0,10)), TODAY) : 0, lb ? "يوم من آخر نسخة احتياطية" : "مفيش نسخة احتياطية", !lb || daysBetween(parseYmd(lb.slice(0,10)), TODAY) > 7)); }
+  wrap.append(h("div",{class:"stats"}, st));
+  if (reqs.length) wrap.append(h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
+    h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
+      h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "طلب "+agoText(ymd(new Date(r.at))))),
+      acc && canManage(acc) ? h("div",{class:"row"},
+        h("button",{class:"btn sm", onclick:async()=>{ const pw = genPassword(); await setPassword(acc, pw, "عمل كلمة سر جديدة بطلب"); newPwDialog(acc, pw); }},"اعمل كلمة سر"),
+        h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
+      : !acc ? h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل (الحساب اتحذف)") : h("span",{class:"small muted"},"الأدمن بس")); }))));
+  // accounts
+  const list = h("ul",{class:"list"}, accs.map(a => {
+    const open = S.draft.accOpen === a.id, manage = canManage(a), self = a.id === S.account.id;
+    const li = h("li",{class:"acc-row"},
+      h("div",{class:"person-line", style:"cursor:pointer", onclick:()=>{ S.draft.accOpen = open ? null : a.id; render(); }},
+        h("span",{class:"prep-emo"}, (ROLES[a.role]||ROLES.user).emo),
+        h("div",{class:"who"}, h("strong",null, a.name, self ? " (إنت)" : ""),
+          h("span",{class:"small muted"}, a.lastLogin ? "آخر دخول "+agoText(ymd(new Date(a.lastLogin)))+" · "+arDigits(a.logins||0)+" مرة" : "لسه ما دخلش"))),
+      h("div",{class:"row"}, h("span",{class:"pill "+(a.role==="admin"?"acc":a.role==="priest"?"ok":a.role==="supervisor"?"warn":"")}, (ROLES[a.role]||ROLES.user).label),
+        a.active===false ? h("span",{class:"pill bad"},"متوقف") : null));
+    if (open && manage){
+      const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
+      const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("الصلاحية اتغيّرت"); }},
+        Object.entries(ROLES).map(([k,r]) => h("option",{value:k, selected:a.role===k}, r.emo+" "+r.label))) : null;
+      li.append(h("div",{class:"acc-tools"},
+        h("div",{class:"row"}, custom,
+          h("button",{class:"btn sm", onclick:async()=>{ const pw = (custom.value||"").trim() || genPassword(); if (pw.length < PW_MIN){ toast(pwShort()); return; } await setPassword(a, pw); newPwDialog(a, pw); }},"🔑 كلمة سر جديدة")),
+        !self ? h("div",{class:"row"}, roleSel,
+          h("button",{class:"btn sm quiet", onclick:async()=>{ const on = a.active===false; await saveAccount(a, {active:on}); await logAct((on?"شغّل حساب ":"وقّف حساب ")+a.name); toast(on?"الحساب اشتغل":"الحساب اتوقف"); }}, a.active===false ? "▶️ شغّل الحساب" : "⏸️ وقّف الحساب"),
+          h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:async()=>{
+            if (a.role==="admin" && accs.filter(x=>x.role==="admin").length < 2){ toast("لازم يفضل أدمن واحد على الأقل"); return; }
+            if (S.draft.delAsk !== a.id){ S.draft.delAsk = a.id; toast("دوس تاني على «احذف» للتأكيد"); return; }
+            await deleteAccount(a); await logAct("حذف حساب "+a.name); S.draft.accOpen = null; S.draft.delAsk = null; toast("الحساب اتحذف"); }},"🗑️ احذف")) : null,
+        h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(a.createdAt.slice(0,10)) : ""))));
+    }
+    return li;
+  }));
+  wrap.append(h("section",null, h("div",{class:"sec-head"}, h("h3",null,"👥 الحسابات"), h("span",{class:"small muted"},"دوس على أي حساب عشان تغيّر كلمة السر أو الصلاحية")), list));
+  // add account
+  const roleOpts = isAdmin ? Object.keys(ROLES) : ["user"];
+  wrap.append(h("div",{class:"card form"}, h("h3",null,"➕ حساب جديد"),
+    h("div",{class:"two"},
+      h("label",null,"الاسم", h("input",{id:"naName", placeholder:"اسم الدخول"})),
+      h("label",null,"الصلاحية", h("select",{id:"naRole"}, roleOpts.map(k => h("option",{value:k, selected:k==="user"}, ROLES[k].emo+" "+ROLES[k].label+" · "+ROLES[k].note))))),
+    h("label",null,"كلمة السر (سيبها فاضية والبرنامج يعمل واحدة)", h("input",{id:"naPw", dir:"ltr", placeholder:"اختياري"})),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+      const name = $("#naName").value.trim(), role = $("#naRole").value, pw = $("#naPw").value.trim() || genPassword();
+      if (!name){ toast("اكتب الاسم"); return; }
+      if (pw.length < PW_MIN){ toast(pwShort()); return; }
+      if (!(await createAccount(name, role, pw))) return;
+      await logAct("عمل حساب "+ROLES[role].label+": "+name);
+      newPwDialog({name}, pw);
+    }},"اعمل الحساب"))));
+  // activity
+  wrap.append(h("section",null, h("h3",null,"🕒 آخر نشاط"),
+    logs.length ? h("ul",{class:"list"}, logs.slice(0,40).map(l => h("li",null,
+      h("div",{class:"who"}, h("strong",null, l.who || "—", l.role ? " · "+((ROLES[l.role]||{}).label||"") : ""), h("span",{class:"small"}, l.action)),
+      h("span",{class:"small muted num"}, fmtShort(ymd(new Date(l.at)))+" · "+new Date(l.at).toLocaleTimeString("ar-EG",{hour:"numeric",minute:"2-digit"})))))
+    : h("div",{class:"empty"},"لسه مفيش نشاط متسجل.")));
+  wrap.append(myPasswordCard());
+  if (isAdmin){ wrap.append(backupCard()); if (Store.mode === "local") wrap.append(resetCard()); }
+  return wrap;
+}
+
+
+/* ---------- boot ---------- */
+async function boot(){
+  applySeason();
+  let db = null, user = null;
+  try {
+    if (window.claude && window.claude.use){ [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]); }
+  } catch(e){ db = null; }
+  S.isOwner = user ? await user.isOwner() : false;
+  S.realUid = user ? await user.id() : null;
+  if (!window.claude){
+    Store.mode = "cloud"; Store.ext = Cloud; PW_MIN = 6; S.role = "priest"; S.uid = S.realUid = null;
+  } else if (db && S.realUid){
+    Store.db = db; Store.mode = "live"; S.liveAvailable = true; S.uid = S.realUid;
+    S.role = S.isOwner ? "priest" : "member";
+  } else {
+    Store.mode = "demo"; seedDemo(); S.role = "priest"; S.uid = "demo-me";
+  }
+  $("#devFooter").replaceChildren(devBlock(true));
+  $("#logoutBtn").addEventListener("click", logout);
+  applySettings(); try { const st = await Store.get("settings/app"); if (st){ S.settings = st; applySettings(); } } catch(e){}
+  if (Store.mode === "local"){ if (await restoreLocalSession()) unlock(); else showGate(); return; }
+  if (Store.mode === "cloud"){ if (await restoreCloudSession()) unlock(); else showGate(); return; }
+  const sess = ssGet(okKey()); if (sess){ S.authName = sess==="1" ? "" : sess; unlock(); } else showGate();
+}
+/* ---------- server version (Supabase) ----------
+   Every church has its own space on the server. People sign in with church code + name + password; the
+   server's row-level rules decide what each role may read or write, so editing this file changes nothing
+   about who sees what. Documents keep the same paths the rest of the app uses. */
+const CFG = window.RUHIYA_CONFIG || {};
+const SB = (CFG.url || "").replace(/\/+$/, ""), SB_KEY = CFG.key || "", MAIL_DOMAIN = CFG.mailDomain || "ruhiya.app";
+const SESS_KEY = "ruhiya_cloud_sess", CHURCH_KEY = "ruhiya_church";
+const nameKey = n => String(n||"").trim().replace(/\s+/g, " ").toLowerCase();
+const slugOk = s => /^[a-z0-9][a-z0-9-]{2,29}$/.test(s);
+async function mailFor(slug, name){ return (await sha256(slug+":"+nameKey(name))).slice(0, 40)+"@"+MAIL_DOMAIN; }
+// new-style publishable keys (sb_publishable_...) go only in apikey; legacy anon keys are JWTs and also go as Bearer
+const bearer = t => /^eyJ/.test(t||"") ? {Authorization:"Bearer "+t} : {};
+const ACC_COLS = "uid,name,role,active,must_change,photo,last_login,logins,created_at,created_by,pw_set_at";
+const accFromRow = r => ({id:r.uid, name:r.name, role:r.role, active:r.active, mustChange:r.must_change, photo:r.photo||"",
+  lastLogin:r.last_login, logins:r.logins, createdAt:r.created_at, by:r.created_by, pwSetAt:r.pw_set_at});
+// friendly Arabic for what the server says
+function cloudMsg(e){
+  const m = String((e && e.message) || e || "");
+  if (e && e.offline) return "مفيش اتصال بالسيرفر. اتأكد من النت وجرّب تاني.";
+  if (/Invalid login credentials/i.test(m)) return "الاسم أو كلمة السر مش صح.";
+  if (/already registered|already exists|already a member|duplicate key/i.test(m)) return "فيه حساب بالاسم ده.";
+  if (/licence expired/.test(m)) return "رخصة الكنيسة خلصت. كلّم المطوّر على "+DEV.phone+".";
+  if (/bad code/.test(m)) return "كود الرخصة غلط.";
+  if (/code used/.test(m)) return "كود الرخصة ده اتفعّل قبل كده.";
+  if (/last admin/.test(m)) return "لازم يفضل أدمن واحد على الأقل.";
+  if (/account limit/.test(m)) return "وصلت لأقصى عدد حسابات في الرخصة. كلّم المطوّر.";
+  if (/weak password|Password should be/i.test(m)) return pwShort()+".";
+  if (/rate limit|too many/i.test(m)) return "محاولات كتير ورا بعض. استنى شوية وجرّب تاني.";
+  if (/email.*invalid|invalid.*email/i.test(m)) return "السيرفر رفض إنشاء الحساب (إعداد الإيميل). كلّم المطوّر على "+DEV.phone+".";
+  if ((e && (e.status === 401 || e.status === 403 || e.code === "42501")) || /not allowed|row-level security|JWT/i.test(m)) return "مش مسموحلك تعمل ده.";
+  return "حصلت مشكلة في السيرفر. جرّب تاني.";
+}
+const Cloud = {
+  sess:null, me:null, subs:new Set(), timer:null,
+  saveSess(){ try { this.sess ? sessionStorage.setItem(SESS_KEY, JSON.stringify(this.sess)) : sessionStorage.removeItem(SESS_KEY); } catch(e){} },
+  loadSess(){ try { return JSON.parse(sessionStorage.getItem(SESS_KEY)||"null"); } catch(e){ return null; } },
+  setSess(j){ this.sess = j && j.access_token ? {access_token:j.access_token, refresh_token:j.refresh_token, expires_at: j.expires_at || (Math.floor(Date.now()/1000) + (j.expires_in||3600)), uid: j.user && j.user.id} : null; this.saveSess(); },
+  async http(path, opt, token){
+    let r;
+    try { r = await fetch(SB+path, Object.assign({}, opt, {headers:Object.assign({apikey:SB_KEY, "Content-Type":"application/json"}, bearer(token||SB_KEY), (opt&&opt.headers)||{})})); }
+    catch(e){ const x = new Error("offline"); x.offline = true; throw x; }
+    const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch(e){}
+    if (!r.ok){ const x = new Error((j && (j.message || j.msg || j.error_description || j.error)) || ("HTTP "+r.status)); x.status = r.status; x.code = j && (j.code || j.error_code); throw x; }
+    return j;
+  },
+  async token(){
+    if (!this.sess) return null;
+    if (this.sess.expires_at - 60 < Date.now()/1000){
+      if (!this._ref) this._ref = this.http("/auth/v1/token?grant_type=refresh_token", {method:"POST", body:JSON.stringify({refresh_token:this.sess.refresh_token})})
+        .then(j => this.setSess(j)).catch(e => { if (!e.offline){ this.setSess(null); } throw e; }).finally(() => { this._ref = null; });
+      await this._ref;
+    }
+    return this.sess && this.sess.access_token;
+  },
+  async req(path, opt){ return this.http(path, opt, await this.token()); },
+  rpc(fn, args){ return this.req("/rest/v1/rpc/"+fn, {method:"POST", body:JSON.stringify(args||{})}); },
+  async signIn(email, password){ this.setSess(await this.http("/auth/v1/token?grant_type=password", {method:"POST", body:JSON.stringify({email, password})})); return this.sess; },
+  // creates someone else's sign-in without touching the current session; returns the new user's id
+  async signUp(email, password){ const j = await this.http("/auth/v1/signup", {method:"POST", body:JSON.stringify({email, password})}); return (j && (j.user ? j.user.id : j.id)) || null; },
+  async setOwnPassword(password){ await this.req("/auth/v1/user", {method:"PUT", body:JSON.stringify({password})}); },
+  async signOut(){ const t = this.sess && this.sess.access_token; this.setSess(null); this.me = null; this.stopPoll();
+    if (t) this.http("/auth/v1/logout", {method:"POST"}, t).catch(()=>{}); },
+  church(){ return this.me ? this.me.church_id : null; },
+  q(v){ return encodeURIComponent(v); },
+
+  /* Store interface */
+  async fetch(path, opts){
+    const even = path.split("/").length % 2 === 0, c = this.q(this.church());
+    if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c) || []).map(accFromRow);
+    if (path === "pwreq") return (await this.req("/rest/v1/pwreqs?select=uid,name,at&church_id=eq."+c) || []).map(r => ({id:r.uid, accId:r.uid, name:r.name, at:r.at}));
+    if (even){
+      if (path.startsWith("accounts/")){ const r = (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&uid=eq."+this.q(path.split("/")[1])) || [])[0]; return r ? accFromRow(r) : null; }
+      const r = (await this.req("/rest/v1/docs?select=path,data&church_id=eq."+c+"&path=eq."+this.q(path)) || [])[0];
+      return r ? Object.assign({id:path.split("/").pop()}, r.data) : null;
+    }
+    let u = "/rest/v1/docs?select=path,data&church_id=eq."+c+"&parent=eq."+this.q(path);
+    if (opts && opts.orderBy) u += "&order=data->>"+this.q(opts.orderBy)+"."+(opts.dir === "desc" ? "desc" : "asc")+".nullslast";
+    if (opts && opts.limit) u += "&limit="+Number(opts.limit);
+    return (await this.req(u) || []).map(r => Object.assign({id:r.path.split("/").pop()}, r.data));
+  },
+  async run(sub){
+    try { const v = await this.fetch(sub.path, sub.opts); const k = JSON.stringify(v);
+      if (sub.live && k !== sub.last){ sub.last = k; sub.cb(v); } }
+    catch(e){ if (sub.live && sub.last === undefined){ sub.last = "err"; sub.cb(sub.path.split("/").length % 2 === 0 ? null : []); } console.warn(sub.path, e.message); }
+  },
+  listen(path, opts, cb){ const sub = {path, opts, cb, live:true}; this.subs.add(sub); this.run(sub); this.startPoll();
+    return () => { sub.live = false; this.subs.delete(sub); }; },
+  refresh(path){ const parent = path.split("/").slice(0,-1).join("/");
+    for (const s of this.subs) if (s.path === path || s.path === parent) this.run(s); },
+  startPoll(){ if (this.timer) return; this.timer = setInterval(() => { if (document.hidden || !this.sess) return; for (const s of this.subs) this.run(s); }, 20000); },
+  stopPoll(){ clearInterval(this.timer); this.timer = null; },
+  async list(path){ return this.fetch(path, null); },
+  async get(path){ const v = await this.fetch(path, null); if (!v) return null; const {id, ...rest} = v; return rest; },
+  async set(path, data){
+    if (path.startsWith("accounts/") || path.startsWith("pwreq/")) throw new Error("use account functions");
+    if (S.church && S.church.live === false && !path.startsWith("log/")){ toast(cloudMsg("licence expired")); throw new Error("licence expired"); }
+    try {
+      const body = JSON.stringify({church_id:this.church(), path, data:clean(data)});
+      if (path.startsWith("log/")) await this.req("/rest/v1/docs", {method:"POST", headers:{Prefer:"return=minimal"}, body});
+      else await this.req("/rest/v1/docs?on_conflict=church_id,path", {method:"POST", headers:{Prefer:"resolution=merge-duplicates,return=minimal"}, body});
+    } catch(e){ if (!path.startsWith("log/")) toast(cloudMsg(e)); throw e; }
+    this.refresh(path);
+  },
+  async update(path, patch){ const cur = await this.get(path); return this.set(path, Object.assign({}, cur||{}, patch)); },
+  async del(path){
+    if (path.startsWith("pwreq/")) return dismissPwreq(path.split("/")[1]);
+    if (path.startsWith("accounts/")) throw new Error("use account functions");
+    try { await this.req("/rest/v1/docs?church_id=eq."+this.q(this.church())+"&path=eq."+this.q(path), {method:"DELETE", headers:{Prefer:"return=minimal"}}); }
+    catch(e){ toast(cloudMsg(e)); throw e; }
+    this.refresh(path);
+  }
+};
+
+/* account operations on the server */
+const accTry = async (fn) => { try { await fn(); return true; } catch(e){ toast(cloudMsg(e)); return false; } };
+createAccount = async (name, role, pw) => {
+  if (!S.church || !S.church.live){ toast(cloudMsg("licence expired")); return false; }
+  return accTry(async () => {
+    const uid = await Cloud.signUp(await mailFor(S.church.slug, name), pw);
+    if (!uid) throw new Error("signup failed");
+    await Cloud.rpc("add_account", {p_uid:uid, p_name:name, p_role:role});
+    Cloud.refresh("accounts/x");
+  });
+};
+saveAccount = async (acc, patch) => {
+  const p = {}; for (const k of ["role","active","photo"]) if (k in patch) p[k] = patch[k];
+  const okk = await accTry(() => Cloud.rpc("update_account", {p_uid:acc.id, p_patch:p}));
+  Cloud.refresh("accounts/x"); if (!okk) throw new Error("not saved");
+};
+deleteAccount = async (acc) => { const okk = await accTry(() => Cloud.rpc("delete_account", {p_uid:acc.id})); Cloud.refresh("accounts/x"); Cloud.refresh("pwreq/x"); if (!okk) throw new Error("not deleted"); };
+dismissPwreq = async (id) => { await accTry(() => Cloud.rpc("dismiss_pwreq", {p_uid:id})); Cloud.refresh("pwreq/x"); };
+setPassword = async (acc, pw, why) => {
+  const okk = await accTry(() => Cloud.rpc("set_password", {p_uid:acc.id, p_pw:pw}));
+  Cloud.refresh("accounts/x"); Cloud.refresh("pwreq/x");
+  if (!okk) throw new Error("not saved");
+  await logAct((why||"غيّر كلمة سر")+" "+acc.name);
+};
+changeOwnPassword = async (oldPw, pw) => {
+  try { await Cloud.signIn(await mailFor(S.church.slug, S.account.name), oldPw); } catch(e){ if (e.offline) toast(cloudMsg(e)); return false; }
+  try { await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed"); return true; } catch(e){ toast(cloudMsg(e)); throw e; }
+};
+listAccounts = async () => { try { return await Cloud.list("accounts"); } catch(e){ return []; } };
+
+function cloudAccount(me){
+  S.church = {id:me.church_id, name:me.church, slug:me.slug, priest:me.priest, expires_at:me.expires_at, live:me.live};
+  try { localStorage.setItem(CHURCH_KEY, me.slug); } catch(e){}
+  return {id:me.uid, name:me.name, role:me.role, active:me.active, mustChange:me.must_change, photo:me.photo||"", lastLogin:me.last_login, logins:me.logins};
+}
+async function restoreCloudSession(){
+  const s = Cloud.loadSess(); if (!s || !ssGet(okKey())) return false;
+  Cloud.sess = s;
+  try { const me = await Cloud.rpc("me"); if (!me || !me.active || me.must_change) throw new Error("x");
+    Cloud.me = me; applyAccount(cloudAccount(me)); return true; }
+  catch(e){ Cloud.setSess(null); return false; }
+}
+const savedChurch = () => { const u = new URLSearchParams(location.search).get("c"); if (u && slugOk(u.toLowerCase())) return u.toLowerCase();
+  try { return localStorage.getItem(CHURCH_KEY) || ""; } catch(e){ return ""; } };
+
+async function showCloudGate(){
+  document.body.classList.add("locked");
+  const gate = $("#gate"); gate.hidden = false;
+  let slug = savedChurch(), info = null, mode = slug ? "login" : "church", lic = null, licCode = "";
+  if (!SB || !SB_KEY || /XXXX|PASTE/.test(SB+SB_KEY)){ gate.replaceChildren(h("div",{class:"gate-card"}, churchMark(), h("h1",null,"المتابعة الروحية"),
+    h("p",{class:"gate-err"},"البرنامج لسه مش متوصّل بالسيرفر. المطوّر لازم يكتب بيانات Supabase في ملف config.js."), devBlock())); return; }
+  const loadInfo = async () => { info = null; if (!slug) return; try { info = await Cloud.rpc("church_public", {p_slug:slug}); } catch(e){ info = {error:cloudMsg(e)}; } };
+  if (slug) await loadInfo();
+  if (slug && info === null){ mode = "church"; }
+  const v = id => ($("#"+id) ? $("#"+id).value : "");
+  const btn = (label, extra) => h("button",Object.assign({class:"btn", type:"submit", style:"width:100%;padding-block:12px"}, extra||{}), label);
+  const enter = async (me) => {
+    Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("دخل البرنامج");
+    if (me.must_change){ mode = "change"; draw(); return; }
+    ssSet(okKey(), me.uid); unlock();
+  };
+  const draw = () => {
+    const err = h("p",{class:"gate-err", role:"alert"});
+    const busy = async (form, fn) => { const b = form.querySelector("button[type=submit]"); if (b) b.disabled = true; err.textContent = "";
+      try { await fn(); } catch(e){ err.textContent = e && e.ui ? e.message : cloudMsg(e); } finally { if (b && b.isConnected) b.disabled = false; } };
+    const fail = m => { const e = new Error(m); e.ui = true; throw e; };
+    let sub = "", form, extra = [];
+    const title = info && info.name ? info.name : ((S.settings && S.settings.title) || "المتابعة الروحية");
+    if (mode === "church"){
+      sub = "اكتب كود الكنيسة اللي أخدته من الأدمن.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        const s = v("gChurch").trim().toLowerCase(); if (!slugOk(s)) fail("كود الكنيسة حروف إنجليزي صغيرة وأرقام وشَرطة، زي mar-mina.");
+        slug = s; await loadInfo(); if (!info) { slug = ""; fail("مفيش كنيسة بالكود ده."); } if (info.error) fail(info.error);
+        mode = "login"; draw(); }); }},
+        h("label",null,"كود الكنيسة", h("input",{id:"gChurch", dir:"ltr", autocomplete:"organization", placeholder:"mar-mina", value:slug||""})),
+        err, btn("متابعة"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "activate"; draw(); }},"🔑 تفعيل كنيسة جديدة بكود رخصة")];
+    } else if (mode === "login"){
+      sub = info && info.priest ? info.priest : "أهلاً بيك. ادخل باسمك وكلمة السر.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        const w = lockWait(); if (w) fail(waitMsg(w));
+        const name = v("gName").trim(), pw = v("gPw"); if (!name || !pw) fail("اكتب الاسم وكلمة السر.");
+        try { await Cloud.signIn(await mailFor(slug, name), pw); }
+        catch(e){ if (!e.offline) lockFail(); if ($("#gPw")) $("#gPw").value = ""; throw e; }
+        lockOk();
+        let me; try { me = await Cloud.rpc("touch_login"); } catch(e){ await Cloud.signOut(); fail(/no account/.test(e.message) ? "الاسم ده مش متسجّل في الكنيسة دي. لو دي أول مرة، فعّل الكنيسة بكود الرخصة الأول." : cloudMsg(e)); }
+        if (!me.active){ await Cloud.signOut(); fail("الحساب ده متوقف. كلّم الأدمن."); }
+        await enter(me); }); }},
+        info && info.live === false ? h("p",{class:"gate-err"},"رخصة الكنيسة خلصت، والبرنامج للقراءة بس لحد ما تتجدد.") : null,
+        h("label",null,"الاسم", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
+        h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","current-password")),
+        err, btn("دخول"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
+        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")];
+    } else if (mode === "forgot"){
+      sub = "اكتب اسمك، وهيوصل طلب للأدمن يعملك كلمة سر جديدة.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        const name = v("gName").trim(); if (!name) fail("اكتب اسمك.");
+        await Cloud.rpc("request_password", {p_slug:slug, p_name:name});
+        mode = "login"; draw(); toast("لو الاسم ده موجود، الطلب وصل للأدمن وهيبلّغك بكلمة السر الجديدة"); }); }},
+        h("label",null,"اسمك في البرنامج", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
+        err, btn("📨 ابعت طلب للأدمن"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"رجوع للدخول")];
+    } else if (mode === "change"){
+      sub = "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        const pw = v("gPw"); if (pw.length < PW_MIN) fail(pwShort()+"."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
+        await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed");
+        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false;
+        ssSet(okKey(), S.account.id); unlock(); toast("كلمة السر اتغيّرت"); }); }},
+        h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
+        h("label",null,"اكتبها تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
+        err, btn("احفظ وادخل"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:async()=>{ await Cloud.signOut(); S.account = null; mode = "login"; draw(); }},"رجوع")];
+    } else if (mode === "activate" && !lic){
+      sub = "اكتب كود الرخصة اللي أخدته من المطوّر.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        licCode = v("gLic").trim(); if (!licCode) fail("اكتب كود الرخصة.");
+        const w = lockWait(); if (w) fail(waitMsg(w));
+        lic = await Cloud.rpc("licence_info", {p_code:licCode});
+        if (!lic){ lockFail(); fail("كود الرخصة غلط، أو اتفعّل قبل كده، أو خلص."); }
+        lockOk(); draw(); }); }},
+        h("label",null,"كود الرخصة", h("input",{id:"gLic", dir:"ltr", autocomplete:"off", placeholder:"RUH-XXXX-XXXX-XXXX"})),
+        err, btn("تأكيد الكود"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = slug ? "login" : "church"; draw(); }},"رجوع")];
+    } else {
+      sub = "الرخصة سليمة لـ «"+lic.name+"». اعمل حساب الأدمن، وبعد كده الأدمن يعمل حسابات أبونا والمشرفين والمستخدمين.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        const name = v("gName").trim(), pw = v("gPw");
+        if (!name || !pw) fail("اكتب الاسم وكلمة السر."); if (pw.length < PW_MIN) fail(pwShort()+"."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
+        const email = await mailFor(lic.slug, name);
+        try { await Cloud.signUp(email, pw); } catch(e){ if (!/already|exists/i.test(e.message)) throw e; }
+        await Cloud.signIn(email, pw);
+        await Cloud.rpc("claim_church", {p_code:licCode, p_name:name});
+        slug = lic.slug; const me = await Cloud.rpc("touch_login"); lic = null;
+        await enter(me); toast("الكنيسة اتفعّلت. كود الكنيسة: "+me.slug); }); }},
+        h("div",{class:"notice"}, h("span",null, "كود الكنيسة: ", h("b",{dir:"ltr"}, lic.slug), " · الرخصة لحد "+fmtShort(lic.expires_at))),
+        h("label",null,"اسم الأدمن", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
+        h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","new-password")),
+        h("label",null,"اكتب كلمة السر تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
+        err, btn("تفعيل الكنيسة وإنشاء حساب الأدمن"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ lic = null; draw(); }},"رجوع")];
+    }
+    gate.replaceChildren(h("div",{class:"gate-card"}, churchMark(),
+      h("div",null, h("h1",null,title), h("p",{class:"muted small"}, sub)),
+      form, ...extra, h("p",{class:"small muted", style:"margin:0"},"🔒 بياناتك محفوظة على سيرفر الكنيسة، ومحدش بيشوفها غير اللي ليه صلاحية."), devBlock()));
+    const f = gate.querySelector("input"); if (f) f.focus();
+  };
+  draw();
+}
+
+boot();
+})();
+</script>
+</body>
+</html>
