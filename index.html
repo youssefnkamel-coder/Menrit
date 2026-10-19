@@ -410,6 +410,47 @@ body.locked .ticker{display:none!important}
   .gate-card{padding:20px 16px 16px;gap:13px;border-radius:22px}
   .menrit .mn-word{font-size:2.2rem}
 }
+
+/* header layout v2: brand aligned to the start, dates + greeting in their own zone, photo with the sign-out under it */
+.hero{display:grid;align-items:center}
+.brand{justify-items:start;gap:2px}
+.brand .mn-pill{margin-inline:0}
+.hero-top{align-items:center}
+.hero-side{grid-auto-flow:row}
+.hero-side .saint{order:1} .hero-side .me-box{order:2}
+.welcome{font-weight:700}
+.hero-meta .glass{white-space:nowrap;flex:none}
+@media (min-width:760px){
+  .hero{grid-template-columns:1fr auto;column-gap:28px;padding:22px 26px}
+  .brand h1{white-space:nowrap}
+  .hero-main{grid-template-columns:max-content 1fr;grid-template-areas:"top meta" "top wel" "feast feast";column-gap:28px;row-gap:10px;align-items:center}
+  .hero-top{grid-area:top;padding-inline-end:28px;border-inline-end:1px solid rgba(255,230,160,.35)}
+  .hero-meta{grid-area:meta;justify-content:flex-start;flex-wrap:nowrap;align-self:end}
+  .welcome{grid-area:wel;text-align:start;font-size:1.1rem;align-self:start}
+  #feastLine{grid-area:feast}
+  .brand h1{font-size:1.75rem}
+  .saint{width:96px}
+}
+@media (max-width:759px){
+  .hero{grid-template-columns:1fr auto;grid-template-areas:"top side" "wel side" "meta meta" "feast feast";column-gap:12px;row-gap:8px;align-items:start}
+  .hero-main{display:contents}
+  .hero-top{grid-area:top;align-self:start}
+  .welcome{grid-area:wel;align-self:end;position:relative;z-index:1}
+  .hero-meta{grid-area:meta;justify-content:center;padding-top:10px;border-top:1px solid rgba(255,230,160,.3)}
+  #feastLine{grid-area:feast;position:relative;z-index:1}
+  .hero-side{grid-area:side;gap:6px}
+  .hero-side .logout{font-size:.72rem;padding:2px 12px}
+  .hero-meta .glass.clock-chip{font-size:.74rem;padding:2px 9px}
+}
+@media (max-width:480px){
+  .hero{padding:14px}
+  .hero-top{gap:9px}
+  .brand h1{font-size:1.18rem}
+  .welcome{font-size:.92rem}
+  .hero-meta{gap:5px;flex-wrap:wrap}
+  .glass{font-size:.72rem;padding:2px 8px}
+  .saint{width:70px}
+}
 </style>
 </head>
 <body>
