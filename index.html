@@ -202,6 +202,10 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .gate-logo{width:132px;height:132px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
 .gate-card h1{font-size:1.5rem}
 .gate-mark{display:grid;gap:10px;justify-items:center}
+.pending-wait{display:flex;gap:14px;align-items:center;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
+.pending-wait .prep-emo{font-size:2rem}
+.pending-card{display:grid;gap:10px;border:2px solid transparent;background:linear-gradient(color-mix(in oklab,#06b6d4 7%,var(--surface)),color-mix(in oklab,#06b6d4 7%,var(--surface))) padding-box,var(--gold-grad) border-box}
+.pending-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .menrit{display:grid;justify-items:center;gap:2px;line-height:1}
 .menrit .mn-word{font-family:"Noto Sans Coptic","Segoe UI Historic","Segoe UI Symbol",serif;font-size:2.7rem;letter-spacing:.06em;padding:4px 6px 6px;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 3px 6px rgba(138,90,18,.28))}
 .menrit .mn-sub{display:flex;align-items:center;gap:8px;font-family:var(--f-head);font-weight:700;font-size:.78rem;color:var(--gold-d);letter-spacing:.04em}
@@ -550,7 +554,7 @@ function seedDemo(){
 const S = {
   ready:false, role:"member", isOwner:false, uid:null, liveAvailable:false,
   tab:null, members:[], people:[], meditations:[], inbox:[], notebook:[], profile:null, reading:null,
-  sel:null, selNotebook:[], selInbox:[], draft:{}, unsubs:[], selUnsubs:[], settings:{}, meta:{}, authName:""
+  sel:null, selNotebook:[], selInbox:[], draft:{}, unsubs:[], selUnsubs:[], settings:{}, meta:{}, authName:"", pending:[]
 };
 const NOTE_ITEMS = [["bakr","صلاة باكر"],["noum","صلاة النوم"],["agpeya","باقي صلوات الأجبية"],["bible","قراءة الكتاب المقدس"],["khloa","صلاة المخدع (شخصية)"],["liturgy","حضور القداس والتناول"],["fast","الصوم"],["spiritual","قراءة روحية"]];
 const CONFESS_DAYS = 45, VISIT_DAYS = 90;
@@ -580,6 +584,7 @@ function subscribe(){
     L("log", {orderBy:"at", dir:"desc", limit:60}, r => { S.log=r; scheduleRender(); });
     if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   }
+  if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
   if (S.role === "priest"){
     L("members", null, r => { S.members=r; scheduleRender(); });
     L("priest/main/people", null, r => { S.people=r; scheduleRender(); });
@@ -603,7 +608,8 @@ function selectPerson(id){
 /* merged view of people for the priest */
 function merged(){
   const map = new Map();
-  for (const m of S.members) if (!String(m.id).startsWith("preview-")) map.set(m.id, {id:m.id, onApp:true, self:m, name:m.name});
+  const waiting = new Set((S.pending||[]).map(x=>x.id));
+  for (const m of S.members) if (!String(m.id).startsWith("preview-") && !waiting.has(m.id)) map.set(m.id, {id:m.id, onApp:true, self:m, name:m.name});
   for (const p of S.people){
     if (String(p.id).startsWith("preview-")) continue;
     const e = map.get(p.id) || {id:p.id, onApp:!!p.onApp, self:null};
@@ -762,7 +768,7 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
   const req = all.filter(p=>p.request).length;
-  const t = [["today","النهارده"],["people","أولادي"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
+  const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
   if (accRole() === "admin") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
   return t;
 }
@@ -772,7 +778,7 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > VISIT_DAYS);
   const reqs = all.filter(p=>p.request), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{style:"display:grid;gap:22px"});
+  const wrap = h("div",{style:"display:grid;gap:22px"}, pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   if (Store.mode !== "demo" && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
     h("span",null, lb ? "آخر نسخة احتياطية كانت من "+arDigits(lbDays)+" يوم." : "لسه ماعملتش نسخة احتياطية من بياناتك."),
@@ -1052,7 +1058,7 @@ const DEFAULT_VERSES = [
 function meInfo(){
   const st = S.settings || {};
   if (S.account){ const r = S.account.role;
-    return {name:S.account.name, photo: S.account.photo || (r==="user" && S.profile ? S.profile.photo : "") || (r==="priest" ? st.priestPhoto : "") || ""}; }
+    return {name:S.account.name, photo: S.account.photo || ((r==="user"||r==="pending") && S.profile ? S.profile.photo : "") || (r==="priest" ? st.priestPhoto : "") || ""}; }
   if (S.role === "priest") return {name: st.priestName || "أبونا", photo: st.priestPhoto || ""};
   return {name: (S.profile && S.profile.name) || S.authName || "", photo: (S.profile && S.profile.photo) || ""};
 }
@@ -1361,6 +1367,35 @@ function memberMe(){
   return wrap;
 }
 
+/* ---------- self sign-up: waiting for approval ---------- */
+function pendingView(){
+  const done = !!(S.profile && S.profile.name);
+  return h("div",{style:"display:grid;gap:16px"},
+    h("div",{class:"card pending-wait"}, h("span",{class:"prep-emo"},"⏳"),
+      h("div",null, h("h3",null, done ? "بياناتك وصلت، ومستنية موافقة أبونا" : "أهلاً بيك في البرنامج 🌿"),
+        h("p",{class:"small muted", style:"margin:4px 0 0"}, done
+          ? "أول ما أبونا أو المشرف يوافق على حسابك، البرنامج كله هيفتحلك لوحده. تقدر تقفل الصفحة وترجع بعدين."
+          : "اكتب بياناتك وحط صورتك تحت ودوس «احفظ». أبونا أو المشرف هيشوفها ويوافق على حسابك، وبعدها البرنامج كله هيفتحلك."))),
+    memberMe());
+}
+function pendingCard(){
+  const list = S.pending || [];
+  if (!list.length || !["admin","priest","supervisor"].includes(accRole())) return null;
+  return h("section",{class:"card pending-card"}, h("h3",null,"🆕 حسابات جديدة مستنية موافقتك ("+arDigits(list.length)+")"),
+    h("p",{class:"small muted", style:"margin:0"},"الناس دول سجّلوا بنفسهم. لما توافق، كل واحد فيهم يقدر يستخدم البرنامج كله."),
+    h("ul",{class:"list"}, list.map(x => { const p = x.profile || {}, info = [p.phone, p.birthday ? "🎂 "+fmtShort(p.birthday) : "", p.spouse ? "💍 "+p.spouse : ""].filter(Boolean).join(" · ");
+      return h("li",{class:"pending-row"},
+        h("div",{class:"person-line"}, avatar({name:p.name||x.name, photo:p.photo||""}),
+          h("div",{class:"who"}, h("strong",null, p.name || x.name, p.name && p.name !== x.name ? h("span",{class:"small muted"}," (اسم الدخول: "+x.name+")") : null),
+            h("span",{class:"small muted"}, (info || "لسه ماكتبش بياناته")+" · سجّل "+agoText(ymd(new Date(x.at)))))),
+        h("div",{class:"row"},
+          h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; if (await reviewAccount(x.id, true)){ await logAct("وافق على حساب "+x.name); toast("✅ "+x.name+" يقدر يستخدم البرنامج دلوقتي"); } e.target.disabled = false; }},"✅ موافقة"),
+          h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:async e=>{
+            if (S.draft.rejAsk !== x.id){ S.draft.rejAsk = x.id; toast("دوس تاني على «رفض» للتأكيد"); return; }
+            S.draft.rejAsk = null; e.target.disabled = true;
+            if (await reviewAccount(x.id, false)){ await logAct("رفض حساب "+x.name); toast("الحساب اتشال"); } }},"❌ رفض"))); })));
+}
+
 /* ---------- render ---------- */
 const ICONS = {
   today:"M12 3c1.6 2 1.6 3.6 0 5.2-1.6-1.6-1.6-3.2 0-5.2zM9 10.5h6V21H9zM7 21h10",
@@ -1383,13 +1418,15 @@ function render(){
   if (!S.ready) return;
   const priest = S.role === "priest", sup = S.role === "supervisor";
   const all = priest ? merged() : [];
-  const tabs = priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
+  const waiting = accRole() === "pending";
+  const tabs = waiting ? [["me","بياناتي"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
-  $("#roleLabel").textContent = S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
+  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
   renderNotice(); renderMe();
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
+  else if (waiting) view = pendingView();
   else if (priest) view = ({today:priestToday, people:priestPeople, requests:priestRequests, meditations:priestMeditations, readings:priestReadings, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = ({admin:adminView, meditations:priestMeditations, readings:priestReadings}[S.tab])([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
@@ -1702,6 +1739,7 @@ async function changeOwnPassword(oldPw, pw){
   return true;
 }
 async function dismissPwreq(id){ await Store.del("pwreq/"+id); }
+async function reviewAccount(id, ok){ return false; }  // self sign-up exists only in the server version
 function canManage(target){
   const me = accRole();
   if (me === "admin") return true;
@@ -1745,6 +1783,7 @@ function adminView(all){
   if (isAdmin){ st.push(stat("🙏", all.length, "أولاد في الاعتراف"), stat("📅", all.filter(p=>p.request).length, "طلبات اعتراف"), stat("🕊️", (S.meditations||[]).length, "تأملات اتبعتت"));
     const lb = S.meta && S.meta.lastBackup; st.push(stat("💾", lb ? daysBetween(parseYmd(lb.slice(0,10)), TODAY) : 0, lb ? "يوم من آخر نسخة احتياطية" : "مفيش نسخة احتياطية", !lb || daysBetween(parseYmd(lb.slice(0,10)), TODAY) > 7)); }
   wrap.append(h("div",{class:"stats"}, st));
+  wrap.append(pendingCard());
   if (reqs.length) wrap.append(h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
     h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
       h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "طلب "+agoText(ymd(new Date(r.at))))),
@@ -1761,6 +1800,7 @@ function adminView(all){
         h("div",{class:"who"}, h("strong",null, a.name, self ? " (إنت)" : ""),
           h("span",{class:"small muted"}, a.lastLogin ? "آخر دخول "+agoText(ymd(new Date(a.lastLogin)))+" · "+arDigits(a.logins||0)+" مرة" : "لسه ما دخلش"))),
       h("div",{class:"row"}, h("span",{class:"pill "+(a.role==="admin"?"acc":a.role==="priest"?"ok":a.role==="supervisor"?"warn":"")}, (ROLES[a.role]||ROLES.user).label),
+        a.pending ? h("span",{class:"pill warn"},"⏳ مستني موافقة") : null,
         a.active===false ? h("span",{class:"pill bad"},"متوقف") : null));
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
@@ -1843,9 +1883,9 @@ const slugOk = s => /^[a-z0-9][a-z0-9-]{2,29}$/.test(s);
 async function mailFor(slug, name){ return (await sha256(slug+":"+nameKey(name))).slice(0, 40)+"@"+MAIL_DOMAIN; }
 // new-style publishable keys (sb_publishable_...) go only in apikey; legacy anon keys are JWTs and also go as Bearer
 const bearer = t => /^eyJ/.test(t||"") ? {Authorization:"Bearer "+t} : {};
-const ACC_COLS = "uid,name,role,active,must_change,photo,last_login,logins,created_at,created_by,pw_set_at";
+const ACC_COLS = "uid,name,role,active,must_change,photo,last_login,logins,created_at,created_by,pw_set_at,pending";
 const accFromRow = r => ({id:r.uid, name:r.name, role:r.role, active:r.active, mustChange:r.must_change, photo:r.photo||"",
-  lastLogin:r.last_login, logins:r.logins, createdAt:r.created_at, by:r.created_by, pwSetAt:r.pw_set_at});
+  lastLogin:r.last_login, logins:r.logins, createdAt:r.created_at, by:r.created_by, pwSetAt:r.pw_set_at, pending:!!r.pending});
 // friendly Arabic for what the server says
 function cloudMsg(e){
   const m = String((e && e.message) || e || "");
@@ -1854,6 +1894,9 @@ function cloudMsg(e){
   if (/already registered|already exists|already a member|duplicate key/i.test(m)) return "فيه حساب بالاسم ده.";
   if (/licence expired/.test(m)) return "رخصة الكنيسة خلصت. كلّم المطوّر على "+DEV.phone+".";
   if (/bad code/.test(m)) return "كود الرخصة غلط.";
+  if (/register_self|pending_list|review_account/.test(m) && /function|schema cache|does not exist/i.test(m)) return "التسجيل الجديد لسه مش متفعّل على السيرفر. كلّم المطوّر على "+DEV.phone+".";
+  if (/no church/.test(m)) return "الكنيسة دي لسه ما اتفعّلتش.";
+  if (/bad name/.test(m)) return "اكتب اسمك صح.";
   if (/code used/.test(m)) return "كود الرخصة ده اتفعّل قبل كده.";
   if (/last admin/.test(m)) return "لازم يفضل أدمن واحد على الأقل.";
   if (/account limit/.test(m)) return "وصلت لأقصى عدد حسابات في الرخصة. كلّم المطوّر.";
@@ -1899,7 +1942,9 @@ const Cloud = {
   /* Store interface */
   async fetch(path, opts){
     const even = path.split("/").length % 2 === 0, c = this.q(this.church());
-    if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c) || []).map(accFromRow);
+    // older databases (setup file not re-run yet) have no "pending" column
+    if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c).catch(e => /pending/.test(e.message) ? this.req("/rest/v1/accounts?select="+ACC_COLS.replace(",pending","")+"&church_id=eq."+c) : Promise.reject(e)) || []).map(accFromRow);
+    if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, at:r.created_at, profile:r.profile||{}}));
     if (path === "pwreq") return (await this.req("/rest/v1/pwreqs?select=uid,name,at&church_id=eq."+c) || []).map(r => ({id:r.uid, accId:r.uid, name:r.name, at:r.at}));
     if (even){
       if (path.startsWith("accounts/")){ const r = (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&uid=eq."+this.q(path.split("/")[1])) || [])[0]; return r ? accFromRow(r) : null; }
@@ -1961,6 +2006,22 @@ saveAccount = async (acc, patch) => {
   Cloud.refresh("accounts/x"); if (!okk) throw new Error("not saved");
 };
 deleteAccount = async (acc) => { const okk = await accTry(() => Cloud.rpc("delete_account", {p_uid:acc.id})); Cloud.refresh("accounts/x"); Cloud.refresh("pwreq/x"); if (!okk) throw new Error("not deleted"); };
+reviewAccount = async (id, okk) => { const done = await accTry(() => Cloud.rpc("review_account", {p_uid:id, p_ok:okk}));
+  Cloud.refresh("pending/x"); Cloud.refresh("accounts/x"); Cloud.refresh("members/x"); return done; };
+// someone who signed themselves up: check now and then whether they were approved, then open the whole app
+function watchApproval(){
+  clearInterval(watchApproval.t);
+  if (!S.account || S.account.role !== "pending") return;
+  watchApproval.t = setInterval(async () => {
+    if (document.hidden || !Cloud.sess) return;
+    try { const me = await Cloud.rpc("me");
+      if (!me || me.role === "pending") return;
+      clearInterval(watchApproval.t); Cloud.me = me;
+      if (!me.active){ logout(); return; }
+      applyAccount(cloudAccount(me)); subscribe(); render(); toast("🎉 حسابك اتوافق عليه، والبرنامج كله فتحلك");
+    } catch(e){ if (e.status === 401 || /no account/.test(e.message||"")) { clearInterval(watchApproval.t); logout(); } }
+  }, 20000);
+}
 dismissPwreq = async (id) => { await accTry(() => Cloud.rpc("dismiss_pwreq", {p_uid:id})); Cloud.refresh("pwreq/x"); };
 setPassword = async (acc, pw, why) => {
   const okk = await accTry(() => Cloud.rpc("set_password", {p_uid:acc.id, p_pw:pw}));
@@ -1983,7 +2044,7 @@ async function restoreCloudSession(){
   const s = Cloud.loadSess(); if (!s || !ssGet(okKey())) return false;
   Cloud.sess = s;
   try { const me = await Cloud.rpc("me"); if (!me || !me.active || me.must_change) throw new Error("x");
-    Cloud.me = me; applyAccount(cloudAccount(me)); return true; }
+    Cloud.me = me; applyAccount(cloudAccount(me)); watchApproval(); return true; }
   catch(e){ Cloud.setSess(null); return false; }
 }
 const savedChurch = () => { const u = new URLSearchParams(location.search).get("c"); if (u && slugOk(u.toLowerCase())) return u.toLowerCase();
@@ -2003,7 +2064,7 @@ async function showCloudGate(){
   const enter = async (me) => {
     Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("دخل البرنامج");
     if (me.must_change){ mode = "change"; draw(); return; }
-    ssSet(okKey(), me.uid); unlock();
+    ssSet(okKey(), me.uid); unlock(); watchApproval();
   };
   const draw = () => {
     const err = h("p",{class:"gate-err", role:"alert"});
@@ -2029,15 +2090,39 @@ async function showCloudGate(){
         try { await Cloud.signIn(await mailFor(slug, name), pw); }
         catch(e){ if (!e.offline) lockFail(); if ($("#gPw")) $("#gPw").value = ""; throw e; }
         lockOk();
-        let me; try { me = await Cloud.rpc("touch_login"); } catch(e){ await Cloud.signOut(); fail(/no account/.test(e.message) ? "الاسم ده مش متسجّل في الكنيسة دي. لو دي أول مرة، فعّل الكنيسة بكود الرخصة الأول." : cloudMsg(e)); }
+        let me; try { me = await Cloud.rpc("touch_login"); } catch(e){ await Cloud.signOut(); fail(/no account/.test(e.message) ? "الاسم ده مش متسجّل في الكنيسة دي. لو أول مرة تدخل، دوس «حساب جديد» تحت." : cloudMsg(e)); }
         if (!me.active){ await Cloud.signOut(); fail("الحساب ده متوقف. كلّم الأدمن."); }
         await enter(me); }); }},
         info && info.live === false ? h("p",{class:"gate-err"},"رخصة الكنيسة خلصت، والبرنامج للقراءة بس لحد ما تتجدد.") : null,
         h("label",null,"الاسم", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
         h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","current-password")),
         err, btn("دخول"));
-      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
+      extra = [info && info.claimed !== false ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
+        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
         h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")];
+    } else if (mode === "register"){
+      sub = "اختار اسم وكلمة سر هتدخل بيهم على طول. بعد كده هتكتب بياناتك، وأبونا أو المشرف يوافق على حسابك.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        const name = v("gName").trim().replace(/\s+/g, " "), pw = v("gPw");
+        if (name.length < 2) fail("اكتب اسمك (الاسم الأول واسم الأب مثلاً)."); if (name.length > 60) fail("الاسم طويل أوي.");
+        if (pw.length < PW_MIN) fail(pwShort()+"."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
+        if (info && info.live === false) fail("رخصة الكنيسة خلصت، ومينفعش تسجيل جديد دلوقتي.");
+        const email = await mailFor(slug, name);
+        try { await Cloud.signUp(email, pw); } catch(e){ if (!/already|exists/i.test(e.message)) throw e; }
+        try { await Cloud.signIn(email, pw); } catch(e){ if (e.offline) throw e; fail("الاسم ده متسجّل قبل كده. لو ده إنت، ارجع وادخل بكلمة السر بتاعتك. لو لأ، زوّد اسم العيلة."); }
+        let me; try { me = await Cloud.rpc("touch_login"); } catch(e){
+          if (!/no account/.test(e.message)){ await Cloud.signOut(); throw e; }
+          try { await Cloud.rpc("register_self", {p_slug:slug, p_name:name}); } catch(e2){ await Cloud.signOut(); throw e2; }
+          me = await Cloud.rpc("touch_login");
+          Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("سجّل حساب جديد ومستني الموافقة"); }
+        if (!me.active){ await Cloud.signOut(); fail("الحساب ده متوقف. كلّم الأدمن."); }
+        await enter(me); }); }},
+        h("label",null,"اسمك", h("input",{id:"gName", autocomplete:"username", placeholder:"الاسم الأول واسم الأب"})),
+        h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","new-password")),
+        h("label",null,"اكتب كلمة السر تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
+        h("p",{class:"small muted", style:"margin:0"},"افتكر الاسم ده بالظبط، لأنك هتدخل بيه كل مرة."),
+        err, btn("اعمل الحساب وادخل"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"عندي حساب، رجوع للدخول")];
     } else if (mode === "forgot"){
       sub = "اكتب اسمك، وهيوصل طلب للأدمن يعملك كلمة سر جديدة.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
