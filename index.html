@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
 <title>ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <script>
 // إعدادات السيرفر (مشروع Supabase). المفتاح ده publishable ومعمول إنه يبقى علني.
 window.RUHIYA_CONFIG = {
@@ -205,6 +209,32 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .pending-wait{display:flex;gap:14px;align-items:center;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
 .pending-wait .prep-emo{font-size:2rem}
 .pending-card{display:grid;gap:10px;border:2px solid transparent;background:linear-gradient(color-mix(in oklab,#06b6d4 7%,var(--surface)),color-mix(in oklab,#06b6d4 7%,var(--surface))) padding-box,var(--gold-grad) border-box}
+.seg{display:flex;gap:6px;background:var(--surface);border-radius:14px;padding:5px;box-shadow:var(--shadow)}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:9px 6px;font-family:var(--f-head);font-weight:700;color:var(--ink-2);cursor:pointer}
+.seg button[aria-selected="true"]{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;box-shadow:0 0 0 2px var(--gold) inset}
+.cal{display:grid;gap:8px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:center}
+.cal-nav{border:1.5px solid var(--gold-line);background:var(--surface);border-radius:10px;width:38px;height:38px;font-size:1.3rem;font-weight:800;cursor:pointer;color:var(--a)}
+.cal-nav:disabled{opacity:.3;cursor:default}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-wd{font-size:.7rem;font-weight:700;color:var(--ink-2);text-align:center;padding-bottom:2px}
+.cal-day{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-height:46px;display:grid;place-items:center;align-content:center;gap:0;padding:3px 0;cursor:pointer;color:var(--ink);line-height:1.15}
+.cal-day b{font-size:.98rem;font-family:var(--f-head)}
+.cal-day small{font-size:.62rem;color:var(--gold-d);font-weight:700}
+.cal-day.wk{background:color-mix(in oklab,#f43f5e 6%,var(--surface))}
+.cal-day.today{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.cal-day.on{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;border-color:transparent}
+.cal-day.on small{color:#fde68a}
+.cal-day:disabled{opacity:.3;cursor:default}
+.pick-day{font-weight:700;color:var(--a);margin:0}
+.slot-row .chip-btn{padding:6px 12px}
+.req-note{border-inline-start:4px solid var(--gold);background:color-mix(in oklab,var(--gold) 9%,var(--surface));border-radius:10px;padding:8px 12px;display:grid;gap:2px}
+.req-note span{font-size:.78rem;font-weight:700;color:var(--gold-d)}
+@media (max-width:380px){.cal-day{min-height:40px}.cal-day b{font-size:.88rem}.cal-grid{gap:3px}}
+.gate-photo{width:120px;height:120px;border-radius:50%;margin:0 auto;display:grid;place-items:center;overflow:hidden;border:3px solid var(--gold);background:color-mix(in oklab,var(--gold) 10%,var(--surface));font-size:2.6rem;box-shadow:0 6px 18px rgba(15,118,110,.18)}
+.gate-photo img{width:100%;height:100%;object-fit:cover}
+.bio-art{font-size:3rem;text-align:center;line-height:1}
+.bio-btn{background:linear-gradient(135deg,#7c3aed,#1e40af)!important}
 .pending-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .menrit{display:grid;justify-items:center;gap:2px;line-height:1}
 .menrit .mn-word{font-family:"Noto Sans Coptic","Segoe UI Historic","Segoe UI Symbol",serif;font-size:2.7rem;letter-spacing:.06em;padding:4px 6px 6px;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 3px 6px rgba(138,90,18,.28))}
@@ -351,6 +381,35 @@ ul.list li{border-top-color:var(--gold-line)!important}
 body.locked .ticker{display:none!important}
 @media (prefers-reduced-motion: reduce){.tick-track{animation-duration:calc(var(--tick-dur,60s) * 2)}}
 :root{--sky-edge:#d6effd;--sky-ink:#0b2a52}
+/* phones: tighter spacing so the header and cards fit without wrapping */
+@media (max-width:480px){
+  body{font-size:14.5px;padding-left:max(10px, env(safe-area-inset-left, 0px));padding-right:max(10px, env(safe-area-inset-right, 0px));padding-top:10px}
+  main{gap:14px}
+  .ticker{min-height:40px!important;margin-bottom:10px;border-radius:12px}
+  .hero{padding:14px 14px 14px;border-radius:20px;column-gap:10px}
+  .hero-main{gap:7px}
+  .hero-top{gap:8px}
+  .cross{width:34px;height:34px;padding:6px;border-radius:10px}
+  .hero-logo{width:36px;height:36px}
+  .brand .eyebrow{font-size:.72rem;line-height:1.4}
+  .brand h1{font-size:1.2rem;line-height:1.3}
+  .mn-pill{font-size:.85rem;padding:0 9px 2px;margin-bottom:2px}
+  .hero-meta{gap:5px}
+  .glass{font-size:.74rem;padding:2px 9px}
+  .saint{width:74px}
+  .saint-init{font-size:2rem}
+  .saint figcaption{font-size:.62rem;bottom:4px}
+  .card{padding:13px;gap:8px}
+  .stats{gap:8px}
+  .stat{padding:11px;gap:4px}
+  .stat b{font-size:1.45rem}
+  h2{font-size:1.08rem} h3{font-size:.98rem}
+  .sec-head h2{gap:7px}
+  ul.list li{padding:10px 12px}
+  .btn{padding:8px 14px}
+  .gate-card{padding:20px 16px 16px;gap:13px;border-radius:22px}
+  .menrit .mn-word{font-size:2.2rem}
+}
 </style>
 </head>
 <body>
@@ -623,7 +682,8 @@ function merged(){
       birthday: p.birthday || s.birthday || "", wedding: p.wedding || s.wedding || "", spouse: p.spouse || s.spouse || "",
       familyName: p.familyName || "", lastConfession: p.lastConfession || "", lastVisit: p.lastVisit || "", notes: p.notes || "",
       photo: p.photo || s.photo || "", area: p.area || "", address: p.address || "", job: p.job || "", children: p.children || [], visits: p.visits || [], confessions: p.confessions || [],
-      request: s.request && s.request.id !== p.handledRequest ? s.request : null, isNew: e.onApp && !e.pr
+      request: s.request && s.request.id !== p.handledRequest ? s.request : null,
+      visitReq: s.visitReq && s.visitReq.id !== p.handledVisit ? s.visitReq : null, isNew: e.onApp && !e.pr
     });
   }).sort((a,b)=>a.name.localeCompare(b.name,"ar"));
 }
@@ -767,7 +827,7 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
-  const req = all.filter(p=>p.request).length;
+  const req = all.filter(p=>p.request||p.visitReq).length;
   const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
   if (accRole() === "admin") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
   return t;
@@ -776,7 +836,7 @@ function priestToday(all){
   const occ = occasions(all, 7);
   const overdueC = all.filter(p => !p.lastConfession || daysBetween(parseYmd(p.lastConfession),TODAY) > CONFESS_DAYS);
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > VISIT_DAYS);
-  const reqs = all.filter(p=>p.request), fresh = all.filter(p=>p.isNew);
+  const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
   const wrap = h("div",{style:"display:grid;gap:22px"}, pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
@@ -786,7 +846,7 @@ function priestToday(all){
   wrap.append(h("section",null,
     h("div",{class:"stats"},
       stat(all.length,"أولاد في الاعتراف","people",false,"people"),
-      stat(reqs.length,"طلبات اعتراف مستنية","requests",true,"confession"),
+      stat(reqs.length,"طلبات اعتراف وافتقاد","requests",true,"confession"),
       stat(overdueC.length,"عدّى "+arDigits(CONFESS_DAYS)+" يوم من آخر اعتراف","people",true,"bell"),
       stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
   if (fresh.length) wrap.append(h("section",null, sectionHead("ناس جديدة دخلت البرنامج"),
@@ -820,7 +880,8 @@ function personRow(p){
     h("div",{class:"row"},
       h("span",{class:"pill "+(cD===null||cD>CONFESS_DAYS?"warn":"ok")},"اعتراف: "+agoText(p.lastConfession)),
       h("span",{class:"pill "+(vD===null||vD>VISIT_DAYS?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
-      p.request ? h("span",{class:"pill acc"},"طالب اعتراف") : null));
+      p.request ? h("span",{class:"pill acc"},"🙏 طالب اعتراف") : null,
+      p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null));
 }
 function priestPeople(all){
   const q = (S.draft.q||"").trim();
@@ -910,33 +971,77 @@ function personDetail(all){
 }
 function selectPersonClear(){ S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.sel=null; render(); }
 
+const REQ_KINDS = {
+  confession:{field:"request", handled:"handledRequest", next:"nextConfession", label:"اعتراف", emo:"🙏", title:"ميعاد الاعتراف", inbox:"appointment"},
+  visit:{field:"visitReq", handled:"handledVisit", next:"nextVisit", label:"افتقاد", emo:"🏡", title:"ميعاد الافتقاد", inbox:"visit"}};
+const SLOTS = [["morning","☀️ الصبح","10:00"],["noon","🌤️ الضهر","13:00"],["evening","🌇 بعد العصر","17:00"],["night","🌙 بالليل","19:30"]];
+const slotOf = k => SLOTS.find(x=>x[0]===k);
+const timeAr = t => { const [hh,mm] = String(t).split(":").map(Number); return arDigits((hh%12)||12)+":"+arDigits(pad(mm))+(hh<12?" ص":" م"); };
+function reqWhen(r){
+  if (!r) return "";
+  if (!r.date) return r.preferred || "";
+  const d = parseYmd(r.date), sl = slotOf(r.slot);
+  return WDAYS[d.getDay()]+" "+fmtShort(r.date)+(r.time ? " · الساعة "+timeAr(r.time) : sl ? " · "+sl[1] : "");
+}
+// a month grid ("نتيجة") with the Coptic day under each date; past days and days after four months are off
+function calPicker(selected, onPick){
+  const maxD = new Date(TODAY); maxD.setDate(maxD.getDate()+120); const max = ymd(maxD);
+  const cur = S.draft.calMonth || (selected||TODAY_S).slice(0,7);
+  const [y,m] = cur.split("-").map(Number);
+  const first = new Date(y, m-1, 1), nDays = new Date(y, m, 0).getDate(), lead = (first.getDay()+1) % 7;
+  const go = d => { const t = new Date(y, m-1+d, 1); S.draft.calMonth = t.getFullYear()+"-"+pad(t.getMonth()+1); render(); };
+  const c1 = toCoptic(first), c2 = toCoptic(new Date(y, m-1, nDays));
+  const cells = [];
+  for (let i=0;i<lead;i++) cells.push(h("span",{class:"cal-pad"}));
+  for (let d=1; d<=nDays; d++){
+    const dt = new Date(y,m-1,d), ds = ymd(dt), c = toCoptic(dt), off = ds < TODAY_S || ds > max;
+    cells.push(h("button",{type:"button", class:"cal-day"+(ds===selected?" on":"")+(ds===TODAY_S?" today":"")+(dt.getDay()===5?" wk":""), disabled:off,
+      "aria-pressed": ds===selected ? "true" : "false", "aria-label": WDAYS[dt.getDay()]+" "+fmtShort(ds), onclick:()=>onPick(ds)},
+      h("b",null, arDigits(d)), h("small",null, arDigits(c.d))));
+  }
+  return h("div",{class:"cal"},
+    h("div",{class:"cal-head"},
+      h("button",{type:"button", class:"cal-nav", disabled: cur <= TODAY_S.slice(0,7), onclick:()=>go(-1), "aria-label":"الشهر اللي فات"},"›"),
+      h("div",null, h("strong",null, GMONTHS[m-1]+" "+arDigits(y)), h("span",{class:"small muted"}, " · "+CMONTHS[c1.m-1]+(c2.m!==c1.m ? " / "+CMONTHS[c2.m-1] : "")+" "+arDigits(c2.y))),
+      h("button",{type:"button", class:"cal-nav", disabled: cur >= max.slice(0,7), onclick:()=>go(1), "aria-label":"الشهر الجاي"},"‹")),
+    h("div",{class:"cal-grid"}, ...["سبت","حد","اتنين","تلات","أربع","خميس","جمعة"].map(w=>h("span",{class:"cal-wd"},w)), ...cells),
+    h("p",{class:"small muted", style:"margin:0"},"الرقم الصغير تحت كل يوم هو التاريخ القبطي."));
+}
 function priestRequests(all){
-  const reqs = all.filter(p=>p.request);
-  const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف"));
-  if (!reqs.length) wrap.append(h("div",{class:"empty"},"مفيش طلبات مستنية. لما حد يطلب ميعاد اعتراف هيظهر هنا."));
-  for (const p of reqs){
-    const idT = "t_"+p.id, idN = "n_"+p.id;
-    wrap.append(h("div",{class:"card"},
-      h("div",{class:"row between"}, h("h3",null,p.name), h("span",{class:"small muted"}, "طلب "+agoText(p.request.at))),
-      p.request.preferred ? h("p",null,"الميعاد اللي يناسبه: ", h("strong",null,p.request.preferred)) : null,
-      p.request.note ? h("p",{class:"muted"}, "«"+p.request.note+"»") : null,
+  const items = all.flatMap(p => [p.request ? {p, r:p.request, k:"confession"} : null, p.visitReq ? {p, r:p.visitReq, k:"visit"} : null]).filter(Boolean)
+    .sort((a,b)=>String(a.r.date||"9").localeCompare(String(b.r.date||"9")));
+  const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف والافتقاد"));
+  if (!items.length) wrap.append(h("div",{class:"empty"},"مفيش طلبات مستنية. لما حد يطلب ميعاد اعتراف أو افتقاد هيظهر هنا."));
+  for (const {p, r, k} of items){
+    const K = REQ_KINDS[k], idT = "t_"+k+p.id, idN = "n_"+k+p.id, sl = slotOf(r.slot);
+    const def = r.date ? r.date+"T"+(r.time || (sl ? sl[2] : "18:00")) : "";
+    const done = async (when, note) => {
+      if (when) await Store.set("members/"+p.id+"/inbox/"+newId(), {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()});
+      const patch = {[K.handled]: r.id}; if (when) patch[K.next] = when;
+      await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, patch)));
+    };
+    wrap.append(h("div",{class:"card req-card"},
+      h("div",{class:"row between"}, h("div",{class:"person-line"}, avatar(p), h("h3",null,p.name)), h("span",{class:"pill acc"}, K.emo+" "+K.label)),
+      r.date || r.preferred ? h("p",null,"📅 يناسبه: ", h("strong",null, reqWhen(r))) : null,
+      r.address ? h("p",{class:"small"},"📍 "+r.address) : null,
+      r.note ? h("div",{class:"req-note"}, h("span",null,"📝 ملاحظة منه"), h("p",null, r.note)) : null,
+      h("span",{class:"small muted"},"طلب "+agoText(r.at)),
       h("div",{class:"form two"},
-        h("label",null,"حدد الميعاد", h("input",{id:idT, type:"datetime-local"})),
-        h("label",null,"رسالة معاه (اختياري)", h("input",{id:idN, placeholder:"مثلاً: في مكتب أبونا بعد عشية"}))),
+        h("label",null,"الميعاد اللي هتبعته", h("input",{id:idT, type:"datetime-local", value:def})),
+        h("label",null,"رسالة معاه (اختياري)", h("input",{id:idN, placeholder: k==="visit" ? "مثلاً: هعدّي عليك أنا والشماس" : "مثلاً: في مكتب أبونا بعد عشية"}))),
       h("div",{class:"row"},
         h("button",{class:"btn", onclick:async()=>{
           const when = document.getElementById(idT).value; if(!when){ toast("اختار الميعاد الأول"); return; }
-          const note = document.getElementById(idN).value.trim();
-          await Store.set("members/"+p.id+"/inbox/"+newId(), {type:"appointment", title:"ميعاد الاعتراف", when, text:note, reqId:p.request.id, at:new Date().toISOString()});
-          await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, {handledRequest:p.request.id, nextConfession:when})));
-          toast("الميعاد اتبعت لـ "+p.name);
-        }},"ابعت الميعاد"),
-        h("button",{class:"btn quiet", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, {handledRequest:p.request.id}))); toast("اتشال من الطلبات"); }},"تم من غير ميعاد"))));
+          await done(when, document.getElementById(idN).value.trim()); toast("الميعاد اتبعت لـ "+p.name); }},"ابعت الميعاد"),
+        h("button",{class:"btn quiet", onclick:async()=>{ await done(null); toast("اتشال من الطلبات"); }},"تم من غير ميعاد"))));
   }
-  const upcoming = all.filter(p=>p.pr && p.pr.nextConfession && new Date(p.pr.nextConfession) >= TODAY).sort((a,b)=>a.pr.nextConfession.localeCompare(b.pr.nextConfession));
-  if (upcoming.length) wrap.append(h("section",null, sectionHead("مواعيد جاية"), h("ul",{class:"list"}, upcoming.map(p => h("li",null,
-    h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted num"}, fmtWhen(p.pr.nextConfession))),
-    h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(p.pr.confessions||[]), TODAY_S])].sort()}))); toast("اتسجل الاعتراف"); }},"اعترف"))))));
+  const up = all.flatMap(p => [p.pr && p.pr.nextConfession && new Date(p.pr.nextConfession) >= TODAY ? {p, when:p.pr.nextConfession, k:"confession"} : null,
+    p.pr && p.pr.nextVisit && new Date(p.pr.nextVisit) >= TODAY ? {p, when:p.pr.nextVisit, k:"visit"} : null]).filter(Boolean).sort((a,b)=>a.when.localeCompare(b.when));
+  if (up.length) wrap.append(h("section",null, sectionHead("مواعيد جاية"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
+    h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when))),
+    k==="confession"
+      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(p.pr.confessions||[]), TODAY_S])].sort()}))); toast("اتسجل الاعتراف"); }},"اعترف")
+      : h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr, {lastVisit:TODAY_S, nextVisit:"", visits:[...(p.pr.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]}))); toast("الافتقاد اتسجل"); }},"افتقدته"))))));
   return wrap;
 }
 function fmtWhen(s){ if(!s) return ""; const d = new Date(s); return WDAYS[d.getDay()]+" "+fmtG(d)+" · "+arDigits(pad(d.getHours()))+":"+arDigits(pad(d.getMinutes())); }
@@ -1220,14 +1325,14 @@ function resizeImage(file, max, cb){
 /* ---------- MEMBER ---------- */
 function memberTabs(){
   const unread = S.inbox.filter(m => !S.draft.seen || m.at > S.draft.seen).length;
-  return [["today","النهارده"],["notebook","النوتة"],["confession","الاعتراف"],["inbox","الرسائل", S.tab==="inbox"?0:unread],["me","بياناتي"]];
+  return [["today","النهارده"],["notebook","النوتة"],["confession","المواعيد"],["inbox","الرسائل", S.tab==="inbox"?0:unread],["me","بياناتي"]];
 }
 function memberToday(){
   const wrap = h("div",{style:"display:grid;gap:22px"});
   const name = S.profile && S.profile.name ? S.profile.name.split(" ")[0] : "";
   wrap.append(h("section",null, h("div",{class:"person-line"}, S.profile ? avatar(S.profile) : null, h("h2",null, (name ? "سلام ونعمة يا "+name : "سلام ونعمة"))),
     h("p",{class:"muted"},"إحنا في "+SEASONS[SEASON].name+". "+(feastsOf(TODAY).length ? "النهارده "+feastsOf(TODAY).join(" و")+"." : ""))));
-  if (S.profileLoaded && !S.profile) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلاً بيك في البرنامج"),
+  if (S.profileLoaded && !profileFilled()) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلاً بيك في البرنامج"),
     h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. محدش غير أبونا بيشوفها."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"اكتب بياناتي"))));
   const appt = S.inbox.find(m => m.type==="appointment" && new Date(m.when) >= TODAY);
   if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,"ميعاد اعترافك"), h("p",{class:"num"}, fmtWhen(appt.when)), appt.text ? h("p",{class:"muted"},appt.text) : null));
@@ -1314,35 +1419,54 @@ function prepBlock(){
     sec("✨","تذكّر قبل ما تدخل لأب الاعتراف","", pts(PREP_REMIND)));
 }
 function memberConfession(){
-  const req = S.profile && S.profile.request;
-  const answered = req && S.inbox.find(m=>m.type==="appointment" && m.reqId===req.id);
-  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("حجز اعتراف"));
-  if (!S.profile){ wrap.append(h("div",{class:"empty"},"اكتب بياناتك الأول من «بياناتي» عشان أبونا يعرفك."), prepBlock()); return wrap; }
-  if (req && !answered) wrap.append(h("div",{class:"card detail"}, h("h3",null,"طلبك وصل لأبونا"), h("p",{class:"muted"}, "بعته "+agoText(req.at)+(req.preferred?" · يناسبك: "+req.preferred:"")+". أبونا هيحدد الميعاد ويبعتهولك هنا في الرسائل.")));
-  if (answered) wrap.append(h("div",{class:"card detail"}, h("h3",null,"ميعادك"), h("p",{class:"num"}, fmtWhen(answered.when)), answered.text ? h("p",{class:"muted"},answered.text) : null));
-  wrap.append(h("div",{class:"card form"},
-    h("h3",null, req ? "اطلب ميعاد تاني" : "اطلب ميعاد اعتراف"),
-    h("label",null,"إمتى يناسبك", h("input",{id:"rPref", placeholder:"مثلاً: الخميس بعد القداس أو السبت بالليل"})),
-    h("label",null,"حاجة تحب أبونا يعرفها (اختياري)", h("textarea",{id:"rNote", rows:"3"})),
+  const kind = S.draft.reqKind || "confession", K = REQ_KINDS[kind], p = S.profile;
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("اطلب ميعاد"));
+  if (!profileFilled()){ wrap.append(h("div",{class:"empty"},"اكتب بياناتك الأول من «بياناتي» عشان أبونا يعرفك."), prepBlock()); return wrap; }
+  for (const k of ["confession","visit"]){
+    const r = p[REQ_KINDS[k].field]; if (!r) continue;
+    const ans = S.inbox.find(m => m.reqId === r.id);
+    wrap.append(h("div",{class:"card detail"}, ans
+      ? [h("h3",null, REQ_KINDS[k].emo+" "+REQ_KINDS[k].title), h("p",{class:"num"}, h("strong",null, fmtWhen(ans.when))), ans.text ? h("p",{class:"muted"}, ans.text) : null]
+      : [h("h3",null, REQ_KINDS[k].emo+" طلب ال"+REQ_KINDS[k].label+" وصل لأبونا"), h("p",{class:"muted"}, "يناسبك: "+reqWhen(r)+". أبونا هيحدد الميعاد ويبعتهولك هنا وفي الرسائل.")]));
+  }
+  const d = S.draft;
+  const seg = h("div",{class:"seg", role:"tablist"}, Object.entries(REQ_KINDS).map(([k,v]) =>
+    h("button",{type:"button", role:"tab", "aria-selected": k===kind ? "true" : "false", onclick:()=>{ S.draft.reqKind = k; render(); }}, v.emo+" "+v.label)));
+  const form = h("div",{class:"card form"},
+    h("h3",null, kind === "visit" ? "اختار يوم يناسبك أبونا يزورك فيه" : "اختار يوم يناسبك للاعتراف"),
+    calPicker(d.reqDate, ds => { S.draft.reqDate = ds; render(); }),
+    d.reqDate ? h("p",{class:"pick-day"}, "📅 "+WDAYS[parseYmd(d.reqDate).getDay()]+" "+fmtShort(d.reqDate)) : null,
+    h("div",{class:"form", style:"gap:6px"}, h("span",{class:"small", style:"font-weight:700"},"الوقت اللي يناسبك"),
+      h("div",{class:"row slot-row"}, SLOTS.map(([k,l]) => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqSlot===k ? "true" : "false", onclick:()=>{ S.draft.reqSlot = d.reqSlot===k ? "" : k; S.draft.reqTime = ""; render(); }}, l))),
+      h("label",{class:"small"},"أو حدد الساعة بالظبط (اختياري)", h("input",{type:"time", id:"rTime", value:d.reqTime||"", style:"max-width:180px", onchange:e=>{ S.draft.reqTime = e.target.value; }}))),
+    kind === "visit" ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
+    h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: kind==="visit" ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-      const r = {id:newId(), preferred:$("#rPref").value.trim(), note:$("#rNote").value.trim(), at:TODAY_S};
-      await Store.update("members/"+S.uid, {request:r}); toast("الطلب وصل لأبونا");
-    }},"ابعت الطلب"))), prepBlock());
+      if (!S.draft.reqDate){ toast("اختار يوم من النتيجة الأول"); return; }
+      const r = {id:newId(), kind, date:S.draft.reqDate, slot:S.draft.reqSlot||"", time:($("#rTime")||{}).value||"", note:($("#rNote").value||"").trim(), at:TODAY_S};
+      if (kind === "visit") r.address = ($("#rAddr").value||"").trim();
+      r.preferred = reqWhen(r);
+      await Store.update("members/"+S.uid, {[K.field]: r});
+      Object.assign(S.draft, {reqDate:"", reqSlot:"", reqTime:"", reqNote:"", reqAddr:null, calMonth:null});
+      toast("طلب ال"+K.label+" وصل لأبونا 🙏"); render();
+    }}, "ابعت طلب ال"+K.label)));
+  wrap.append(seg, form);
+  if (kind === "confession") wrap.append(prepBlock());
   return wrap;
 }
 function memberInbox(){
   if (S.inbox[0]) S.draft.seen = S.inbox[0].at;
-  const kind = {appointment:"ميعاد", greeting:"تهنئة", meditation:"تأمل"};
+  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل"};
   return h("div",{style:"display:grid;gap:14px"}, sectionHead("رسائل أبونا"),
     S.inbox.length ? S.inbox.map(m => h("div",{class:"card"},
       h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(m.at.slice(0,10)) : "")),
-      m.type==="appointment" ? h("div",null, h("h3",null,"ميعاد الاعتراف"), h("p",{class:"num"}, fmtWhen(m.when)), m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
+      m.type==="appointment" || m.type==="visit" ? h("div",null, h("h3",null, m.title || "ميعاد الاعتراف"), h("p",{class:"num"}, fmtWhen(m.when)), m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
     : h("div",{class:"empty"},"مفيش رسائل لسه. أي تأمل أو ميعاد أو تهنئة من أبونا هيوصلك هنا."));
 }
 function memberMe(){
   const p = S.profile || {};
   const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead(S.profile ? "بياناتي" : "أهلاً بيك"));
-  if (!S.profile) wrap.append(h("p",null,"اكتب بياناتك عشان أبونا يعرفك ويفتكرك في أعيادك. بياناتك بيشوفها أبونا بس، ومحدش من الناس التانية يعرف إنك على البرنامج."));
+  if (!profileFilled()) wrap.append(h("p",null,"اكتب بياناتك عشان أبونا يعرفك ويفتكرك في أعيادك. بياناتك بيشوفها أبونا بس، ومحدش من الناس التانية يعرف إنك على البرنامج."));
   const shown = Object.assign({}, p, S.draft.photo ? {photo:S.draft.photo} : {}, {name:p.name||S.draft.loginName||""});
   wrap.append(h("div",{class:"card photo-box"}, avatar(shown,"lg"), h("div",{class:"form", style:"gap:6px"}, h("strong",null,"صورتك"),
     h("span",{class:"small muted"},"بتظهر جنب اسمك، وأبونا بس اللي بيشوفها."),
@@ -1368,8 +1492,10 @@ function memberMe(){
 }
 
 /* ---------- self sign-up: waiting for approval ---------- */
+// only a photo from the sign-in step is not a filled profile yet
+const profileFilled = () => !!(S.profile && S.profile.name && (S.profile.joined || S.profile.phone || S.profile.birthday));
 function pendingView(){
-  const done = !!(S.profile && S.profile.name);
+  const done = profileFilled();
   return h("div",{style:"display:grid;gap:16px"},
     h("div",{class:"card pending-wait"}, h("span",{class:"prep-emo"},"⏳"),
       h("div",null, h("h3",null, done ? "بياناتك وصلت، ومستنية موافقة أبونا" : "أهلاً بيك في البرنامج 🌿"),
@@ -1877,7 +2003,28 @@ async function boot(){
    about who sees what. Documents keep the same paths the rest of the app uses. */
 const CFG = window.RUHIYA_CONFIG || {};
 const SB = (CFG.url || "").replace(/\/+$/, ""), SB_KEY = CFG.key || "", MAIL_DOMAIN = CFG.mailDomain || "ruhiya.app";
-const SESS_KEY = "ruhiya_cloud_sess", CHURCH_KEY = "ruhiya_church";
+const SESS_KEY = "ruhiya_cloud_sess", CHURCH_KEY = "ruhiya_church", BIO_KEY = "ruhiya_bio";
+// fingerprint / face unlock: the phone checks the finger or face itself, then a saved sign-in on this device opens the account
+const Bio = {
+  get(){ try { return JSON.parse(localStorage.getItem(BIO_KEY)||"null"); } catch(e){ return null; } },
+  put(v){ try { v ? localStorage.setItem(BIO_KEY, JSON.stringify(v)) : localStorage.removeItem(BIO_KEY); } catch(e){} },
+  async can(){ try { return !!(window.PublicKeyCredential && isSecureContext && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch(e){ return false; } },
+  b64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); },
+  unb64(s){ return Uint8Array.from(atob(s), c => c.charCodeAt(0)); },
+  async enroll(slug, name, uid, refresh){
+    const c = await navigator.credentials.create({publicKey:{
+      challenge: crypto.getRandomValues(new Uint8Array(32)), rp:{name:"ⲙⲉⲛⲣⲓⲧ"},
+      user:{id:new TextEncoder().encode(uid), name, displayName:name},
+      pubKeyCredParams:[{type:"public-key", alg:-7},{type:"public-key", alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:"platform", userVerification:"required", residentKey:"discouraged"}, timeout:60000}});
+    this.put({credId:this.b64(c.rawId), slug, name, uid, refresh});
+  },
+  async check(rec){
+    const a = await navigator.credentials.get({publicKey:{challenge: crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials:[{type:"public-key", id:this.unb64(rec.credId)}], userVerification:"required", timeout:60000}});
+    return !!(a && a.response && new DataView(a.response.authenticatorData).getUint8(32) & 4);
+  }
+};
 const nameKey = n => String(n||"").trim().replace(/\s+/g, " ").toLowerCase();
 const slugOk = s => /^[a-z0-9][a-z0-9-]{2,29}$/.test(s);
 async function mailFor(slug, name){ return (await sha256(slug+":"+nameKey(name))).slice(0, 40)+"@"+MAIL_DOMAIN; }
@@ -1910,7 +2057,8 @@ const Cloud = {
   sess:null, me:null, subs:new Set(), timer:null,
   saveSess(){ try { this.sess ? sessionStorage.setItem(SESS_KEY, JSON.stringify(this.sess)) : sessionStorage.removeItem(SESS_KEY); } catch(e){} },
   loadSess(){ try { return JSON.parse(sessionStorage.getItem(SESS_KEY)||"null"); } catch(e){ return null; } },
-  setSess(j){ this.sess = j && j.access_token ? {access_token:j.access_token, refresh_token:j.refresh_token, expires_at: j.expires_at || (Math.floor(Date.now()/1000) + (j.expires_in||3600)), uid: j.user && j.user.id} : null; this.saveSess(); },
+  setSess(j){ this.sess = j && j.access_token ? {access_token:j.access_token, refresh_token:j.refresh_token, expires_at: j.expires_at || (Math.floor(Date.now()/1000) + (j.expires_in||3600)), uid: j.user && j.user.id} : null; this.saveSess();
+    const b = Bio.get(); if (b && this.sess && b.uid === this.sess.uid && b.refresh !== this.sess.refresh_token){ b.refresh = this.sess.refresh_token; Bio.put(b); } },
   async http(path, opt, token){
     let r;
     try { r = await fetch(SB+path, Object.assign({}, opt, {headers:Object.assign({apikey:SB_KEY, "Content-Type":"application/json"}, bearer(token||SB_KEY), (opt&&opt.headers)||{})})); }
@@ -1934,8 +2082,10 @@ const Cloud = {
   // creates someone else's sign-in without touching the current session; returns the new user's id
   async signUp(email, password){ const j = await this.http("/auth/v1/signup", {method:"POST", body:JSON.stringify({email, password})}); return (j && (j.user ? j.user.id : j.id)) || null; },
   async setOwnPassword(password){ await this.req("/auth/v1/user", {method:"PUT", body:JSON.stringify({password})}); },
-  async signOut(){ const t = this.sess && this.sess.access_token; this.setSess(null); this.me = null; this.stopPoll();
-    if (t) this.http("/auth/v1/logout", {method:"POST"}, t).catch(()=>{}); },
+  // with fingerprint unlock on, the device keeps its sign-in, so the server session is left open
+  async signOut(){ const t = this.sess && this.sess.access_token, b = Bio.get(), keep = b && this.sess && b.uid === this.sess.uid;
+    this.setSess(null); this.me = null; this.stopPoll();
+    if (t && !keep) this.http("/auth/v1/logout", {method:"POST"}, t).catch(()=>{}); },
   church(){ return this.me ? this.me.church_id : null; },
   q(v){ return encodeURIComponent(v); },
 
@@ -2061,10 +2211,22 @@ async function showCloudGate(){
   if (slug && info === null){ mode = "church"; }
   const v = id => ($("#"+id) ? $("#"+id).value : "");
   const btn = (label, extra) => h("button",Object.assign({class:"btn", type:"submit", style:"width:100%;padding-block:12px"}, extra||{}), label);
+  let newPhoto = "";
+  // after signing in: a new password if needed, then the person's photo, then the offer of fingerprint / face unlock
+  const finish = async () => {
+    const me = Cloud.me;
+    if (!S.account.photo){
+      let pf = null; try { pf = ["user","pending"].includes(me.role) ? await Store.get("members/"+me.uid) : null; } catch(e){}
+      if (pf && pf.photo) S.account.photo = pf.photo; else { mode = "photo"; draw(); return; }
+    }
+    const b = Bio.get();
+    if (mode !== "bio" && (!b || b.uid !== me.uid) && !localStorage.getItem("ruhiya_bio_skip_"+me.uid) && await Bio.can()){ mode = "bio"; draw(); return; }
+    ssSet(okKey(), me.uid); unlock(); watchApproval();
+  };
   const enter = async (me) => {
     Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("دخل البرنامج");
     if (me.must_change){ mode = "change"; draw(); return; }
-    ssSet(okKey(), me.uid); unlock(); watchApproval();
+    await finish();
   };
   const draw = () => {
     const err = h("p",{class:"gate-err", role:"alert"});
@@ -2097,7 +2259,22 @@ async function showCloudGate(){
         h("label",null,"الاسم", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
         h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","current-password")),
         err, btn("دخول"));
-      extra = [info && info.claimed !== false ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
+      extra = [];
+      const bio = Bio.get();
+      if (bio && bio.slug === slug && window.PublicKeyCredential) extra.push(h("button",{class:"btn bio-btn", type:"button", style:"width:100%;padding-block:12px", onclick:async e => {
+        const b = e.currentTarget; b.disabled = true; err.textContent = "";
+        try {
+          let ok = false; try { ok = await Bio.check(bio); } catch(x){ if (x && x.name === "NotAllowedError") { err.textContent = "البصمة اتلغت أو مااتعرفتش. جرّب تاني، أو ادخل بكلمة السر."; return; } throw x; }
+          if (!ok) { err.textContent = "الموبايل ماأكدش البصمة. ادخل بكلمة السر."; return; }
+          Cloud.sess = {access_token:"", refresh_token:bio.refresh, expires_at:0, uid:bio.uid};
+          try { await Cloud.token(); } catch(x){ if (x.offline) throw x; Bio.put(null); Cloud.setSess(null); err.textContent = "الدخول بالبصمة وقف (اتغيّرت كلمة السر أو بقالك كتير مادخلتش). ادخل بكلمة السر وفعّلها تاني."; return; }
+          if (!Cloud.sess){ Bio.put(null); err.textContent = "ادخل بكلمة السر وفعّل البصمة تاني."; return; }
+          const me = await Cloud.rpc("touch_login");
+          if (!me.active){ await Cloud.signOut(); Bio.put(null); err.textContent = "الحساب ده متوقف. كلّم الأدمن."; return; }
+          await enter(me);
+        } catch(x){ err.textContent = cloudMsg(x); } finally { if (b.isConnected) b.disabled = false; }
+      }}, "👆 ادخل بالبصمة أو الوش · "+bio.name));
+      extra = [...extra, info && info.claimed !== false ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
         h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
         h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")];
     } else if (mode === "register"){
@@ -2132,13 +2309,36 @@ async function showCloudGate(){
         h("label",null,"اسمك في البرنامج", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
         err, btn("📨 ابعت طلب للأدمن"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"رجوع للدخول")];
+    } else if (mode === "photo"){
+      sub = "أهلاً "+S.account.name+". قبل ما تدخل، حط صورتك عشان أبونا والخدام يعرفوك.";
+      const prev = h("div",{class:"gate-photo"}, newPhoto ? h("img",{src:newPhoto, alt:"صورتك"}) : h("span",null,"📷"));
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        if (!newPhoto) fail("اختار صورتك الأول.");
+        await Cloud.rpc("update_account", {p_uid:Cloud.me.uid, p_patch:{photo:newPhoto}});
+        if (["user","pending"].includes(Cloud.me.role)) { try { await Store.update("members/"+Cloud.me.uid, {photo:newPhoto, name:S.account.name}); } catch(x){} }
+        S.account.photo = newPhoto; Cloud.me.photo = newPhoto; await logAct("حط صورته");
+        await finish(); }); }},
+        prev,
+        h("div",{class:"row", style:"justify-content:center"}, ...photoPickerSized("gPhoto", newPhoto ? "🔄 غيّر الصورة" : "📷 اختار صورة أو صوّر", 320, d => { newPhoto = d; draw(); })),
+        err, btn("احفظ الصورة وادخل", newPhoto ? {} : {disabled:true}));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ S.account = null; Cloud.signOut(); mode = "login"; draw(); }},"خروج")];
+    } else if (mode === "bio"){
+      sub = "تحب تدخل المرة الجاية بالبصمة أو بوشّك بدل كلمة السر؟";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        try { await Bio.enroll(slug, S.account.name, Cloud.me.uid, Cloud.sess.refresh_token); }
+        catch(x){ fail(x && x.name === "NotAllowedError" ? "اتلغت. تقدر تفعّلها بعدين من هنا لما تدخل تاني." : "الموبايل ده مش بيدعم البصمة للمواقع."); }
+        await logAct("فعّل الدخول بالبصمة"); toast("👆 البصمة اتفعّلت على الجهاز ده"); await finish(); }); }},
+        h("div",{class:"bio-art", "aria-hidden":"true"},"👆"),
+        h("p",{class:"small muted", style:"margin:0"},"البصمة أو الوش بيتأكد منهم الموبايل نفسه، ومش بيتبعتوا لأي حد. ده بيشتغل على الجهاز ده بس، ولو حد غيرك بيستخدم الموبايل ماتفعّلهاش."),
+        err, btn("👆 فعّل البصمة"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:async()=>{ try { localStorage.setItem("ruhiya_bio_skip_"+Cloud.me.uid, "1"); } catch(x){} await finish(); }},"مش دلوقتي")];
     } else if (mode === "change"){
       sub = "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const pw = v("gPw"); if (pw.length < PW_MIN) fail(pwShort()+"."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
         await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed");
-        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false;
-        ssSet(okKey(), S.account.id); unlock(); toast("كلمة السر اتغيّرت"); }); }},
+        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false; Cloud.me.must_change = false;
+        toast("كلمة السر اتغيّرت"); await finish(); }); }},
         h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
         h("label",null,"اكتبها تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
         err, btn("احفظ وادخل"));
@@ -2183,5 +2383,6 @@ async function showCloudGate(){
 boot();
 })();
 </script>
+<script>if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
 </body>
 </html>
