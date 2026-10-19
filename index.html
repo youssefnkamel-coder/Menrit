@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
-<title>المتابعة الروحية</title>
+<title>ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية</title>
 <script>
 // إعدادات السيرفر (مشروع Supabase). المفتاح ده publishable ومعمول إنه يبقى علني.
 window.RUHIYA_CONFIG = {
   url: "https://bchxqstesohcsdczvvvv.supabase.co",
   key: "sb_publishable_Hn7BrtGV8Rt5qon0_MHYIg_NHXr28Sj",
-  appUrl: ""
+  appUrl: "https://youssefnkamel-coder.github.io/Menrit"
 };
 </script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Color+Emoji&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Color+Emoji&family=Noto+Sans+Coptic&display=swap">
 <style>
 /* Layout: a modern mobile app. A season-coloured gradient card opens the page, white rounded cards hold each screen,
    every section and tab carries its own coloured icon tile, and the nav is a bottom app bar on phones. */
@@ -201,6 +201,13 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .gate-card{width:100%;max-width:400px;background:var(--surface);border-radius:26px;border:3px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a) border-box;box-shadow:0 0 0 1px rgba(138,90,18,.25),0 0 0 6px color-mix(in oklab,#d4a630 18%,transparent),var(--shadow);padding:26px 22px 20px;display:grid;gap:16px;text-align:center}
 .gate-logo{width:132px;height:132px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
 .gate-card h1{font-size:1.5rem}
+.gate-mark{display:grid;gap:10px;justify-items:center}
+.menrit{display:grid;justify-items:center;gap:2px;line-height:1}
+.menrit .mn-word{font-family:"Noto Sans Coptic","Segoe UI Historic","Segoe UI Symbol",serif;font-size:2.7rem;letter-spacing:.06em;padding:4px 6px 6px;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 3px 6px rgba(138,90,18,.28))}
+.menrit .mn-sub{display:flex;align-items:center;gap:8px;font-family:var(--f-head);font-weight:700;font-size:.78rem;color:var(--gold-d);letter-spacing:.04em}
+.menrit .mn-sub::before,.menrit .mn-sub::after{content:"";width:46px;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold))}
+.menrit .mn-sub::after{transform:scaleX(-1)}
+.mn-pill{display:block;width:fit-content;font-family:"Noto Sans Coptic","Segoe UI Historic","Segoe UI Symbol",serif;font-size:1.05rem;letter-spacing:.06em;padding:1px 12px 3px;border-radius:999px;border:1.5px solid transparent;background:linear-gradient(#0d4f63,#123f7a) padding-box,var(--gold-grad) border-box;color:#f6dc8a;text-shadow:0 1px 4px rgba(0,0,0,.35);margin-bottom:4px}
 .gate-card .form{text-align:start}
 .pw{position:relative}
 .pw input{padding-inline-end:48px}
@@ -353,7 +360,7 @@ body.locked .ticker{display:none!important}
 <circle cx="24" cy="43" r="3"/><circle cx="19.5" cy="41" r="2.2"/><circle cx="28.5" cy="41" r="2.2"/>
 <circle cx="5" cy="24" r="3"/><circle cx="7" cy="19.5" r="2.2"/><circle cx="7" cy="28.5" r="2.2"/>
 <circle cx="43" cy="24" r="3"/><circle cx="41" cy="19.5" r="2.2"/><circle cx="41" cy="28.5" r="2.2"/>
-</svg><div class="brand"><span class="eyebrow" id="roleLabel">المتابعة الروحية</span><h1 id="appTitle">المتابعة الروحية</h1></div></div>
+</svg><div class="brand"><span class="eyebrow" id="roleLabel">المتابعة الروحية</span><span class="mn-pill" lang="cop">ⲙⲉⲛⲣⲓⲧ</span><h1 id="appTitle">المتابعة الروحية</h1></div></div>
   <div class="hero-meta"><span class="glass coptic" id="copticDate">…</span><span class="glass num" id="gregDate">…</span><span class="glass clock-chip num" id="liveClock"></span><span id="seasonName" hidden></span></div>
   <span id="feastLine"></span>
   <div class="welcome"><span id="welcomeText"></span></div>
@@ -1462,8 +1469,10 @@ function devBlock(withLogo){
 }
 function churchMark(){
   const st = S.settings || {};
-  if (st.logo) return h("img",{class:"gate-church", src:st.logo, alt:"شعار الكنيسة"});
-  const box = h("div",{class:"gate-cross", "aria-hidden":"true"}); box.innerHTML = document.getElementById("heroCross").outerHTML.replace('id="heroCross"','').replace('style="display: none;"',''); return box;
+  const word = h("div",{class:"menrit"}, h("span",{class:"mn-word", lang:"cop"},"ⲙⲉⲛⲣⲓⲧ"), h("span",{class:"mn-sub"},"✦ الحبيب ✦"));
+  if (st.logo) return h("div",{class:"gate-mark"}, h("img",{class:"gate-church", src:st.logo, alt:"شعار الكنيسة"}), word);
+  const box = h("div",{class:"gate-cross", "aria-hidden":"true"}); box.innerHTML = document.getElementById("heroCross").outerHTML.replace('id="heroCross"','').replace('style="display: none;"','');
+  return h("div",{class:"gate-mark"}, box, word);
 }
 async function showGate(){
   if (Store.mode === "local") return showLocalGate();
