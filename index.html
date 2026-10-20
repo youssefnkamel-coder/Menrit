@@ -209,9 +209,9 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .pending-wait{display:flex;gap:14px;align-items:center;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
 .pending-wait .prep-emo{font-size:2rem}
 .pending-card{display:grid;gap:10px;border:2px solid transparent;background:linear-gradient(color-mix(in oklab,#06b6d4 7%,var(--surface)),color-mix(in oklab,#06b6d4 7%,var(--surface))) padding-box,var(--gold-grad) border-box}
-.seg{display:flex;gap:6px;background:var(--surface);border-radius:14px;padding:5px;box-shadow:var(--shadow)}
-.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:9px 6px;font-family:var(--f-head);font-weight:700;color:var(--ink-2);cursor:pointer}
-.seg button[aria-selected="true"]{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;box-shadow:0 0 0 2px var(--gold) inset}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1.5px solid var(--gold-line);border-radius:16px;padding:5px;box-shadow:var(--shadow)}
+.seg button{border:0;background:transparent;border-radius:12px;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--f-head);font-weight:800;font-size:1rem;color:var(--ink-2);cursor:pointer;transition:background .15s}
+.seg button[aria-selected="true"]{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
 .cal{display:grid;gap:8px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:center}
 .cal-nav{border:1.5px solid var(--gold-line);background:var(--surface);border-radius:10px;width:38px;height:38px;font-size:1.3rem;font-weight:800;cursor:pointer;color:var(--a)}
@@ -227,7 +227,21 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .cal-day.on small{color:#fde68a}
 .cal-day:disabled{opacity:.3;cursor:default}
 .pick-day{font-weight:700;color:var(--a);margin:0}
-.slot-row .chip-btn{padding:6px 12px}
+.slot-row{display:grid!important;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot-row .chip-btn{border-radius:14px;padding:10px 4px;min-height:64px;display:grid;place-items:center;align-content:center;gap:4px;font-family:var(--f-head);font-weight:700;font-size:.86rem;line-height:1.2;color:var(--ink)}
+.slot-row .chip-btn .se{font-size:1.35rem;line-height:1}
+.slot-row .chip-btn[aria-pressed="true"]{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;border-color:var(--gold)}
+/* visit requests: same layout, warm amber colour so it is clearly the visit form */
+.seg button.k-visit[aria-selected="true"]{background:linear-gradient(135deg,#d97706,#be123c);box-shadow:0 4px 12px rgba(217,119,6,.35)}
+.req-form.visit{background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#f59e0b,#e11d48,#f59e0b) border-box;border:2px solid transparent}
+.req-form.visit h3{color:#d97706}
+.req-form.visit .cal-day.on, .req-form.visit .slot-row .chip-btn[aria-pressed="true"]{background:linear-gradient(135deg,#d97706,#be123c);border-color:#fbbf24}
+.req-form.visit .cal-day.today{border-color:#f59e0b;box-shadow:0 0 0 1px #f59e0b inset}
+.req-form.visit .pick-day{color:#d97706}
+.req-form.visit .btn{background:linear-gradient(135deg,#d97706,#be123c)}
+.req-form.visit .cal-nav{color:#d97706}
+.visit-banner{display:flex;align-items:center;gap:10px;border-radius:14px;padding:10px 12px;background:color-mix(in oklab,#f59e0b 14%,var(--surface));border:1px dashed #f59e0b;font-weight:700;font-size:.9rem}
+.visit-banner span:first-child{font-size:1.6rem}
 .req-note{border-inline-start:4px solid var(--gold);background:color-mix(in oklab,var(--gold) 9%,var(--surface));border-radius:10px;padding:8px 12px;display:grid;gap:2px}
 .req-note span{font-size:.78rem;font-weight:700;color:var(--gold-d)}
 @media (max-width:380px){.cal-day{min-height:40px}.cal-day b{font-size:.88rem}.cal-grid{gap:3px}}
@@ -1019,7 +1033,7 @@ function selectPersonClear(){ S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.sel
 const REQ_KINDS = {
   confession:{field:"request", handled:"handledRequest", next:"nextConfession", label:"اعتراف", emo:"🙏", title:"ميعاد الاعتراف", inbox:"appointment"},
   visit:{field:"visitReq", handled:"handledVisit", next:"nextVisit", label:"افتقاد", emo:"🏡", title:"ميعاد الافتقاد", inbox:"visit"}};
-const SLOTS = [["morning","☀️ الصبح","10:00"],["noon","🌤️ الضهر","13:00"],["evening","🌇 بعد العصر","17:00"],["night","🌙 بالليل","19:30"]];
+const SLOTS = [["morning","☀️ الصبح","10:00"],["noon","🌤️ الضهر","13:00"],["night","🌙 بالليل","19:30"]];
 const slotOf = k => SLOTS.find(x=>x[0]===k);
 const timeAr = t => { const [hh,mm] = String(t).split(":").map(Number); return arDigits((hh%12)||12)+":"+arDigits(pad(mm))+(hh<12?" ص":" م"); };
 function reqWhen(r){
@@ -1476,13 +1490,14 @@ function memberConfession(){
   }
   const d = S.draft;
   const seg = h("div",{class:"seg", role:"tablist"}, Object.entries(REQ_KINDS).map(([k,v]) =>
-    h("button",{type:"button", role:"tab", "aria-selected": k===kind ? "true" : "false", onclick:()=>{ S.draft.reqKind = k; render(); }}, v.emo+" "+v.label)));
-  const form = h("div",{class:"card form"},
+    h("button",{type:"button", role:"tab", class:"k-"+k, "aria-selected": k===kind ? "true" : "false", onclick:()=>{ S.draft.reqKind = k; render(); }}, v.emo+" "+v.label)));
+  const form = h("div",{class:"card form req-form "+kind},
+    kind === "visit" ? h("div",{class:"visit-banner"}, h("span",{"aria-hidden":"true"},"🏡"), h("span",null,"أبونا هيزورك في البيت ويصلّي معاكم")) : null,
     h("h3",null, kind === "visit" ? "اختار يوم يناسبك أبونا يزورك فيه" : "اختار يوم يناسبك للاعتراف"),
     calPicker(d.reqDate, ds => { S.draft.reqDate = ds; render(); }),
     d.reqDate ? h("p",{class:"pick-day"}, "📅 "+WDAYS[parseYmd(d.reqDate).getDay()]+" "+fmtShort(d.reqDate)) : null,
     h("div",{class:"form", style:"gap:6px"}, h("span",{class:"small", style:"font-weight:700"},"الوقت اللي يناسبك"),
-      h("div",{class:"row slot-row"}, SLOTS.map(([k,l]) => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqSlot===k ? "true" : "false", onclick:()=>{ S.draft.reqSlot = d.reqSlot===k ? "" : k; S.draft.reqTime = ""; render(); }}, l))),
+      h("div",{class:"row slot-row"}, SLOTS.map(([k,l]) => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqSlot===k ? "true" : "false", onclick:()=>{ S.draft.reqSlot = d.reqSlot===k ? "" : k; S.draft.reqTime = ""; render(); }}, h("span",{class:"se", "aria-hidden":"true"}, l.split(" ")[0]), h("span",null, l.split(" ").slice(1).join(" "))))),
       h("label",{class:"small"},"أو حدد الساعة بالظبط (اختياري)", h("input",{type:"time", id:"rTime", value:d.reqTime||"", style:"max-width:180px", onchange:e=>{ S.draft.reqTime = e.target.value; }}))),
     kind === "visit" ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
     h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: kind==="visit" ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
