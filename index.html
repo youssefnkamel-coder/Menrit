@@ -274,6 +274,19 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .fam-kid{display:grid;gap:2px;border-radius:12px;padding:8px 10px;background:color-mix(in oklab,#f97316 8%,var(--surface))}
 .fam-inline{display:grid;gap:8px}
 .pending-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.pending-row.open{display:grid;justify-content:stretch}
+.pend-toggle{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;flex:1;min-width:0;border-radius:12px}
+.pend-toggle:focus-visible{outline:2px solid var(--a);outline-offset:3px}
+.pend-more{color:var(--a);font-weight:700;white-space:nowrap;margin-inline-start:auto}
+.pend-detail{display:grid;gap:12px;padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid color-mix(in oklab,var(--gold,#c9a227) 45%,transparent)}
+.pend-photo{all:unset;cursor:zoom-in;flex:none;width:132px;height:132px;border-radius:16px;overflow:hidden;border:3px solid var(--gold,#c9a227);display:grid;place-items:center;background:var(--surface)}
+.pend-photo img{width:100%;height:100%;object-fit:cover}
+.pend-photo.none{cursor:default;color:var(--muted);font-size:.85rem}
+.pend-facts{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:6px 12px;flex:1;min-width:200px}
+.pend-facts dt{font-weight:700;color:var(--muted);font-size:.9rem}
+.pend-facts dd{margin:0}
+.photo-zoom{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);display:grid;place-items:center;align-content:center;gap:12px;padding:16px;cursor:zoom-out}
+.photo-zoom img{max-width:min(92vw,560px);max-height:78vh;border-radius:18px;border:3px solid var(--gold,#c9a227)}
 .menrit{display:grid;justify-items:center;gap:2px;line-height:1}
 .menrit .mn-word{font-family:"Noto Sans Coptic","Segoe UI Historic","Segoe UI Symbol",serif;font-size:2.7rem;letter-spacing:.06em;padding:4px 6px 6px;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 3px 6px rgba(138,90,18,.28))}
 .menrit .mn-sub{display:flex;align-items:center;gap:8px;font-family:var(--f-head);font-weight:700;font-size:.78rem;color:var(--gold-d);letter-spacing:.04em}
@@ -2937,9 +2950,9 @@ function applySeason(){
 
 /* ---------- data layer: live db or in-page demo ---------- */
 const Store = {
-  mode:"demo", db:null, ext:null, onErr(e){ console.warn(e); },
+  mode:"demo", db:null, ext:null, preview:false, onErr(e){ console.warn(e); },
   listen(path, opts, cb){
-    if (this.ext) return this.ext.listen(path, opts, cb);
+    if (this.ext && !this.preview) return this.ext.listen(path, opts, cb);
     if (this.mode === "live"){
       const even = path.split("/").length % 2 === 0;
       if (even) return this.db.doc(path).onSnapshot(s => cb(s.exists ? Object.assign({id:s.id}, s.data()) : null), this.onErr);
@@ -2950,11 +2963,11 @@ const Store = {
     }
     return Mem.listen(path, opts, cb);
   },
-  async list(path){ if (this.ext) return this.ext.list(path); if (this.mode==="live"){ const s = await this.db.collection(path).get(); return s.docs.map(d=>Object.assign({id:d.id}, d.data())); } return Mem.snapshot({path}); },
-  async get(path){ if (this.ext) return this.ext.get(path); if (this.mode==="live"){ const d = await this.db.doc(path).get(); return d.exists ? d.data() : null; } const v = Mem.data.get(path); return v ? JSON.parse(JSON.stringify(v)) : null; },
-  async set(path, data){ if (this.ext) return this.ext.set(path, data); return this.mode==="live" ? this.db.doc(path).set(data) : Mem.set(path, data); },
-  async update(path, data){ if (this.ext) return this.ext.update(path, data); return this.mode==="live" ? this.db.doc(path).update(data) : Mem.set(path, Object.assign({}, Mem.data.get(path)||{}, data)); },
-  async del(path){ if (this.ext) return this.ext.del(path); return this.mode==="live" ? this.db.doc(path).delete() : Mem.del(path); }
+  async list(path){ if (this.ext && !this.preview) return this.ext.list(path); if (this.mode==="live"){ const s = await this.db.collection(path).get(); return s.docs.map(d=>Object.assign({id:d.id}, d.data())); } return Mem.snapshot({path}); },
+  async get(path){ if (this.ext && !this.preview) return this.ext.get(path); if (this.mode==="live"){ const d = await this.db.doc(path).get(); return d.exists ? d.data() : null; } const v = Mem.data.get(path); return v ? JSON.parse(JSON.stringify(v)) : null; },
+  async set(path, data){ if (this.ext && !this.preview) return this.ext.set(path, data); return this.mode==="live" ? this.db.doc(path).set(data) : Mem.set(path, data); },
+  async update(path, data){ if (this.ext && !this.preview) return this.ext.update(path, data); return this.mode==="live" ? this.db.doc(path).update(data) : Mem.set(path, Object.assign({}, Mem.data.get(path)||{}, data)); },
+  async del(path){ if (this.ext && !this.preview) return this.ext.del(path); return this.mode==="live" ? this.db.doc(path).delete() : Mem.del(path); }
 };
 const Mem = {
   data:new Map(), subs:new Set(),
@@ -2985,7 +2998,11 @@ function seedDemo(){
   Mem.set("members/demo-2", {name:"مارينا سمير (مثال)", birthday:soon(3,27), wedding:soon(5,3), spouse:"مينا"});
   Mem.set(P+"demo-2", {onApp:true, familyName:"عائلة مينا ومارينا", lastConfession:ago(20), lastVisit:ago(120), area:"شبرا", confessions:[ago(80),ago(20)]});
   Mem.set(P+"p_demo3", {name:"عم جرجس فهمي (مثال)", phone:"0122 000 0003", birthday:soon(12,70), familyName:"", lastConfession:ago(95), lastVisit:ago(30), notes:"مش بيستخدم موبايل، بنتصل بيه", area:"روض الفرج", confessions:[ago(160),ago(95)], visits:[{date:ago(30),type:"مكالمة تليفون",note:""}]});
-  Mem.set("members/demo-4", {name:"كيرلس ناجي (مثال)", birthday:soon(40,19)});
+  Mem.set("members/demo-4", {name:"كيرلس ناجي (مثال)", birthday:soon(40,19), phone:"0111 000 0004", job:"طالب في هندسة", address:"شبرا، شارع الترعة",
+    visitReq:{id:"v1", kind:"visit", date:soon(4,0), slot:"night", preferred:"بالليل", address:"شبرا، شارع الترعة", note:"جدتي تعبانة وعايزين حضرتك تصلّي لها", at:ago(0)}});
+  Mem.set("members/demo-5", {name:"بيتر وديع (مثال)", birthday:soon(2,41), phone:"0100 000 0005", job:"محاسب", spouse:"نيفين", spouseBirthday:soon(25,38), wedding:soon(60,12),
+    children:[{name:"يوستينا", birthday:soon(90,10), grade:"خامسة ابتدائي"},{name:"مارك", birthday:soon(150,6), grade:"أولى ابتدائي"}]});
+  Mem.set(P+"demo-5", {onApp:true, familyName:"عائلة بيتر ونيفين", lastConfession:ago(10), lastVisit:ago(200), area:"روض الفرج", confessions:[ago(70),ago(10)]});
   for (let i=1;i<=12;i++){ if (i%3===0) continue;
     Mem.set("members/demo-me/notebook/"+ago(i), {date:ago(i), items:{bakr:true, noum:i%2===0, bible:true, khloa:i%4!==0, liturgy:i===2||i===9}, metanias:i%2?12:0, portion:"يوحنا "+arDigits(i), reflection:""}); }
   Mem.set("members/demo-me/inbox/w1", {type:"greeting", title:"كل سنة وانت طيب", text:"ربنا يفرّح قلبك في عيد ميلادك ويديك سنة مليانة بركة.", at:new Date().toISOString()});
@@ -3049,7 +3066,7 @@ function selectPerson(id){
 
 /* merged view of people for the priest */
 // each confession father keeps his own notes; the single-file and demo versions keep the old shared place
-const PP = () => Store.mode === "cloud" && S.account ? "priest/"+S.account.id+"/people" : "priest/main/people";
+const PP = () => Store.mode === "cloud" && S.account && !Store.preview ? "priest/"+S.account.id+"/people" : "priest/main/people";
 function merged(){
   const map = new Map();
   const waiting = new Set((S.pending||[]).map(x=>x.id));
@@ -4009,17 +4026,37 @@ function inviteCard(){
       h("button",{class:"btn ghost", onclick:showQr},"🔳 كود QR")),
     qrBox);
 }
+function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
+function showPhoto(src){
+  if (!src) return;
+  const box = h("div",{class:"photo-zoom", role:"dialog", "aria-label":"الصورة", onclick:()=>box.remove()}, h("img",{src, alt:""}), h("button",{class:"btn sm", type:"button"},"✕ قفل"));
+  document.body.append(box);
+}
+function pendingDetail(x){
+  const p = Object.assign({name:x.name}, x.profile||{}), photo = p.photo || x.photo || "";
+  const facts = [["📞 التليفون", p.phone], ["🎂 الميلاد", p.birthday ? fmtShort(p.birthday)+" ("+ageOf(p.birthday)+")" : ""], ["💼 الوظيفة", p.job], ["📍 العنوان", p.address],
+    ["⛪ أب الاعتراف", x.fatherName || "لسه ما اختارش"], ["🕒 سجّل", fmtShort(ymd(new Date(x.at)))]].filter(f => f[1]);
+  return h("div",{class:"pend-detail"},
+    h("div",{class:"row", style:"align-items:flex-start;gap:14px"},
+      photo ? h("button",{type:"button", class:"pend-photo", title:"كبّر الصورة", onclick:()=>showPhoto(photo)}, h("img",{src:photo, alt:"صورة "+p.name})) : h("div",{class:"pend-photo none"}, "مفيش صورة"),
+      h("dl",{class:"pend-facts"}, facts.map(([k,v]) => [h("dt",null,k), h("dd",null,v)]))),
+    p.phone ? h("div",{class:"row"}, h("a",{class:"btn sm ghost", href:"tel:"+String(p.phone).replace(/\s/g,"")},"📞 اتصل"), h("a",{class:"btn sm wa", href:"https://wa.me/"+waNum(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب")) : null,
+    p.spouse || (p.children||[]).length || p.wedding ? familyCard(p, true) : h("p",{class:"small muted", style:"margin:0"},"مكتبش بيانات الأسرة."));
+}
 function pendingCard(){
   const list = S.pending || [];
   if (!list.length || !["admin","priest","supervisor"].includes(accRole())) return null;
   return h("section",{class:"card pending-card"}, h("h3",null,"🆕 حسابات جديدة مستنية موافقتك ("+arDigits(list.length)+")"),
-    h("p",{class:"small muted", style:"margin:0"},"الناس دول سجّلوا بنفسهم. لما توافق، كل واحد فيهم يقدر يستخدم البرنامج كله."),
-    h("ul",{class:"list"}, list.map(x => { const p = x.profile || {}, info = [p.phone, p.birthday ? "🎂 "+fmtShort(p.birthday) : "", p.spouse ? "💍 "+p.spouse : ""].filter(Boolean).join(" · ");
-      return h("li",{class:"pending-row"},
-        h("div",{class:"person-line"}, avatar({name:p.name||x.name, photo:p.photo||""}),
+    h("p",{class:"small muted", style:"margin:0"},"الناس دول سجّلوا بنفسهم. دوس على أي حد عشان تشوف صورته وكل بياناته قبل ما توافق."),
+    h("ul",{class:"list"}, list.map(x => { const p = x.profile || {}, open = S.draft.pendOpen === x.id, info = [p.phone, p.birthday ? "🎂 "+fmtShort(p.birthday) : "", p.spouse ? "💍 "+p.spouse : ""].filter(Boolean).join(" · ");
+      return h("li",{class:"pending-row"+(open ? " open" : "")},
+        h("button",{type:"button", class:"person-line pend-toggle", "aria-expanded": open ? "true" : "false", onclick:()=>{ S.draft.pendOpen = open ? null : x.id; render(); }},
+          avatar({name:p.name||x.name, photo:p.photo||x.photo||""}),
           h("div",{class:"who"}, h("strong",null, p.name || x.name, p.name && p.name !== x.name ? h("span",{class:"small muted"}," (اسم الدخول: "+x.name+")") : null),
             h("span",{class:"small muted"}, (info || "لسه ماكتبش بياناته")+" · سجّل "+agoText(ymd(new Date(x.at)))),
-            ["admin","supervisor"].includes(accRole()) && x.fatherName ? h("span",{class:"small", style:"font-weight:700;color:var(--a)"}, "⛪ اختار "+x.fatherName) : null)),
+            ["admin","supervisor"].includes(accRole()) && x.fatherName ? h("span",{class:"small", style:"font-weight:700;color:var(--a)"}, "⛪ اختار "+x.fatherName) : null),
+          h("span",{class:"pend-more small"}, open ? "▲ اقفل" : "▼ البيانات")),
+        open ? pendingDetail(x) : null,
         h("div",{class:"row"},
           h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; if (await reviewAccount(x.id, true)){ await logAct("وافق على حساب "+x.name); toast("✅ "+x.name+" يقدر يستخدم البرنامج دلوقتي"); } e.target.disabled = false; }},"✅ موافقة"),
           h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:async e=>{
@@ -4054,7 +4091,7 @@ function render(){
   const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
-  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
+  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
   renderNotice(); renderMe();
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
@@ -4070,13 +4107,14 @@ function renderNotice(){
   const roleBtns = () => h("div",{class:"row"},
     Store.mode === "cloud" && accRole() === "admin" ? null : h("button",{class:"btn sm "+(S.role==="priest"?"on":""), onclick:()=>switchRole("priest")},"شاشة أبونا"),
     h("button",{class:"btn sm "+(S.role==="member"?"on":""), onclick:()=>switchRole("member")},"شاشة المعترف"),
-    accRole() === "admin" ? h("button",{class:"btn sm "+(S.role==="admin"?"on":""), onclick:()=>switchRole("admin")},"شاشة الأدمن") : null);
+    accRole() === "admin" ? h("button",{class:"btn sm "+(S.role==="admin"?"on":""), onclick:()=>switchRole("admin")},"شاشة الأدمن") : null,
+    Store.mode === "cloud" && accRole() === "admin" ? h("button",{class:"btn sm "+(Store.preview?"on":""), onclick:()=>startPreview()},"👀 معاينة شاشة أبونا") : null);
   if (Store.mode === "cloud"){
     const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
       : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
     const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), staff ? roleBtns() : null));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), staff ? roleBtns() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"ارجع للبيانات الحقيقية") : null)));
@@ -4085,7 +4123,15 @@ function renderNotice(){
       h("div",{class:"row"}, roleBtns(), h("button",{class:"btn sm quiet", onclick:()=>goDemo()},"جرّب بأمثلة"))));
   }
 }
+// the admin is not a confession father: show him شاشة أبونا filled with sample data, kept in memory only
+function startPreview(){
+  Store.preview = true; seedDemo(); if (S.settings) Mem.set("settings/app", S.settings);
+  S.role = "priest"; S.uid = S.account.id; S.tab = null; S.sel = null; S.draft = {};
+  S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[];
+  subscribe(); render(); window.scrollTo({top:0});
+}
 function switchRole(r){
+  if (Store.preview){ Store.preview = false; Mem.data.clear(); }
   S.role = r; S.tab = null; S.sel = null; S.draft = {};
   if (Store.mode === "demo") S.uid = r==="member" ? "demo-me" : S.uid;
   else S.uid = S.account ? (r === "member" ? "preview-"+S.account.id : S.account.id) : S.realUid;
@@ -4202,7 +4248,7 @@ function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); docum
 const IDLE_MS = 3*60*1000; let idleTimer = null;
 function bumpIdle(){ if (document.body.classList.contains("locked")) return; clearTimeout(idleTimer); idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, IDLE_MS); }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
-function logout(){ clearTimeout(idleTimer); if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -4611,7 +4657,7 @@ const Cloud = {
     const even = path.split("/").length % 2 === 0, c = this.q(this.church());
     // older databases (setup file not re-run yet) lack the newer columns
     if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c).catch(e => /pending|father|confessor|column/.test(e.message) ? this.req("/rest/v1/accounts?select="+ACC_COLS.replace(",pending,father,confessor","")+"&church_id=eq."+c) : Promise.reject(e)) || []).map(accFromRow);
-    if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, at:r.created_at, profile:r.profile||{}, father:r.father||"", fatherName:r.father_name||""}));
+    if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, photo:r.photo||"", at:r.created_at, profile:r.profile||{}, father:r.father||"", fatherName:r.father_name||""}));
     if (path === "pwreq") return (await this.req("/rest/v1/pwreqs?select=uid,name,at&church_id=eq."+c) || []).map(r => ({id:r.uid, accId:r.uid, name:r.name, at:r.at}));
     if (even){
       if (path.startsWith("accounts/")){ const r = (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&uid=eq."+this.q(path.split("/")[1])) || [])[0]; return r ? accFromRow(r) : null; }
