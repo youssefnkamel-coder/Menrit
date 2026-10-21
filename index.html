@@ -106,7 +106,7 @@ nav.tabs button .ico svg{width:18px;height:18px}
 nav.tabs button[aria-current="page"]{color:var(--ink)}
 nav.tabs button[aria-current="page"] .ico{background:var(--c);color:#fff}
 nav.tabs .badge{min-width:18px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:.7rem;line-height:18px;text-align:center;font-weight:700}
-@media (max-width:720px){
+@media (max-width:720px), (orientation:landscape) and (max-height:520px){
   nav.tabs{position:fixed;inset:auto 0 0 0;top:auto;background:var(--surface);padding:6px max(6px, env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px, env(safe-area-inset-left,0px));
     box-shadow:0 -4px 20px rgba(23,32,51,.08);border-top:1px solid var(--line)}
   #app{padding-top:14px}
@@ -192,9 +192,9 @@ body.locked .ticker{display:none}
 .warnbox{background:color-mix(in oklab,var(--warn) 12%,var(--surface));color:var(--warn);border-radius:14px;padding:10px 14px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .dev-id{display:inline-flex;align-items:center;gap:8px}
 .dev-id img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none}
-.gate-church{width:120px;height:120px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:var(--shadow);background:#fff}
-.gate-cross{width:96px;height:96px;margin:0 auto;border-radius:28px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--a),var(--b))}
-.gate-cross svg{width:56px;height:56px}
+.gate-church{width:96px;height:96px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:var(--shadow);background:#fff}
+.gate-cross{width:80px;height:80px;margin:0 auto;border-radius:28px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--a),var(--b))}
+.gate-cross svg{width:46px;height:46px}
 .gate-priest{font-family:var(--f-head);font-weight:700;color:var(--a);font-size:1rem}
 .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;font-family:var(--f-head);font-weight:800;font-size:1.1rem;color:#fff;background:linear-gradient(135deg,#3b82f6,#8b5cf6);box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px color-mix(in oklab,var(--a) 45%,transparent)}
 .avatar.lg{width:96px;height:96px;font-size:2.2rem}
@@ -205,7 +205,7 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 #gate{min-height:calc(100vh - 32px);min-height:calc(100svh - 32px);display:grid;place-items:center;align-items:safe center;padding-block:12px}
 .gate-head, .gate-body{display:contents}
 .gate-card{width:100%;max-width:400px;background:var(--surface);border-radius:26px;border:3px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a) border-box;box-shadow:0 0 0 1px rgba(138,90,18,.25),0 0 0 6px color-mix(in oklab,#d4a630 18%,transparent),var(--shadow);padding:26px 22px 20px;display:grid;gap:16px;text-align:center}
-.gate-logo{width:132px;height:132px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
+.gate-logo{width:96px;height:96px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
 .gate-card h1{font-size:1.5rem}
 .gate-mark{display:grid;gap:10px;justify-items:center}
 .pending-wait{display:flex;gap:14px;align-items:center;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
@@ -508,77 +508,11 @@ body.locked .ticker{display:none!important}
   .hero-meta{display:grid;grid-template-columns:1.1fr 1.3fr .8fr;gap:6px}
   .hero-meta .glass, .hero-meta .glass.clock-chip{font-size:.72rem;padding:4px 6px;justify-content:center}
 }
-/* orientation: the layout follows the phone or tablet, held upright or sideways, and changes as it turns */
+/* one layout, like the service program: the page widens with the screen up to 980px and nothing moves when the device turns */
 .dash{display:grid;gap:22px}
-/* tablet held upright: the tabs sit in a bar at the bottom like the phone, so they never wrap onto two rows */
-@media (min-width:721px) and (max-width:1100px) and (orientation:portrait){
-  nav.tabs{position:fixed;inset:auto 0 0 0;top:auto;background:var(--surface);padding:8px max(10px, env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px, env(safe-area-inset-left,0px));
-    box-shadow:0 -4px 20px rgba(23,32,51,.08);border-top:1px solid var(--line)}
-  #app{padding-top:14px}
-  nav.tabs .wrap{flex-wrap:nowrap;justify-content:space-around;gap:0;max-width:none}
-  nav.tabs button{flex:1;flex-direction:column;gap:3px;padding:3px;font-size:.84rem;box-shadow:none;background:transparent}
-  nav.tabs button .ico{width:34px;height:34px}
-  nav.tabs .badge{position:absolute;top:-2px;inset-inline-start:calc(50% + 10px)}
-  .stats{grid-template-columns:repeat(4,1fr)}
-}
-/* phone held sideways: little height, so the header shrinks to one band and the tabs to a slim strip */
-@media (orientation:landscape) and (max-height:520px){
-  body{padding-top:8px}
-  .ticker{min-height:32px!important;margin-bottom:8px}
-  .hero{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"top meta side" "feast feast feast";padding:8px 14px;gap:6px 14px;min-height:0}
-  .hero-top{padding-inline-end:14px;border-inline-end:1px solid rgba(255,230,160,.35)}
-  .hero .cross, .hero .hero-logo{width:40px;height:40px}
-  .hero .cross{padding:8px}
-  .brand h1{font-size:1.1rem;white-space:nowrap}
-  .brand .mn-pill, .brand .eyebrow{display:none}
-  .welcome{display:none}
-  .hero-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
-  .hero-meta .glass, .hero-meta .glass.clock-chip{font-size:.74rem;padding:3px 10px}
-  .hero-side{flex-direction:row;gap:8px}
-  .hero-side .saint{width:42px}
-  .hero-side .saint-init{font-size:1.1rem}
-  nav.tabs{position:sticky;inset:auto;top:0;padding-block:4px;background:var(--bg);box-shadow:none;border-top:0}
-  nav.tabs .wrap{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;gap:6px;scrollbar-width:none}
-  nav.tabs button{flex:none;flex-direction:row;gap:6px;padding:3px 10px 3px 4px;font-size:.8rem;background:var(--surface);box-shadow:var(--shadow)}
-  nav.tabs button .ico{width:24px;height:24px}
-  nav.tabs .badge{position:static}
-  body{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
-  .toast{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
-  .stats{grid-template-columns:repeat(4,1fr)}
-  .dash{grid-template-columns:1fr 1fr;align-items:start;column-gap:16px}
-  .dash > *{grid-column:1/-1}
-  .dash > section.half{grid-column:auto}
-}
-/* tablet sideways and computers: wider page, and the home screens use two columns */
-@media (min-width:1100px){
-  .wrap{max-width:1120px}
-  .dash{grid-template-columns:1fr 1fr;align-items:start;column-gap:24px}
-  .dash > *{grid-column:1/-1}
-  .dash > section.half{grid-column:auto}
-}
-
+.wrap{max-width:980px}
 /* Android Chrome enlarges text by itself when the phone turns sideways; keep the size we set so turning doesn't jump */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-/* login sideways: short screens get a small mark and start at the top; wide ones put the mark beside the form */
-@media (orientation:landscape) and (max-height:520px){
-  #gate{place-items:start center;padding-block:6px}
-  .gate-card{padding:16px 18px 14px;gap:10px}
-  .gate-logo, .gate-church{width:72px;height:72px}
-  .gate-cross{width:64px;height:64px;border-radius:20px}
-  .gate-cross svg{width:36px;height:36px}
-  .gate-card h1{font-size:1.25rem}
-  .gate-card .menrit .mn-word{font-size:1.7rem}
-}
-@media (orientation:landscape) and (min-width:640px){
-  .gate-card.split{max-width:880px;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);column-gap:28px;align-items:center}
-  .gate-head, .gate-body{display:grid;gap:inherit;align-content:center}
-  .gate-head{padding-inline-end:24px;border-inline-end:1px solid var(--gold-line,rgba(212,166,48,.4))}
-}
-/* sideways phone: the form is taller than the screen, so the church's mark stays in view at the top */
-@media (orientation:landscape) and (min-width:640px) and (max-height:520px){
-  .gate-card.split{align-items:start}
-  .gate-head{position:sticky;top:12px}
-}
 </style>
 <script>
 //---------------------------------------------------------------------
