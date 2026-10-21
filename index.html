@@ -202,7 +202,8 @@ body.locked .ticker{display:none}
 .photo-box{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 /* login gate */
 body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{display:none}
-#gate{min-height:calc(100dvh - 32px);display:grid;place-items:center;padding-block:12px}
+#gate{min-height:calc(100vh - 32px);min-height:calc(100svh - 32px);display:grid;place-items:center;align-items:safe center;padding-block:12px}
+.gate-head, .gate-body{display:contents}
 .gate-card{width:100%;max-width:400px;background:var(--surface);border-radius:26px;border:3px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a) border-box;box-shadow:0 0 0 1px rgba(138,90,18,.25),0 0 0 6px color-mix(in oklab,#d4a630 18%,transparent),var(--shadow);padding:26px 22px 20px;display:grid;gap:16px;text-align:center}
 .gate-logo{width:132px;height:132px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
 .gate-card h1{font-size:1.5rem}
@@ -554,6 +555,29 @@ body.locked .ticker{display:none!important}
   .dash{grid-template-columns:1fr 1fr;align-items:start;column-gap:24px}
   .dash > *{grid-column:1/-1}
   .dash > section.half{grid-column:auto}
+}
+
+/* Android Chrome enlarges text by itself when the phone turns sideways; keep the size we set so turning doesn't jump */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* login sideways: short screens get a small mark and start at the top; wide ones put the mark beside the form */
+@media (orientation:landscape) and (max-height:520px){
+  #gate{place-items:start center;padding-block:6px}
+  .gate-card{padding:16px 18px 14px;gap:10px}
+  .gate-logo, .gate-church{width:72px;height:72px}
+  .gate-cross{width:64px;height:64px;border-radius:20px}
+  .gate-cross svg{width:36px;height:36px}
+  .gate-card h1{font-size:1.25rem}
+  .gate-card .menrit .mn-word{font-size:1.7rem}
+}
+@media (orientation:landscape) and (min-width:640px){
+  .gate-card.split{max-width:880px;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);column-gap:28px;align-items:center}
+  .gate-head, .gate-body{display:grid;gap:inherit;align-content:center}
+  .gate-head{padding-inline-end:24px;border-inline-end:1px solid var(--gold-line,rgba(212,166,48,.4))}
+}
+/* sideways phone: the form is taller than the screen, so the church's mark stays in view at the top */
+@media (orientation:landscape) and (min-width:640px) and (max-height:520px){
+  .gate-card.split{align-items:start}
+  .gate-head{position:sticky;top:12px}
 }
 </style>
 <script>
@@ -4235,6 +4259,8 @@ function churchMark(){
   const box = h("div",{class:"gate-cross", "aria-hidden":"true"}); box.innerHTML = document.getElementById("heroCross").outerHTML.replace('id="heroCross"','').replace('style="display: none;"','');
   return h("div",{class:"gate-mark"}, box, word);
 }
+// login card: the church's mark and name (head) beside the form (body) when the screen is wide and sideways
+function gateCard(head, body){ return h("div",{class:"gate-card split"}, h("div",{class:"gate-head"}, ...head), h("div",{class:"gate-body"}, ...body)); }
 async function showGate(){
   if (Store.mode === "local") return showLocalGate();
   if (Store.mode === "cloud") return showCloudGate();
@@ -4273,17 +4299,17 @@ async function showGate(){
       mode==="create" && Store.mode==="local" ? h("label",null,"مفتاح التفعيل", h("input",{id:"gKey", autocomplete:"off", placeholder:"المفتاح اللي أخدته من المطوّر"})) : null,
       err,
       h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"}, mode==="create" ? "إنشاء حسابي ودخول" : "دخول"));
-    gate.replaceChildren(h("div",{class:"gate-card"},
+    gate.replaceChildren(gateCard([
       churchMark(),
       h("div",null, h("h1",null,(S.settings&&S.settings.title)||"المتابعة الروحية"),
         S.settings && S.settings.priestName ? h("p",{class:"gate-priest"}, S.settings.priestName) : null,
-        h("p",{class:"muted small"}, mode==="create" ? "أول مرة؟ اختار اسم وكلمة سر عشان تدخل بيهم بعد كده." : "أهلاً بيك. ادخل باسمك وكلمة السر.")),
+        h("p",{class:"muted small"}, mode==="create" ? "أول مرة؟ اختار اسم وكلمة سر عشان تدخل بيهم بعد كده." : "أهلاً بيك. ادخل باسمك وكلمة السر."))], [
       Store.mode==="demo" ? h("p",{class:"small", style:"background:var(--surface-2);border-radius:10px;padding:6px 10px"},"وضع التجربة: اكتب أي اسم وكلمة سر.") : null,
       form,
       mode==="login" ? h("button",{class:"linkish", type:"button", onclick:async()=>{
         await Store.del(authPath()); saved=null; mode="create"; draw(); toast("اختار كلمة سر جديدة");
       }},"نسيت كلمة السر؟ اعمل واحدة جديدة") : null,
-      devBlock()));
+      devBlock()]));
     const n = $("#gName"); if (n) n.focus();
   };
   draw();
@@ -4424,7 +4450,7 @@ async function showLocalGate(){
         err);
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"رجوع للدخول")];
     }
-    gate.replaceChildren(h("div",{class:"gate-card"}, ...head(sub), form, ...extra, devBlock()));
+    gate.replaceChildren(gateCard(head(sub), [form, ...extra, devBlock()]));
     const n = $("#gName"); if (n) n.focus();
   };
   draw();
@@ -5007,9 +5033,8 @@ async function showCloudGate(){
         err, btn("تفعيل الكنيسة وإنشاء حساب الأدمن"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ lic = null; draw(); }},"رجوع")];
     }
-    gate.replaceChildren(h("div",{class:"gate-card"}, churchMark(),
-      h("div",null, h("h1",null,title), h("p",{class:"muted small"}, sub)),
-      form, ...extra, h("p",{class:"small muted", style:"margin:0"},"🔒 بياناتك محفوظة على سيرفر الكنيسة، ومحدش بيشوفها غير اللي ليه صلاحية."), devBlock()));
+    gate.replaceChildren(gateCard([churchMark(), h("div",null, h("h1",null,title), h("p",{class:"muted small"}, sub))],
+      [form, ...extra, h("p",{class:"small muted", style:"margin:0"},"🔒 بياناتك محفوظة على سيرفر الكنيسة، ومحدش بيشوفها غير اللي ليه صلاحية."), devBlock()]));
     const f = gate.querySelector("input"); if (f) f.focus();
   };
   draw();
