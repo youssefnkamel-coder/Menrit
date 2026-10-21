@@ -3615,7 +3615,7 @@ const DEFAULT_VERSES = [
 function meInfo(){
   const st = S.settings || {};
   if (S.account){ const r = S.account.role;
-    return {name:S.account.name, photo: S.account.photo || ((r==="user"||r==="pending") && S.profile ? S.profile.photo : "") || (r==="priest" ? st.priestPhoto : "") || ""}; }
+    return {name:S.account.name, photo: S.account.photo || ((r==="user"||r==="pending") && S.profile ? S.profile.photo : "") || (r==="priest" && Store.mode !== "cloud" ? st.priestPhoto : "") || ""}; }
   if (S.role === "priest") return {name: st.priestName || "أبونا", photo: st.priestPhoto || ""};
   return {name: (S.profile && S.profile.name) || S.authName || "", photo: (S.profile && S.profile.photo) || ""};
 }
@@ -3742,16 +3742,18 @@ function resetCard(){
 function priestSettings(){
   const st = S.settings || {};
   const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"));
+  const manyFathers = Store.mode === "cloud";
   const saveSt = async (patch, msg) => { await Store.set("settings/app", clean(Object.assign({}, st, patch))); toast(msg||"اتحفظ"); };
   wrap.append(h("div",{class:"card form"}, h("h3",null,"اسم البرنامج والشعار"),
     h("label",null,"اسم البرنامج (بيظهر فوق وفي شاشة الدخول)", h("input",{id:"stTitle", value:st.title||"", placeholder:"المتابعة الروحية"})),
-    h("label",null,"اسم أبونا (بيظهر تحت شعار الكنيسة في شاشة الدخول)", h("input",{id:"stPriest", value:st.priestName||"", placeholder:"مثلاً: القمص فلان الفلاني"})),
-    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({title:$("#stTitle").value.trim(), priestName:$("#stPriest").value.trim()})},"احفظ")),
+    // on the server each father's name and photo come from his own account, so there is no single أبونا to set
+    manyFathers ? null : h("label",null,"اسم أبونا (بيظهر تحت شعار الكنيسة في شاشة الدخول)", h("input",{id:"stPriest", value:st.priestName||"", placeholder:"مثلاً: القمص فلان الفلاني"})),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt(manyFathers ? {title:$("#stTitle").value.trim()} : {title:$("#stTitle").value.trim(), priestName:$("#stPriest").value.trim()})},"احفظ")),
     h("div",{class:"row"}, st.logo ? h("img",{src:st.logo, alt:"الشعار الحالي", class:"hero-logo"}) : h("span",{class:"small muted"},"مفيش شعار للكنيسة لسه."),
       h("label",{class:"btn sm ghost", for:"stLogo", style:"cursor:pointer"},"ارفع شعار الكنيسة"),
       h("input",{id:"stLogo", type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 256, url=>saveSt({logo:url},"الشعار اتحفظ")); }}),
       st.logo ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({logo:""},"الشعار اتشال")},"شيل الشعار") : null)));
-  wrap.append(h("div",{class:"card form"}, h("h3",null,"🖼️ صورة أبونا"),
+  if (!manyFathers) wrap.append(h("div",{class:"card form"}, h("h3",null,"🖼️ صورة أبونا"),
     h("div",{class:"row"}, avatar({name:st.priestName||"أبونا", photo:st.priestPhoto}),
       photoPicker("stPriestPhoto", st.priestPhoto ? "غيّر صورة أبونا" : "ارفع صورة أبونا", url=>saveSt({priestPhoto:url},"صورة أبونا اتحفظت")),
       st.priestPhoto ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({priestPhoto:""},"الصورة اتشالت")},"شيل") : null)));
@@ -4768,7 +4770,7 @@ async function showCloudGate(){
         err, btn("متابعة"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "activate"; draw(); }},"🔑 تفعيل كنيسة جديدة بكود رخصة")];
     } else if (mode === "login"){
-      sub = info && info.priest ? info.priest : "أهلاً بيك. ادخل باسمك وكلمة السر.";
+      sub = "أهلاً بيك. ادخل باسمك وكلمة السر.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const w = lockWait(); if (w) fail(waitMsg(w));
         const name = v("gName").trim(), pw = v("gPw"); if (!name || !pw) fail("اكتب الاسم وكلمة السر.");
