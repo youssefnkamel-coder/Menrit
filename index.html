@@ -3246,7 +3246,8 @@ function priestToday(all){
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
   const wrap = h("div",{style:"display:grid;gap:22px"}, pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
-  if (Store.mode !== "demo" && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
+  // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
+  if (Store.mode !== "demo" && Store.mode !== "cloud" && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
     h("span",null, lb ? "آخر نسخة احتياطية كانت من "+arDigits(lbDays)+" يوم." : "لسه ماعملتش نسخة احتياطية من بياناتك."),
     h("button",{class:"btn sm", onclick:()=>{ S.tab="settings"; render(); }},"اعمل نسخة دلوقتي")));
   wrap.append(h("section",null,
@@ -4114,7 +4115,7 @@ function renderNotice(){
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
       : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
     const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), staff ? roleBtns() : null));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? roleBtns() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"ارجع للبيانات الحقيقية") : null)));
