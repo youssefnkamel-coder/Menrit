@@ -2876,19 +2876,19 @@ function copticEaster(y){
   const dt=new Date(y,month-1,day); dt.setDate(dt.getDate()+13); return dt;
 }
 const SEASONS = {
-  ordinary:    {name:"الأيام العادية",            a:"#10b981", b:"#0ea5e9"},
+  ordinary:    {name:"أيام السنوي",            a:"#10b981", b:"#0ea5e9"},
   nayrouz:     {name:"زمن النيروز وتذكار الشهداء", a:"#ef4444", b:"#f97316"},
   cross:       {name:"عيد الصليب المجيد",          a:"#e11d48", b:"#f59e0b"},
-  nativityFast:{name:"صوم الميلاد",               a:"#8b5cf6", b:"#6366f1"},
-  kiahk:       {name:"صوم الميلاد · شهر كيهك",       a:"#6366f1", b:"#3b82f6"},
-  nativity:    {name:"أعياد الميلاد والغطاس",        a:"#d97706", b:"#eab308"},
+  nativityFast:{name:"فترة صوم الميلاد",               a:"#8b5cf6", b:"#6366f1"},
+  kiahk:       {name:"فترة صوم الميلاد · شهر كيهك",       a:"#6366f1", b:"#3b82f6"},
+  nativity:    {name:"فترة أعياد الميلاد والغطاس",        a:"#d97706", b:"#eab308"},
   nineveh:     {name:"صوم يونان (نينوى)",           a:"#7c3aed", b:"#a855f7"},
-  greatLent:   {name:"الصوم الكبير",                a:"#9333ea", b:"#c026d3"},
+  greatLent:   {name:"فترة الصوم الأربعيني المقدس",                a:"#9333ea", b:"#c026d3"},
   palm:        {name:"أحد الشعانين",                a:"#65a30d", b:"#22c55e"},
   holyWeek:    {name:"أسبوع الآلام",                a:"#334155", b:"#64748b"},
-  khamseen:    {name:"الخماسين المقدسة",             a:"#d97706", b:"#f59e0b"},
-  apostles:    {name:"صوم الرسل",                   a:"#dc2626", b:"#ea580c"},
-  virgin:      {name:"صوم السيدة العذراء",           a:"#2563eb", b:"#06b6d4"}
+  khamseen:    {name:"فترة الخماسين المقدسة",             a:"#d97706", b:"#f59e0b"},
+  apostles:    {name:"فترة صوم الآباء الرسل",                   a:"#dc2626", b:"#ea580c"},
+  virgin:      {name:"فترة صوم السيدة العذراء",           a:"#2563eb", b:"#06b6d4"}
 };
 function seasonOf(t){
   const c = toCoptic(t), E = copticEaster(t.getFullYear()), x = daysBetween(E, t);
@@ -3027,7 +3027,7 @@ function subscribe(){
     if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   }
   if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
-  if (S.role === "priest"){
+  if (S.role === "priest" || S.role === "admin"){
     L("members", null, r => { S.members=r; scheduleRender(); });
     L(PP(), null, r => { S.people=r; scheduleRender(); });
     L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
@@ -3217,7 +3217,8 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 function priestTabs(all){
   const req = all.filter(p=>p.request||p.visitReq).length;
   const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["families","الأسر"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
-  if (accRole() === "admin") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
+  // on the server the admin has a screen of its own (شاشة الأدمن)
+  if (accRole() === "admin" && Store.mode !== "cloud") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
   return t;
 }
 function priestToday(all){
@@ -4045,10 +4046,10 @@ function icon(k, size){
 
 function render(){
   if (!S.ready) return;
-  const priest = S.role === "priest", sup = S.role === "supervisor";
-  const all = priest ? merged() : [];
+  const priest = S.role === "priest", sup = S.role === "supervisor", adm = S.role === "admin" && accRole() === "admin";
+  const all = priest || adm ? merged() : [];
   const waiting = accRole() === "pending";
-  const tabs = waiting ? [["me","بياناتي"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
+  const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
   $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
@@ -4056,6 +4057,7 @@ function render(){
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
+  else if (adm) view = S.tab === "settings" ? priestSettings() : adminView(all);
   else if (priest) view = ({today:priestToday, people:priestPeople, families:priestFamilies, requests:priestRequests, meditations:priestMeditations, readings:priestReadings, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = ({admin:adminView, meditations:priestMeditations, readings:priestReadings}[S.tab])([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
@@ -4064,8 +4066,9 @@ function render(){
 function renderNotice(){
   const slot = $("#noticeSlot"); slot.replaceChildren();
   const roleBtns = () => h("div",{class:"row"},
-    h("button",{class:"btn sm "+(S.role==="priest"?"on":""), onclick:()=>switchRole("priest")},"شاشة أبونا"),
-    h("button",{class:"btn sm "+(S.role==="member"?"on":""), onclick:()=>switchRole("member")},"شاشة المعترف"));
+    Store.mode === "cloud" && accRole() === "admin" ? null : h("button",{class:"btn sm "+(S.role==="priest"?"on":""), onclick:()=>switchRole("priest")},"شاشة أبونا"),
+    h("button",{class:"btn sm "+(S.role==="member"?"on":""), onclick:()=>switchRole("member")},"شاشة المعترف"),
+    accRole() === "admin" ? h("button",{class:"btn sm "+(S.role==="admin"?"on":""), onclick:()=>switchRole("admin")},"شاشة الأدمن") : null);
   if (Store.mode === "cloud"){
     const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
@@ -4223,7 +4226,7 @@ async function logAct(action, who){
     if (logs.length > 400){ logs.sort((x,y)=>String(x[1].at).localeCompare(String(y[1].at))); logs.slice(0, logs.length-300).forEach(([k])=>Mem.data.delete(k)); Mem.save && Mem.save(); } }
 }
 function applyAccount(acc){
-  S.account = acc; S.uid = acc.id; S.authName = acc.name; S.role = viewFor(acc.role);
+  S.account = acc; S.uid = acc.id; S.authName = acc.name; S.role = acc.role === "admin" && Store.mode === "cloud" ? "admin" : viewFor(acc.role);
   S.tab = null; S.sel = null; S.draft = {}; S.profile = null; S.profileLoaded = false; S.inbox = []; S.notebook = [];
 }
 async function migrateLegacy(){
@@ -4394,7 +4397,7 @@ function myPasswordCard(){
       await logAct("غيّر كلمة السر بتاعته"); toast("كلمة السر اتغيّرت"); render();
     }},"غيّر كلمة السر")));
 }
-const isFatherAcc = a => a.active !== false && !a.pending && (a.role === "priest" || (a.role === "admin" && a.confessor));
+const isFatherAcc = a => a.active !== false && !a.pending && a.role === "priest";
 function adminView(all){
   const me = accRole(), isAdmin = me === "admin";
   const accs = (S.accounts||[]).slice().sort((a,b)=>Object.keys(ROLES).indexOf(a.role)-Object.keys(ROLES).indexOf(b.role) || String(a.name).localeCompare(String(b.name),"ar"));
@@ -4413,7 +4416,7 @@ function adminView(all){
   if (isAdmin){ st.push(stat("🙏", all.length, "أولاد في الاعتراف"), stat("📅", all.filter(p=>p.request).length, "طلبات اعتراف"), stat("🕊️", (S.meditations||[]).length, "تأملات اتبعتت"));
     const lb = S.meta && S.meta.lastBackup; st.push(stat("💾", lb ? daysBetween(parseYmd(lb.slice(0,10)), TODAY) : 0, lb ? "يوم من آخر نسخة احتياطية" : "مفيش نسخة احتياطية", !lb || daysBetween(parseYmd(lb.slice(0,10)), TODAY) > 7)); }
   wrap.append(h("div",{class:"stats"}, st));
-  wrap.append(pendingCard());
+  const pc = pendingCard(); if (pc) wrap.append(pc);
   const inv = inviteCard(); if (inv) wrap.append(inv);
   if (reqs.length) wrap.append(h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
     h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
@@ -4451,9 +4454,6 @@ function adminView(all){
         isAdmin && Store.mode==="cloud" && a.role==="user" ? h("label",{class:"row small", style:"gap:8px;align-items:center"}, "⛪ أب الاعتراف:",
           h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("اتنقل"); }},
             h("option",{value:"", selected:!a.father},"من غير"), accs.filter(isFatherAcc).map(f => h("option",{value:f.id, selected:a.father===f.id}, f.name)))) : null,
-        isAdmin && Store.mode==="cloud" && a.role==="admin" ? h("label",{class:"row small", style:"gap:8px;align-items:center;cursor:pointer"},
-          h("input",{type:"checkbox", checked:!!a.confessor, onchange:async e=>{ await saveAccount(a, {confessor:e.target.checked}); await logAct((e.target.checked?"خلّى ":"شال ")+a.name+(e.target.checked?" أب اعتراف":" من آباء الاعتراف")); toast("اتحفظ"); }}),
-          "الأدمن ده أب كاهن والناس تختاره أب اعتراف") : null,
         h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(a.createdAt.slice(0,10)) : ""))));
     }
     return li;
@@ -4666,7 +4666,7 @@ createAccount = async (name, role, pw) => {
   });
 };
 saveAccount = async (acc, patch) => {
-  const p = {}; for (const k of ["role","active","photo","father","confessor"]) if (k in patch) p[k] = patch[k];
+  const p = {}; for (const k of ["role","active","photo","father"]) if (k in patch) p[k] = patch[k];
   const okk = await accTry(() => Cloud.rpc("update_account", {p_uid:acc.id, p_patch:p}));
   Cloud.refresh("accounts/x"); if (!okk) throw new Error("not saved");
 };
