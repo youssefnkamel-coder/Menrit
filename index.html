@@ -109,6 +109,7 @@ nav.tabs .badge{min-width:18px;padding:0 5px;border-radius:999px;background:var(
 @media (max-width:720px){
   nav.tabs{position:fixed;inset:auto 0 0 0;top:auto;background:var(--surface);padding:6px max(6px, env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px, env(safe-area-inset-left,0px));
     box-shadow:0 -4px 20px rgba(23,32,51,.08);border-top:1px solid var(--line)}
+  #app{padding-top:14px}
   nav.tabs .wrap{flex-wrap:nowrap;justify-content:space-around;gap:0}
   nav.tabs button{flex:1;flex-direction:column;gap:2px;padding:2px;font-size:.7rem;box-shadow:none;background:transparent}
   nav.tabs .badge{position:absolute;top:-2px;inset-inline-start:calc(50% + 8px)}
@@ -505,6 +506,54 @@ body.locked .ticker{display:none!important}
   .welcome{text-align:start;font-size:.98rem;padding-top:8px;border-top:1px solid rgba(255,230,160,.3)}
   .hero-meta{display:grid;grid-template-columns:1.1fr 1.3fr .8fr;gap:6px}
   .hero-meta .glass, .hero-meta .glass.clock-chip{font-size:.72rem;padding:4px 6px;justify-content:center}
+}
+/* orientation: the layout follows the phone or tablet, held upright or sideways, and changes as it turns */
+.dash{display:grid;gap:22px}
+/* tablet held upright: the tabs sit in a bar at the bottom like the phone, so they never wrap onto two rows */
+@media (min-width:721px) and (max-width:1100px) and (orientation:portrait){
+  nav.tabs{position:fixed;inset:auto 0 0 0;top:auto;background:var(--surface);padding:8px max(10px, env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px, env(safe-area-inset-left,0px));
+    box-shadow:0 -4px 20px rgba(23,32,51,.08);border-top:1px solid var(--line)}
+  #app{padding-top:14px}
+  nav.tabs .wrap{flex-wrap:nowrap;justify-content:space-around;gap:0;max-width:none}
+  nav.tabs button{flex:1;flex-direction:column;gap:3px;padding:3px;font-size:.84rem;box-shadow:none;background:transparent}
+  nav.tabs button .ico{width:34px;height:34px}
+  nav.tabs .badge{position:absolute;top:-2px;inset-inline-start:calc(50% + 10px)}
+  .stats{grid-template-columns:repeat(4,1fr)}
+}
+/* phone held sideways: little height, so the header shrinks to one band and the tabs to a slim strip */
+@media (orientation:landscape) and (max-height:520px){
+  body{padding-top:8px}
+  .ticker{min-height:32px!important;margin-bottom:8px}
+  .hero{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"top meta side" "feast feast feast";padding:8px 14px;gap:6px 14px;min-height:0}
+  .hero-top{padding-inline-end:14px;border-inline-end:1px solid rgba(255,230,160,.35)}
+  .hero .cross, .hero .hero-logo{width:40px;height:40px}
+  .hero .cross{padding:8px}
+  .brand h1{font-size:1.1rem;white-space:nowrap}
+  .brand .mn-pill, .brand .eyebrow{display:none}
+  .welcome{display:none}
+  .hero-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+  .hero-meta .glass, .hero-meta .glass.clock-chip{font-size:.74rem;padding:3px 10px}
+  .hero-side{flex-direction:row;gap:8px}
+  .hero-side .saint{width:42px}
+  .hero-side .saint-init{font-size:1.1rem}
+  nav.tabs{position:sticky;inset:auto;top:0;padding-block:4px;background:var(--bg);box-shadow:none;border-top:0}
+  nav.tabs .wrap{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;gap:6px;scrollbar-width:none}
+  nav.tabs button{flex:none;flex-direction:row;gap:6px;padding:3px 10px 3px 4px;font-size:.8rem;background:var(--surface);box-shadow:var(--shadow)}
+  nav.tabs button .ico{width:24px;height:24px}
+  nav.tabs .badge{position:static}
+  body{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .dash{grid-template-columns:1fr 1fr;align-items:start;column-gap:16px}
+  .dash > *{grid-column:1/-1}
+  .dash > section.half{grid-column:auto}
+}
+/* tablet sideways and computers: wider page, and the home screens use two columns */
+@media (min-width:1100px){
+  .wrap{max-width:1120px}
+  .dash{grid-template-columns:1fr 1fr;align-items:start;column-gap:24px}
+  .dash > *{grid-column:1/-1}
+  .dash > section.half{grid-column:auto}
 }
 </style>
 <script>
@@ -2870,7 +2919,8 @@ function agoText(s){
   if (n < 30) return "من "+arDigits(n)+" يوم";
   const m = Math.round(n/30); return "من "+arDigits(m)+(m<=10?" شهور":" شهر");
 }
-function toast(msg){ const t = h("div",{class:"toast",role:"status"},msg); $("#toastSlot").replaceChildren(t); setTimeout(()=>t.remove(), 2600); }
+function toast(msg){ document.querySelectorAll("#app [data-dirty]").forEach(el => delete el.dataset.dirty); // a toast follows a save, so the form may show saved data again
+  const t = h("div",{class:"toast",role:"status"},msg); $("#toastSlot").replaceChildren(t); setTimeout(()=>t.remove(), 2600); }
 
 /* ---------- Coptic calendar ---------- */
 const CMONTHS = ["توت","بابه","هاتور","كيهك","طوبه","أمشير","برمهات","برموده","بشنس","بؤونه","أبيب","مسرى","النسيء"];
@@ -3033,7 +3083,6 @@ function subscribe(){
   stopAll();
   const L = (p,o,f) => S.unsubs.push(Store.listen(p,o,f));
   L("meditations", {orderBy:"at", dir:"desc", limit:30}, r => { S.meditations=r; scheduleRender(); });
-  L("readings/"+TODAY_C.m+"-"+TODAY_C.d, null, r => { S.reading=r; scheduleRender(); });
   L("readings/"+AUTO_ID, null, r => { S.autoDb=r; scheduleRender(); });
   loadAutoReadings(false);
   L("settings/app", null, r => { S.settings=r||{}; applySettings(); scheduleRender(); });
@@ -3051,11 +3100,12 @@ function subscribe(){
   } else if (S.uid){
     L("members/"+S.uid, null, r => { S.profile=r; S.profileLoaded=true; scheduleRender(); });
     L("members/"+S.uid+"/inbox", {orderBy:"at", dir:"desc", limit:50}, r => { S.inbox=r; scheduleRender(); });
-    L("members/"+S.uid+"/notebook", {orderBy:"date", dir:"desc", limit:60}, r => { S.notebook=r; scheduleRender(); });
+    S.notebookLoaded = false;
+    L("members/"+S.uid+"/notebook", {orderBy:"date", dir:"desc", limit:60}, r => { S.notebook=r; S.notebookLoaded = true; scheduleRender(); });
   }
 }
 function selectPerson(id){
-  S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.selNotebook=[]; S.sel=id;
+  S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.selNotebook=[]; S.sel=id; if (S.role === "priest") S.tab = "people";
   const p = merged().find(x=>x.id===id);
   if (p && p.onApp){
     S.selUnsubs.push(Store.listen("members/"+id+"/notebook", {orderBy:"date", dir:"desc", limit:30}, r=>{ S.selNotebook=r; scheduleRender(); }));
@@ -3197,31 +3247,18 @@ function autoBlock(a){
   box.append(h("p",{class:"small muted"},"المصدر: ", h("a",{href:"https://katameros.app/", target:"_blank", rel:"noopener"},"katameros.app"), " · بتتحدّث لوحدها كل يوم"));
   return box;
 }
-function readingCard(editable){
-  const r = S.reading;
+// readings come only from the katameros (updated every day); أبونا no longer types them by hand
+function readingCard(){
   const auto = S.auto || (S.autoDb && S.autoDb.v === 2 ? S.autoDb : null);
-  if (auto && auto.sections){
-    const c = h("div",{class:"card reading"},
-      h("div",{class:"row between"}, h("h3",null,"قراءات اليوم · "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]),
-        editable ? h("button",{class:"btn sm ghost", onclick:()=>{S.tab="readings"; render();}},"القراءات") : null),
-      autoBlock(auto));
-    if (r && r.note) c.append(h("div",{class:"reading"}, h("span",{class:"ref"},"كلمة من أبونا"), h("div",{class:"text"}, r.note)));
-    return c;
-  }
-  if (S.autoLoading && !(r && (r.synaxarium || r.gospel))) return h("div",{class:"card reading"}, h("h3",null,"قراءات اليوم"), h("p",{class:"muted"},"بنزّل قراءات النهارده..."));
-  const c = h("div",{class:"card reading"},
-    h("div",{class:"row between"}, h("h3",null,"قراءات اليوم · "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]),
-      editable ? h("button",{class:"btn sm ghost", onclick:()=>{S.tab="readings"; render();}},"تعديل القراءات") : null));
-  if (!r || (!r.synaxarium && !r.gospel)){
-    c.append(h("p",{class:"muted"},"قراءات النهارده لسه ما اتضافتش في البرنامج."),
-      h("p",{class:"small muted"},"تقدر تقرأها من مصادرها: ",
-        h("a",{href:"https://katamars.avabishoy.com/", target:"_blank", rel:"noopener"},"القطمارس (موقع الأنبا بيشوي)"), " · ",
-        h("a",{href:"https://st-takla.org/Full-Free-Coptic-Books/Synaxarium-or-Synexarion/index.html", target:"_blank", rel:"noopener"},"السنكسار (موقع الأنبا تكلا)")));
-    return c;
-  }
-  const part = (t, v) => v ? h("div",{class:"reading"}, h("span",{class:"ref"},t), h("div",{class:"text"},v)) : null;
-  c.append(part("السنكسار", r.synaxarium), part("المزمور", r.psalm), part("البولس", r.pauline), part("الكاثوليكون", r.catholic), part("الإبركسيس", r.acts), part("الإنجيل", r.gospel));
-  return c;
+  const head = h("h3",null,"قراءات اليوم · "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]);
+  if (auto && auto.sections) return h("div",{class:"card reading"}, head, autoBlock(auto));
+  if (S.autoLoading) return h("div",{class:"card reading"}, head, h("p",{class:"muted"},"بنزّل قراءات النهارده..."));
+  return h("div",{class:"card reading"}, head,
+    h("p",{class:"muted"},"القراءات مش متاحة دلوقتي. اتأكد إن النت شغال وحاول تاني."),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>loadAutoReadings(true)},"🔄 حاول تاني")),
+    h("p",{class:"small muted"},"أو اقراها من: ",
+      h("a",{href:"https://katamars.avabishoy.com/", target:"_blank", rel:"noopener"},"القطمارس (موقع الأنبا بيشوي)"), " · ",
+      h("a",{href:"https://st-takla.org/Full-Free-Coptic-Books/Synaxarium-or-Synexarion/index.html", target:"_blank", rel:"noopener"},"السنكسار (موقع الأنبا تكلا)")));
 }
 function meditationBlock(m){
   return h("div",{class:"medit"}, m.title ? h("h3",null,m.title) : null, h("div",{class:"text"}, m.text||""),
@@ -3233,7 +3270,7 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
   const req = all.filter(p=>p.request||p.visitReq).length;
-  const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["families","الأسر"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
+  const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["families","الأسر"],["requests","الطلبات", req],["meditations","التأملات"],["settings","الإعدادات"]];
   // on the server the admin has a screen of its own (شاشة الأدمن)
   if (accRole() === "admin" && Store.mode !== "cloud") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
   return t;
@@ -3244,30 +3281,30 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > VISIT_DAYS);
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{style:"display:grid;gap:22px"}, pendingCard());
+  const wrap = h("div",{class:"dash"}, pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
-  if (Store.mode !== "demo" && Store.mode !== "cloud" && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
+  if (Store.mode !== "demo" && Store.mode !== "cloud" && (!S.account || accRole() === "admin") && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
     h("span",null, lb ? "آخر نسخة احتياطية كانت من "+arDigits(lbDays)+" يوم." : "لسه ماعملتش نسخة احتياطية من بياناتك."),
-    h("button",{class:"btn sm", onclick:()=>{ S.tab="settings"; render(); }},"اعمل نسخة دلوقتي")));
+    h("button",{class:"btn sm", onclick:()=>{ S.tab = S.account ? "admin" : "settings"; render(); }},"اعمل نسخة دلوقتي")));
   wrap.append(h("section",null,
     h("div",{class:"stats"},
       stat(all.length,"أولاد في الاعتراف","people",false,"people"),
       stat(reqs.length,"طلبات اعتراف وافتقاد","requests",true,"confession"),
       stat(overdueC.length,"عدّى "+arDigits(CONFESS_DAYS)+" يوم من آخر اعتراف","people",true,"bell"),
       stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
-  if (fresh.length) wrap.append(h("section",null, sectionHead("ناس جديدة دخلت البرنامج"),
+  if (fresh.length) wrap.append(h("section",{class:"half"}, sectionHead("ناس جديدة دخلت البرنامج"),
     h("ul",{class:"list"}, fresh.map(p => h("li",null, h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, p.phone||"")),
       h("button",{class:"btn sm", onclick:async()=>{ await Store.set(PP()+"/"+p.id, {onApp:true}); toast("اتضاف لقايمة أولادك"); }},"ضيفه لأولادي"))))));
-  wrap.append(h("section",null, sectionHead("أعياد الأسبوع ده"),
+  wrap.append(h("section",{class:"half"}, sectionHead("أعياد الأسبوع ده"),
     occ.length ? h("ul",{class:"list"}, occ.map(o => h("li",null,
       h("div",{class:"who"}, h("strong",null,o.p.name), h("span",{class:"small muted"}, o.label+(o.years>0?" ("+arDigits(o.years)+")":"")+" · "+(o.inDays===0?"النهارده":WDAYS[o.date.getDay()]+" "+fmtShort(ymd(o.date))))),
       h("div",{class:"row"}, o.inDays===0 ? h("span",{class:"pill acc"},"النهارده") : null,
         o.p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>sendGreeting(o)},"ابعت تهنئة") : (o.p.phone ? h("span",{class:"pill"}, "اتصل: "+o.p.phone) : null)))))
     : h("div",{class:"empty"},"مفيش أعياد ميلاد أو جواز في السبع أيام الجايين.")));
-  wrap.append(h("section",null, sectionHead("الاعترافات في آخر ٦ شهور"), h("div",{class:"card chart"}, confessionChart(all))));
+  wrap.append(h("section",{class:"half"}, sectionHead("الاعترافات في آخر ٦ شهور"), h("div",{class:"card chart"}, confessionChart(all))));
   const attention = [...new Set([...overdueC, ...overdueV])].slice(0,8);
-  wrap.append(h("section",null, sectionHead("محتاجين سؤال"),
+  wrap.append(h("section",{class:"half"}, sectionHead("محتاجين سؤال"),
     attention.length ? h("ul",{class:"list"}, attention.map(p => personRow(p))) : h("div",{class:"empty"},"كل أولادك متابَعين. ربنا يبارك.")));
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(true)));
   return wrap;
@@ -3341,7 +3378,7 @@ function personRow(p){
       h("span",{class:"pill "+(vD===null||vD>VISIT_DAYS?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
       p.request ? h("span",{class:"pill acc"},"🙏 طالب اعتراف") : null,
       p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null,
-      accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+((S.accounts||[]).find(a=>a.id===p.father)||{}).name) : null));
+      accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+(((S.accounts||[]).find(a=>a.id===p.father)||{}).name||"؟")) : null));
 }
 function priestPeople(all){
   const q = (S.draft.q||"").trim();
@@ -3351,7 +3388,7 @@ function priestPeople(all){
   for (const p of list){ const k = (by==="area" ? p.area : p.familyName) || ""; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
   const keys = [...groups.keys()].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b,"ar"));
   const wrap = h("div",{style:"display:grid;gap:18px"});
-  wrap.append(sectionHead("أولادي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; render(); }},"ضيف شخص مش على البرنامج")));
+  wrap.append(sectionHead("أولادي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; S.draft.newPid = null; render(); }},"ضيف شخص مش على البرنامج")));
   wrap.append(h("input",{id:"q", type:"search", placeholder:"دوّر بالاسم أو العيلة أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
   wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"تجميع حسب:"),
     [["family","العيلة"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
@@ -3365,7 +3402,8 @@ function priestPeople(all){
 }
 function personDetail(all){
   const isNew = S.sel === "__new";
-  const p = isNew ? {id:"p_"+newId(), onApp:false, name:"", self:null} : all.find(x=>x.id===S.sel);
+  if (isNew && !S.draft.newPid) S.draft.newPid = "p_"+newId();
+  const p = isNew ? {id:S.draft.newPid, onApp:false, name:"", self:null} : all.find(x=>x.id===S.sel);
   if (!p) return null;
   const pr = (p.pr) || {};
   const self = p.self || {};
@@ -3374,9 +3412,10 @@ function personDetail(all){
   const save = async () => {
     const data = Object.assign({}, pr, {onApp:!!p.onApp, familyName:f("fFam"), lastConfession:f("fConf"), lastVisit:f("fVisit"), notes:f("fNotes"),
       area:f("fArea"), address:f("fAddr"), job:f("fJob"), children:cleanKids(S.draft.kids)});
+    if (data.lastConfession && data.lastConfession !== pr.lastConfession) data.confessions = [...new Set([...(pr.confessions||[]), data.lastConfession])].sort();
     if (!p.onApp || isNew){ Object.assign(data, {name:f("fName"), phone:f("fPhone"), birthday:f("fBirth"), wedding:f("fWed"), spouse:f("fSpouse")}); if(!data.name){ toast("اكتب الاسم الأول"); return; } }
     delete data.id;
-    await Store.set(PP()+"/"+p.id, data); toast("اتحفظ"); if (isNew) S.sel = p.id; render();
+    await Store.set(PP()+"/"+p.id, data); toast("اتحفظ"); if (isNew){ S.sel = p.id; S.draft.newPid = null; } render();
   };
   const quick = async (field) => {
     const extra = {[field]:TODAY_S};
@@ -3476,7 +3515,8 @@ function priestRequests(all){
     const K = REQ_KINDS[k], idT = "t_"+k+p.id, idN = "n_"+k+p.id, sl = slotOf(r.slot);
     const def = r.date ? r.date+"T"+(r.time || (sl ? sl[2] : "18:00")) : "";
     const done = async (when, note) => {
-      if (when) await Store.set("members/"+p.id+"/inbox/"+newId(), {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()});
+      await Store.set("members/"+p.id+"/inbox/"+newId(), when ? {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()}
+        : {type:"seen", title:"أبونا شاف طلب ال"+K.label, text:"هيكلمك بنفسه يتفق معاك.", reqId:r.id, at:new Date().toISOString()});
       const patch = {[K.handled]: r.id}; if (when) patch[K.next] = when;
       await Store.set(PP()+"/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, patch)));
     };
@@ -3516,41 +3556,23 @@ function priestMeditations(all){
     if (to === "all") await Store.set("meditations/"+newId(), doc);
     else await Store.set("members/"+to+"/inbox/"+newId(), Object.assign({type:"meditation"}, doc));
     S.draft.mTitle=""; S.draft.mText=""; S.draft.medTo="all";
-    toast(to==="all" ? "التأمل وصل لكل الناس" : "التأمل وصل"); render();
+    toast(to==="all" ? (Store.mode === "cloud" && accRole() === "priest" ? "التأمل وصل لكل أولادك" : "التأمل وصل لكل الناس") : "التأمل وصل"); render();
   };
   wrap.append(h("div",{class:"card form"},
     h("label",null,"يوصل لمين", h("select",{id:"mTo", onchange:e=>S.draft.medTo=e.target.value},
-      h("option",{value:"all"},"كل الناس على البرنامج"),
+      h("option",{value:"all"}, Store.mode === "cloud" && accRole() === "priest" ? "كل أولادي على البرنامج" : "كل الناس على البرنامج"),
       onApp.map(p=>h("option",{value:p.id, selected:S.draft.medTo===p.id},p.name)))),
     h("label",null,"العنوان (اختياري)", h("input",{id:"mTitle", value:S.draft.mTitle||"", oninput:e=>S.draft.mTitle=e.target.value})),
     h("label",null,"التأمل", h("textarea",{id:"mText", rows:"6", oninput:e=>S.draft.mText=e.target.value}, S.draft.mText||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:send},"ابعت التأمل"),
       h("span",{class:"small muted"},"التأمل الخاص بيوصل للشخص لوحده ومحدش تاني بيشوفه."))));
+  // on the server every meditation carries its author (by): a father sees and removes only his own
+  const mine = m => Store.mode !== "cloud" || Store.preview || accRole() === "admin" || m.by === (S.account && S.account.id);
+  const sent = S.meditations.filter(m => Store.mode !== "cloud" || Store.preview || !m.by || mine(m));
   wrap.append(h("section",null, h("h3",null,"اللي اتبعت للكل"),
-    S.meditations.length ? h("div",{style:"display:grid;gap:14px"}, S.meditations.slice(0,10).map(m => h("div",{class:"card"}, meditationBlock(m),
-      h("div",null, h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("اتمسح"); }},"امسح"))))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
+    sent.length ? h("div",{style:"display:grid;gap:14px"}, sent.slice(0,10).map(m => h("div",{class:"card"}, meditationBlock(m),
+      mine(m) ? h("div",null, h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("اتمسح"); }},"امسح")) : null))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
   return wrap;
-}
-function priestReadings(){
-  const r = S.reading || {};
-  const fld = (id,label,rows) => h("label",null,label, h("textarea",{id, rows:String(rows||3)}, r[id]||""));
-  return h("div",{style:"display:grid;gap:16px"},
-    sectionHead("قراءات "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]),
-    h("div",{class:"card"}, h("p",null, (S.auto||(S.autoDb&&S.autoDb.v===2)) ? "✅ القطمارس والسنكسار بتوع النهارده نزلوا لوحدهم من katameros.app، وبيتحدّثوا كل يوم من غير ما حد يعمل حاجة." : S.autoLoading ? "بنزّل قراءات النهارده..." : "⚠️ مقدرتش أوصل لموقع القطمارس دلوقتي، فهتظهر القراءات اللي تكتبها تحت بدالها."),
-      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>loadAutoReadings(true)},"حدّث القراءات دلوقتي"))),
-    h("label",{class:"card form"},"كلمة منك تظهر تحت القراءات (اختياري)", h("textarea",{id:"note", rows:"3"}, r.note||""),
-      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ await Store.set("readings/"+TODAY_C.m+"-"+TODAY_C.d, Object.assign({}, clean(S.reading||{}), {note:document.getElementById("note").value.trim(), copticMonth:TODAY_C.m, copticDay:TODAY_C.d})); toast("اتحفظت"); }},"احفظ الكلمة"))),
-    h("h3",null,"لو النت مش شغال: اكتب القراءات بإيدك"),
-    h("p",{class:"muted small"},"القراءات اللي تحطها هنا بتظهر بس لو التحميل التلقائي ما اشتغلش. انسخها من ",
-      h("a",{href:"https://katamars.avabishoy.com/", target:"_blank", rel:"noopener"},"القطمارس"), " و",
-      h("a",{href:"https://st-takla.org/Full-Free-Coptic-Books/Synaxarium-or-Synexarion/index.html", target:"_blank", rel:"noopener"},"السنكسار"), "."),
-    h("div",{class:"card form"}, fld("synaxarium","سنكسار اليوم",6), fld("psalm","المزمور",2), fld("pauline","البولس",3), fld("catholic","الكاثوليكون",3), fld("acts","الإبركسيس",3), fld("gospel","الإنجيل",4),
-      h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-        const data = {copticMonth:TODAY_C.m, copticDay:TODAY_C.d, note:(S.reading&&S.reading.note)||""};
-        for (const k of ["synaxarium","psalm","pauline","catholic","acts","gospel"]) data[k] = document.getElementById(k).value.trim();
-        await Store.set("readings/"+TODAY_C.m+"-"+TODAY_C.d, data); toast("القراءات اتحفظت");
-      }},"احفظ القراءات"))),
-    h("h3",null,"معاينة"), readingCard(false));
 }
 
 
@@ -3576,7 +3598,7 @@ function kidsEditor(store, prefix){
 const cleanKids = kids => (kids||[]).filter(k => (k.name||"").trim()).map(k => clean({name:k.name.trim(), birthday:k.birthday||"", grade:k.grade||"", phone:(k.phone||"").trim()}));
 function ageOf(b){ const d = parseYmd(b); if (!d) return ""; let y = TODAY.getFullYear()-d.getFullYear(); if (TODAY < new Date(TODAY.getFullYear(), d.getMonth(), d.getDate())) y--; return y >= 0 ? arDigits(y)+" سنة" : ""; }
 function historyBlock(p, pr){
-  const visits = [...(pr.visits||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  const visits = [...(pr.visits||[])].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
   const conf = [...(pr.confessions||[])].sort().reverse();
   const addVisit = async () => {
     const date = $("#vDate").value || TODAY_S, type = $("#vType").value, note = $("#vNote").value.trim();
@@ -3696,6 +3718,7 @@ async function collectBackup(){
   const add = async (col) => { for (const d of await Store.list(col)){ const {id, ...rest} = d; docs[col+"/"+id] = rest; } };
   const notes = Store.mode === "cloud" ? [...new Set([PP(), ...(S.accounts||[]).filter(isFatherAcc).map(a => "priest/"+a.id+"/people")])] : ["priest/main/people"];
   for (const c of ["settings","meditations","readings","members",...notes,"accounts"]) await add(c);
+  for (const k of Object.keys(docs)) if (k.startsWith("members/preview-")) delete docs[k];
   for (const k of Object.keys(docs)) if (/^members\/[^/]+$/.test(k)){ await add(k+"/inbox"); await add(k+"/notebook"); }
   const meta = await Store.get("priest/meta"); if (meta) docs["priest/meta"] = meta;
   return {app:"ruhiya", version:1, created:new Date().toISOString(), docs};
@@ -3704,6 +3727,8 @@ async function collectBackup(){
 // signed-in admin's own record, so a restored file cannot change who is admin or lock the admin out.
 const RESTORE_OK = /^(settings\/app|meditations\/[^/]+|readings\/[^/]+|priest\/meta|priest\/[A-Za-z0-9_-]+\/people\/[^/]+|members\/[^/]+(\/(inbox|notebook)\/[^/]+)?|accounts\/[^/]+)$/;
 async function restoreDocs(docs){
+  if (Store.mode === "cloud" && Object.keys(docs || {}).some(k => k.startsWith("priest/main/"))){
+    toast("دي نسخة من البرنامج القديم (الملف الواحد)، ومينفعش ترجع على السيرفر لأن الحسابات مختلفة."); return 0; }
   let n = 0;
   for (const [k, v] of Object.entries(docs || {})){
     if (!RESTORE_OK.test(k) || !v || typeof v !== "object") continue;
@@ -3779,7 +3804,7 @@ function priestSettings(){
     h("label",null,"كل آية في سطر", h("textarea",{id:"stVerses", rows:"8"}, ((st.verses&&st.verses.length)?st.verses:DEFAULT_VERSES).join("\n"))),
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({verses:$("#stVerses").value.split("\n").map(x=>x.trim()).filter(Boolean)},"الآيات اتحفظت")},"احفظ الآيات"),
       h("button",{class:"btn sm quiet", onclick:()=>saveSt({verses:[]},"رجعت الآيات الأصلية")},"رجّع الآيات الأصلية"))));
-  if (S.account) wrap.append(myPasswordCard());
+  if (S.account && !Store.preview) wrap.append(myPasswordCard());
   if (!S.account) wrap.append(backupCard());
   wrap.append(h("div",{class:"card form"}, h("h3",null,"تصدير"),
     h("p",{class:"small muted"},"نزّل قايمة أولادك ببياناتهم وتواريخ الاعتراف والافتقاد في ملف Excel."),
@@ -3797,11 +3822,12 @@ function resizeImage(file, max, cb){
 
 /* ---------- MEMBER ---------- */
 function memberTabs(){
-  const unread = S.inbox.filter(m => !S.draft.seen || m.at > S.draft.seen).length;
+  const seen = S.draft.seen || lsGet("ruhiya_seen_"+S.uid);
+  const unread = S.inbox.filter(m => !seen || m.at > seen).length;
   return [["today","النهارده"],["notebook","النوتة"],["confession","المواعيد"],["inbox","الرسائل", S.tab==="inbox"?0:unread],["me","بياناتي"]];
 }
 function memberToday(){
-  const wrap = h("div",{style:"display:grid;gap:22px"});
+  const wrap = h("div",{class:"dash"});
   const name = S.profile && S.profile.name ? S.profile.name.split(" ")[0] : "";
   wrap.append(h("section",null, h("div",{class:"person-line"}, S.profile ? avatar(S.profile) : null, h("h2",null, (name ? "سلام ونعمة يا "+name : "سلام ونعمة"))),
     h("p",{class:"muted"},"إحنا في "+SEASONS[SEASON].name+". "+(feastsOf(TODAY).length ? "النهارده "+feastsOf(TODAY).join(" و")+"." : ""))));
@@ -3811,9 +3837,9 @@ function memberToday(){
   if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,"ميعاد اعترافك"), h("p",{class:"num"}, fmtWhen(appt.when)), appt.text ? h("p",{class:"muted"},appt.text) : null));
   const med = S.meditations[0], personal = S.inbox.find(m=>m.type==="meditation");
   const pick = personal && (!med || personal.at > med.at) ? personal : med;
-  wrap.append(h("section",null, sectionHead("تأمل اليوم"), pick ? h("div",{class:"card"}, meditationBlock(pick), pick===personal ? h("span",{class:"pill acc", style:"width:max-content"},"مبعوت ليك مخصوص") : null) : h("div",{class:"empty"},"أبونا لسه ما بعتش تأمل النهارده.")));
+  wrap.append(h("section",{class:"half"}, sectionHead("تأمل اليوم"), pick ? h("div",{class:"card"}, meditationBlock(pick), pick===personal ? h("span",{class:"pill acc", style:"width:max-content"},"مبعوت ليك مخصوص") : null) : h("div",{class:"empty"},"أبونا لسه ما بعتش تأمل النهارده.")));
   const todayNote = S.notebook.find(n=>n.date===TODAY_S);
-  wrap.append(h("section",null, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), notebookGrid(S.notebook)));
+  wrap.append(h("section",{class:"half"}, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), notebookGrid(S.notebook)));
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(false)));
   return wrap;
 }
@@ -3828,7 +3854,8 @@ function notebookGrid(rows){
 function memberNotebook(){
   const date = S.draft.nbDate || TODAY_S;
   const ex = S.notebook.find(n=>n.date===date) || {};
-  if (!S.draft.nb || S.draft.nb.date !== date) S.draft.nb = {date, items:Object.assign({}, ex.items||{}), metanias:ex.metanias||"", portion:ex.portion||"", reflection:ex.reflection||""};
+  if (!S.draft.nb || S.draft.nb.date !== date || (!S.draft.nb.loaded && S.notebookLoaded))
+    S.draft.nb = {date, loaded:!!S.notebookLoaded, items:Object.assign({}, ex.items||{}), metanias:ex.metanias||"", portion:ex.portion||"", reflection:ex.reflection||""};
   const nb = S.draft.nb;
   const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("النوتة الروحية",
     h("input",{id:"nbDate", type:"date", value:date, max:TODAY_S, style:"width:auto", onchange:e=>{ S.draft.nbDate=e.target.value; S.draft.nb=null; render(); }})));
@@ -3841,6 +3868,7 @@ function memberNotebook(){
       h("label",null,"قريت إيه في الكتاب المقدس", h("input",{id:"nbPor", value:nb.portion, placeholder:"مثلاً: يوحنا ١٥", oninput:e=>nb.portion=e.target.value}))),
     h("label",null,"محاسبة النفس / آية لمستني", h("textarea",{id:"nbRef", oninput:e=>nb.reflection=e.target.value}, nb.reflection)),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+      if (!S.notebookLoaded){ toast("استنى ثانية، النوتة لسه بتحمّل"); return; }
       await Store.set("members/"+S.uid+"/notebook/"+date, {date, items:nb.items, metanias:Number(nb.metanias)||0, portion:nb.portion.trim(), reflection:nb.reflection.trim()});
       toast("النوتة اتحفظت. ربنا يقويك");
     }},"احفظ النوتة"))));
@@ -3899,7 +3927,8 @@ function memberConfession(){
     const r = p[REQ_KINDS[k].field]; if (!r) continue;
     const ans = S.inbox.find(m => m.reqId === r.id);
     wrap.append(h("div",{class:"card detail"}, ans
-      ? [h("h3",null, REQ_KINDS[k].emo+" "+REQ_KINDS[k].title), h("p",{class:"num"}, h("strong",null, fmtWhen(ans.when))), ans.text ? h("p",{class:"muted"}, ans.text) : null]
+      ? (ans.when ? [h("h3",null, REQ_KINDS[k].emo+" "+REQ_KINDS[k].title), h("p",{class:"num"}, h("strong",null, fmtWhen(ans.when))), ans.text ? h("p",{class:"muted"}, ans.text) : null]
+        : [h("h3",null, REQ_KINDS[k].emo+" "+(ans.title||"أبونا شاف طلبك")), ans.text ? h("p",{class:"muted"}, ans.text) : null])
       : [h("h3",null, REQ_KINDS[k].emo+" طلب ال"+REQ_KINDS[k].label+" وصل لأبونا"), h("p",{class:"muted"}, "يناسبك: "+reqWhen(r)+". أبونا هيحدد الميعاد ويبعتهولك هنا وفي الرسائل.")]));
   }
   const d = S.draft;
@@ -3929,11 +3958,12 @@ function memberConfession(){
   return wrap;
 }
 function memberInbox(){
-  if (S.inbox[0]) S.draft.seen = S.inbox[0].at;
-  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل"};
+  if (S.inbox[0]){ S.draft.seen = S.inbox[0].at; lsSet("ruhiya_seen_"+S.uid, S.inbox[0].at); }
+  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك"};
   return h("div",{style:"display:grid;gap:14px"}, sectionHead("رسائل أبونا"),
     S.inbox.length ? S.inbox.map(m => h("div",{class:"card"},
-      h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(m.at.slice(0,10)) : "")),
+      h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(ymd(new Date(m.at))) : "")),
+      m.type==="seen" ? h("div",null, h("h3",null, m.title), m.text ? h("p",{class:"muted"}, m.text) : null) :
       m.type==="appointment" || m.type==="visit" ? h("div",null, h("h3",null, m.title || "ميعاد الاعتراف"), h("p",{class:"num"}, fmtWhen(m.when)), m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
     : h("div",{class:"empty"},"مفيش رسائل لسه. أي تأمل أو ميعاد أو تهنئة من أبونا هيوصلك هنا."));
 }
@@ -3947,7 +3977,8 @@ function memberMe(){
     h("div",{class:"row"}, photoPicker("pPhoto", shown.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
       if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); toast("صورتك اتحفظت"); } else { S.draft.photo = url; render(); toast("هتتحفظ لما تدوس احفظ"); } }),
       shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); toast("الصورة اتشالت"); }},"شيل الصورة") : null))));
-  if (S.draft.myKidsFor !== S.uid){ S.draft.myKidsFor = S.uid; S.draft.myKids = (p.children||[]).map(k => Object.assign({}, k)); }
+  if (S.profileLoaded && S.draft.myKidsFor !== S.uid){ S.draft.myKidsFor = S.uid; S.draft.myKids = (p.children||[]).map(k => Object.assign({}, k)); }
+  if (!S.draft.myKids) S.draft.myKids = [];
   const acc = S.account || {};
   if (Store.mode === "cloud" && acc.fatherName) wrap.append(h("div",{class:"card father-card"}, acc.fatherPhoto ? h("img",{class:"avatar", src:acc.fatherPhoto, alt:""}) : h("span",{class:"prep-emo"},"⛪"),
     h("div",null, h("span",{class:"small muted"},"أب اعترافك"), h("strong",{style:"display:block"}, acc.fatherName), h("span",{class:"small muted"},"بياناتك ونوتتك بيشوفهم أبونا ده بس. لو عايز تغيّره كلّم الأدمن."))));
@@ -3971,6 +4002,7 @@ function memberMe(){
       h("label",null,"عيد الجواز", inp("pWed", p.wedding, {type:"date"}))),
     kidsEditor(S.draft.myKids, "my"),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
+      if (!S.profileLoaded){ toast("استنى ثانية، بياناتك لسه بتحمّل"); return; }
       const data = Object.assign({}, p, {name:v("pName"), job:v("pJob"), phone:v("pPhone"), birthday:v("pBirth"), address:v("pAddr"),
         spouse:v("pSpouse"), spousePhone:v("pSpPhone"), spouseBirthday:v("pSpBirth"), wedding:v("pWed"), children:cleanKids(S.draft.myKids)});
       delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
@@ -4089,7 +4121,7 @@ function render(){
   const priest = S.role === "priest", sup = S.role === "supervisor", adm = S.role === "admin" && accRole() === "admin";
   const all = priest || adm ? merged() : [];
   const waiting = accRole() === "pending";
-  const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"],["readings","القراءات"]] : memberTabs();
+  const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"]] : memberTabs();
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
   $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
@@ -4098,10 +4130,19 @@ function render(){
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
   else if (adm) view = S.tab === "settings" ? priestSettings() : adminView(all);
-  else if (priest) view = ({today:priestToday, people:priestPeople, families:priestFamilies, requests:priestRequests, meditations:priestMeditations, readings:priestReadings, settings:priestSettings, admin:adminView}[S.tab])(all);
-  else if (sup) view = ({admin:adminView, meditations:priestMeditations, readings:priestReadings}[S.tab])([]);
+  else if (priest) view = ({today:priestToday, people:priestPeople, families:priestFamilies, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
+  else if (sup) view = ({admin:adminView, meditations:priestMeditations}[S.tab])([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
-  $("#app").replaceChildren(view);
+  // whatever the person typed and hasn't saved survives a redraw (the server is polled every few seconds)
+  const app = $("#app"), scope = S.role+"|"+S.tab+"|"+(S.sel||""), keep = [];
+  if (!render.hooked){ render.hooked = true; const mark = e => { if (e.target && e.target.id) e.target.dataset.dirty = "1"; };
+    app.addEventListener("input", mark, true); app.addEventListener("change", mark, true); }
+  if (render.scope === scope) for (const el of app.querySelectorAll("[data-dirty][id]"))
+    if (el.type !== "file") keep.push([el.id, el.type === "checkbox" || el.type === "radio" ? {c:el.checked} : {v:el.value}]);
+  render.scope = scope;
+  app.replaceChildren(view);
+  for (const [id, k] of keep){ const el = document.getElementById(id); if (!el || !app.contains(el)) continue;
+    if ("c" in k) el.checked = k.c; else el.value = k.v; el.dataset.dirty = "1"; }
 }
 function renderNotice(){
   const slot = $("#noticeSlot"); slot.replaceChildren();
@@ -4175,6 +4216,8 @@ const authPath = () => "data/users/"+S.uid+"/auth";
 const okKey = () => Store.mode === "local" || Store.mode === "cloud" ? "ruhiya_ok_"+Store.mode : "ruhiya_ok_"+Store.mode+"_"+S.uid;
 function ssGet(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } }
 function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k,v); } catch(e){} }
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -4249,7 +4292,7 @@ function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); docum
 const IDLE_MS = 3*60*1000; let idleTimer = null;
 function bumpIdle(){ if (document.body.classList.contains("locked")) return; clearTimeout(idleTimer); idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, IDLE_MS); }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
-function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.autoDb=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -4503,7 +4546,7 @@ function adminView(all){
         isAdmin && Store.mode==="cloud" && a.role==="user" ? h("label",{class:"row small", style:"gap:8px;align-items:center"}, "⛪ أب الاعتراف:",
           h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("اتنقل"); }},
             h("option",{value:"", selected:!a.father},"من غير"), accs.filter(isFatherAcc).map(f => h("option",{value:f.id, selected:a.father===f.id}, f.name)))) : null,
-        h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(a.createdAt.slice(0,10)) : ""))));
+        h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(ymd(new Date(a.createdAt))) : ""))));
     }
     return li;
   }));
@@ -4605,6 +4648,7 @@ function cloudMsg(e){
   if (/bad code/.test(m)) return "كود الرخصة غلط.";
   if (/register_self|pending_list|review_account/.test(m) && /function|schema cache|does not exist/i.test(m)) return "التسجيل الجديد لسه مش متفعّل على السيرفر. كلّم المطوّر على "+DEV.phone+".";
   if (/no church/.test(m)) return "الكنيسة دي لسه ما اتفعّلتش.";
+  if (/unknown user/.test(m)) return "الاسم ده عليه تسجيل قديم ما كملش. جرّب تاني بنفس الاسم وكلمة السر، أو كلّم الأدمن.";
   if (/bad name/.test(m)) return "اكتب اسمك صح.";
   if (/choose father/.test(m)) return "اختار أب اعترافك من القايمة.";
   if (/bad father/.test(m)) return "أب الاعتراف ده مش موجود في الكنيسة دي.";
@@ -4708,7 +4752,11 @@ const accTry = async (fn) => { try { await fn(); return true; } catch(e){ toast(
 createAccount = async (name, role, pw) => {
   if (!S.church || !S.church.live){ toast(cloudMsg("licence expired")); return false; }
   return accTry(async () => {
-    const uid = await Cloud.signUp(await mailFor(S.church.slug, name), pw);
+    const email = await mailFor(S.church.slug, name);
+    // a sign-in left over from an earlier attempt that never became an account is cleared and the name reused
+    let uid; try { uid = await Cloud.signUp(email, pw); } catch(e){
+      if (!/already|exists/i.test(e.message) || !(await Cloud.rpc("release_orphan", {p_email:email}).catch(() => false))) throw e;
+      uid = await Cloud.signUp(email, pw); }
     if (!uid) throw new Error("signup failed");
     await Cloud.rpc("add_account", {p_uid:uid, p_name:name, p_role:role});
     Cloud.refresh("accounts/x");
