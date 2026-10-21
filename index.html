@@ -257,6 +257,22 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .qr-box[hidden]{display:none}
 .qr-box .small{color:#334155!important;text-align:center}
 .qr-img img, .qr-img canvas{display:block;border-radius:6px}
+.kids-box{gap:10px}
+.kids-title{font-weight:800;font-family:var(--f-head)}
+.kid-card{border:1.5px solid var(--gold-line);border-radius:14px;padding:10px 12px;display:grid;gap:8px;background:color-mix(in oklab,var(--gold) 5%,var(--surface))}
+.kid-head{display:flex;justify-content:space-between;align-items:center}
+.father-card{display:flex!important;align-items:center;gap:12px;flex-direction:row!important}
+.father-card .avatar{width:52px;height:52px}
+.father-pick{display:grid;gap:8px}
+.father-opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-family:var(--f-head);font-weight:700;font-size:1rem;color:var(--ink);cursor:pointer;text-align:start}
+.father-opt[aria-checked="true"]{border-color:var(--gold);background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
+.father-ic{font-size:1.3rem}
+.fam-card{gap:10px}
+.fam-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.fam-person{display:flex;align-items:center;gap:10px}
+.fam-kids{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;padding-top:8px;border-top:1px dashed var(--gold-line)}
+.fam-kid{display:grid;gap:2px;border-radius:12px;padding:8px 10px;background:color-mix(in oklab,#f97316 8%,var(--surface))}
+.fam-inline{display:grid;gap:8px}
 .pending-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .menrit{display:grid;justify-items:center;gap:2px;line-height:1}
 .menrit .mn-word{font-family:"Noto Sans Coptic","Segoe UI Historic","Segoe UI Symbol",serif;font-size:2.7rem;letter-spacing:.06em;padding:4px 6px 6px;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 3px 6px rgba(138,90,18,.28))}
@@ -3013,7 +3029,7 @@ function subscribe(){
   if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
   if (S.role === "priest"){
     L("members", null, r => { S.members=r; scheduleRender(); });
-    L("priest/main/people", null, r => { S.people=r; scheduleRender(); });
+    L(PP(), null, r => { S.people=r; scheduleRender(); });
     L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   } else if (S.uid){
     L("members/"+S.uid, null, r => { S.profile=r; S.profileLoaded=true; scheduleRender(); });
@@ -3032,6 +3048,8 @@ function selectPerson(id){
 }
 
 /* merged view of people for the priest */
+// each confession father keeps his own notes; the single-file and demo versions keep the old shared place
+const PP = () => Store.mode === "cloud" && S.account ? "priest/"+S.account.id+"/people" : "priest/main/people";
 function merged(){
   const map = new Map();
   const waiting = new Set((S.pending||[]).map(x=>x.id));
@@ -3048,7 +3066,9 @@ function merged(){
       name: p.name || s.name || "بدون اسم", phone: p.phone || s.phone || "",
       birthday: p.birthday || s.birthday || "", wedding: p.wedding || s.wedding || "", spouse: p.spouse || s.spouse || "",
       familyName: p.familyName || "", lastConfession: p.lastConfession || "", lastVisit: p.lastVisit || "", notes: p.notes || "",
-      photo: p.photo || s.photo || "", area: p.area || "", address: p.address || "", job: p.job || "", children: p.children || [], visits: p.visits || [], confessions: p.confessions || [],
+      photo: p.photo || s.photo || "", area: p.area || "", address: p.address || s.address || "", job: p.job || s.job || "",
+      children: (p.children && p.children.length ? p.children : s.children) || [], spousePhone: s.spousePhone || p.spousePhone || "", spouseBirthday: s.spouseBirthday || p.spouseBirthday || "",
+      father: (S.accounts||[]).find(a => a.id === e.id)?.father || "", visits: p.visits || [], confessions: p.confessions || [],
       request: s.request && s.request.id !== p.handledRequest ? s.request : null,
       visitReq: s.visitReq && s.visitReq.id !== p.handledVisit ? s.visitReq : null, isNew: e.onApp && !e.pr
     });
@@ -3065,6 +3085,7 @@ function occasions(people, within){
     for (const [k,label] of [["birthday","عيد ميلاد"],["wedding","عيد جواز"]]){
       const o = nextOccurrence(p[k]); if (o && o.inDays <= within) out.push({p, kind:k, label, ...o});
     }
+    if (p.spouse && p.spouseBirthday){ const o = nextOccurrence(p.spouseBirthday); if (o && o.inDays <= within) out.push({p, kind:"spouse", label:"عيد ميلاد "+p.spouse+" (من أسرة "+p.name.split(" ")[0]+")", ...o}); }
     for (const c of (p.children||[])){ const o = nextOccurrence(c.birthday); if (o && c.name && o.inDays <= within) out.push({p, kind:"child", child:c.name, label:"عيد ميلاد "+c.name+" (من أولاد "+p.name.split(" ")[0]+")", ...o}); }
   }
   return out.sort((a,b)=>a.inDays-b.inDays);
@@ -3195,7 +3216,7 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
   const req = all.filter(p=>p.request||p.visitReq).length;
-  const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
+  const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["families","الأسر"],["requests","الطلبات", req],["meditations","التأملات"],["readings","القراءات"],["settings","الإعدادات"]];
   if (accRole() === "admin") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
   return t;
 }
@@ -3218,7 +3239,7 @@ function priestToday(all){
       stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
   if (fresh.length) wrap.append(h("section",null, sectionHead("ناس جديدة دخلت البرنامج"),
     h("ul",{class:"list"}, fresh.map(p => h("li",null, h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, p.phone||"")),
-      h("button",{class:"btn sm", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, {onApp:true}); toast("اتضاف لقايمة أولادك"); }},"ضيفه لأولادي"))))));
+      h("button",{class:"btn sm", onclick:async()=>{ await Store.set(PP()+"/"+p.id, {onApp:true}); toast("اتضاف لقايمة أولادك"); }},"ضيفه لأولادي"))))));
   wrap.append(h("section",null, sectionHead("أعياد الأسبوع ده"),
     occ.length ? h("ul",{class:"list"}, occ.map(o => h("li",null,
       h("div",{class:"who"}, h("strong",null,o.p.name), h("span",{class:"small muted"}, o.label+(o.years>0?" ("+arDigits(o.years)+")":"")+" · "+(o.inDays===0?"النهارده":WDAYS[o.date.getDay()]+" "+fmtShort(ymd(o.date))))),
@@ -3235,9 +3256,61 @@ function priestToday(all){
 async function sendGreeting(o){
   const text = o.kind==="birthday" ? "كل سنة وانت طيب. ربنا يفرّح قلبك في عيد ميلادك ويديك سنة جديدة مليانة نعمة وبركة." :
     o.kind==="child" ? "كل سنة و"+o.child+" طيب. ربنا يباركه ويحفظه وينمّيه في النعمة والقامة." :
+    o.kind==="spouse" ? "كل سنة و"+o.p.spouse+" طيبين بمناسبة عيد الميلاد. ربنا يفرّح قلبكم ويبارك بيتكم." :
     "كل سنة وانتوا طيبين بمناسبة عيد جوازكم. ربنا يحفظ بيتكم ويملاه سلام ومحبة.";
   await Store.set("members/"+o.p.id+"/inbox/"+newId(), {type:"greeting", title:"كل سنة وانت طيب", text, at:new Date().toISOString()});
   toast("التهنئة وصلت لـ "+o.p.name);
+}
+/* ---------- families ---------- */
+const firstName = n => String(n||"").trim().split(/\s+/)[0] || "";
+// households: the father's own "family" label first, then husband + wife who both confess here (each names the other)
+function households(all){
+  const parent = new Map(all.map(p => [p.id, p.id]));
+  const find = x => parent.get(x) === x ? x : (parent.set(x, find(parent.get(x))), parent.get(x));
+  const join = (a,b) => parent.set(find(a), find(b));
+  const byFam = new Map();
+  for (const p of all) if (p.familyName){ if (byFam.has(p.familyName)) join(p.id, byFam.get(p.familyName)); else byFam.set(p.familyName, p.id); }
+  for (const a of all) for (const b of all) if (a.id < b.id && a.spouse && b.spouse && firstName(a.spouse) === firstName(b.name) && firstName(b.spouse) === firstName(a.name)) join(a.id, b.id);
+  const groups = new Map();
+  for (const p of all){ const k = find(p.id); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
+  return [...groups.values()].filter(g => g.length > 1 || g[0].spouse || (g[0].children||[]).length || g[0].familyName);
+}
+function familyCard(members, inline){
+  members = [].concat(members);
+  const names = new Set(members.map(m => firstName(m.name)));
+  const spouses = members.filter(m => m.spouse && !names.has(firstName(m.spouse)));
+  const kids = new Map(); for (const m of members) for (const k of (m.children||[])) if (k.name && !kids.has(firstName(k.name))) kids.set(firstName(k.name), k);
+  const wed = members.map(m => m.wedding).find(Boolean);
+  const person = (m) => h("div",{class:"fam-person"}, avatar(m), h("div",{class:"who"}, h("strong",null, m.name, h("span",{class:"pill ok", style:"margin-inline-start:6px"},"بيعترف")),
+    h("span",{class:"small muted"}, [m.job ? "💼 "+m.job : "", m.phone ? "📞 "+m.phone : "", m.birthday ? "🎂 "+fmtShort(m.birthday)+" ("+ageOf(m.birthday)+")" : ""].filter(Boolean).join(" · "))));
+  const spouseRow = (m) => h("div",{class:"fam-person"}, h("span",{class:"avatar", "aria-hidden":"true", style:"background:linear-gradient(135deg,#ec4899,#f97316)"}, firstName(m.spouse).charAt(0)||"؟"),
+    h("div",{class:"who"}, h("strong",null, m.spouse), h("span",{class:"small muted"}, ["شريك حياة "+firstName(m.name), m.spousePhone ? "📞 "+m.spousePhone : "", m.spouseBirthday ? "🎂 "+fmtShort(m.spouseBirthday)+" ("+ageOf(m.spouseBirthday)+")" : ""].filter(Boolean).join(" · "))));
+  const title = members.length > 1 ? "أسرة "+members.map(m => firstName(m.name)).join(" و") : (members[0].spouse ? "أسرة "+firstName(members[0].name)+" و"+firstName(members[0].spouse) : "أسرة "+firstName(members[0].name));
+  const body = [
+    inline ? null : h("div",{class:"fam-head"}, h("h3",null,"🏠 "+((members.find(m=>m.familyName)||{}).familyName || title)), wed ? h("span",{class:"pill"},"💍 "+fmtShort(wed)) : null),
+    inline ? null : members.map(person), spouses.map(spouseRow),
+    inline && wed ? h("p",{class:"small"},"💍 عيد الجواز: "+fmtShort(wed)) : null,
+    kids.size ? h("div",{class:"fam-kids"}, [...kids.values()].map(k => h("div",{class:"fam-kid"},
+      h("b",null, k.name), h("span",{class:"small muted"}, [k.birthday ? "🎂 "+fmtShort(k.birthday)+" ("+ageOf(k.birthday)+")" : "", k.grade ? "🎒 "+k.grade : "", k.phone ? "📞 "+k.phone : ""].filter(Boolean).join(" · ") || "—")))) : null];
+  if (inline){
+    const s = members[0];
+    return h("div",{class:"fam-inline"}, h("p",{class:"small muted", style:"margin:0"},"البيانات دي كتبها بنفسه على البرنامج:"),
+      h("p",{class:"small", style:"margin:0"}, [s.phone ? "📞 "+s.phone : "", s.birthday ? "🎂 "+fmtShort(s.birthday) : "", s.job ? "💼 "+s.job : ""].filter(Boolean).join(" · ") || "لسه ما كتبش."), ...body.flat().filter(Boolean));
+  }
+  return h("div",{class:"card fam-card"}, ...body.flat().filter(Boolean));
+}
+function priestFamilies(all){
+  const hs = households(all).sort((a,b) => a[0].name.localeCompare(b[0].name,"ar"));
+  const kids = hs.reduce((n,g) => n + new Set(g.flatMap(m => (m.children||[]).map(k => firstName(k.name)))).size, 0);
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("الأسر اللي بتعترف عندك"));
+  wrap.append(h("div",{class:"stats"},
+    h("div",{class:"stat"}, h("span",{class:"prep-emo"},"🏠"), h("b",null, arDigits(hs.length)), h("span",null,"أسرة")),
+    h("div",{class:"stat"}, h("span",{class:"prep-emo"},"👧"), h("b",null, arDigits(kids)), h("span",null,"ابن وبنت")),
+    h("div",{class:"stat"}, h("span",{class:"prep-emo"},"💑"), h("b",null, arDigits(hs.filter(g=>g.length>1).length)), h("span",null,"الزوجين بيعترفوا عندك"))));
+  wrap.append(h("p",{class:"small muted", style:"margin:0"},"لو الزوج والزوجة الاتنين بيعترفوا عندك وكل واحد كتب اسم التاني، البرنامج بيجمعهم في أسرة واحدة لوحده. وتقدر تجمعهم بنفسك من خانة «العيلة» في بيانات الشخص."));
+  if (!hs.length) wrap.append(h("div",{class:"empty"},"لسه مفيش أسر. لما أولادك يكتبوا بيانات الزوجة والأبناء هيظهروا هنا."));
+  for (const g of hs) wrap.append(familyCard(g));
+  return wrap;
 }
 function personRow(p){
   const cD = p.lastConfession ? daysBetween(parseYmd(p.lastConfession),TODAY) : null;
@@ -3248,7 +3321,8 @@ function personRow(p){
       h("span",{class:"pill "+(cD===null||cD>CONFESS_DAYS?"warn":"ok")},"اعتراف: "+agoText(p.lastConfession)),
       h("span",{class:"pill "+(vD===null||vD>VISIT_DAYS?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
       p.request ? h("span",{class:"pill acc"},"🙏 طالب اعتراف") : null,
-      p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null));
+      p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null,
+      accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+((S.accounts||[]).find(a=>a.id===p.father)||{}).name) : null));
 }
 function priestPeople(all){
   const q = (S.draft.q||"").trim();
@@ -3280,21 +3354,21 @@ function personDetail(all){
   const f = id => document.getElementById(id).value.trim();
   const save = async () => {
     const data = Object.assign({}, pr, {onApp:!!p.onApp, familyName:f("fFam"), lastConfession:f("fConf"), lastVisit:f("fVisit"), notes:f("fNotes"),
-      area:f("fArea"), address:f("fAddr"), job:f("fJob"), children:(S.draft.kids||[]).filter(k=>k.name.trim()).map(k=>({name:k.name.trim(), birthday:k.birthday||""}))});
+      area:f("fArea"), address:f("fAddr"), job:f("fJob"), children:cleanKids(S.draft.kids)});
     if (!p.onApp || isNew){ Object.assign(data, {name:f("fName"), phone:f("fPhone"), birthday:f("fBirth"), wedding:f("fWed"), spouse:f("fSpouse")}); if(!data.name){ toast("اكتب الاسم الأول"); return; } }
     delete data.id;
-    await Store.set("priest/main/people/"+p.id, data); toast("اتحفظ"); if (isNew) S.sel = p.id; render();
+    await Store.set(PP()+"/"+p.id, data); toast("اتحفظ"); if (isNew) S.sel = p.id; render();
   };
   const quick = async (field) => {
     const extra = {[field]:TODAY_S};
     if (field==="lastConfession") extra.confessions = [...new Set([...(pr.confessions||[]), TODAY_S])].sort();
     if (field==="lastVisit") extra.visits = [...(pr.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}];
-    await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp}, extra))); toast("اتسجل النهارده"); };
+    await Store.set(PP()+"/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp}, extra))); toast("اتسجل النهارده"); };
   if (S.draft.kidsFor !== p.id){ S.draft.kidsFor = p.id; S.draft.kids = (pr.children||[]).map(k=>Object.assign({}, k)); }
   const card = h("div",{class:"card detail", id:"detail"},
     h("div",{class:"row between"}, h("div",{class:"person-line"}, isNew ? null : avatar(p,"lg"), h("div",{class:"who"}, h("h2",null, isNew ? "شخص جديد" : p.name),
-        isNew ? null : h("div",{class:"row", style:"margin-top:6px"}, photoPicker("prPhoto", p.photo ? "غيّر الصورة" : "ضيف صورة", async url => { await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, photo:url}))); toast("الصورة اتحفظت"); }),
-          pr.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, photo:""}))); toast("الصورة اتشالت"); }},"شيل الصورة") : null))),
+        isNew ? null : h("div",{class:"row", style:"margin-top:6px"}, photoPicker("prPhoto", p.photo ? "غيّر الصورة" : "ضيف صورة", async url => { await Store.set(PP()+"/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, photo:url}))); toast("الصورة اتحفظت"); }),
+          pr.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.set(PP()+"/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, photo:""}))); toast("الصورة اتشالت"); }},"شيل الصورة") : null))),
       h("button",{class:"btn sm quiet", onclick:()=>{ selectPersonClear(); }},"قفل")));
   if (!isNew) card.append(h("div",{class:"row"},
     h("button",{class:"btn sm", onclick:()=>quick("lastConfession")},"اعترف النهارده"),
@@ -3302,7 +3376,7 @@ function personDetail(all){
     p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
   const ro = p.onApp && !isNew;
   card.append(h("div",{class:"form"},
-    ro ? h("p",{class:"small muted"},"البيانات الشخصية كتبها بنفسه على البرنامج: ", [self.phone, self.birthday?"ميلاد "+fmtShort(self.birthday):"", self.wedding?"جواز "+fmtShort(self.wedding):"", self.spouse?"شريك الحياة: "+self.spouse:""].filter(Boolean).join(" · ") || "لسه ما كتبش.") :
+    ro ? familyCard(p, true) :
     h("div",{class:"two"},
       h("label",null,"الاسم", h("input",{id:"fName", value:pr.name||""})),
       h("label",null,"التليفون", h("input",{id:"fPhone", value:pr.phone||"", inputmode:"tel"})),
@@ -3317,10 +3391,10 @@ function personDetail(all){
       h("label",null,"المنطقة", h("input",{id:"fArea", value:pr.area||"", list:"areaList", placeholder:"عشان تجمّع القريبين من بعض"}), h("datalist",{id:"areaList"}, [...new Set(all.map(x=>x.area).filter(Boolean))].map(x=>h("option",{value:x})))),
       h("label",null,"العنوان بالتفصيل", h("input",{id:"fAddr", value:pr.address||""})),
       h("label",null,"الشغل", h("input",{id:"fJob", value:pr.job||""}))),
-    kidsEditor(),
+    ro ? null : kidsEditor(),
     h("label",null,"ملاحظات أبونا (المعترفين مابيشوفوهاش)", h("textarea",{id:"fNotes"}, pr.notes||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:save},"حفظ"),
-      !isNew && !p.onApp ? h("button",{class:"btn quiet", onclick:async()=>{ await Store.del("priest/main/people/"+p.id); selectPersonClear(); toast("اتشال من القايمة"); }},"شيله من القايمة") : null)));
+      !isNew && !p.onApp ? h("button",{class:"btn quiet", onclick:async()=>{ await Store.del(PP()+"/"+p.id); selectPersonClear(); toast("اتشال من القايمة"); }},"شيله من القايمة") : null)));
   if (!isNew) card.append(historyBlock(p, pr));
   if (p.familyName){
     const fam = all.filter(x=>x.familyName===p.familyName && x.id!==p.id);
@@ -3385,7 +3459,7 @@ function priestRequests(all){
     const done = async (when, note) => {
       if (when) await Store.set("members/"+p.id+"/inbox/"+newId(), {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()});
       const patch = {[K.handled]: r.id}; if (when) patch[K.next] = when;
-      await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, patch)));
+      await Store.set(PP()+"/"+p.id, clean(Object.assign({}, p.pr||{onApp:true}, patch)));
     };
     wrap.append(h("div",{class:"card req-card"},
       h("div",{class:"row between"}, h("div",{class:"person-line"}, avatar(p), h("h3",null,p.name)), h("span",{class:"pill acc"}, K.emo+" "+K.label)),
@@ -3407,8 +3481,8 @@ function priestRequests(all){
   if (up.length) wrap.append(h("section",null, sectionHead("مواعيد جاية"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
     h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when))),
     k==="confession"
-      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(p.pr.confessions||[]), TODAY_S])].sort()}))); toast("اتسجل الاعتراف"); }},"اعترف")
-      : h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, p.pr, {lastVisit:TODAY_S, nextVisit:"", visits:[...(p.pr.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]}))); toast("الافتقاد اتسجل"); }},"افتقدته"))))));
+      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set(PP()+"/"+p.id, clean(Object.assign({}, p.pr, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(p.pr.confessions||[]), TODAY_S])].sort()}))); toast("اتسجل الاعتراف"); }},"اعترف")
+      : h("button",{class:"btn sm ghost", onclick:async()=>{ await Store.set(PP()+"/"+p.id, clean(Object.assign({}, p.pr, {lastVisit:TODAY_S, nextVisit:"", visits:[...(p.pr.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]}))); toast("الافتقاد اتسجل"); }},"افتقدته"))))));
   return wrap;
 }
 function fmtWhen(s){ if(!s) return ""; const d = new Date(s); return WDAYS[d.getDay()]+" "+fmtG(d)+" · "+arDigits(pad(d.getHours()))+":"+arDigits(pad(d.getMinutes())); }
@@ -3462,16 +3536,26 @@ function priestReadings(){
 
 
 const VISIT_TYPES = ["زيارة منزلية","مكالمة تليفون","مقابلة في الكنيسة","رسالة"];
-function kidsEditor(){
-  const kids = S.draft.kids || (S.draft.kids = []);
-  const box = h("div",{class:"form"}, h("span",{class:"small muted", style:"font-weight:600"},"الأبناء (أعياد ميلادهم بتظهر في أعياد الأسبوع)"));
-  kids.forEach((k,i) => box.append(h("div",{class:"kid-row"},
-    h("input",{id:"kidN"+i, value:k.name||"", placeholder:"اسم الابن/البنت", oninput:e=>k.name=e.target.value}),
-    h("input",{id:"kidB"+i, type:"date", value:k.birthday||"", oninput:e=>k.birthday=e.target.value}),
-    h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ kids.splice(i,1); render(); }},"شيل"))));
-  box.append(h("div",null, h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ kids.push({name:"",birthday:""}); render(); }},"+ ضيف ابن أو بنت")));
+const GRADES = ["لسه صغير","حضانة","KG1","KG2","أولى ابتدائي","تانية ابتدائي","تالتة ابتدائي","رابعة ابتدائي","خامسة ابتدائي","سادسة ابتدائي",
+  "أولى إعدادي","تانية إعدادي","تالتة إعدادي","أولى ثانوي","تانية ثانوي","تالتة ثانوي","جامعة","خلّص دراسته وبيشتغل","متجوز/متجوزة"];
+// one card per child: name, birthday, school year, phone
+function kidsEditor(store, prefix){
+  const kids = store || S.draft.kids || (S.draft.kids = []); prefix = prefix || "kid";
+  const box = h("div",{class:"form kids-box"}, h("span",{class:"kids-title"},"👧👦 الأبناء", h("span",{class:"small muted"}," (أعياد ميلادهم بتظهر لأبونا في أعياد الأسبوع)")));
+  kids.forEach((k,i) => box.append(h("div",{class:"kid-card"},
+    h("div",{class:"kid-head"}, h("b",null, (k.name||"").trim() || "ابن/بنت "+arDigits(i+1)),
+      h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ kids.splice(i,1); render(); }},"شيل")),
+    h("div",{class:"two"},
+      h("label",null,"الاسم", h("input",{id:prefix+"N"+i, value:k.name||"", oninput:e=>k.name=e.target.value})),
+      h("label",null,"تاريخ الميلاد", h("input",{id:prefix+"B"+i, type:"date", value:k.birthday||"", oninput:e=>k.birthday=e.target.value})),
+      h("label",null,"السنة الدراسية", h("select",{id:prefix+"G"+i, onchange:e=>k.grade=e.target.value},
+        h("option",{value:""},"اختار"), GRADES.map(g => h("option",{value:g, selected:k.grade===g}, g)))),
+      h("label",null,"التليفون (لو ليه)", h("input",{id:prefix+"P"+i, value:k.phone||"", inputmode:"tel", oninput:e=>k.phone=e.target.value}))))));
+  box.append(h("div",null, h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ kids.push({name:"",birthday:"",grade:"",phone:""}); render(); }},"+ ضيف ابن أو بنت")));
   return box;
 }
+const cleanKids = kids => (kids||[]).filter(k => (k.name||"").trim()).map(k => clean({name:k.name.trim(), birthday:k.birthday||"", grade:k.grade||"", phone:(k.phone||"").trim()}));
+function ageOf(b){ const d = parseYmd(b); if (!d) return ""; let y = TODAY.getFullYear()-d.getFullYear(); if (TODAY < new Date(TODAY.getFullYear(), d.getMonth(), d.getDate())) y--; return y >= 0 ? arDigits(y)+" سنة" : ""; }
 function historyBlock(p, pr){
   const visits = [...(pr.visits||[])].sort((a,b)=>b.date.localeCompare(a.date));
   const conf = [...(pr.confessions||[])].sort().reverse();
@@ -3479,7 +3563,7 @@ function historyBlock(p, pr){
     const date = $("#vDate").value || TODAY_S, type = $("#vType").value, note = $("#vNote").value.trim();
     const vs = [...(pr.visits||[]), {date, type, note}];
     const last = vs.map(v=>v.date).sort().pop();
-    await Store.set("priest/main/people/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, visits:vs, lastVisit:last}))); toast("الافتقاد اتسجل");
+    await Store.set(PP()+"/"+p.id, clean(Object.assign({}, pr, {onApp:!!p.onApp, visits:vs, lastVisit:last}))); toast("الافتقاد اتسجل");
   };
   return h("div",{class:"form"},
     h("h3",null,"سجل الافتقاد"),
@@ -3591,14 +3675,15 @@ async function exportExcel(){
 async function collectBackup(){
   const docs = {};
   const add = async (col) => { for (const d of await Store.list(col)){ const {id, ...rest} = d; docs[col+"/"+id] = rest; } };
-  for (const c of ["settings","meditations","readings","members","priest/main/people","accounts"]) await add(c);
+  const notes = Store.mode === "cloud" ? [...new Set([PP(), ...(S.accounts||[]).filter(isFatherAcc).map(a => "priest/"+a.id+"/people")])] : ["priest/main/people"];
+  for (const c of ["settings","meditations","readings","members",...notes,"accounts"]) await add(c);
   for (const k of Object.keys(docs)) if (/^members\/[^/]+$/.test(k)){ await add(k+"/inbox"); await add(k+"/notebook"); }
   const meta = await Store.get("priest/meta"); if (meta) docs["priest/meta"] = meta;
   return {app:"ruhiya", version:1, created:new Date().toISOString(), docs};
 }
 // Restore writes only the app's own collections. Accounts come back only for an admin, and never the
 // signed-in admin's own record, so a restored file cannot change who is admin or lock the admin out.
-const RESTORE_OK = /^(settings\/app|meditations\/[^/]+|readings\/[^/]+|priest\/meta|priest\/main\/people\/[^/]+|members\/[^/]+(\/(inbox|notebook)\/[^/]+)?|accounts\/[^/]+)$/;
+const RESTORE_OK = /^(settings\/app|meditations\/[^/]+|readings\/[^/]+|priest\/meta|priest\/[A-Za-z0-9_-]+\/people\/[^/]+|members\/[^/]+(\/(inbox|notebook)\/[^/]+)?|accounts\/[^/]+)$/;
 async function restoreDocs(docs){
   let n = 0;
   for (const [k, v] of Object.entries(docs || {})){
@@ -3841,18 +3926,36 @@ function memberMe(){
     h("div",{class:"row"}, photoPicker("pPhoto", shown.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
       if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); toast("صورتك اتحفظت"); } else { S.draft.photo = url; render(); toast("هتتحفظ لما تدوس احفظ"); } }),
       shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); toast("الصورة اتشالت"); }},"شيل الصورة") : null))));
-  wrap.append(h("div",{class:"card form"}, h("div",{class:"two"},
-    h("label",null,"الاسم", h("input",{id:"pName", value:p.name||S.draft.loginName||(S.account && S.account.name)||"", autocomplete:"name"})),
-    h("label",null,"التليفون", h("input",{id:"pPhone", value:p.phone||"", inputmode:"tel"})),
-    h("label",null,"عيد الميلاد", h("input",{id:"pBirth", type:"date", value:p.birthday||""})),
-    h("label",null,"عيد الجواز (لو متجوز)", h("input",{id:"pWed", type:"date", value:p.wedding||""})),
-    h("label",null,"اسم شريك الحياة", h("input",{id:"pSpouse", value:p.spouse||""}))),
+  if (S.draft.myKidsFor !== S.uid){ S.draft.myKidsFor = S.uid; S.draft.myKids = (p.children||[]).map(k => Object.assign({}, k)); }
+  const acc = S.account || {};
+  if (Store.mode === "cloud" && acc.fatherName) wrap.append(h("div",{class:"card father-card"}, acc.fatherPhoto ? h("img",{class:"avatar", src:acc.fatherPhoto, alt:""}) : h("span",{class:"prep-emo"},"⛪"),
+    h("div",null, h("span",{class:"small muted"},"أب اعترافك"), h("strong",{style:"display:block"}, acc.fatherName), h("span",{class:"small muted"},"بياناتك ونوتتك بيشوفهم أبونا ده بس. لو عايز تغيّره كلّم الأدمن."))));
+  // typed text survives re-renders (adding a child redraws the form)
+  const md = S.draft.meForm || (S.draft.meForm = {});
+  const v = id => ($("#"+id) ? $("#"+id).value.trim() : "");
+  const inp = (id, val, extra) => h("input", Object.assign({id, value: id in md ? md[id] : (val||""), oninput:e => { md[id] = e.target.value; }}, extra||{}));
+  wrap.append(h("div",{class:"card form"},
+    h("h3",null,"🙋 بياناتك"),
+    h("div",{class:"two"},
+      h("label",null,"الاسم", inp("pName", p.name||S.draft.loginName||(S.account && S.account.name)||"", {autocomplete:"name"})),
+      h("label",null,"الوظيفة", inp("pJob", p.job, {placeholder:"مثلاً: مهندس، مدرّسة، طالب"})),
+      h("label",null,"التليفون", inp("pPhone", p.phone, {inputmode:"tel"})),
+      h("label",null,"تاريخ الميلاد", inp("pBirth", p.birthday, {type:"date"})),
+      h("label",null,"العنوان", inp("pAddr", p.address, {placeholder:"عشان أبونا يعرف يفتقدك"}))),
+    h("h3",{style:"margin-top:6px"},"💍 الزوجة / الزوج (لو متجوز)"),
+    h("div",{class:"two"},
+      h("label",null,"الاسم", inp("pSpouse", p.spouse)),
+      h("label",null,"التليفون", inp("pSpPhone", p.spousePhone, {inputmode:"tel"})),
+      h("label",null,"تاريخ الميلاد", inp("pSpBirth", p.spouseBirthday, {type:"date"})),
+      h("label",null,"عيد الجواز", inp("pWed", p.wedding, {type:"date"}))),
+    kidsEditor(S.draft.myKids, "my"),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-      const data = Object.assign({}, p, {name:$("#pName").value.trim(), phone:$("#pPhone").value.trim(), birthday:$("#pBirth").value, wedding:$("#pWed").value, spouse:$("#pSpouse").value.trim()});
+      const data = Object.assign({}, p, {name:v("pName"), job:v("pJob"), phone:v("pPhone"), birthday:v("pBirth"), address:v("pAddr"),
+        spouse:v("pSpouse"), spousePhone:v("pSpPhone"), spouseBirthday:v("pSpBirth"), wedding:v("pWed"), children:cleanKids(S.draft.myKids)});
       delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
       if (S.draft.photo && !data.photo) data.photo = S.draft.photo;
       if (!data.joined) data.joined = TODAY_S;
-      try { await Store.set("members/"+S.uid, data); toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
+      try { await Store.set("members/"+S.uid, data); S.draft.meForm = {}; S.draft.myKidsFor = null; toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
       catch(e){ toast("مقدرناش نحفظ. اتأكد إن أبونا ضافك على البرنامج."); }
     }},"احفظ"))));
   if (S.account && S.account.role === "user") wrap.append(myPasswordCard());
@@ -3868,8 +3971,8 @@ function pendingView(){
     h("div",{class:"card pending-wait"}, h("span",{class:"prep-emo"},"⏳"),
       h("div",null, h("h3",null, done ? "بياناتك وصلت، ومستنية موافقة أبونا" : "أهلاً بيك في البرنامج 🌿"),
         h("p",{class:"small muted", style:"margin:4px 0 0"}, done
-          ? "أول ما أبونا أو المشرف يوافق على حسابك، البرنامج كله هيفتحلك لوحده. تقدر تقفل الصفحة وترجع بعدين."
-          : "اكتب بياناتك وحط صورتك تحت ودوس «احفظ». أبونا أو المشرف هيشوفها ويوافق على حسابك، وبعدها البرنامج كله هيفتحلك."))),
+          ? "أول ما أب اعترافك يوافق على حسابك، البرنامج كله هيفتحلك لوحده. تقدر تقفل الصفحة وترجع بعدين."
+          : "اكتب بياناتك وحط صورتك تحت ودوس «احفظ». أب اعترافك هيشوفها ويوافق على حسابك، وبعدها البرنامج كله هيفتحلك."))),
     memberMe());
 }
 /* the church's sign-in link, ready to copy or send */
@@ -3912,7 +4015,8 @@ function pendingCard(){
       return h("li",{class:"pending-row"},
         h("div",{class:"person-line"}, avatar({name:p.name||x.name, photo:p.photo||""}),
           h("div",{class:"who"}, h("strong",null, p.name || x.name, p.name && p.name !== x.name ? h("span",{class:"small muted"}," (اسم الدخول: "+x.name+")") : null),
-            h("span",{class:"small muted"}, (info || "لسه ماكتبش بياناته")+" · سجّل "+agoText(ymd(new Date(x.at)))))),
+            h("span",{class:"small muted"}, (info || "لسه ماكتبش بياناته")+" · سجّل "+agoText(ymd(new Date(x.at)))),
+            ["admin","supervisor"].includes(accRole()) && x.fatherName ? h("span",{class:"small", style:"font-weight:700;color:var(--a)"}, "⛪ اختار "+x.fatherName) : null)),
         h("div",{class:"row"},
           h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; if (await reviewAccount(x.id, true)){ await logAct("وافق على حساب "+x.name); toast("✅ "+x.name+" يقدر يستخدم البرنامج دلوقتي"); } e.target.disabled = false; }},"✅ موافقة"),
           h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:async e=>{
@@ -3934,8 +4038,8 @@ const ICONS = {
   visit:"M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
   settings:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
 };
-const ICON_COLORS = {admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
-const EMOJI = {admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
+const ICON_COLORS = {families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
+const EMOJI = {families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
 function icon(k, size){
   return h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||"#64708a"), "aria-hidden":"true"}, h("span",{class:"emo"}, EMOJI[k]||"✝️")); }
 
@@ -3952,7 +4056,7 @@ function render(){
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
-  else if (priest) view = ({today:priestToday, people:priestPeople, requests:priestRequests, meditations:priestMeditations, readings:priestReadings, settings:priestSettings, admin:adminView}[S.tab])(all);
+  else if (priest) view = ({today:priestToday, people:priestPeople, families:priestFamilies, requests:priestRequests, meditations:priestMeditations, readings:priestReadings, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = ({admin:adminView, meditations:priestMeditations, readings:priestReadings}[S.tab])([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
   $("#app").replaceChildren(view);
@@ -4093,7 +4197,7 @@ function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); docum
 const IDLE_MS = 3*60*1000; let idleTimer = null;
 function bumpIdle(){ if (document.body.classList.contains("locked")) return; clearTimeout(idleTimer); idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, IDLE_MS); }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
-function logout(){ clearTimeout(idleTimer); if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -4290,6 +4394,7 @@ function myPasswordCard(){
       await logAct("غيّر كلمة السر بتاعته"); toast("كلمة السر اتغيّرت"); render();
     }},"غيّر كلمة السر")));
 }
+const isFatherAcc = a => a.active !== false && !a.pending && (a.role === "priest" || (a.role === "admin" && a.confessor));
 function adminView(all){
   const me = accRole(), isAdmin = me === "admin";
   const accs = (S.accounts||[]).slice().sort((a,b)=>Object.keys(ROLES).indexOf(a.role)-Object.keys(ROLES).indexOf(b.role) || String(a.name).localeCompare(String(b.name),"ar"));
@@ -4327,6 +4432,8 @@ function adminView(all){
           h("span",{class:"small muted"}, a.lastLogin ? "آخر دخول "+agoText(ymd(new Date(a.lastLogin)))+" · "+arDigits(a.logins||0)+" مرة" : "لسه ما دخلش"))),
       h("div",{class:"row"}, h("span",{class:"pill "+(a.role==="admin"?"acc":a.role==="priest"?"ok":a.role==="supervisor"?"warn":"")}, (ROLES[a.role]||ROLES.user).label),
         a.pending ? h("span",{class:"pill warn"},"⏳ مستني موافقة") : null,
+        isFatherAcc(a) ? h("span",{class:"pill ok"},"⛪ أب اعتراف · "+arDigits(accs.filter(x=>x.father===a.id).length)) : null,
+        a.role==="user" && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?"":" warn")}, a.father ? "أبوه: "+((accs.find(x=>x.id===a.father)||{}).name||"؟") : "من غير أب اعتراف") : null,
         a.active===false ? h("span",{class:"pill bad"},"متوقف") : null));
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
@@ -4341,6 +4448,12 @@ function adminView(all){
             if (a.role==="admin" && accs.filter(x=>x.role==="admin").length < 2){ toast("لازم يفضل أدمن واحد على الأقل"); return; }
             if (S.draft.delAsk !== a.id){ S.draft.delAsk = a.id; toast("دوس تاني على «احذف» للتأكيد"); return; }
             await deleteAccount(a); await logAct("حذف حساب "+a.name); S.draft.accOpen = null; S.draft.delAsk = null; toast("الحساب اتحذف"); }},"🗑️ احذف")) : null,
+        isAdmin && Store.mode==="cloud" && a.role==="user" ? h("label",{class:"row small", style:"gap:8px;align-items:center"}, "⛪ أب الاعتراف:",
+          h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("اتنقل"); }},
+            h("option",{value:"", selected:!a.father},"من غير"), accs.filter(isFatherAcc).map(f => h("option",{value:f.id, selected:a.father===f.id}, f.name)))) : null,
+        isAdmin && Store.mode==="cloud" && a.role==="admin" ? h("label",{class:"row small", style:"gap:8px;align-items:center;cursor:pointer"},
+          h("input",{type:"checkbox", checked:!!a.confessor, onchange:async e=>{ await saveAccount(a, {confessor:e.target.checked}); await logAct((e.target.checked?"خلّى ":"شال ")+a.name+(e.target.checked?" أب اعتراف":" من آباء الاعتراف")); toast("اتحفظ"); }}),
+          "الأدمن ده أب كاهن والناس تختاره أب اعتراف") : null,
         h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(a.createdAt.slice(0,10)) : ""))));
     }
     return li;
@@ -4430,9 +4543,9 @@ const slugOk = s => /^[a-z0-9][a-z0-9-]{2,29}$/.test(s);
 async function mailFor(slug, name){ return (await sha256(slug+":"+nameKey(name))).slice(0, 40)+"@"+MAIL_DOMAIN; }
 // new-style publishable keys (sb_publishable_...) go only in apikey; legacy anon keys are JWTs and also go as Bearer
 const bearer = t => /^eyJ/.test(t||"") ? {Authorization:"Bearer "+t} : {};
-const ACC_COLS = "uid,name,role,active,must_change,photo,last_login,logins,created_at,created_by,pw_set_at,pending";
+const ACC_COLS = "uid,name,role,active,must_change,photo,last_login,logins,created_at,created_by,pw_set_at,pending,father,confessor";
 const accFromRow = r => ({id:r.uid, name:r.name, role:r.role, active:r.active, mustChange:r.must_change, photo:r.photo||"",
-  lastLogin:r.last_login, logins:r.logins, createdAt:r.created_at, by:r.created_by, pwSetAt:r.pw_set_at, pending:!!r.pending});
+  lastLogin:r.last_login, logins:r.logins, createdAt:r.created_at, by:r.created_by, pwSetAt:r.pw_set_at, pending:!!r.pending, father:r.father||"", confessor:!!r.confessor});
 // friendly Arabic for what the server says
 function cloudMsg(e){
   const m = String((e && e.message) || e || "");
@@ -4444,6 +4557,8 @@ function cloudMsg(e){
   if (/register_self|pending_list|review_account/.test(m) && /function|schema cache|does not exist/i.test(m)) return "التسجيل الجديد لسه مش متفعّل على السيرفر. كلّم المطوّر على "+DEV.phone+".";
   if (/no church/.test(m)) return "الكنيسة دي لسه ما اتفعّلتش.";
   if (/bad name/.test(m)) return "اكتب اسمك صح.";
+  if (/choose father/.test(m)) return "اختار أب اعترافك من القايمة.";
+  if (/bad father/.test(m)) return "أب الاعتراف ده مش موجود في الكنيسة دي.";
   if (/code used/.test(m)) return "كود الرخصة ده اتفعّل قبل كده.";
   if (/last admin/.test(m)) return "لازم يفضل أدمن واحد على الأقل.";
   if (/account limit/.test(m)) return "وصلت لأقصى عدد حسابات في الرخصة. كلّم المطوّر.";
@@ -4492,9 +4607,9 @@ const Cloud = {
   /* Store interface */
   async fetch(path, opts){
     const even = path.split("/").length % 2 === 0, c = this.q(this.church());
-    // older databases (setup file not re-run yet) have no "pending" column
-    if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c).catch(e => /pending/.test(e.message) ? this.req("/rest/v1/accounts?select="+ACC_COLS.replace(",pending","")+"&church_id=eq."+c) : Promise.reject(e)) || []).map(accFromRow);
-    if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, at:r.created_at, profile:r.profile||{}}));
+    // older databases (setup file not re-run yet) lack the newer columns
+    if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c).catch(e => /pending|father|confessor|column/.test(e.message) ? this.req("/rest/v1/accounts?select="+ACC_COLS.replace(",pending,father,confessor","")+"&church_id=eq."+c) : Promise.reject(e)) || []).map(accFromRow);
+    if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, at:r.created_at, profile:r.profile||{}, father:r.father||"", fatherName:r.father_name||""}));
     if (path === "pwreq") return (await this.req("/rest/v1/pwreqs?select=uid,name,at&church_id=eq."+c) || []).map(r => ({id:r.uid, accId:r.uid, name:r.name, at:r.at}));
     if (even){
       if (path.startsWith("accounts/")){ const r = (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&uid=eq."+this.q(path.split("/")[1])) || [])[0]; return r ? accFromRow(r) : null; }
@@ -4551,7 +4666,7 @@ createAccount = async (name, role, pw) => {
   });
 };
 saveAccount = async (acc, patch) => {
-  const p = {}; for (const k of ["role","active","photo"]) if (k in patch) p[k] = patch[k];
+  const p = {}; for (const k of ["role","active","photo","father","confessor"]) if (k in patch) p[k] = patch[k];
   const okk = await accTry(() => Cloud.rpc("update_account", {p_uid:acc.id, p_patch:p}));
   Cloud.refresh("accounts/x"); if (!okk) throw new Error("not saved");
 };
@@ -4588,7 +4703,9 @@ listAccounts = async () => { try { return await Cloud.list("accounts"); } catch(
 function cloudAccount(me){
   S.church = {id:me.church_id, name:me.church, slug:me.slug, priest:me.priest, expires_at:me.expires_at, live:me.live};
   try { localStorage.setItem(CHURCH_KEY, me.slug); } catch(e){}
-  return {id:me.uid, name:me.name, role:me.role, active:me.active, mustChange:me.must_change, photo:me.photo||"", lastLogin:me.last_login, logins:me.logins};
+  S.fathers = me.fathers || [];
+  return {id:me.uid, name:me.name, role:me.role, active:me.active, mustChange:me.must_change, photo:me.photo||"", lastLogin:me.last_login, logins:me.logins,
+    father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||"", confessor:!!me.confessor};
 }
 async function restoreCloudSession(){
   const s = Cloud.loadSess(); if (!s || !ssGet(okKey())) return false;
@@ -4611,10 +4728,16 @@ async function showCloudGate(){
   if (slug && info === null){ mode = "church"; }
   const v = id => ($("#"+id) ? $("#"+id).value : "");
   const btn = (label, extra) => h("button",Object.assign({class:"btn", type:"submit", style:"width:100%;padding-block:12px"}, extra||{}), label);
-  let newPhoto = "";
+  let newPhoto = "", pickFather = "";
+  // the list of confession fathers as big tappable cards
+  const fatherPicker = (list) => h("div",{class:"father-pick", role:"radiogroup", "aria-label":"أب الاعتراف"}, list.map(f =>
+    h("button",{type:"button", role:"radio", class:"father-opt", "aria-checked": pickFather === f.uid ? "true" : "false", onclick:()=>{ pickFather = f.uid;
+      gate.querySelectorAll(".father-opt").forEach(b => b.setAttribute("aria-checked", b.dataset.uid === f.uid ? "true" : "false")); }, "data-uid":f.uid},
+      h("span",{class:"father-ic", "aria-hidden":"true"},"⛪"), h("span",null, f.name))));
   // after signing in: a new password if needed, then the person's photo, then the offer of fingerprint / face unlock
   const finish = async () => {
     const me = Cloud.me;
+    if (["user","pending"].includes(me.role) && !me.father && (me.fathers||[]).length){ mode = "father"; draw(); return; }
     if (!S.account.photo){
       let pf = null; try { pf = ["user","pending"].includes(me.role) ? await Store.get("members/"+me.uid) : null; } catch(e){}
       if (pf && pf.photo) S.account.photo = pf.photo; else { mode = "photo"; draw(); return; }
@@ -4678,18 +4801,20 @@ async function showCloudGate(){
         h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
         h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")];
     } else if (mode === "register"){
-      sub = "اختار اسم وكلمة سر هتدخل بيهم على طول. بعد كده هتكتب بياناتك، وأبونا أو المشرف يوافق على حسابك.";
+      sub = "اختار اسم وكلمة سر هتدخل بيهم على طول. بعد كده هتكتب بياناتك، وأب اعترافك يوافق على حسابك.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const name = v("gName").trim().replace(/\s+/g, " "), pw = v("gPw");
         if (name.length < 2) fail("اكتب اسمك (الاسم الأول واسم الأب مثلاً)."); if (name.length > 60) fail("الاسم طويل أوي.");
         if (pw.length < PW_MIN) fail(pwShort()+"."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
         if (info && info.live === false) fail("رخصة الكنيسة خلصت، ومينفعش تسجيل جديد دلوقتي.");
+        const fl = (info && info.fathers) || [];
+        if (fl.length && !pickFather) fail("اختار أب اعترافك من القايمة.");
         const email = await mailFor(slug, name);
         try { await Cloud.signUp(email, pw); } catch(e){ if (!/already|exists/i.test(e.message)) throw e; }
         try { await Cloud.signIn(email, pw); } catch(e){ if (e.offline) throw e; fail("الاسم ده متسجّل قبل كده. لو ده إنت، ارجع وادخل بكلمة السر بتاعتك. لو لأ، زوّد اسم العيلة."); }
         let me; try { me = await Cloud.rpc("touch_login"); } catch(e){
           if (!/no account/.test(e.message)){ await Cloud.signOut(); throw e; }
-          try { await Cloud.rpc("register_self", {p_slug:slug, p_name:name}); } catch(e2){ await Cloud.signOut(); throw e2; }
+          try { await Cloud.rpc("register_self", info && info.fathers ? {p_slug:slug, p_name:name, p_father:pickFather||null} : {p_slug:slug, p_name:name}); } catch(e2){ await Cloud.signOut(); throw e2; }
           me = await Cloud.rpc("touch_login");
           Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("سجّل حساب جديد ومستني الموافقة"); }
         if (!me.active){ await Cloud.signOut(); fail("الحساب ده متوقف. كلّم الأدمن."); }
@@ -4698,6 +4823,8 @@ async function showCloudGate(){
         h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","new-password")),
         h("label",null,"اكتب كلمة السر تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
         h("p",{class:"small muted", style:"margin:0"},"افتكر الاسم ده بالظبط، لأنك هتدخل بيه كل مرة."),
+        info && info.fathers && info.fathers.length ? h("div",{class:"form", style:"gap:6px"}, h("span",{style:"font-weight:700"},"مين أب اعترافك؟"), fatherPicker(info.fathers),
+          h("span",{class:"small muted"},"طلبك هيروح لأبونا ده بس، وهو اللي هيوافق على حسابك.")) : null,
         err, btn("اعمل الحساب وادخل"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"عندي حساب، رجوع للدخول")];
     } else if (mode === "forgot"){
@@ -4709,6 +4836,17 @@ async function showCloudGate(){
         h("label",null,"اسمك في البرنامج", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
         err, btn("📨 ابعت طلب للأدمن"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"رجوع للدخول")];
+    } else if (mode === "father"){
+      sub = "أهلاً "+S.account.name+". اختار أب اعترافك عشان بياناتك تروحله هو بس.";
+      form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
+        if (!pickFather) fail("اختار أب اعترافك من القايمة.");
+        await Cloud.rpc("update_account", {p_uid:Cloud.me.uid, p_patch:{father:pickFather}});
+        const me = await Cloud.rpc("me"); Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("اختار أب اعترافه");
+        await finish(); }); }},
+        fatherPicker(Cloud.me.fathers || []),
+        h("p",{class:"small muted", style:"margin:0"},"لو حبيت تغيّره بعد كده، كلّم الأدمن."),
+        err, btn("تمام، كمّل"));
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ S.account = null; Cloud.signOut(); mode = "login"; draw(); }},"خروج")];
     } else if (mode === "photo"){
       sub = "أهلاً "+S.account.name+". قبل ما تدخل، حط صورتك عشان أبونا والخدام يعرفوك.";
       const prev = h("div",{class:"gate-photo"}, newPhoto ? h("img",{src:newPhoto, alt:"صورتك"}) : h("span",null,"📷"));
