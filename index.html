@@ -22,18 +22,21 @@ window.RUHIYA_CONFIG = {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Color+Emoji&family=Noto+Sans+Coptic&display=swap">
 <style>
-/* Layout: a modern mobile app. A season-coloured gradient card opens the page, white rounded cards hold each screen,
+/* Layout: a modern mobile app. A teal-to-blue gradient card opens the page, white rounded cards hold each screen,
    every section and tab carries its own coloured icon tile, and the nav is a bottom app bar on phones. */
 :root{
   --a:#0f766e; --b:#1e40af;
   --bg:#f6efe1; --surface:#fffdf8; --surface-2:#fbf5e9; --line:#ebe1cc;
-  --ink:#172033; --ink-2:#64708a; --on-a:#ffffff;
+  --ink:#172033; --ink-2:#5b6680; --on-a:#ffffff;
   --ok:#16a34a; --warn:#d97706; --bad:#e11d48;
+  /* text-safe shades of ok/warn/gold (4.5:1 on light surfaces) */
+  --ok-ink:#166534; --warn-ink:#92400e; --gold-ink:#8a6414;
   --shadow:0 1px 2px rgba(23,32,51,.05), 0 6px 20px rgba(23,32,51,.06);
   --f-head:"Cairo","IBM Plex Sans Arabic",Tahoma,sans-serif;
   --f-body:"IBM Plex Sans Arabic","Noto Sans Arabic",Tahoma,system-ui,sans-serif;
   --f-scripture:"Amiri","Noto Naskh Arabic",serif;
   --nav-h:68px; --r:20px;
+  --brand-grad:linear-gradient(135deg,var(--a),var(--b));
   --gold:#c9a227; --gold-2:#e9c96b; --gold-d:#8a6414;
   --gold-grad:linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a);
   --gold-line:color-mix(in oklab,var(--gold) 45%,transparent);
@@ -41,10 +44,10 @@ window.RUHIYA_CONFIG = {
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0a1730; --surface:#11244a; --surface-2:#162d58; --line:#24406e; --ink:#eef2fa; --ink-2:#a3b1cc;
-  --ok:#4ade80; --warn:#fbbf24; --bad:#fb7185; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme:dark;}}
+  --ok:#4ade80; --warn:#fbbf24; --bad:#fb7185; --ok-ink:#4ade80; --warn-ink:#fbbf24; --gold-ink:#e9c96b; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme:dark;}}
 :root[data-theme="dark"]{
   --bg:#0a1730; --surface:#11244a; --surface-2:#162d58; --line:#24406e; --ink:#eef2fa; --ink-2:#a3b1cc;
-  --ok:#4ade80; --warn:#fbbf24; --bad:#fb7185; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme:dark;}
+  --ok:#4ade80; --warn:#fbbf24; --bad:#fb7185; --ok-ink:#4ade80; --warn-ink:#fbbf24; --gold-ink:#e9c96b; --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25); color-scheme:dark;}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;direction:rtl;
@@ -68,6 +71,11 @@ a{color:var(--a);font-weight:600}
 .btn.ghost{background:color-mix(in oklab,var(--a) 12%,var(--surface));color:var(--a);box-shadow:none}
 .btn.quiet{background:var(--surface-2);color:var(--ink-2);box-shadow:none;border:1px solid var(--line)}
 .btn.sm{padding:4px 12px;font-size:.84rem;border-radius:10px}
+.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;filter:none}
+.btn[aria-busy="true"]{opacity:.8;cursor:progress}
+.btn[aria-busy="true"]::before{content:"";display:inline-block;width:.95em;height:.95em;margin-inline-end:8px;vertical-align:-.12em;border:2px solid currentColor;border-inline-end-color:transparent;border-radius:50%;animation:btn-spin .7s linear infinite}
+@keyframes btn-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.btn[aria-busy="true"]::before{animation-duration:1.8s}}
 
 /* colourful icon tiles */
 .ico{--c:#64708a;display:inline-grid;place-items:center;flex:none;width:36px;height:36px;border-radius:11px;
@@ -140,9 +148,9 @@ ul.list li.click:hover{background:var(--surface-2)}
 .who{display:grid;min-width:0}
 .who strong{font-weight:700}
 .pill{display:inline-block;padding:0 10px;border-radius:999px;font-size:.76rem;font-weight:600;line-height:24px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
-.pill.warn{background:color-mix(in oklab,var(--warn) 15%,var(--surface));color:var(--warn)}
+.pill.warn{background:color-mix(in oklab,var(--warn) 15%,var(--surface));color:var(--warn-ink)}
 .pill.bad{background:color-mix(in oklab,var(--bad) 15%,var(--surface));color:var(--bad)}
-.pill.ok{background:color-mix(in oklab,var(--ok) 15%,var(--surface));color:var(--ok)}
+.pill.ok{background:color-mix(in oklab,var(--ok) 15%,var(--surface));color:var(--ok-ink)}
 .pill.acc{background:linear-gradient(135deg,var(--a),var(--b));color:#fff}
 .empty{padding:22px;border:2px dashed var(--line);border-radius:var(--r);color:var(--ink-2);text-align:center;font-weight:600}
 .family-head{font-family:var(--f-head);font-weight:800;font-size:.95rem;color:var(--a)}
@@ -169,8 +177,8 @@ ul.list li.click:hover{background:var(--surface-2)}
 .days{display:grid;grid-template-columns:repeat(14,1fr);gap:4px}
 .day{aspect-ratio:1;max-width:100%;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-size:.68rem;color:var(--ink-2);font-weight:600}
 .day.l1{background:color-mix(in oklab,#22c55e 30%,var(--surface))}
-.day.l2{background:color-mix(in oklab,#22c55e 62%,var(--surface));color:#fff}
-.day.l3{background:#16a34a;color:#fff}
+.day.l2{background:color-mix(in oklab,#22c55e 62%,var(--surface));color:var(--ink)}
+.day.l3{background:#15803d;color:#fff}
 .detail{outline:0;border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box}
 .toast{position:fixed;bottom:calc(var(--nav-h) + 20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:12px;font-size:.9rem;font-weight:600;z-index:20}
 footer{margin-top:24px;font-size:.8rem;color:var(--ink-2);text-align:center}
@@ -189,7 +197,7 @@ body.locked .ticker{display:none}
 .chip-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--a);background:color-mix(in oklab,var(--a) 10%,var(--surface))}
 .kid-row{display:grid;grid-template-columns:1fr 150px auto;gap:8px;align-items:center}
 @media (max-width:480px){.kid-row{grid-template-columns:1fr 1fr auto}}
-.warnbox{background:color-mix(in oklab,var(--warn) 12%,var(--surface));color:var(--warn);border-radius:14px;padding:10px 14px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.warnbox{background:color-mix(in oklab,var(--warn) 12%,var(--surface));color:var(--warn-ink);border-radius:14px;padding:10px 14px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .dev-id{display:inline-flex;align-items:center;gap:8px}
 .dev-id img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none}
 .gate-church{width:96px;height:96px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:var(--shadow);background:#fff}
@@ -213,7 +221,7 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .pending-card{display:grid;gap:10px;border:2px solid transparent;background:linear-gradient(color-mix(in oklab,#06b6d4 7%,var(--surface)),color-mix(in oklab,#06b6d4 7%,var(--surface))) padding-box,var(--gold-grad) border-box}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1.5px solid var(--gold-line);border-radius:16px;padding:5px;box-shadow:var(--shadow)}
 .seg button{border:0;background:transparent;border-radius:12px;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--f-head);font-weight:800;font-size:1rem;color:var(--ink-2);cursor:pointer;transition:background .15s}
-.seg button[aria-selected="true"]{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
+.seg button[aria-selected="true"]{background:var(--brand-grad);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
 .cal{display:grid;gap:8px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:center}
 .cal-nav{border:1.5px solid var(--gold-line);background:var(--surface);border-radius:10px;width:38px;height:38px;font-size:1.3rem;font-weight:800;cursor:pointer;color:var(--a)}
@@ -225,14 +233,14 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .cal-day small{font-size:.62rem;color:var(--gold-d);font-weight:700}
 .cal-day.wk{background:color-mix(in oklab,#f43f5e 6%,var(--surface))}
 .cal-day.today{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
-.cal-day.on{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;border-color:transparent}
+.cal-day.on{background:var(--brand-grad);color:#fff;border-color:transparent}
 .cal-day.on small{color:#fde68a}
 .cal-day:disabled{opacity:.3;cursor:default}
 .pick-day{font-weight:700;color:var(--a);margin:0}
 .slot-row{display:grid!important;grid-template-columns:repeat(3,1fr);gap:8px}
 .slot-row .chip-btn{border-radius:14px;padding:10px 4px;min-height:64px;display:grid;place-items:center;align-content:center;gap:4px;font-family:var(--f-head);font-weight:700;font-size:.86rem;line-height:1.2;color:var(--ink)}
 .slot-row .chip-btn .se{font-size:1.35rem;line-height:1}
-.slot-row .chip-btn[aria-pressed="true"]{background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;border-color:var(--gold)}
+.slot-row .chip-btn[aria-pressed="true"]{background:var(--brand-grad);color:#fff;border-color:var(--gold)}
 /* visit requests: same layout, warm amber colour so it is clearly the visit form */
 .seg button.k-visit[aria-selected="true"]{background:linear-gradient(135deg,#d97706,#be123c);box-shadow:0 4px 12px rgba(217,119,6,.35)}
 .req-form.visit{background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#f59e0b,#e11d48,#f59e0b) border-box;border:2px solid transparent}
@@ -267,7 +275,7 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .father-card .avatar{width:52px;height:52px}
 .father-pick{display:grid;gap:8px}
 .father-opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-family:var(--f-head);font-weight:700;font-size:1rem;color:var(--ink);cursor:pointer;text-align:start}
-.father-opt[aria-checked="true"]{border-color:var(--gold);background:linear-gradient(135deg,#0f766e,#1e40af);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
+.father-opt[aria-checked="true"]{border-color:var(--gold);background:var(--brand-grad);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
 .father-ic{font-size:1.3rem}
 .fam-card{gap:10px}
 .fam-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -277,7 +285,7 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .fam-inline{display:grid;gap:8px}
 .pending-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .pending-row.open{display:grid;justify-content:stretch}
-.pend-toggle{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;flex:1;min-width:0;border-radius:12px}
+.pend-toggle{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;flex:1 1 240px;min-width:0;border-radius:12px}
 .pend-toggle:focus-visible{outline:2px solid var(--a);outline-offset:3px}
 .pend-more{color:var(--a);font-weight:700;white-space:nowrap;margin-inline-start:auto}
 .pend-detail{display:grid;gap:12px;padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid color-mix(in oklab,var(--gold,#c9a227) 45%,transparent)}
@@ -333,7 +341,7 @@ nav.tabs button[aria-current="page"]{color:var(--gold-d)}
 .emoji-h{font-family:var(--f-emoji)}
 .pw button.eye{font-family:var(--f-emoji);font-size:1.2rem;line-height:1;padding:4px 6px}
 .gate-cross{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--gold),0 10px 24px rgba(14,60,110,.25)}
-.notice .btn.on{background:linear-gradient(135deg,#0f766e,#1e40af)}
+.notice .btn.on{background:var(--brand-grad)}
 
 /* confession preparation */
 .prep{gap:12px}
@@ -382,7 +390,7 @@ img.avatar{height:auto}
 
 /* developer signature */
 .dev{display:grid;gap:10px;justify-items:center;border-top:0!important;padding-top:6px!important}
-.dev-rule{display:flex;align-items:center;gap:10px;width:min(260px,80%);color:var(--gold);font-size:.8rem}
+.dev-rule{display:flex;align-items:center;gap:10px;width:min(260px,80%);color:var(--gold-ink);font-size:.8rem}
 .dev-rule i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
 .dev-rule i:last-child{background:linear-gradient(90deg,var(--gold),transparent)}
 .dev-card{display:flex;align-items:center;gap:14px;padding:10px 18px 10px 12px;border-radius:999px;max-width:100%;
@@ -513,6 +521,62 @@ body.locked .ticker{display:none!important}
 .wrap{max-width:980px}
 /* Android Chrome enlarges text by itself when the phone turns sideways; keep the size we set so turning doesn't jump */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.app-ver{margin:6px 0 0;text-align:center;font-size:.72rem;opacity:.75;direction:ltr}
+/* screen-fit pass (audit 2026-10-21) — sizes only, same arrangement everywhere */
+/* buttons a finger can hit: خروج and the password eye */
+/* the button keeps its look; an invisible margin around it makes the touch area at least 44px */
+.hero-side .logout{position:relative}
+.hero-side .logout::after, .pw button.eye::after{content:"";position:absolute;inset:-9px -6px}
+/* one tab only (an account waiting for approval): no tab bar */
+body.one-tab nav.tabs{display:none}
+body.one-tab{--nav-h:0px}
+/* tablets held upright: the date chips may take two lines rather than run into the خروج button */
+@media (min-width:760px) and (max-width:999px){ .hero-meta{flex-wrap:wrap} }
+/* account rows on narrow screens: the role badges go under the name instead of squeezing it */
+@media (max-width:560px){ .acc-row{grid-template-columns:1fr} .acc-row > .row{flex-wrap:wrap} }
+/* phones held upright: a lower header so the content starts sooner */
+@media (max-width:759px){
+  body{padding-top:8px}
+  .ticker{min-height:0!important;margin-bottom:8px}
+  .tick-copy{padding:5px 0;font-size:1rem}
+  #noticeSlot .notice{margin-top:8px;padding:7px 12px}
+  .hero{padding:10px 12px;gap:6px 10px}
+  .hero .cross, .hero .hero-logo{width:40px;height:40px}
+  .hero .cross{padding:8px}
+  .brand{gap:1px}
+  .brand h1{font-size:1.1rem}
+  .mn-pill{font-size:.78rem;padding:0 8px 1px}
+  .brand .eyebrow{font-size:.7rem}
+  .hero-side{gap:4px}
+  .hero-side .saint{width:44px}
+  .hero-side .saint-init{font-size:1.1rem}
+  .welcome{font-size:.9rem;padding-top:5px}
+  .hero-meta{gap:5px}
+  .hero-meta .glass, .hero-meta .glass.clock-chip{font-size:.7rem;padding:2px 6px}
+}
+/* short screens (a phone held sideways): the same header, smaller, and a thinner tab bar */
+@media (max-height:500px){
+  body{padding-top:6px}
+  .ticker{min-height:0!important;margin-bottom:6px}
+  .tick-copy{padding:2px 0;font-size:.92rem}
+  .hero{padding:6px 12px;gap:4px 12px;min-height:0!important;border-radius:16px}
+  .hero .cross, .hero .hero-logo{width:34px;height:34px}
+  .hero .cross{padding:6px}
+  .brand h1{font-size:1rem;line-height:1.2}
+  .mn-pill{font-size:.7rem;padding:0 7px}
+  .brand .eyebrow{font-size:.66rem;line-height:1.3}
+  .hero-top{padding-inline-end:12px}
+  .hero-side{gap:3px}
+  .hero-side .saint{width:34px}
+  .hero-side .saint-init{font-size:.95rem}
+  .welcome{font-size:.85rem;padding-top:0;border-top:0}
+  .hero-meta .glass, .hero-meta .glass.clock-chip{font-size:.68rem;padding:1px 8px}
+  #noticeSlot .notice{margin-top:6px;padding:6px 12px}
+  nav.tabs{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom,0px))}
+  nav.tabs button{gap:0;font-size:.66rem;line-height:1.3}
+  nav.tabs button .ico{width:24px;height:24px}
+  nav.tabs button .ico svg{width:15px;height:15px}
+}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -2849,6 +2913,13 @@ function h(tag, attrs, ...kids){
   if (attrs) for (const [k,v] of Object.entries(attrs)){
     if (v == null || v === false) continue;
     if (k === "class") el.className = v;
+    else if (k === "onclick" && tag === "button" && /(^|\s)btn(\s|$)/.test(attrs.class||"")) el.addEventListener("click", e => {
+      // async .btn handlers: block double taps and show a spinner until the work settles
+      const r = v(e);
+      if (!r || typeof r.then !== "function") return;
+      const lock = !el.disabled; if (lock) el.disabled = true; el.setAttribute("aria-busy","true");
+      r.finally(() => { el.removeAttribute("aria-busy"); if (lock) el.disabled = false; });
+    });
     else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
     else if (k === "value") el.value = v;
     else if (k === "checked") el.checked = !!v;
@@ -3700,7 +3771,7 @@ function backupCard(){
   const lb = S.meta && S.meta.lastBackup;
   const restoreBox = h("div",{class:"form"});
   return h("div",{class:"card form"}, h("h3",null,"💾 النسخة الاحتياطية"),
-    h("p",{class:"small "+(lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "muted" : ""), style: lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "" : "color:var(--warn);font-weight:600"}, lb ? "آخر نسخة احتياطية: "+fmtShort(lb)+" ("+agoText(lb)+")" : "لسه ماعملتش أي نسخة احتياطية."),
+    h("p",{class:"small "+(lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "muted" : ""), style: lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "" : "color:var(--warn-ink);font-weight:600"}, lb ? "آخر نسخة احتياطية: "+fmtShort(lb)+" ("+agoText(lb)+")" : "لسه ماعملتش أي نسخة احتياطية."),
     h("div",{class:"row"},
       h("button",{class:"btn sm", onclick:async()=>{ const b = await collectBackup();
         if (await saveFile("نسخة-احتياطية-المتابعة-الروحية-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("النسخة اتنزلت"); } }},"نزّل نسخة احتياطية كاملة"),
@@ -4081,6 +4152,7 @@ function render(){
   const waiting = accRole() === "pending";
   const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"]] : memberTabs();
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
+  document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
   $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
   renderNotice(); renderMe();
@@ -4112,9 +4184,9 @@ function renderNotice(){
   if (Store.mode === "cloud"){
     const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
-      : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
+      : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn-ink);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
     const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? roleBtns() : null));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? roleBtns() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"ارجع للبيانات الحقيقية") : null)));
@@ -4176,6 +4248,8 @@ function ssGet(k){ try { return sessionStorage.getItem(k); } catch(e){ return nu
 function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k,v); } catch(e){} }
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+// shown under the developer card, so anyone can tell which version their phone has opened
+const APP_VERSION = "2026.10.21-4";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -4184,7 +4258,8 @@ function devBlock(withLogo){
       h("div",{class:"dev-text"},
         h("span",{class:"dev-label"},"تصميم وتطوير · Created by"),
         h("strong",null,DEV.name),
-        h("a",{class:"dev-phone", href:"tel:"+DEV.phone}, h("span",{class:"emo"},"📞"), h("span",{dir:"ltr"},DEV.phone)))));
+        h("a",{class:"dev-phone", href:"tel:"+DEV.phone}, h("span",{class:"emo"},"📞"), h("span",{dir:"ltr"},DEV.phone)))),
+    h("p",{class:"app-ver small muted"},"نسخة "+APP_VERSION));
 }
 function churchMark(){
   const st = S.settings || {};
@@ -4810,8 +4885,8 @@ async function showCloudGate(){
   };
   const draw = () => {
     const err = h("p",{class:"gate-err", role:"alert"});
-    const busy = async (form, fn) => { const b = form.querySelector("button[type=submit]"); if (b) b.disabled = true; err.textContent = "";
-      try { await fn(); } catch(e){ err.textContent = e && e.ui ? e.message : cloudMsg(e); } finally { if (b && b.isConnected) b.disabled = false; } };
+    const busy = async (form, fn) => { const b = form.querySelector("button[type=submit]"); if (b){ b.disabled = true; b.setAttribute("aria-busy","true"); } err.textContent = "";
+      try { await fn(); } catch(e){ err.textContent = e && e.ui ? e.message : cloudMsg(e); } finally { if (b){ b.removeAttribute("aria-busy"); if (b.isConnected) b.disabled = false; } } };
     const fail = m => { const e = new Error(m); e.ui = true; throw e; };
     let sub = "", form, extra = [];
     const title = info && info.name ? info.name : ((S.settings && S.settings.title) || "المتابعة الروحية");
