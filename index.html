@@ -3418,16 +3418,42 @@ function priestPeople(all){
   const keys = [...groups.keys()].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b,"ar"));
   const wrap = h("div",{style:"display:grid;gap:18px"});
   wrap.append(sectionHead("أولادي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; S.draft.newPid = null; render(); }},"ضيف شخص مش على البرنامج")));
-  wrap.append(h("input",{id:"q", type:"search", placeholder:"دوّر بالاسم أو العيلة أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
+  wrap.append(h("input",{id:"q", type:"search", placeholder: Store.mode==="cloud" && accRole()==="priest" ? "دوّر في أولادك وفي ولاد الكنيسة" : "دوّر بالاسم أو العيلة أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
   wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"تجميع حسب:"),
     [["family","العيلة"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
     h("button",{class:"chip-btn", onclick:exportExcel},"تصدير Excel")));
   if (S.sel) wrap.append(personDetail(all));
-  if (!list.length) wrap.append(h("div",{class:"empty"}, all.length ? "مفيش نتايج." : "لسه مفيش حد. لما حد من أولادك يفتح البرنامج ويكتب بياناته هيظهر هنا، أو ضيف شخص بنفسك."));
+  if (!list.length) wrap.append(h("div",{class:"empty"}, q && Store.mode==="cloud" && accRole()==="priest" ? "مفيش حد من أولادك بالاسم ده." : all.length ? "مفيش نتايج." : "لسه مفيش حد. لما حد من أولادك يفتح البرنامج ويكتب بياناته هيظهر هنا، أو ضيف شخص بنفسك."));
   for (const k of keys){
     wrap.append(h("section",null, h("div",{class:"family-head"}, k || (keys.length>1?"أفراد":"")), h("ul",{class:"list"}, groups.get(k).map(personRow))));
   }
+  const others = churchSearch(q);
+  if (others) wrap.append(others);
   return wrap;
+}
+// a father searching sees the church's other members too: name, photo and whose confessee only
+// (accounts rows; the server never gives him their data, notes or family)
+const arKey = s => String(s||"").replace(/[\u064B-\u0652\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim();
+function churchSearch(q){
+  if (Store.mode !== "cloud" || accRole() !== "priest" || Store.preview || arKey(q).length < 2) return null;
+  const c = S.churchAcc;
+  if (!c || (!c.loading && Date.now() - c.at > 120000)){
+    S.churchAcc = {loading:true, at:Date.now(), list:(c&&c.list)||[]};
+    listAccounts().then(r => { S.churchAcc = {at:Date.now(), list:r||[]};
+      // the father is usually still typing in the search box: redraw and keep the cursor there
+      const a = document.activeElement; if (!a || a.id !== "q"){ scheduleRender(); return; }
+      const pos = a.selectionStart; render(); const n = $("#q"); if (n){ n.focus(); n.setSelectionRange(pos, pos); } });
+  }
+  const list = S.churchAcc.list, me = S.account.id, k = arKey(q);
+  const fname = id => ((list.find(a=>a.id===id)||{}).name) || ((S.fathers||[]).find(f=>f.uid===id)||{}).name || "";
+  const hits = list.filter(a => a.active && !a.pending && ["user","supervisor"].includes(a.role) && a.father !== me && arKey(a.name).includes(k))
+    .sort((a,b) => a.name.localeCompare(b.name,"ar")).slice(0, 30);
+  const sec = h("section",{class:"church-hits"}, h("div",{class:"family-head"},"من ولاد الكنيسة"));
+  if (!hits.length){ sec.append(h("div",{class:"empty"}, S.churchAcc.loading && !list.length ? "بدوّر…" : "مفيش حد تاني في الكنيسة بالاسم ده.")); return sec; }
+  sec.append(h("ul",{class:"list"}, hits.map(a => { const f = a.father && fname(a.father);
+    return h("li",null, h("div",{class:"person-line"}, avatar(a), h("div",{class:"who"}, h("strong",null,a.name),
+      h("span",{class:"small muted"}, f ? "بيعترف عند "+f : "لسه ما اختارش أب اعتراف")))); })));
+  return sec;
 }
 function personDetail(all){
   const isNew = S.sel === "__new";
@@ -4249,7 +4275,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.21-4";
+const APP_VERSION = "2026.10.22-6";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -4327,7 +4353,7 @@ function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); docum
 const IDLE_MS = 3*60*1000; let idleTimer = null;
 function bumpIdle(){ if (document.body.classList.contains("locked")) return; clearTimeout(idleTimer); idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, IDLE_MS); }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
-function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.autoDb=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
