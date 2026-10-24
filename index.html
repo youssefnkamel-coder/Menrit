@@ -204,6 +204,17 @@ footer{margin-top:24px;font-size:.8rem;color:var(--ink-2);text-align:center}
 body.locked .ticker{display:none}
 .chart svg{width:100%;height:auto;display:block}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips.filters .chip-btn{padding:6px 12px;font-size:.88rem}
+.chips.filters .chip-btn b{background:var(--line);border-radius:999px;padding:0 7px;margin-inline-start:2px}
+.chips.filters .chip-btn[aria-pressed="true"] b{background:color-mix(in oklab,var(--a) 22%,var(--surface))}
+ul.list li > .person-line{flex:1 1 240px}
+.contact{display:inline-flex;gap:6px;margin-inline-start:auto}
+.ic-btn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;text-decoration:none;font-size:1.05rem;border:1.5px solid var(--line);background:var(--surface)}
+.ic-btn.call{border-color:#93c5fd;background:color-mix(in oklab,#3b82f6 14%,var(--surface))}
+.ic-btn.wa{border-color:#86efac;background:color-mix(in oklab,#22c55e 14%,var(--surface))}
+.family-head.letter-head{font-size:1.15rem}
+.wa-after{border:2px solid #86efac;display:grid;gap:10px}
+a.btn{text-decoration:none}
 .chip-btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;font-size:.84rem;font-weight:600;cursor:pointer;color:var(--ink-2)}
 .chip-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--a);background:color-mix(in oklab,var(--a) 10%,var(--surface))}
 .kid-row{display:grid;grid-template-columns:1fr 150px auto;gap:8px;align-items:center}
@@ -3133,6 +3144,15 @@ const S = {
 };
 const NOTE_ITEMS = [["bakr","صلاة باكر"],["noum","صلاة النوم"],["agpeya","باقي صلوات الأجبية"],["bible","قراءة الكتاب المقدس"],["khloa","صلاة المخدع (شخصية)"],["liturgy","حضور القداس والتناول"],["fast","الصوم"],["spiritual","قراءة روحية"]];
 const CONFESS_DAYS = 45, VISIT_DAYS = 90;
+// the father's quick filters over his list, worked out from the dates the app already has: [key, emoji, label, test]
+const overDays = (d, n) => !d || daysBetween(parseYmd(d), TODAY) > n;
+const PEOPLE_FILTERS = [
+  ["conf","🙏","محتاجين اعتراف", p => overDays(p.lastConfession, CONFESS_DAYS)],
+  ["visit","🏡","محتاجين افتقاد", p => overDays(p.lastVisit, VISIT_DAYS)],
+  ["req","📅","طالبين ميعاد", p => !!(p.request || p.visitReq)],
+  ["occ","🎂","أعياد الأسبوع ده", p => occasions([p], 7).length > 0],
+  ["off","📵","مش على البرنامج", p => !p.onApp],
+  ["new","✨","جداد", p => !!p.isNew]];
 
 let dirty = false;
 function scheduleRender(){
@@ -3369,7 +3389,9 @@ function priestToday(all){
     occ.length ? h("ul",{class:"list"}, occ.map(o => h("li",null,
       h("div",{class:"who"}, h("strong",null,o.p.name), h("span",{class:"small muted"}, o.label+(o.years>0?" ("+arDigits(o.years)+")":"")+" · "+(o.inDays===0?"النهارده":WDAYS[o.date.getDay()]+" "+fmtShort(ymd(o.date))))),
       h("div",{class:"row"}, o.inDays===0 ? h("span",{class:"pill acc"},"النهارده") : null,
-        o.p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>sendGreeting(o)},"ابعت تهنئة") : (o.p.phone ? h("span",{class:"pill"}, "اتصل: "+o.p.phone) : null)))))
+        o.p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>sendGreeting(o)},"ابعت تهنئة") : null,
+        o.p.phone ? h("a",{class:"btn sm wa", href:waLink(o.p.phone, greetText(o)+"\n"+fatherSign()), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
+        o.p.phone ? h("a",{class:"btn sm ghost", href:"tel:"+telOf(o.p.phone)},"📞 اتصل") : null))))
     : h("div",{class:"empty"},"مفيش أعياد ميلاد أو جواز في السبع أيام الجايين.")));
   wrap.append(h("section",{class:"half"}, sectionHead("الاعترافات في آخر ٦ شهور"), h("div",{class:"card chart"}, confessionChart(all))));
   const attention = [...new Set([...overdueC, ...overdueV])].slice(0,8);
@@ -3378,11 +3400,14 @@ function priestToday(all){
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(true)));
   return wrap;
 }
-async function sendGreeting(o){
-  const text = o.kind==="birthday" ? "كل سنة وانت طيب. ربنا يفرّح قلبك في عيد ميلادك ويديك سنة جديدة مليانة نعمة وبركة." :
+function greetText(o){
+  return o.kind==="birthday" ? "كل سنة وانت طيب. ربنا يفرّح قلبك في عيد ميلادك ويديك سنة جديدة مليانة نعمة وبركة." :
     o.kind==="child" ? "كل سنة و"+o.child+" طيب. ربنا يباركه ويحفظه وينمّيه في النعمة والقامة." :
     o.kind==="spouse" ? "كل سنة و"+o.p.spouse+" طيبين بمناسبة عيد الميلاد. ربنا يفرّح قلبكم ويبارك بيتكم." :
     "كل سنة وانتوا طيبين بمناسبة عيد جوازكم. ربنا يحفظ بيتكم ويملاه سلام ومحبة.";
+}
+async function sendGreeting(o){
+  const text = greetText(o);
   await Store.set("members/"+o.p.id+"/inbox/"+newId(), {type:"greeting", title:"كل سنة وانت طيب", text, at:new Date().toISOString()});
   toast("التهنئة وصلت لـ "+o.p.name);
 }
@@ -3437,11 +3462,26 @@ function priestFamilies(all){
   for (const g of hs) wrap.append(familyCard(g));
   return wrap;
 }
+/* calling and WhatsApp straight from the father's screens (WhatsApp opens with the message written; he presses send) */
+const telOf = ph => String(ph||"").replace(/[^\d+]/g,"");
+const waLink = (ph, text) => "https://wa.me/"+waNum(ph)+(text ? "?text="+encodeURIComponent(text) : "");
+const fatherSign = () => S.account && accRole() === "priest" ? S.account.name : ((S.settings||{}).priestName || "أبونا");
+function whenAr(s){ const d = new Date(s); return WDAYS[d.getDay()]+" "+fmtG(d)+" الساعة "+timeAr(pad(d.getHours())+":"+pad(d.getMinutes())); }
+function apptText(p, k, when, note){
+  return "سلام ونعمة يا "+firstName(p.name)+" 🙏\n"+(k==="visit" ? "ميعاد الافتقاد: " : "ميعاد الاعتراف: ")+whenAr(when)+(note ? "\n"+note : "")+"\n"+fatherSign();
+}
+function contactBtns(p, text){
+  if (!p.phone) return null;
+  const stop = e => e.stopPropagation();
+  return h("span",{class:"contact", onclick:stop, onkeydown:stop},
+    h("a",{class:"ic-btn call", href:"tel:"+telOf(p.phone), title:"اتصل", "aria-label":"اتصل بـ "+p.name},"📞"),
+    h("a",{class:"ic-btn wa", href:waLink(p.phone, text), target:"_blank", rel:"noopener", title:"واتساب", "aria-label":"واتساب لـ "+p.name},"💬"));
+}
 function personRow(p){
   const cD = p.lastConfession ? daysBetween(parseYmd(p.lastConfession),TODAY) : null;
   const vD = p.lastVisit ? daysBetween(parseYmd(p.lastVisit),TODAY) : null;
   return h("li",{class:"click", tabindex:"0", onclick:()=>selectPerson(p.id), onkeydown:e=>{ if(e.key==="Enter") selectPerson(p.id); }},
-    h("div",{class:"person-line"}, avatar(p), h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, (p.onApp?"على البرنامج":"مش على البرنامج")+(p.phone?" · "+p.phone:"")))),
+    h("div",{class:"person-line"}, avatar(p), h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, (p.onApp?"على البرنامج":"مش على البرنامج")+(p.phone?" · "+p.phone:""))), contactBtns(p)),
     h("div",{class:"row"},
       h("span",{class:"pill "+(cD===null||cD>CONFESS_DAYS?"warn":"ok")},"اعتراف: "+agoText(p.lastConfession)),
       h("span",{class:"pill "+(vD===null||vD>VISIT_DAYS?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
@@ -3450,22 +3490,35 @@ function personRow(p){
       accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+(((S.accounts||[]).find(a=>a.id===p.father)||{}).name||"؟")) : null));
 }
 function priestPeople(all){
-  const q = (S.draft.q||"").trim();
-  const list = q ? all.filter(p => (p.name+" "+p.familyName+" "+p.phone+" "+p.area).includes(q)) : all;
-  const by = S.draft.groupBy || "family";
+  const q = (S.draft.q||"").trim(), qk = arKey(q), qd = q.replace(/\D/g,"");
+  const hit = p => arKey(p.name+" "+p.familyName+" "+p.area).includes(qk) || (qd.length >= 3 && String(p.phone||"").replace(/\D/g,"").includes(qd));
+  const flt = PEOPLE_FILTERS.find(f => f[0] === S.draft.pf), srt = S.draft.sort || "name";
+  const base = q ? all.filter(hit) : all, list = flt ? base.filter(flt[3]) : base;
+  const by = S.draft.groupBy || "letter";
+  const old = f => p => p[f] || "0000";  // never-done first
+  const cmp = srt === "conf" || (flt && flt[0] === "conf") ? (a,b) => old("lastConfession")(a).localeCompare(old("lastConfession")(b))
+    : srt === "visit" || (flt && flt[0] === "visit") ? (a,b) => old("lastVisit")(a).localeCompare(old("lastVisit")(b)) : (a,b) => a.name.localeCompare(b.name,"ar");
+  const flat = by === "letter" && (flt || srt !== "name");
   const groups = new Map();
-  for (const p of list){ const k = (by==="area" ? p.area : p.familyName) || ""; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
+  for (const p of [...list].sort(cmp)){ const k = flat ? "" : by==="letter" ? (arKey(p.name).charAt(0) || "؟") : (by==="area" ? p.area : p.familyName) || ""; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
   const keys = [...groups.keys()].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b,"ar"));
   const wrap = h("div",{style:"display:grid;gap:18px"});
   wrap.append(sectionHead("أولادي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; S.draft.newPid = null; render(); }},"ضيف شخص مش على البرنامج")));
   wrap.append(h("input",{id:"q", type:"search", placeholder: Store.mode==="cloud" && accRole()==="priest" ? "دوّر في أولادك وفي ولاد الكنيسة" : "دوّر بالاسم أو العيلة أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
+  const counts = PEOPLE_FILTERS.map(f => [f, base.filter(f[3]).length]).filter(([f,n]) => n || (flt && flt[0] === f[0]));
+  if (counts.length) wrap.append(h("div",{class:"chips filters"}, counts.map(([f,n]) => h("button",{class:"chip-btn f-"+f[0], "aria-pressed":String(!!flt && flt[0]===f[0]),
+    onclick:()=>{ S.draft.pf = flt && flt[0]===f[0] ? null : f[0]; render(); }}, f[1]+" "+f[2]+" ", h("b",{class:"num"}, arDigits(n))))));
+  wrap.append(h("p",{class:"small muted people-count", style:"margin:0"}, flt || q ? "بيعرض "+arDigits(list.length)+" من "+arDigits(all.length) : "عدد أولادك: "+arDigits(all.length)));
+  wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"ترتيب:"),
+    [["name","بالاسم"],["conf","الأقدم في الاعتراف"],["visit","الأقدم في الافتقاد"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(srt===k), onclick:()=>{ S.draft.sort=k; render(); }}, l))));
   wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"تجميع حسب:"),
-    [["family","العيلة"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
+    [["letter","الحروف"],["family","العيلة"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
     h("button",{class:"chip-btn", onclick:exportExcel},"تصدير Excel")));
   if (S.sel) wrap.append(personDetail(all));
-  if (!list.length) wrap.append(h("div",{class:"empty"}, q && Store.mode==="cloud" && accRole()==="priest" ? "مفيش حد من أولادك بالاسم ده." : all.length ? "مفيش نتايج." : "لسه مفيش حد. لما حد من أولادك يفتح البرنامج ويكتب بياناته هيظهر هنا، أو ضيف شخص بنفسك."));
+  if (!list.length && flt && base.length) wrap.append(h("div",{class:"empty"},"مفيش حد في الفلتر ده دلوقتي."));
+  else if (!list.length) wrap.append(h("div",{class:"empty"}, q && Store.mode==="cloud" && accRole()==="priest" ? "مفيش حد من أولادك بالاسم ده." : all.length ? "مفيش نتايج." : "لسه مفيش حد. لما حد من أولادك يفتح البرنامج ويكتب بياناته هيظهر هنا، أو ضيف شخص بنفسك."));
   for (const k of keys){
-    wrap.append(h("section",null, h("div",{class:"family-head"}, k || (keys.length>1?"أفراد":"")), h("ul",{class:"list"}, groups.get(k).map(personRow))));
+    wrap.append(h("section",null, h("div",{class:"family-head"+(by==="letter"&&k?" letter-head":"")}, k || (keys.length>1?"أفراد":"")), h("ul",{class:"list"}, groups.get(k).map(personRow))));
   }
   const others = churchSearch(q);
   if (others) wrap.append(others);
@@ -3528,6 +3581,8 @@ function personDetail(all){
   if (!isNew) card.append(h("div",{class:"row", "data-keep":""},
     h("button",{class:"btn sm", onclick:()=>quick("lastConfession")},"اعترف النهارده"),
     h("button",{class:"btn sm ghost", onclick:()=>quick("lastVisit")},"افتقدته النهارده"),
+    p.phone ? h("a",{class:"btn sm ghost", href:"tel:"+telOf(p.phone)},"📞 اتصل") : null,
+    p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
     p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
   const ro = p.onApp && !isNew;
   card.append(h("div",{class:"form"},
@@ -3608,7 +3663,8 @@ async function cancelLocal(key){
   const d = await Store.get(key); if (!d) return true;
   await Store.del(key);
   const m = await Store.get("members/"+d.uid);
-  if (m && m.request && m.request.booking === key){ delete m.request; await Store.set("members/"+d.uid, m); }
+  // the person cancels: his request goes; the father frees it: the request stays (his answer still shows), without the time
+  if (m && m.request && m.request.booking === key){ if (!isFatherView()) delete m.request; else delete m.request.booking; await Store.set("members/"+d.uid, m); }
   return true;
 }
 async function takenSlots(father, from, to){ return takenLocal(father, from, to); }
@@ -3696,11 +3752,17 @@ function priestRequests(all){
   const items = all.flatMap(p => [p.request ? {p, r:p.request, k:"confession"} : null, p.visitReq ? {p, r:p.visitReq, k:"visit"} : null]).filter(Boolean)
     .sort((a,b)=>String(a.r.date||"9").localeCompare(String(b.r.date||"9")));
   const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف والافتقاد"));
+  const wa = S.draft.waAfter;
+  if (wa) wrap.append(h("div",{class:"card wa-after"},
+    h("p",{style:"margin:0"}, "✅ الميعاد وصل لـ "+wa.name+" في البرنامج. تحب تبعتهوله واتساب كمان؟"),
+    h("div",{class:"row"}, h("a",{class:"btn wa", href:waLink(wa.phone, wa.text), target:"_blank", rel:"noopener", onclick:()=>{ S.draft.waAfter = null; setTimeout(render, 300); }},"💬 ابعته واتساب"),
+      h("button",{class:"btn quiet", onclick:()=>{ S.draft.waAfter = null; render(); }},"مش لازم"))));
   if (!items.length) wrap.append(h("div",{class:"empty"},"مفيش طلبات مستنية. لما حد يطلب ميعاد اعتراف أو افتقاد هيظهر هنا."));
   for (const {p, r, k} of items){
     const K = REQ_KINDS[k], idT = "t_"+k+p.id, idN = "n_"+k+p.id, sl = slotOf(r.slot);
     const def = r.date ? r.date+"T"+(r.time || (sl ? sl[2] : "18:00")) : "";
     const done = async (when, note) => {
+      if (when && p.phone) S.draft.waAfter = {name:p.name, phone:p.phone, text:apptText(p, k, when, note)};
       const patch = {[K.handled]: r.id, onApp:true}; if (when) patch[K.next] = when;
       await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, patch));
       await Store.set("members/"+p.id+"/inbox/"+newId(), when ? {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()}
@@ -3730,6 +3792,7 @@ function priestRequests(all){
     p.pr && p.pr.nextVisit && new Date(p.pr.nextVisit) >= TODAY ? {p, when:p.pr.nextVisit, k:"visit"} : null]).filter(Boolean).sort((a,b)=>a.when.localeCompare(b.when));
   if (up.length) wrap.append(h("section",null, sectionHead("مواعيد جاية"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
     h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when))),
+    contactBtns(p, "🔔 تذكير\n"+apptText(p, k, when)),
     k==="confession"
       ? h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(cur.confessions||[]), TODAY_S])].sort()})); toast("اتسجل الاعتراف"); }},"اعترف")
       : h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastVisit:TODAY_S, nextVisit:"", visits:[...(cur.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]})); toast("الافتقاد اتسجل"); }},"افتقدته"))))));
@@ -4463,7 +4526,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.23-2";
+const APP_VERSION = "2026.10.24-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -4959,7 +5022,7 @@ const Cloud = {
   // with fingerprint unlock on, the device keeps its sign-in, so the server session is left open
   async signOut(){ const t = this.sess && this.sess.access_token, b = Bio.get(), keep = b && this.sess && b.uid === this.sess.uid;
     this.setSess(null); this.me = null; this.stopPoll();
-    if (t && !keep) this.http("/auth/v1/logout", {method:"POST"}, t).catch(()=>{}); },
+    if (t && !keep) setTimeout(() => this.http("/auth/v1/logout", {method:"POST"}, t).catch(()=>{}), 2000); },  // after the «خروج» entry lands
   church(){ return this.me ? this.me.church_id : null; },
   q(v){ return encodeURIComponent(v); },
 
@@ -5005,7 +5068,9 @@ const Cloud = {
     if (S.church && S.church.live === false && !path.startsWith("log/")){ toast(cloudMsg("licence expired")); throw new Error("licence expired"); }
     try {
       const body = JSON.stringify({church_id:this.church(), path, data:clean(data)});
-      if (path.startsWith("log/")) await this.req("/rest/v1/docs", {method:"POST", headers:{Prefer:"return=minimal"}, body});
+      // an activity entry keeps the sign-in it started with (the «خروج» entry is written while the session closes)
+      if (path.startsWith("log/")){ const s0 = this.sess, t = s0 && s0.expires_at - 60 >= Date.now()/1000 ? s0.access_token : await this.token();
+        await this.http("/rest/v1/docs", {method:"POST", headers:{Prefer:"return=minimal"}, body}, t); }
       else await this.req("/rest/v1/docs?on_conflict=church_id,path", {method:"POST", headers:{Prefer:"resolution=merge-duplicates,return=minimal"}, body});
     } catch(e){ if (!path.startsWith("log/")) toast(cloudMsg(e)); throw e; }
     this.refresh(path);
