@@ -346,11 +346,22 @@ footer .dev{border-top:0;padding-top:0}
 .brand h1{letter-spacing:.01em;text-shadow:0 2px 10px rgba(0,0,0,.18)}
 .hero .glass{border:1px solid rgba(255,230,160,.35)}
 .sec-head h2::after{content:"";display:inline-block;width:34px;height:3px;border-radius:3px;background:var(--gold-grad);margin-inline-start:4px}
-.ico{background:color-mix(in oklab,var(--c) 12%,var(--surface));border:1px solid color-mix(in oklab,var(--c) 22%,transparent)}
+.ico{background:var(--c);color:#fff;border-radius:50%!important;box-shadow:0 3px 8px color-mix(in oklab,var(--c) 38%,transparent)}
+.ico svg,.ei svg{fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.ei{--c:#0f766e;display:inline-grid;place-items:center;flex:none;width:1.5em;height:1.5em;border-radius:50%;background:var(--c);color:#fff;
+  vertical-align:-.42em;margin-inline-end:.2em;box-shadow:0 2px 5px color-mix(in oklab,var(--c) 35%,transparent)}
+.ei svg{width:62%;height:62%}
+.prep-emo .ei,.father-ic .ei{width:100%;height:100%;margin:0;vertical-align:0}
+.prep-emo:has(.ei){background:none;border:0;font-size:inherit}
+.ic-btn{border:0!important;background:none!important;width:auto;height:auto}.ic-btn .ei{width:38px;height:38px;margin:0;vertical-align:0}
+.btn .ei{width:1.45em;height:1.45em;vertical-align:-.4em}
+.prep-list .emo .ei{width:30px;height:30px;vertical-align:-.3em}
+.pw button.eye .ei{width:30px;height:30px;margin:0}
 .ico .emo{font-family:var(--f-emoji);font-size:20px;line-height:1}
 .ico.lg .emo{font-size:25px}
 nav.tabs button .ico .emo{font-size:17px}
-nav.tabs button[aria-current="page"] .ico{background:color-mix(in oklab,var(--gold) 18%,var(--surface));border:1.5px solid var(--gold)}
+nav.tabs button[aria-current="page"] .ico{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
+nav.tabs button:not([aria-current="page"]) .ico{opacity:.82}
 nav.tabs button[aria-current="page"]{color:var(--gold-d)}
 .btn{background:linear-gradient(135deg,#0f766e,#0e7490 60%,#1e40af)}
 .btn.gold{background:var(--gold-grad);color:#3b2a05}
@@ -3933,7 +3944,7 @@ function applySettings(){
   const key = verses.join("|");
   if (applySettings.key === key) return; applySettings.key = key;
   const el = $("#verse");
-  const copy = () => h("div",{class:"tick-copy"}, ...verses.flatMap(v => [h("b",null,"✝"), h("span",null,v)]));
+  const copy = () => h("div",{class:"tick-copy", "data-noicon":""}, ...verses.flatMap(v => [h("b",null,"✝"), h("span",null,v)]));
   const c2 = copy(); c2.setAttribute("aria-hidden","true");
   el.replaceChildren(copy(), c2);
   el.style.setProperty("--tick-dur", Math.max(30, Math.round(verses.join("").length * 0.22)) + "s");
@@ -4417,10 +4428,122 @@ const ICONS = {
   visit:"M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6",
   settings:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"
 };
+/* drawn icons instead of emoji: the same look on every phone and computer (white line icon in a coloured circle).
+   Emoji written anywhere on the screen are swapped for these as they appear; WhatsApp texts keep their emoji. */
+const IC = {
+  sun:"M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4",
+  cloudsun:"M12 2v2M4.9 4.9l1.4 1.4M20 12h2M19.1 4.9l-1.4 1.4M15.9 12.7a4 4 0 0 0-5.9-4.6M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z",
+  moon:"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z",
+  cross:"M10 2h4v6h6v4h-6v10h-4V12H4V8h6z",
+  home:"M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5M9.5 21v-6h5v6",
+  visit:"M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5M12 18s-3-1.9-3-4a1.5 1.5 0 0 1 3-.5 1.5 1.5 0 0 1 3 .5c0 2.1-3 4-3 4z",
+  calendar:"M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 10h18M8 2v4M16 2v4",
+  calcheck:"M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 10h18M8 2v4M16 2v4M9 16l2 2 4-4",
+  cake:"M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3M7 4h.01M12 4h.01M17 4h.01",
+  phone:"M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z",
+  phoneoff:"M10.7 13.3a16 16 0 0 0 1.4 1.3M16.4 15.2a2 2 0 0 1 1-.1c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 6.5 17M4 13.6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8M22 2 2 22",
+  sparkles:"M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 3v4M21 5h-4M5 17v4M7 19H3",
+  refresh:"M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5",
+  chat:"M7.9 20A9 9 0 1 0 4 16.1L2 22z",
+  work:"M4 7h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zM16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M3 13h18",
+  ring:"M6 3h12l4 6-10 13L2 9zM2 9h20M11 3 8 9l4 13 4-13-3-6",
+  school:"M22 10 12 5 2 10l10 5 10-5zM6 12v5c3 3 9 3 12 0v-5",
+  child:"M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1",
+  heart:"M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z",
+  church:"M10 9h4M12 7v5M14 22v-4a2 2 0 0 0-4 0v4M18 22V5.6a1 1 0 0 0-.5-.9L12 2 6.5 4.7a1 1 0 0 0-.5.9V22M18 9l3.6 1.6a1 1 0 0 1 .4.8V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8.6a1 1 0 0 1 .4-.8L6 9",
+  ok:"M21.8 10A10 10 0 1 1 17 3.3M9 11l3 3L22 4",
+  no:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM15 9l-6 6M9 9l6 6",
+  pin:"M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  pen:"M12 20h9M16.4 3.6a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z",
+  bell:"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0",
+  clock:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
+  save:"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7M7 3v4a1 1 0 0 0 1 1h7",
+  alert:"M21.7 18 13.7 4a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3zM12 9v4M12 17h.01",
+  eraser:"M7 21h10M5 11l9-9 7 7-9 9H8l-3-3a2 2 0 0 1 0-2.8zM9 7l7 7",
+  image:"M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM9 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM21 15l-3.1-3.1a2 2 0 0 0-2.8 0L6 21",
+  flame:"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3.3.4 1.4 1.6 2.8 2.5 2.8z",
+  search:"M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3",
+  thought:"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z",
+  scale:"M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z",
+  mic:"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v3",
+  drop:"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5S12.5 5.5 12 2.5c-.5 3-2 5.9-4 7.5S5 13 5 15a7 7 0 0 0 7 7z",
+  ear:"M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4",
+  sunrise:"M12 2v8M4.9 10.9l1.4 1.4M2 18h2M20 18h2M19.1 10.9l-1.4 1.4M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0",
+  target:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
+  care:"M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16M7 20l1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.8-2.8l-4.2 3.9M2 15l6 6",
+  sprout:"M7 20h10M10 20c5.5-2.5.8-6.4 3-10M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8zM14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z",
+  compass:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM16.2 7.8l-2 6.4-6.4 2 2-6.4z",
+  dove:"M12.7 20H4M20.2 12.2A6 6 0 0 0 11.8 3.8L5 10.5V19h8.5zM16 8 2 22M17.5 15H9",
+  wait:"M5 22h14M5 2h14M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2",
+  user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4.4 3.6-8 8-8s8 3.6 8 8",
+  leaf:"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10zM2 21c0-3 1.9-5.4 5.1-6",
+  link:"M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7",
+  thumb:"M7 10v12M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9z",
+  copy:"M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+  share:"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13",
+  qr:"M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h2v2h-2zM19 19h2v2h-2zM19 15h2M15 19v2",
+  crown:"M11.6 3.3a.5.5 0 0 1 .9 0l2.9 5.6a1 1 0 0 0 1.5.3l4.3-3.7a.5.5 0 0 1 .8.5l-2.8 10.3a1 1 0 0 1-1 .7H5.8a1 1 0 0 1-1-.7L2 6a.5.5 0 0 1 .8-.5l4.3 3.7a1 1 0 0 0 1.5-.3zM5 21h14",
+  book:"M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
+  notebook:"M2 6h4M2 10h4M2 14h4M2 18h4M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6zM16 2v20",
+  mail:"M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 7l-9 5.7a2 2 0 0 1-2 0L2 7",
+  users:"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8",
+  eye:"M2.1 12.3a1 1 0 0 1 0-.7 10.8 10.8 0 0 1 19.8 0 1 1 0 0 1 0 .7 10.8 10.8 0 0 1-19.8 0zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  eyeoff:"M10.7 5.1a10.7 10.7 0 0 1 11.2 6.6 1 1 0 0 1 0 .7 10.8 10.8 0 0 1-1.4 2.2M14.1 14.2a3 3 0 0 1-4.2-4.2M17.5 17.5a10.8 10.8 0 0 1-15.4-5.2 1 1 0 0 1 0-.7 10.8 10.8 0 0 1 4.4-5.1M2 2l20 20",
+  shield:"M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.7 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.5 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z",
+  send:"M14.5 21.7a.5.5 0 0 0 .9 0L22 2.5a.5.5 0 0 0-.6-.6L2.3 8.4a.5.5 0 0 0 0 .9l8 3.2a2 2 0 0 1 1.1 1.1zM21.9 2.1 11 13",
+  key:"M2.6 18.2A2 2 0 0 0 2 19.6V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.2a2 2 0 0 0 1.4-.6l.8-.8a6.5 6.5 0 1 0-4-4zM16.5 7.5h.01",
+  lock:"M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2zM7 11V7a5 5 0 0 1 10 0v4",
+  active:"M22 12h-4l-3 9L9 3l-3 9H2",
+  pause:"M6 4h4v16H6zM14 4h4v16h-4z",
+  trash:"M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6",
+  plus:"M5 12h14M12 5v14",
+  camera:"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3zM12 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  finger:"M12 10a2 2 0 0 0-2 2c0 1 0 3.3-.4 5.3M14 13.1c0 2.4 0 6.4-1 8.9M17.3 21.1c.1-.6.4-2.3.5-3.1M2 12a10 10 0 0 1 18-6M2 16h.01M21.8 16c.2-2 .1-5.4 0-6M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .3-2M8.7 22c.2-.7.5-1.3.6-2M9 6.8a6 6 0 0 1 9 5.2v2",
+  gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"};
+// emoji → [icon, colour]
+const EMO = {"☀️":["sun","#f59e0b"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
+  "🏠":["home","#f97316"],"🏡":["visit","#a855f7"],"📅":["calendar","#f43f5e"],"🗓️":["calcheck","#f43f5e"],"🎂":["cake","#f97316"],"📞":["phone","#2563eb"],"📵":["phoneoff","#64748b"],
+  "✨":["sparkles","#eab308"],"🔄":["refresh","#0ea5e9"],"💬":["chat","#16a34a"],"💼":["work","#78716c"],"💍":["ring","#ec4899"],"🎒":["school","#0ea5e9"],
+  "👨‍👩‍👧‍👦":["users","#3b82f6"],"👧":["child","#ec4899"],"👦":["child","#3b82f6"],"💑":["heart","#ef4444"],"🤍":["heart","#ef4444"],"⛪":["church","#0f766e"],"✅":["ok","#16a34a"],"❌":["no","#ef4444"],
+  "📍":["pin","#ef4444"],"📝":["pen","#8b5cf6"],"🔔":["bell","#f59e0b"],"🕰️":["clock","#c9a227"],"🕒":["clock","#64748b"],"💾":["save","#0ea5e9"],"⚠️":["alert","#f59e0b"],
+  "🧹":["eraser","#ef4444"],"🖼️":["image","#8b5cf6"],"🕯️":["flame","#f97316"],"🪞":["search","#0ea5e9"],"💭":["thought","#8b5cf6"],"⚖️":["scale","#c9a227"],"🗣️":["mic","#14b8a6"],
+  "💧":["drop","#3b82f6"],"👂":["ear","#f97316"],"🌅":["sunrise","#f59e0b"],"🎯":["target","#ef4444"],"🩺":["care","#14b8a6"],"🌱":["sprout","#22c55e"],"🧭":["compass","#0ea5e9"],
+  "🕊️":["dove","#8b5cf6"],"⏳":["wait","#f59e0b"],"🙋":["user","#0ea5e9"],"👤":["user","#0ea5e9"],"🌿":["leaf","#22c55e"],"🔗":["link","#0ea5e9"],"👍":["thumb","#16a34a"],"📋":["copy","#64748b"],
+  "📤":["share","#0ea5e9"],"🔳":["qr","#334155"],"👑":["crown","#c9a227"],"📖":["book","#14b8a6"],"📔":["notebook","#22c55e"],"💌":["mail","#ec4899"],"👥":["users","#3b82f6"],
+  "👀":["eye","#0ea5e9"],"👁️":["eye","#64748b"],"🙈":["eyeoff","#64748b"],"🛡️":["shield","#6366f1"],"📨":["send","#0ea5e9"],"🔑":["key","#c9a227"],"🔐":["lock","#64748b"],
+  "🟢":["active","#16a34a"],"⏸":["pause","#f59e0b"],"🗑":["trash","#ef4444"],"➕":["plus","#16a34a"],"⚙️":["gear","#64748b"],"🎉":["sparkles","#eab308"],"🆕":["sparkles","#0ea5e9"],
+  "⛔":["no","#ef4444"],"🔒":["lock","#0f766e"],"👆":["finger","#0f766e"],"📷":["camera","#8b5cf6"]};
+const icSvg = name => '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="'+(IC[name]||IC.cross)+'"/></svg>';
+const EMO_RE = new RegExp("(?:"+Object.keys(EMO).sort((a,b)=>b.length-a.length).map(k=>k.replace(/\uFE0F/g,"")).filter((k,i,a)=>a.indexOf(k)===i)
+  .map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?", "gu");
+const emoKey = m => EMO[m] || EMO[m.replace(/\uFE0F/g,"")] || EMO[m.replace(/\uFE0F/g,"")+"\uFE0F"];
+function emoIcon(m){ const e = emoKey(m) || ["cross","#0f766e"]; const s = document.createElement("span");
+  s.className = "ei"; s.style.setProperty("--c", e[1]); s.setAttribute("aria-hidden","true"); s.innerHTML = icSvg(e[0]); return s; }
+const NO_ICON = /^(TEXTAREA|INPUT|SCRIPT|STYLE|OPTION|TITLE|SELECT|svg|path)$/;
+function iconizeText(t){
+  const v = t.nodeValue; if (!v || !t.parentNode || NO_ICON.test(t.parentNode.nodeName) || t.parentNode.closest && t.parentNode.closest("[data-noicon]")) return;
+  EMO_RE.lastIndex = 0; if (!EMO_RE.test(v)) return; EMO_RE.lastIndex = 0;
+  const f = document.createDocumentFragment(); let at = 0, m;
+  while ((m = EMO_RE.exec(v))){ if (m.index > at) f.append(v.slice(at, m.index)); f.append(emoIcon(m[0])); at = m.index + m[0].length; }
+  if (at < v.length) f.append(v.slice(at));
+  t.parentNode.replaceChild(f, t);
+}
+function iconize(root){
+  if (root.nodeType === 3) return iconizeText(root);
+  if (root.nodeType !== 1 || NO_ICON.test(root.nodeName)) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), list = []; let n;
+  while ((n = w.nextNode())) list.push(n);
+  list.forEach(iconizeText);
+}
+function startIcons(){ iconize(document.body);
+  new MutationObserver(ms => { for (const m of ms){ if (m.type === "characterData") iconizeText(m.target); else m.addedNodes.forEach(iconize); } })
+    .observe(document.body, {childList:true, subtree:true, characterData:true}); }
+if (document.body) startIcons(); else document.addEventListener("DOMContentLoaded", startIcons);
 const ICON_COLORS = {families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
 const EMOJI = {families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
 function icon(k, size){
-  return h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||"#64708a"), "aria-hidden":"true"}, h("span",{class:"emo"}, EMOJI[k]||"✝️")); }
+  const e = emoKey(EMOJI[k]||"✝️") || ["cross","#0f766e"], s = h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||e[1]), "aria-hidden":"true"});
+  s.innerHTML = icSvg(e[0]); return s; }
 
 function render(){
   if (!S.ready) return;
@@ -4526,7 +4649,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.24-1";
+const APP_VERSION = "2026.10.25-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
