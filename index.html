@@ -633,6 +633,70 @@ body.one-tab{--nav-h:0px}
   nav.tabs button .ico{width:24px;height:24px}
   nav.tabs button .ico svg{width:15px;height:15px}
 }
+/* header v4 «المخطوطة الذهبية» (2026-10-26): church logo on the right, the person's photo on the left, both round in gold frames; name, greeting and dates centred between */
+.band .hero{--pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='%23f2d06b' fill-opacity='.07'%3E%3Crect x='25' y='14' width='6' height='28' rx='1'/%3E%3Crect x='14' y='25' width='28' height='6' rx='1'/%3E%3Ccircle cx='28' cy='12' r='2.4'/%3E%3Ccircle cx='28' cy='44' r='2.4'/%3E%3Ccircle cx='12' cy='28' r='2.4'/%3E%3Ccircle cx='44' cy='28' r='2.4'/%3E%3C/g%3E%3C/svg%3E");
+  --ring:122px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"logo top side" "logo orn side" "logo wel side" "logo meta side" "feast feast feast";
+  align-items:center;justify-items:center;text-align:center;gap:5px 34px;padding:18px 34px 16px;border-radius:26px;min-height:0;
+  background:var(--pat),radial-gradient(120% 90% at 50% 0%,#14706a 0%,#0d3b5c 55%,#0a1f3d 100%) padding-box,var(--gold-grad) border-box;
+  border:2px solid transparent;box-shadow:inset 0 0 0 7px rgba(242,208,107,.45),0 18px 40px rgba(6,24,48,.45)}
+.band .hero::before,.band .hero::after{display:none}
+.band .hero-main,.band .hero-top{display:contents}
+.band .hero .hero-logo,.band .hero .cross,.band .hero-side .saint{width:var(--ring);height:var(--ring);aspect-ratio:1;border-radius:50%;padding:4px;margin:0;
+  box-shadow:0 0 0 3px #0a1f3d,0 0 0 6px #e9c46a,0 0 0 9px rgba(233,196,106,.3),0 12px 30px rgba(0,0,0,.45)}
+.band .hero .hero-logo,.band .hero .cross{grid-area:logo;align-self:start}
+.band .hero .hero-logo{background:#fff}
+.band .hero .cross{padding:calc(var(--ring) * .2);background:rgba(255,255,255,.14)}
+.band .brand{grid-area:top;justify-items:center;gap:2px}
+.band .brand .mn-pill{order:1;margin:0;font-size:1.45rem;padding:1px 20px 4px;letter-spacing:.1em}
+.band .brand h1{order:2;font-family:var(--f-scripture);font-size:2.05rem;font-weight:700;line-height:1.2;white-space:normal;
+  background:linear-gradient(180deg,#fff6c9 0%,#f2d06b 45%,#c9972b 75%,#f7e08f 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.band .brand .eyebrow{order:3;color:#e8f3f1;opacity:.85}
+.band .hero-main::before{content:"";grid-area:orn;width:min(340px,80%);height:14px;
+  background:linear-gradient(90deg,transparent,#e9c46a 40%,transparent 40%,transparent 60%,#e9c46a 60%,transparent) center/100% 1.5px no-repeat,radial-gradient(circle,#f2d06b 0 4px,transparent 5px) center/14px 14px no-repeat}
+.band .welcome{grid-area:wel;text-align:center;font-size:1.15rem;color:#fff;border:0;padding:0;align-self:auto}
+.band .hero-meta{grid-area:meta;display:flex;flex-wrap:nowrap;justify-content:center;gap:0;border:1px solid rgba(242,208,107,.55);border-radius:999px;padding:3px;background:rgba(255,255,255,.06);align-self:auto}
+.band .hero-meta .glass,.band .hero-meta .glass.clock-chip{background:none;border:0;border-radius:0;padding:4px 16px}
+.band .hero-meta .glass + .glass{border-inline-start:1px solid rgba(242,208,107,.4)}
+.band .hero-side{grid-area:side;align-self:start;display:flex;flex-direction:column;align-items:center;gap:12px}
+.band .hero-side .saint{order:1;background:var(--gold-grad)}
+.band .hero-side .saint img,.band .hero-side .saint-init{width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 22%}
+.band .hero-side .saint-init{font-size:calc(var(--ring) * .36)}
+.band .hero-side .me-box{order:2}
+.band .hero-side .logout{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border-radius:999px;margin:0;color:#fff;font-weight:700;font-size:.9rem;
+  background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),linear-gradient(135deg,#ef4444,#b91c1c);border:1.5px solid #f2d06b;box-shadow:0 6px 18px rgba(185,28,28,.45)}
+.band .hero-side .logout svg{width:17px;height:17px;flex:none}
+.band .hero-side .logout:hover{filter:brightness(1.08)}
+@media (min-width:760px) and (max-width:999px){ .band .hero{--ring:110px;gap:5px 22px;padding:18px 24px 16px} .band .hero-meta{flex-wrap:wrap;border-radius:16px} .band .brand h1{font-size:2rem} }
+@media (max-width:759px){
+  .band .hero{--ring:86px;grid-template-areas:"logo top side" "orn orn orn" "wel wel wel" "meta meta meta" "feast feast feast";gap:6px 10px;padding:16px 12px 14px}
+  .band .hero .hero-logo,.band .hero .cross,.band .hero-side .saint{padding:3px;box-shadow:0 0 0 2px #0a1f3d,0 0 0 4px #e9c46a,0 0 0 6px rgba(233,196,106,.3),0 8px 18px rgba(0,0,0,.4)}
+  .band .brand .mn-pill{font-size:1.2rem;padding:1px 14px 3px}
+  .band .brand h1{font-size:1.4rem}
+  .band .brand .eyebrow{font-size:.72rem}
+  .band .hero-side{gap:9px}
+  .band .hero-side .logout{font-size:.78rem;padding:4px 11px;gap:5px}
+  .band .hero-side .logout svg{width:14px;height:14px}
+  .band .welcome{font-size:.98rem}
+  .band .hero-meta{flex-wrap:wrap;border-radius:16px}
+  .band .hero-meta .glass,.band .hero-meta .glass.clock-chip{font-size:.72rem;padding:3px 9px}
+}
+@media (max-width:759px) and (max-height:640px){ .band .hero{--ring:68px;padding:10px 12px} .band .hero-main::before{display:none} .band .brand .mn-pill{font-size:1rem} .band .brand h1{font-size:1.2rem} }
+@media (max-width:359px){ .band .hero{--ring:70px} .band .brand .mn-pill{font-size:1rem} .band .brand h1{font-size:1.2rem} }
+/* short screens (a phone held sideways): one compact row, small rings, no ornament */
+@media (max-height:500px){
+  .band .hero{--ring:56px;grid-template-areas:"logo top side" "logo wel side" "logo meta side" "feast feast feast";gap:2px 16px;padding:8px 16px}
+  .band .hero .hero-logo,.band .hero .cross,.band .hero-side .saint{padding:2px;box-shadow:0 0 0 2px #e9c46a,0 4px 10px rgba(0,0,0,.35)}
+  .band .hero .hero-logo,.band .hero .cross,.band .hero-side{align-self:center}
+  .band .hero-side{flex-direction:row;gap:8px}
+  .band .hero-main::before{display:none}
+  .band .brand{display:flex;align-items:center;gap:8px}
+  .band .brand .mn-pill{font-size:.8rem;padding:0 9px 1px}
+  .band .brand h1{font-size:1.1rem}
+  .band .brand .eyebrow{display:none}
+  .band .welcome{font-size:.85rem}
+  .band .hero-meta .glass,.band .hero-meta .glass.clock-chip{font-size:.68rem;padding:1px 8px}
+  .band .hero-side .logout{font-size:.7rem;padding:3px 9px}
+}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -2950,7 +3014,7 @@ var qrcode = function() {
   <div class="hero-meta"><span class="glass coptic" id="copticDate">…</span><span class="glass num" id="gregDate">…</span><span class="glass clock-chip num" id="liveClock"></span><span id="seasonName" hidden></span></div>
   <span id="feastLine"></span>
   <div class="welcome"><span id="welcomeText"></span></div>
-</div><div class="hero-side"><div class="me-box"><button class="glass logout" id="logoutBtn" type="button">خروج</button></div><figure class="saint" id="saintBox" hidden><img id="saintImg" alt="" hidden><span class="saint-init" id="saintInit" aria-hidden="true"></span><figcaption id="saintName"></figcaption></figure></div></div>
+</div><div class="hero-side"><div class="me-box"><button class="glass logout" id="logoutBtn" type="button" title="خروج"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg>خروج</button></div><figure class="saint" id="saintBox" hidden><img id="saintImg" alt="" hidden><span class="saint-init" id="saintInit" aria-hidden="true"></span><figcaption id="saintName"></figcaption></figure></div></div>
 <div class="wrap" id="noticeSlot"></div>
 </header>
 <div id="gate" hidden></div>
@@ -4702,7 +4766,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.26-2";
+const APP_VERSION = "2026.10.27-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
