@@ -1,6 +1,6 @@
 // Lets phones install the app. Always tries the network first so every update reaches people at once;
 // the saved copy is only used when there is no internet. Data never goes through here (it lives on the server).
-const CACHE = "menrit-v1";
+const CACHE = "menrit-v2";
 self.addEventListener("install", e => { self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
 self.addEventListener("fetch", e => {
