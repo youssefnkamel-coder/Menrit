@@ -702,6 +702,27 @@ body.one-tab{--nav-h:0px}
 .gate-cross.app-mark img{width:100%;height:100%;object-fit:cover;display:block}
 .band .hero .hero-logo.app-mark{background:rgb(253,249,241)}
 @media (max-height:500px){ .gate-cross.app-mark{width:84px;height:84px;border-radius:24px} }
+/* header extras (2026-10-29): the name's three effects, a blinking clock colon, the temperature chip */
+.band .brand h1{background-repeat:no-repeat}
+.band .brand h1.fx-shine{background-image:linear-gradient(110deg,transparent 38%,rgba(255,255,255,.95) 50%,transparent 62%),linear-gradient(180deg,#fff6c9 0%,#f2d06b 45%,#c9972b 75%,#f7e08f 100%);
+  background-size:250% 100%,100% 100%;animation:mnShine 2.2s ease-in-out 1}
+@keyframes mnShine{from{background-position:130% 0,0 0}to{background-position:-30% 0,0 0}}
+.band .brand h1.fx-type{animation:mnType 2.4s steps(14,end) 1}
+@keyframes mnType{from{clip-path:inset(-20% 0 -20% 100%)}to{clip-path:inset(-20% 0 -20% 0)}}
+.band .brand h1.fx-pulse{animation:mnPulse 1.6s ease-in-out 2}
+@keyframes mnPulse{0%,100%{filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}50%{filter:drop-shadow(0 0 16px rgba(242,208,107,.9)) brightness(1.2)}}
+.ck-t{display:inline-flex;direction:ltr;unicode-bidi:isolate}
+.ck-c{animation:ckBlink 1s steps(1,end) infinite;padding:0 1px}
+@keyframes ckBlink{50%{opacity:.15}}
+.band .hero-meta .clock-chip .ck-t{font-size:1.12em;letter-spacing:.02em}
+@media (max-width:759px){
+  .band .hero-meta:has(#weatherChip:not([hidden])){display:grid;grid-template-columns:1fr 1fr;border-radius:16px;padding:2px}
+  .band .hero-meta:has(#weatherChip:not([hidden])) .glass{justify-content:center;text-align:center}
+  .band .hero-meta:has(#weatherChip:not([hidden])) .glass + .glass{border-inline-start:0}
+  .band .hero-meta:has(#weatherChip:not([hidden])) .glass:nth-child(even){border-inline-start:1px solid rgba(242,208,107,.4)}
+  .band .hero-meta:has(#weatherChip:not([hidden])) .clock-chip,.band .hero-meta:has(#weatherChip:not([hidden])) #weatherChip{border-top:1px solid rgba(242,208,107,.4)}
+}
+@media (prefers-reduced-motion: reduce){ .ck-c{animation:none} .band .brand h1{animation:none!important} }
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3016,7 +3037,7 @@ var qrcode = function() {
 <circle cx="5" cy="24" r="3"/><circle cx="7" cy="19.5" r="2.2"/><circle cx="7" cy="28.5" r="2.2"/>
 <circle cx="43" cy="24" r="3"/><circle cx="41" cy="19.5" r="2.2"/><circle cx="41" cy="28.5" r="2.2"/>
 </svg><div class="brand"><span class="eyebrow" id="roleLabel">المتابعة الروحية</span><span class="mn-pill" lang="cop">ⲙⲉⲛⲣⲓⲧ</span><h1 id="appTitle">المتابعة الروحية</h1></div></div>
-  <div class="hero-meta"><span class="glass coptic" id="copticDate">…</span><span class="glass num" id="gregDate">…</span><span class="glass clock-chip num" id="liveClock"></span><span id="seasonName" hidden></span></div>
+  <div class="hero-meta"><span class="glass coptic" id="copticDate">…</span><span class="glass num" id="gregDate">…</span><span class="glass clock-chip num" id="liveClock"></span><span class="glass num wx-chip" id="weatherChip" hidden></span><span id="seasonName" hidden></span></div>
   <span id="feastLine"></span>
   <div class="welcome"><span id="welcomeText"></span></div>
 </div><div class="hero-side"><div class="me-box"><button class="glass logout" id="logoutBtn" type="button" title="خروج"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg>خروج</button></div><figure class="saint" id="saintBox" hidden><img id="saintImg" alt="" hidden><span class="saint-init" id="saintInit" aria-hidden="true"></span><figcaption id="saintName"></figcaption></figure></div></div>
@@ -4060,13 +4081,44 @@ function applySettings(){
   el.replaceChildren(copy(), c2);
   el.style.setProperty("--tick-dur", Math.max(30, Math.round(verses.join("").length * 0.22)) + "s");
 }
+// the church name in the header takes turns between three effects, one every 20 seconds (none when the phone asks for less motion)
+function startTitleFx(){
+  if (startTitleFx.on) return; startTitleFx.on = true;
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const fx = ["fx-shine","fx-type","fx-pulse"]; let i = 0;
+  const run = () => { const t = $("#appTitle"); if (!t) return; t.classList.remove(...fx); void t.offsetWidth; t.classList.add(fx[i++ % fx.length]); };
+  setTimeout(run, 1500); setInterval(run, 20000);
+}
+// temperature next to the clock: the phone's location (asked once by the phone itself), rounded to about 1 km, goes only to Open-Meteo; refreshed every 30 minutes
+const WX_KEY = "ruhiya_wx";
+function wxIcon(c, day){ return c <= 1 ? (day ? "☀️" : "🌙") : c === 2 ? (day ? "🌤️" : "🌙") : c <= 48 ? "☁️" : (c >= 71 && c <= 77) || c === 85 || c === 86 ? "❄️" : c >= 95 ? "⛈️" : "🌧️"; }
+function wxName(c){ return c <= 1 ? "صافي" : c === 2 ? "غيوم خفيفة" : c === 3 ? "غايم" : c <= 48 ? "شبورة" : (c >= 71 && c <= 77) || c === 85 || c === 86 ? "تلج" : c >= 95 ? "عواصف" : "مطر"; }
+function startWeather(){
+  if (startWeather.on || !navigator.geolocation || !window.fetch) return; startWeather.on = true;
+  const el = $("#weatherChip"); if (!el) return;
+  const show = w => { if (!w || typeof w.t !== "number") return; el.replaceChildren(wxIcon(w.code, w.day) + " ", h("span",{dir:"ltr", class:"wx-t"}, arDigits(Math.round(w.t)) + "°")); el.title = wxName(w.code); el.hidden = false; };
+  let saved = null; try { saved = JSON.parse(localStorage.getItem(WX_KEY) || "null"); } catch(e){}
+  if (saved && Date.now() - saved.at < 3*3600e3) show(saved);
+  const load = (lat, lon) => fetch("https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+"&current=temperature_2m,weather_code,is_day&timezone=auto")
+    .then(r => r.ok ? r.json() : null).then(j => { const c = j && j.current; if (!c) return;
+      const w = {t:c.temperature_2m, code:c.weather_code, day:!!c.is_day, at:Date.now()}; try { localStorage.setItem(WX_KEY, JSON.stringify(w)); } catch(e){} show(w); }).catch(()=>{});
+  navigator.geolocation.getCurrentPosition(p => {
+    const lat = p.coords.latitude.toFixed(2), lon = p.coords.longitude.toFixed(2);
+    if (!(saved && Date.now() - saved.at < 30*60e3)) load(lat, lon);
+    setInterval(() => load(lat, lon), 30*60e3);
+  }, () => {}, {enableHighAccuracy:false, maximumAge:3600e3, timeout:20000});
+}
 let clockTimer = null;
 function startWelcome(){
   const hr = new Date().getHours(), g = hr < 12 ? "صباح الخير" : hr < 17 ? "مساء النور" : "مساء الخير";
   $("#welcomeText").textContent = g + (S.authName ? " يا " + S.authName : "");
-  const tick = () => { const n = new Date();
-    $("#liveClock").textContent = "🕰️ " + n.toLocaleTimeString("ar-EG",{hour:"numeric", minute:"2-digit", hour12:true}); };
-  tick(); if (!clockTimer) clockTimer = setInterval(tick, 15000);
+  const ck = $("#liveClock");
+  if (!ck.querySelector(".ck-h")) ck.replaceChildren("🕰️ ", h("span",{class:"ck-t"}, h("span",{class:"ck-h"}), h("span",{class:"ck-c", "aria-hidden":"true"},":"), h("span",{class:"ck-m"})), " ", h("span",{class:"ck-ap"}));
+  const tick = () => { const n = new Date(), hr = n.getHours();
+    ck.querySelector(".ck-h").textContent = arDigits(hr % 12 || 12); ck.querySelector(".ck-m").textContent = arDigits(String(n.getMinutes()).padStart(2,"0"));
+    ck.querySelector(".ck-ap").textContent = hr < 12 ? "ص" : "م"; };
+  tick(); if (!clockTimer) clockTimer = setInterval(tick, 5000);
+  startTitleFx(); startWeather();
   if (!window.__dayTimer) window.__dayTimer = setInterval(()=>{
     const a = document.activeElement, typing = a && /INPUT|TEXTAREA/.test(a.tagName) && a.value;
     if (new Date().getDate() !== TODAY.getDate() && !typing) location.reload(); }, 60000);
@@ -4553,6 +4605,7 @@ const ICONS = {
 /* drawn icons instead of emoji: the same look on every phone and computer (white line icon in a coloured circle).
    Emoji written anywhere on the screen are swapped for these as they appear; WhatsApp texts keep their emoji. */
 const IC = {
+  cloud:"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z",
   sun:"M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4",
   cloudsun:"M12 2v2M4.9 4.9l1.4 1.4M20 12h2M19.1 4.9l-1.4 1.4M15.9 12.7a4 4 0 0 0-5.9-4.6M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z",
   moon:"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z",
@@ -4623,7 +4676,7 @@ const IC = {
   finger:"M12 10a2 2 0 0 0-2 2c0 1 0 3.3-.4 5.3M14 13.1c0 2.4 0 6.4-1 8.9M17.3 21.1c.1-.6.4-2.3.5-3.1M2 12a10 10 0 0 1 18-6M2 16h.01M21.8 16c.2-2 .1-5.4 0-6M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .3-2M8.7 22c.2-.7.5-1.3.6-2M9 6.8a6 6 0 0 1 9 5.2v2",
   gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"};
 // emoji → [icon, colour]
-const EMO = {"☀️":["sun","#f59e0b"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
+const EMO = {"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
   "🏠":["home","#f97316"],"🏡":["visit","#a855f7"],"📅":["calendar","#f43f5e"],"🗓️":["calcheck","#f43f5e"],"🎂":["cake","#f97316"],"📞":["phone","#2563eb"],"📵":["phoneoff","#64748b"],
   "✨":["sparkles","#eab308"],"🔄":["refresh","#0ea5e9"],"💬":["chat","#16a34a"],"💼":["work","#78716c"],"💍":["ring","#ec4899"],"🎒":["school","#0ea5e9"],
   "👨‍👩‍👧‍👦":["users","#3b82f6"],"👧":["child","#ec4899"],"👦":["child","#3b82f6"],"💑":["heart","#ef4444"],"🤍":["heart","#ef4444"],"⛪":["church","#0f766e"],"✅":["ok","#16a34a"],"❌":["no","#ef4444"],
@@ -4771,7 +4824,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.29-1";
+const APP_VERSION = "2026.10.29-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
