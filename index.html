@@ -84,9 +84,13 @@ p{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
 input,select,textarea{background:var(--surface-2);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0;color:var(--ink)}
 textarea{min-height:100px;resize:vertical;line-height:1.85}
+/* iPhone Safari draws date / time boxes at their own width and ignores width:100%, so they stuck out of the card */
+input,select,textarea{max-width:100%;box-sizing:border-box}
+input[type=date],input[type=datetime-local],input[type=time],input[type=month]{-webkit-appearance:none;appearance:none;display:block;min-height:46px;line-height:1.4}
+input[type=date]::-webkit-date-and-time-value,input[type=datetime-local]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and-time-value{text-align:right;margin:0}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px color-mix(in oklab,var(--gold) 20%,transparent)}
 button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-label{display:grid;gap:5px;font-size:.86rem;color:var(--ink-2);font-weight:600}
+label{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:5px;font-size:.86rem;color:var(--ink-2);font-weight:600}
 a{color:var(--a);font-weight:600}
 .btn{border:0;background:linear-gradient(135deg,var(--a),var(--b));color:var(--on-a);border-radius:12px;padding:9px 18px;cursor:pointer;font-weight:700;white-space:nowrap;
   box-shadow:0 4px 14px color-mix(in oklab,var(--a) 30%,transparent)}
@@ -153,7 +157,8 @@ section{display:grid;gap:10px}
 .card{background:var(--surface);border-radius:var(--r);padding:16px;display:grid;gap:10px;min-width:0;box-shadow:var(--shadow)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .row.between{justify-content:space-between}
-.form{display:grid;gap:12px}
+.form{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.form > *{min-width:0}
 .form .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
 
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
@@ -4924,7 +4929,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.31-1";
+const APP_VERSION = "2026.10.31-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
