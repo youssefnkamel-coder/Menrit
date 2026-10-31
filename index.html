@@ -757,8 +757,8 @@ body.one-tab{--nav-h:0px}
   body.locked{padding-bottom:8px!important}
   #gate{padding-block:4px;min-height:calc(100vh - 32px);min-height:calc(100svh - 32px)}
   #gate .gate-card{gap:9px;padding:14px 16px 12px}
-  #gate .gate-mark{display:flex;align-items:center;justify-content:center;gap:12px}
-  #gate .gate-cross.app-mark{width:64px;height:64px;border-radius:18px;margin:0}
+  #gate .gate-mark{gap:6px}
+  #gate .gate-cross.app-mark{width:78px;height:78px;border-radius:22px}
   #gate .gate-mark .menrit .mn-word{font-size:1.85rem;padding:2px 4px 4px}
   #gate .gate-mark .menrit .mn-sub::before,#gate .gate-mark .menrit .mn-sub::after{width:30px}
   #gate .gate-card h1{font-size:1.2rem;line-height:1.35}
@@ -780,8 +780,9 @@ body.one-tab{--nav-h:0px}
   #gate .app-ver{font-size:.66rem;margin:0}
 }
 @media (max-height:700px){
-  #gate .gate-card{gap:7px;padding:10px 14px 10px}
+  #gate .gate-card{gap:6px;padding:9px 14px 9px}
   #gate .gate-cross.app-mark{width:52px;height:52px;border-radius:15px}
+  #gate .gate-mark{gap:3px}
   #gate .gate-mark .menrit .mn-word{font-size:1.55rem}
   #gate .gate-card h1{font-size:1.08rem}
   #gate input{padding-block:7px}
@@ -799,21 +800,21 @@ body.one-tab{--nav-h:0px}
 .pal-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;border:2px solid var(--line);background:var(--surface);cursor:pointer;font:inherit;font-weight:700;color:var(--ink);text-align:start}
 .pal-opt[aria-checked="true"]{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in oklab,var(--gold) 25%,transparent)}
 .pal-sw{width:34px;height:34px;border-radius:50%;flex:none;border:2px solid #e9c46a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
-/* page background (الإعدادات › لون الخلفية), light mode only */
-@media not (prefers-color-scheme: dark){
-  :root[data-bg="white"]:not([data-theme="dark"]){--bg:#f3f4f7;--surface:#ffffff;--surface-2:#f7f8fa;--line:#e2e6ec}
-  :root[data-bg="sky"]:not([data-theme="dark"]){--bg:#e6f2fb;--surface-2:#f1f8fd;--line:#cde2f2}
-  :root[data-bg="rose"]:not([data-theme="dark"]){--bg:#fbecef;--surface-2:#fdf5f6;--line:#efd5db}
-  :root[data-bg="mint"]:not([data-theme="dark"]){--bg:#e8f5ed;--surface-2:#f2faf5;--line:#cde7d7}
-  :root[data-bg="lilac"]:not([data-theme="dark"]){--bg:#efebfa;--surface-2:#f6f3fd;--line:#dcd2f1}
-  :root[data-bg="match"]:not([data-theme="dark"]){--bg:color-mix(in oklab,var(--a) 11%,#fbf8f2);--surface-2:color-mix(in oklab,var(--a) 5%,#fffdf8);--line:color-mix(in oklab,var(--a) 18%,#efe7d6)}
+/* page background (الإعدادات › لون الخلفية), light mode only. Written without "@media not": older iPhone Safari ignores that */
+@media (prefers-color-scheme: light){
+  :root[data-bg="white"]:not([data-theme="dark"]){--bg:#eef0f4;--surface:#ffffff;--surface-2:#f6f7fa;--line:#dde2ea}
+  :root[data-bg="sky"]:not([data-theme="dark"]){--bg:#d6e9f8;--surface:#f7fbfe;--surface-2:#ecf5fc;--line:#c3dcf0}
+  :root[data-bg="rose"]:not([data-theme="dark"]){--bg:#f6dbe1;--surface:#fef9fa;--surface-2:#fbeef1;--line:#ecccd4}
+  :root[data-bg="mint"]:not([data-theme="dark"]){--bg:#d5ede0;--surface:#f8fcf9;--surface-2:#ecf7f0;--line:#c2e2d0}
+  :root[data-bg="lilac"]:not([data-theme="dark"]){--bg:#e2daf5;--surface:#fbf9fe;--surface-2:#f1edfb;--line:#d3c7ee}
+  :root[data-bg="match"]:not([data-theme="dark"]){--bg:color-mix(in oklab,var(--a) 18%,#fbf8f2);--surface:color-mix(in oklab,var(--a) 3%,#fffdf8);--surface-2:color-mix(in oklab,var(--a) 8%,#fffdf8);--line:color-mix(in oklab,var(--a) 22%,#efe7d6)}
 }
-:root[data-theme="light"][data-bg="white"]{--bg:#f3f4f7;--surface:#ffffff;--surface-2:#f7f8fa;--line:#e2e6ec}
-:root[data-theme="light"][data-bg="sky"]{--bg:#e6f2fb;--surface-2:#f1f8fd;--line:#cde2f2}
-:root[data-theme="light"][data-bg="rose"]{--bg:#fbecef;--surface-2:#fdf5f6;--line:#efd5db}
-:root[data-theme="light"][data-bg="mint"]{--bg:#e8f5ed;--surface-2:#f2faf5;--line:#cde7d7}
-:root[data-theme="light"][data-bg="lilac"]{--bg:#efebfa;--surface-2:#f6f3fd;--line:#dcd2f1}
-:root[data-theme="light"][data-bg="match"]{--bg:color-mix(in oklab,var(--a) 11%,#fbf8f2);--surface-2:color-mix(in oklab,var(--a) 5%,#fffdf8);--line:color-mix(in oklab,var(--a) 18%,#efe7d6)}
+:root[data-theme="light"][data-bg="white"]{--bg:#eef0f4;--surface:#ffffff;--surface-2:#f6f7fa;--line:#dde2ea}
+:root[data-theme="light"][data-bg="sky"]{--bg:#d6e9f8;--surface:#f7fbfe;--surface-2:#ecf5fc;--line:#c3dcf0}
+:root[data-theme="light"][data-bg="rose"]{--bg:#f6dbe1;--surface:#fef9fa;--surface-2:#fbeef1;--line:#ecccd4}
+:root[data-theme="light"][data-bg="mint"]{--bg:#d5ede0;--surface:#f8fcf9;--surface-2:#ecf7f0;--line:#c2e2d0}
+:root[data-theme="light"][data-bg="lilac"]{--bg:#e2daf5;--surface:#fbf9fe;--surface-2:#f1edfb;--line:#d3c7ee}
+:root[data-theme="light"][data-bg="match"]{--bg:color-mix(in oklab,var(--a) 18%,#fbf8f2);--surface:color-mix(in oklab,var(--a) 3%,#fffdf8);--surface-2:color-mix(in oklab,var(--a) 8%,#fffdf8);--line:color-mix(in oklab,var(--a) 22%,#efe7d6)}
 .pal-sw.bg-sw{border-color:var(--line);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
 </style>
 <script>
@@ -4203,8 +4204,8 @@ function renderMe(){
 }
 const PALETTES = [["teal","الفيروزي (الأصلي)","#0f766e","#1e40af"],["wine","العنابي القبطي","#9f1239","#6b1d3a"],["royal","البنفسجي الملكي","#6d28d9","#4338ca"],
   ["olive","الأخضر الزيتوني","#15803d","#166534"],["navy","الأزرق الكحلي","#1d4ed8","#1e3a8a"],["bronze","البني البرونزي","#92400e","#78350f"]];
-const BACKGROUNDS = [["","الكريمي (الأصلي)","#f6efe1"],["match","على لون البرنامج",""],["white","أبيض","#f3f4f7"],["sky","سماوي فاتح","#e6f2fb"],
-  ["rose","وردي فاتح","#fbecef"],["mint","نعناعي فاتح","#e8f5ed"],["lilac","ليلكي فاتح","#efebfa"]];
+const BACKGROUNDS = [["","الكريمي (الأصلي)","#f6efe1"],["match","على لون البرنامج",""],["white","أبيض","#eef0f4"],["sky","سماوي","#d6e9f8"],
+  ["rose","وردي","#f6dbe1"],["mint","نعناعي","#d5ede0"],["lilac","ليلكي","#e2daf5"]];
 function applyBg(id){
   const ok = BACKGROUNDS.some(x => x[0] === id && id);
   if (ok) document.documentElement.dataset.bg = id; else delete document.documentElement.dataset.bg;
@@ -4397,7 +4398,7 @@ function priestSettings(){
       h("div",{class:"pal-grid", role:"radiogroup", "aria-label":"لون الخلفية"}, BACKGROUNDS.map(([id, name, c]) =>
         h("button",{type:"button", class:"pal-opt", role:"radio", "aria-checked": (st.bg || "") === id ? "true" : "false", "data-bg":id||"cream", onclick:async()=>{
           applyBg(id); await saveSt({bg:id}, "لون الخلفية اتغيّر"); }},
-          h("span",{class:"pal-sw bg-sw", style:"background:"+(c || "color-mix(in oklab,var(--a) 14%,#fbf8f2)")}), h("span",null,name)))))); }
+          h("span",{class:"pal-sw bg-sw", style:"background:"+(c || "color-mix(in oklab,var(--a) 18%,#fbf8f2)")}), h("span",null,name)))))); }
   if (!manyFathers) wrap.append(h("div",{class:"card form"}, h("h3",null,"🖼️ صورة أبونا"),
     h("div",{class:"row"}, avatar({name:st.priestName||"أبونا", photo:st.priestPhoto}),
       photoPicker("stPriestPhoto", st.priestPhoto ? "غيّر صورة أبونا" : "ارفع صورة أبونا", url=>saveSt({priestPhoto:url},"صورة أبونا اتحفظت")),
@@ -5025,7 +5026,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.31-5";
+const APP_VERSION = "2026.10.31-7";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
