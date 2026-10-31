@@ -48,7 +48,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 /* Layout: a modern mobile app. A teal-to-blue gradient card opens the page, white rounded cards hold each screen,
    every section and tab carries its own coloured icon tile, and the nav is a bottom app bar on phones. */
 :root{
-  --a:#0f766e; --b:#1e40af;
+  --a:#0f766e; --a2:#0e7490; --b:#1e40af; --h1:#14706a; --h2:#0d3b5c; --h3:#0a1f3d;
   --bg:#f6efe1; --surface:#fffdf8; --surface-2:#fbf5e9; --line:#ebe1cc;
   --ink:#172033; --ink-2:#5b6680; --on-a:#ffffff;
   --ok:#16a34a; --warn:#d97706; --bad:#e11d48;
@@ -61,7 +61,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   --nav-h:68px; --r:20px;
   --brand-grad:linear-gradient(135deg,var(--a),var(--b));
   --gold:#c9a227; --gold-2:#e9c96b; --gold-d:#8a6414;
-  --gold-grad:linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a);
+  --gold-grad:linear-gradient(180deg,#f2d06b,#d4a630 30%,#a8741a 55%,#d4a630 80%,#f2d06b);
   --gold-line:color-mix(in oklab,var(--gold) 45%,transparent);
   --f-emoji:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;
 }
@@ -199,7 +199,7 @@ ul.list li.click:hover{background:var(--surface-2)}
 .rsec>summary::-webkit-details-marker{display:none}
 .rsec>summary::before{content:"▸ ";color:#0d9488}
 .rsec[open]>summary::before{content:"▾ "}
-.rsub{margin:6px 0 0;font-size:.95rem;color:#0f766e}
+.rsub{margin:6px 0 0;font-size:.95rem;color:var(--a)}
 .syn{font-family:var(--f-body)!important;font-size:1.02rem!important}
 .reading .text{font-family:var(--f-scripture);font-size:1.18rem;line-height:2;white-space:pre-wrap;max-width:65ch}
 .medit{display:grid;gap:6px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,color-mix(in oklab,#8b5cf6 10%,var(--surface)),color-mix(in oklab,#ec4899 8%,var(--surface)))}
@@ -270,7 +270,7 @@ a.btn{text-decoration:none}
 body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{display:none}
 #gate{min-height:calc(100vh - 32px);min-height:calc(100svh - 32px);display:grid;place-items:center;align-items:safe center;padding-block:12px}
 .gate-head, .gate-body{display:contents}
-.gate-card{width:100%;max-width:400px;background:var(--surface);border-radius:26px;border:3px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#fff1a8,#d4a630 30%,#8a5a12 50%,#f2d06b 70%,#a8741a) border-box;box-shadow:0 0 0 1px rgba(138,90,18,.25),0 0 0 6px color-mix(in oklab,#d4a630 18%,transparent),var(--shadow);padding:26px 22px 20px;display:grid;gap:16px;text-align:center}
+.gate-card{width:100%;max-width:min(400px,calc(100% - 12px));background:var(--surface);border-radius:26px;border:3px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(180deg,#f2d06b,#d4a630 30%,#a8741a 55%,#d4a630 80%,#f2d06b) border-box;box-shadow:0 0 0 1px rgba(138,90,18,.25),0 0 0 6px color-mix(in oklab,#d4a630 18%,transparent),var(--shadow);padding:26px 22px 20px;display:grid;gap:16px;text-align:center}
 .gate-logo{width:96px;height:96px;max-width:100%;border-radius:50%;object-fit:cover;margin:0 auto;box-shadow:0 8px 24px rgba(110,24,52,.18)}
 .gate-card h1{font-size:1.5rem}
 .gate-mark{display:grid;gap:10px;justify-items:center}
@@ -377,8 +377,8 @@ footer .dev{border-top:0;padding-top:0}
 
 /* elegant gold finish */
 .card, ul.list, .stat, .ticker, .notice{border:1px solid var(--gold-line)}
-.hero{background:linear-gradient(135deg,#0f766e 0%,#0e7490 50%,#1e3a8a 100%);border:1.5px solid transparent;
-  background:linear-gradient(135deg,#0f766e 0%,#0e7490 50%,#1e3a8a 100%) padding-box,var(--gold-grad) border-box;box-shadow:0 14px 34px rgba(14,60,110,.28)}
+.hero{background:linear-gradient(135deg,var(--a) 0%,var(--a2) 50%,var(--b) 100%);border:1.5px solid transparent;
+  background:linear-gradient(135deg,var(--a) 0%,var(--a2) 50%,var(--b) 100%) padding-box,var(--gold-grad) border-box;box-shadow:0 14px 34px rgba(14,60,110,.28)}
 .brand h1{letter-spacing:.01em;text-shadow:0 2px 10px rgba(0,0,0,.18)}
 .hero .glass{border:1px solid rgba(255,230,160,.35)}
 .sec-head h2::after{content:"";display:inline-block;width:34px;height:3px;border-radius:3px;background:var(--gold-grad);margin-inline-start:4px}
@@ -399,7 +399,7 @@ nav.tabs button .ico .emo{font-size:17px}
 nav.tabs button[aria-current="page"] .ico{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
 nav.tabs button:not([aria-current="page"]) .ico{opacity:.82}
 nav.tabs button[aria-current="page"]{color:var(--gold-d)}
-.btn{background:linear-gradient(135deg,#0f766e,#0e7490 60%,#1e40af)}
+.btn{background:linear-gradient(135deg,var(--a),var(--a2) 60%,var(--b))}
 .btn.gold{background:var(--gold-grad);color:#3b2a05}
 .avatar{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--gold)}
 .gate-church{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--gold),var(--shadow)}
@@ -498,7 +498,7 @@ ul.list li{border-top-color:var(--gold-line)!important}
 
 /* verse ticker: sky-blue news strip */
 .ticker{display:block!important;padding:0!important;overflow:hidden;direction:ltr;position:relative;min-height:48px;
-  background:linear-gradient(90deg,#d6effd,#a9dcfb 50%,#d6effd) padding-box,var(--gold-grad) border-box!important}
+  background:linear-gradient(90deg,var(--sky-edge),var(--sky-mid) 50%,var(--sky-edge)) padding-box,var(--gold-grad) border-box!important}
 .ticker::before,.ticker::after{content:"";position:absolute;top:0;bottom:0;width:36px;z-index:1;pointer-events:none}
 .ticker::before{left:0;background:linear-gradient(90deg,var(--sky-edge),transparent)}
 .ticker::after{right:0;background:linear-gradient(-90deg,var(--sky-edge),transparent)}
@@ -510,7 +510,8 @@ ul.list li{border-top-color:var(--gold-line)!important}
 @keyframes tick{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 body.locked .ticker{display:none!important}
 @media (prefers-reduced-motion: reduce){.tick-track{animation-duration:calc(var(--tick-dur,60s) * 2)}}
-:root{--sky-edge:#d6effd;--sky-ink:#0b2a52}
+:root{--sky-edge:#d6effd;--sky-mid:#a9dcfb;--sky-ink:#0b2a52}
+:root[data-pal]{--sky-edge:color-mix(in oklab,var(--a) 12%,#fff);--sky-mid:color-mix(in oklab,var(--a) 28%,#fff);--sky-ink:var(--h3)}
 /* phones: tighter spacing so the header and cards fit without wrapping */
 @media (max-width:480px){
   body{font-size:14.5px;padding-left:max(10px, env(safe-area-inset-left, 0px));padding-right:max(10px, env(safe-area-inset-right, 0px));padding-top:10px}
@@ -650,12 +651,12 @@ body.one-tab{--nav-h:0px}
 .band .hero{--pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='%23f2d06b' fill-opacity='.07'%3E%3Crect x='25' y='14' width='6' height='28' rx='1'/%3E%3Crect x='14' y='25' width='28' height='6' rx='1'/%3E%3Ccircle cx='28' cy='12' r='2.4'/%3E%3Ccircle cx='28' cy='44' r='2.4'/%3E%3Ccircle cx='12' cy='28' r='2.4'/%3E%3Ccircle cx='44' cy='28' r='2.4'/%3E%3C/g%3E%3C/svg%3E");
   --ring:122px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"logo top side" "logo orn side" "logo wel side" "logo meta side" "feast feast feast";
   align-items:center;justify-items:center;text-align:center;gap:5px 34px;padding:18px 34px 16px;border-radius:26px;min-height:0;
-  background:var(--pat),radial-gradient(120% 90% at 50% 0%,#14706a 0%,#0d3b5c 55%,#0a1f3d 100%) padding-box,var(--gold-grad) border-box;
+  background:var(--pat),radial-gradient(120% 90% at 50% 0%,var(--h1) 0%,var(--h2) 55%,var(--h3) 100%) padding-box,var(--gold-grad) border-box;
   border:2px solid transparent;box-shadow:inset 0 0 0 7px rgba(242,208,107,.45),0 18px 40px rgba(6,24,48,.45)}
 .band .hero::before,.band .hero::after{display:none}
 .band .hero-main,.band .hero-top{display:contents}
 .band .hero .hero-logo,.band .hero .cross,.band .hero-side .saint{width:var(--ring);height:var(--ring);aspect-ratio:1;border-radius:50%;padding:4px;margin:0;
-  box-shadow:0 0 0 3px #0a1f3d,0 0 0 6px #e9c46a,0 0 0 9px rgba(233,196,106,.3),0 12px 30px rgba(0,0,0,.45)}
+  box-shadow:0 0 0 3px var(--h3),0 0 0 6px #e9c46a,0 0 0 9px rgba(233,196,106,.3),0 12px 30px rgba(0,0,0,.45)}
 .band .hero .hero-logo,.band .hero .cross{grid-area:logo;align-self:start}
 .band .hero .hero-logo{background:#fff}
 .band .hero .cross{padding:calc(var(--ring) * .2);background:rgba(255,255,255,.14)}
@@ -750,6 +751,70 @@ body.one-tab{--nav-h:0px}
 @media (max-width:759px) and (max-height:640px){ .band .hero-mn .mn-word{font-size:1.35rem} }
 @media (max-height:500px){ .band .hero-mn{display:flex;gap:6px;align-items:center} .band .hero-mn .mn-word{font-size:1.15rem;padding:0 4px} .band .hero-mn .mn-sub{font-size:.62rem} .band .hero-mn .mn-sub::before,.band .hero-mn .mn-sub::after{display:none} }
 @media (prefers-reduced-motion: reduce){ .band .hero-mn .mn-word,.band .hero-mn .mn-sub{animation:none!important} }
+
+/* login on phones: the whole card fits one screen without scrolling (2026-10-31) */
+@media (max-width:560px), (max-height:820px){
+  body.locked{padding-bottom:8px!important}
+  #gate{padding-block:4px;min-height:calc(100vh - 32px);min-height:calc(100svh - 32px)}
+  #gate .gate-card{gap:9px;padding:14px 16px 12px}
+  #gate .gate-mark{display:flex;align-items:center;justify-content:center;gap:12px}
+  #gate .gate-cross.app-mark{width:64px;height:64px;border-radius:18px;margin:0}
+  #gate .gate-mark .menrit .mn-word{font-size:1.85rem;padding:2px 4px 4px}
+  #gate .gate-mark .menrit .mn-sub::before,#gate .gate-mark .menrit .mn-sub::after{width:30px}
+  #gate .gate-card h1{font-size:1.2rem;line-height:1.35}
+  #gate .gate-card h1 + p, #gate .gate-sub{font-size:.8rem;margin:0}
+  #gate .form{gap:8px}
+  #gate .gate-err:empty{display:none}
+  #gate label{gap:3px;font-size:.8rem}
+  #gate input{padding-block:9px}
+  #gate .btn{padding-block:10px!important}
+  #gate .gate-links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px}
+  #gate .gate-note{font-size:.72rem!important;line-height:1.5}
+  #gate .dev{gap:4px;padding-top:0!important}
+  #gate .dev-rule{display:none}
+  #gate .dev-card{gap:8px;padding:5px 12px 5px 6px}
+  #gate .dev-logo{width:38px!important;height:38px!important;padding:2px!important}
+  #gate .dev-label{font-size:.62rem}
+  #gate .dev-text strong{font-size:.82rem!important;line-height:1.25}
+  #gate .dev-phone{font-size:.74rem;margin-top:1px;padding:0 10px}
+  #gate .app-ver{font-size:.66rem;margin:0}
+}
+@media (max-height:700px){
+  #gate .gate-card{gap:7px;padding:10px 14px 10px}
+  #gate .gate-cross.app-mark{width:52px;height:52px;border-radius:15px}
+  #gate .gate-mark .menrit .mn-word{font-size:1.55rem}
+  #gate .gate-card h1{font-size:1.08rem}
+  #gate input{padding-block:7px}
+  #gate .btn{padding-block:8px!important}
+  #gate .gate-note{font-size:.66rem!important}
+  #gate .dev-label{display:none}
+}
+/* church colour (الإعدادات › لون البرنامج): the gold frames stay, only the main colour changes */
+:root[data-pal="wine"]{--a:#9f1239;--a2:#b4234a;--b:#6b1d3a;--h1:#8a1c3c;--h2:#5a1030;--h3:#2e0a1c}
+:root[data-pal="royal"]{--a:#6d28d9;--a2:#7c3aed;--b:#4338ca;--h1:#5b2bb0;--h2:#3a1f78;--h3:#1e1246}
+:root[data-pal="olive"]{--a:#15803d;--a2:#3f7d20;--b:#166534;--h1:#2f6b2a;--h2:#1d4a24;--h3:#0f2a16}
+:root[data-pal="navy"]{--a:#1d4ed8;--a2:#2563eb;--b:#1e3a8a;--h1:#1e4fa8;--h2:#15306b;--h3:#0b1a3d}
+:root[data-pal="bronze"]{--a:#92400e;--a2:#a16207;--b:#78350f;--h1:#8a5a12;--h2:#5c3a0e;--h3:#2e1d08}
+.pal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.pal-opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;border:2px solid var(--line);background:var(--surface);cursor:pointer;font:inherit;font-weight:700;color:var(--ink);text-align:start}
+.pal-opt[aria-checked="true"]{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in oklab,var(--gold) 25%,transparent)}
+.pal-sw{width:34px;height:34px;border-radius:50%;flex:none;border:2px solid #e9c46a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+/* page background (الإعدادات › لون الخلفية), light mode only */
+@media not (prefers-color-scheme: dark){
+  :root[data-bg="white"]:not([data-theme="dark"]){--bg:#f3f4f7;--surface:#ffffff;--surface-2:#f7f8fa;--line:#e2e6ec}
+  :root[data-bg="sky"]:not([data-theme="dark"]){--bg:#e6f2fb;--surface-2:#f1f8fd;--line:#cde2f2}
+  :root[data-bg="rose"]:not([data-theme="dark"]){--bg:#fbecef;--surface-2:#fdf5f6;--line:#efd5db}
+  :root[data-bg="mint"]:not([data-theme="dark"]){--bg:#e8f5ed;--surface-2:#f2faf5;--line:#cde7d7}
+  :root[data-bg="lilac"]:not([data-theme="dark"]){--bg:#efebfa;--surface-2:#f6f3fd;--line:#dcd2f1}
+  :root[data-bg="match"]:not([data-theme="dark"]){--bg:color-mix(in oklab,var(--a) 11%,#fbf8f2);--surface-2:color-mix(in oklab,var(--a) 5%,#fffdf8);--line:color-mix(in oklab,var(--a) 18%,#efe7d6)}
+}
+:root[data-theme="light"][data-bg="white"]{--bg:#f3f4f7;--surface:#ffffff;--surface-2:#f7f8fa;--line:#e2e6ec}
+:root[data-theme="light"][data-bg="sky"]{--bg:#e6f2fb;--surface-2:#f1f8fd;--line:#cde2f2}
+:root[data-theme="light"][data-bg="rose"]{--bg:#fbecef;--surface-2:#fdf5f6;--line:#efd5db}
+:root[data-theme="light"][data-bg="mint"]{--bg:#e8f5ed;--surface-2:#f2faf5;--line:#cde7d7}
+:root[data-theme="light"][data-bg="lilac"]{--bg:#efebfa;--surface-2:#f6f3fd;--line:#dcd2f1}
+:root[data-theme="light"][data-bg="match"]{--bg:color-mix(in oklab,var(--a) 11%,#fbf8f2);--surface-2:color-mix(in oklab,var(--a) 5%,#fffdf8);--line:color-mix(in oklab,var(--a) 18%,#efe7d6)}
+.pal-sw.bg-sw{border-color:var(--line);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3363,7 +3428,7 @@ function subscribe(){
   L("meditations", {orderBy:"at", dir:"desc", limit:30}, r => { S.meditations=r; scheduleRender(); });
   L("readings/"+AUTO_ID, null, r => { S.autoDb=r; scheduleRender(); });
   loadAutoReadings(false);
-  L("settings/app", null, r => { S.settings=r||{}; applySettings(); scheduleRender(); });
+  L("settings/app", null, r => { S.settings=r||{}; S.settingsFetched = true; applySettings(); scheduleRender(); });
   if (["admin","supervisor"].includes(accRole())){
     L("accounts", null, r => { S.accounts=r; scheduleRender(); });
     L("pwreq", null, r => { S.pwreqs=r; scheduleRender(); });
@@ -4136,8 +4201,26 @@ function renderMe(){
     const c = AV_COLORS[[...m.name].reduce((a,ch)=>a+ch.charCodeAt(0),0) % AV_COLORS.length];
     ini.style.background = "linear-gradient(135deg,"+c[0]+","+c[1]+")"; }
 }
+const PALETTES = [["teal","الفيروزي (الأصلي)","#0f766e","#1e40af"],["wine","العنابي القبطي","#9f1239","#6b1d3a"],["royal","البنفسجي الملكي","#6d28d9","#4338ca"],
+  ["olive","الأخضر الزيتوني","#15803d","#166534"],["navy","الأزرق الكحلي","#1d4ed8","#1e3a8a"],["bronze","البني البرونزي","#92400e","#78350f"]];
+const BACKGROUNDS = [["","الكريمي (الأصلي)","#f6efe1"],["match","على لون البرنامج",""],["white","أبيض","#f3f4f7"],["sky","سماوي فاتح","#e6f2fb"],
+  ["rose","وردي فاتح","#fbecef"],["mint","نعناعي فاتح","#e8f5ed"],["lilac","ليلكي فاتح","#efebfa"]];
+function applyBg(id){
+  const ok = BACKGROUNDS.some(x => x[0] === id && id);
+  if (ok) document.documentElement.dataset.bg = id; else delete document.documentElement.dataset.bg;
+  try { localStorage.setItem("ruhiya_bg", ok ? id : ""); } catch(e){}
+}
+try { applyBg(localStorage.getItem("ruhiya_bg") || ""); } catch(e){}
+// the church colour is also kept on the device so the sign-in screen opens in it next time
+function applyPalette(id){
+  const ok = PALETTES.some(x => x[0] === id) && id !== "teal";
+  if (ok) document.documentElement.dataset.pal = id; else delete document.documentElement.dataset.pal;
+  try { localStorage.setItem("ruhiya_pal", ok ? id : ""); } catch(e){}
+}
+try { applyPalette(localStorage.getItem("ruhiya_pal") || ""); } catch(e){}
 function applySettings(){
   const st = S.settings || {};
+  if (S.settingsFetched){ applyPalette(st.palette || ""); applyBg(st.bg || ""); }
   const title = st.title || "المتابعة الروحية";
   $("#appTitle").textContent = title;
   const hl = $("#heroLogo"), hc = $("#heroCross");
@@ -4303,6 +4386,18 @@ function priestSettings(){
       h("label",{class:"btn sm ghost", for:"stLogo", style:"cursor:pointer"},"ارفع شعار الكنيسة"),
       h("input",{id:"stLogo", type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 256, url=>saveSt({logo:url},"الشعار اتحفظ")); }}),
       st.logo ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({logo:""},"الشعار اتشال")},"شيل الشعار") : null)));
+  if (churchWide){ const cur = st.palette || "teal";
+    wrap.append(h("div",{class:"card form"}, h("h3",null,"🎨 لون البرنامج والخلفية"),
+      h("p",{class:"small muted", style:"margin:0"}, manyFathers ? "الألوان دي بتتغيّر عند كل الناس في الكنيسة. الإطارات الدهبي زي ماهي." : "الألوان دي بتتغيّر في البرنامج كله. الإطارات الدهبي زي ماهي."),
+      h("div",{class:"pal-grid", role:"radiogroup", "aria-label":"لون البرنامج"}, PALETTES.map(([id, name, c1, c2]) =>
+        h("button",{type:"button", class:"pal-opt", role:"radio", "aria-checked": cur === id ? "true" : "false", "data-pal":id, onclick:async()=>{
+          applyPalette(id); await saveSt({palette: id === "teal" ? "" : id}, "اللون اتغيّر"); }},
+          h("span",{class:"pal-sw", style:"background:linear-gradient(135deg,"+c1+","+c2+")"}), h("span",null,name)))),
+      h("h3",{style:"margin-top:6px"},"🖌️ لون الخلفية"),
+      h("div",{class:"pal-grid", role:"radiogroup", "aria-label":"لون الخلفية"}, BACKGROUNDS.map(([id, name, c]) =>
+        h("button",{type:"button", class:"pal-opt", role:"radio", "aria-checked": (st.bg || "") === id ? "true" : "false", "data-bg":id||"cream", onclick:async()=>{
+          applyBg(id); await saveSt({bg:id}, "لون الخلفية اتغيّر"); }},
+          h("span",{class:"pal-sw bg-sw", style:"background:"+(c || "color-mix(in oklab,var(--a) 14%,#fbf8f2)")}), h("span",null,name)))))); }
   if (!manyFathers) wrap.append(h("div",{class:"card form"}, h("h3",null,"🖼️ صورة أبونا"),
     h("div",{class:"row"}, avatar({name:st.priestName||"أبونا", photo:st.priestPhoto}),
       photoPicker("stPriestPhoto", st.priestPhoto ? "غيّر صورة أبونا" : "ارفع صورة أبونا", url=>saveSt({priestPhoto:url},"صورة أبونا اتحفظت")),
@@ -4710,6 +4805,7 @@ const ICONS = {
    Emoji written anywhere on the screen are swapped for these as they appear; WhatsApp texts keep their emoji. */
 const IC = {
   cloud:"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z",
+  palette:"M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-1-.9-1.4-.9-2.4 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3zM7.5 12.5a1.2 1.2 0 1 0 0-.01M10 8a1.2 1.2 0 1 0 0-.01M14.5 8a1.2 1.2 0 1 0 0-.01",
   idcard:"M3 6h18v12H3zM7 10.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M5.5 15.5c.6-1.6 3.4-1.6 4 0M13 10h5M13 13h4",
   sun:"M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4",
   cloudsun:"M12 2v2M4.9 4.9l1.4 1.4M20 12h2M19.1 4.9l-1.4 1.4M15.9 12.7a4 4 0 0 0-5.9-4.6M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z",
@@ -4781,7 +4877,7 @@ const IC = {
   finger:"M12 10a2 2 0 0 0-2 2c0 1 0 3.3-.4 5.3M14 13.1c0 2.4 0 6.4-1 8.9M17.3 21.1c.1-.6.4-2.3.5-3.1M2 12a10 10 0 0 1 18-6M2 16h.01M21.8 16c.2-2 .1-5.4 0-6M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .3-2M8.7 22c.2-.7.5-1.3.6-2M9 6.8a6 6 0 0 1 9 5.2v2",
   gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"};
 // emoji → [icon, colour]
-const EMO = {"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
+const EMO = {"🎨":["palette","#db2777"],"🖌️":["palette","#0891b2"],"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
   "🏠":["home","#f97316"],"🏡":["visit","#a855f7"],"📅":["calendar","#f43f5e"],"🗓️":["calcheck","#f43f5e"],"🎂":["cake","#f97316"],"📞":["phone","#2563eb"],"📵":["phoneoff","#64748b"],
   "✨":["sparkles","#eab308"],"🔄":["refresh","#0ea5e9"],"💬":["chat","#16a34a"],"💼":["work","#78716c"],"💍":["ring","#ec4899"],"🎒":["school","#0ea5e9"],
   "👨‍👩‍👧‍👦":["users","#3b82f6"],"👧":["child","#ec4899"],"👦":["child","#3b82f6"],"💑":["heart","#ef4444"],"🤍":["heart","#ef4444"],"⛪":["church","#0f766e"],"✅":["ok","#16a34a"],"❌":["no","#ef4444"],
@@ -4929,7 +5025,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.31-2";
+const APP_VERSION = "2026.10.31-5";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5327,7 +5423,7 @@ async function boot(){
   }
   $("#devFooter").replaceChildren(devBlock(true));
   $("#logoutBtn").addEventListener("click", logout);
-  applySettings(); try { const st = await Store.get("settings/app"); if (st){ S.settings = st; applySettings(); } } catch(e){}
+  applySettings(); try { const st = await Store.get("settings/app"); if (st){ S.settings = st; S.settingsFetched = true; applySettings(); } } catch(e){}
   if (Store.mode === "local"){ if (await restoreLocalSession()) unlock(); else showGate(); return; }
   if (Store.mode === "cloud"){ if (await restoreCloudSession()) unlock(); else showGate(); return; }
   const sess = ssGet(okKey()); if (sess){ S.authName = sess==="1" ? "" : sess; unlock(); } else showGate();
@@ -5656,8 +5752,8 @@ async function showCloudGate(){
         } catch(x){ err.textContent = cloudMsg(x); } finally { if (b.isConnected) b.disabled = false; }
       }}, "👆 ادخل بالبصمة أو الوش · "+bio.name));
       extra = [...extra, info && info.claimed !== false ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
-        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
-        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")];
+        h("div",{class:"gate-links"}, h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
+        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود"))];
     } else if (mode === "register"){
       sub = "اختار اسم وكلمة سر هتدخل بيهم على طول. بعد كده هتكتب بياناتك، وأب اعترافك يوافق على حسابك.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
@@ -5769,7 +5865,7 @@ async function showCloudGate(){
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ lic = null; draw(); }},"رجوع")];
     }
     gate.replaceChildren(gateCard([churchMark(), h("div",null, h("h1",null,title), h("p",{class:"muted small"}, sub))],
-      [form, ...extra, h("p",{class:"small muted", style:"margin:0"},"🔒 بياناتك محفوظة على سيرفر الكنيسة، ومحدش بيشوفها غير اللي ليه صلاحية."), devBlock()]));
+      [form, ...extra, h("p",{class:"small muted gate-note", style:"margin:0"},"🔒 بياناتك محفوظة على سيرفر الكنيسة، ومحدش بيشوفها غير اللي ليه صلاحية."), devBlock()]));
     const f = gate.querySelector("input"); if (f) f.focus();
   };
   draw();
