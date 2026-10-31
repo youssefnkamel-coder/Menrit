@@ -174,6 +174,14 @@ ul.list li.click:hover{background:var(--surface-2)}
 .pill.warn{background:color-mix(in oklab,var(--warn) 15%,var(--surface));color:var(--warn-ink)}
 .pill.bad{background:color-mix(in oklab,var(--bad) 15%,var(--surface));color:var(--bad)}
 .pill.ok{background:color-mix(in oklab,var(--ok) 15%,var(--surface));color:var(--ok-ink)}
+.nid-pill{white-space:normal;line-height:1.45;padding-block:3px}
+.nid-row{gap:6px}
+.acc-row > .nid-row{grid-column:1/-1}
+.nid-box{display:grid;gap:6px}
+.nid-mask{direction:ltr;unicode-bidi:isolate;display:inline-block;letter-spacing:.5px}
+.nid-hint{margin:0;color:var(--ink-2)}
+.nid-hint.ok{color:var(--ok-ink)}
+.nid-hint.bad{color:var(--bad);font-weight:600}
 .pill.acc{background:linear-gradient(135deg,var(--a),var(--b));color:#fff}
 .empty{padding:22px;border:2px dashed var(--line);border-radius:var(--r);color:var(--ink-2);text-align:center;font-weight:600}
 .family-head{font-family:var(--f-head);font-weight:800;font-size:.95rem;color:var(--a)}
@@ -3096,6 +3104,47 @@ const daysBetween = (a,b) => dayNum(b) - dayNum(a);
 const clean = o => { const r = {}; for (const [k,v] of Object.entries(o)) if (k!=="id" && v!==undefined) r[k]=v; return r; };
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
 const arDigits = s => String(s).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+/* ---------- national ID (الرقم القومي): C YYMMDD GG SSSS X ---------- */
+const NID_GOV = {"01":"القاهرة","02":"الإسكندرية","03":"بورسعيد","04":"السويس","11":"دمياط","12":"الدقهلية","13":"الشرقية","14":"القليوبية","15":"كفر الشيخ",
+  "16":"الغربية","17":"المنوفية","18":"البحيرة","19":"الإسماعيلية","21":"الجيزة","22":"بني سويف","23":"الفيوم","24":"المنيا","25":"أسيوط","26":"سوهاج","27":"قنا",
+  "28":"أسوان","29":"الأقصر","31":"البحر الأحمر","32":"الوادي الجديد","33":"مطروح","34":"شمال سيناء","35":"جنوب سيناء","88":"خارج الجمهورية"};
+const nidDigits = s => String(s||"").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/\D/g, "");
+// {nid, birthday, sex:"m"|"f", gov} or {error}
+function parseNid(raw){
+  const n = nidDigits(raw);
+  if (!n) return {error:"اكتب الرقم القومي."};
+  if (n.length !== 14) return {error:"الرقم القومي ١٤ رقم، إنت كاتب "+arDigits(n.length)+"."};
+  if (n[0] !== "2" && n[0] !== "3") return {error:"الرقم القومي بيبدأ بـ ٢ أو ٣."};
+  const y = (n[0] === "2" ? 1900 : 2000) + +n.slice(1,3), m = +n.slice(3,5), d = +n.slice(5,7), dt = new Date(y, m-1, d);
+  if (!m || dt.getFullYear() !== y || dt.getMonth() !== m-1 || dt.getDate() !== d || dt > TODAY) return {error:"تاريخ الميلاد اللي جوه الرقم القومي مش صحيح. راجع الرقم."};
+  const gov = NID_GOV[n.slice(7,9)]; if (!gov) return {error:"كود المحافظة في الرقم القومي مش صحيح. راجع الرقم."};
+  return {nid:n, birthday:y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0"), sex: +n[12] % 2 ? "m" : "f", gov};
+}
+const SEX_AR = {m:"ذكر", f:"أنثى"};
+// Western digits on purpose: Arabic-Indic digits around the dots get reordered right-to-left
+const maskNid = n => n ? n.slice(0,5)+"•••••••"+n.slice(-2) : "";
+// compares what the ID says with what the person wrote: {ok, info, diffs[]} or null when there is no ID
+function nidCheck(p){
+  if (!p || !p.nid) return null;
+  const x = parseNid(p.nid); if (x.error) return {ok:false, info:null, diffs:["الرقم نفسه مش صحيح"]};
+  const diffs = [];
+  if (p.birthday && p.birthday !== x.birthday) diffs.push("الميلاد ("+fmtShort(x.birthday)+" في الرقم)");
+  if (p.sex && p.sex !== x.sex) diffs.push("النوع ("+SEX_AR[x.sex]+" في الرقم)");
+  return {ok:!diffs.length, info:x, diffs};
+}
+const nidDupesOf = id => ((S.nidDupes||[]).find(x => x.uid === id) || {}).others || [];
+// the badge the admin and the confession father see
+function nidBadge(p, id, full, quiet){
+  const c = nidCheck(p||{}), dup = id ? nidDupesOf(id) : [];
+  if (!c && quiet && !dup.length) return null;
+  const pills = [];
+  if (!c) pills.push(h("span",{class:"pill warn nid-pill"},"🪪 لسه ماكتبش الرقم القومي"));
+  else pills.push(h("span",{class:"pill nid-pill "+(c.ok ? "ok" : "bad")}, c.ok ? "✅ الرقم القومي مطابق" : "⚠️ مختلف: "+c.diffs.join("، ")));
+  if (dup.length) pills.push(h("span",{class:"pill bad nid-pill"},"⚠️ الرقم ده مسجّل باسم "+dup.map(o => o.name).join(" و")));
+  if (!full) return h("div",{class:"row nid-row"}, pills);
+  return h("div",{class:"nid-box"}, h("div",{class:"row nid-row"}, pills),
+    c && c.info ? h("p",{class:"small muted", style:"margin:0"}, "🪪 ", h("bdi",{dir:"ltr", class:"num nid-mask"}, maskNid(c.info.nid)), " · من الرقم: مولود "+fmtShort(c.info.birthday)+" · "+SEX_AR[c.info.sex]+" · "+c.info.gov) : null);
+}
 const GMONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const WDAYS = ["الأحد","الاتنين","التلات","الأربع","الخميس","الجمعة","السبت"];
 const copShort = d => { const c = toCoptic(new Date(d.getFullYear(), d.getMonth(), d.getDate())); return arDigits(c.d)+" "+CMONTHS[c.m-1]; };
@@ -3317,6 +3366,7 @@ function subscribe(){
     if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   }
   if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
+  S.nidDupes = []; if (Store.mode === "cloud" && !Store.preview && ["admin","priest"].includes(accRole())) L("nid_dupes", null, r => { S.nidDupes=r||[]; scheduleRender(); });
   S.sched = null; S.bookings = []; S.vbookings = [];
   if (isFatherView()){ L("sched/"+schedId(), null, r => { S.sched=r; scheduleRender(); }); L("book/"+schedId()+"/s", null, r => { S.bookings=r||[]; scheduleRender(); });
     L("book/"+schedId()+"/v", null, r => { S.vbookings=r||[]; scheduleRender(); }); }
@@ -3724,6 +3774,7 @@ function personDetail(all){
     p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
     p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
   const ro = p.onApp && !isNew;
+  if (ro && p.self) card.append(nidBadge(self, p.id, true));
   card.append(h("div",{class:"form"},
     ro ? familyCard(p, true) :
     h("div",{class:"two"},
@@ -4498,6 +4549,20 @@ function memberMe(){
   const md = S.draft.meForm || (S.draft.meForm = {});
   const v = id => ($("#"+id) ? $("#"+id).value.trim() : "");
   const inp = (id, val, extra) => h("input", Object.assign({id, value: id in md ? md[id] : (val||""), oninput:e => { md[id] = e.target.value; }}, extra||{}));
+  // national ID: required for a new sign-up, optional for everyone already on the app
+  const nidNeeded = Store.mode === "cloud" && accRole() === "pending";
+  const nidHint = h("p",{class:"small nid-hint", "aria-live":"polite"});
+  const nidLive = () => {
+    const raw = $("#pNid") ? $("#pNid").value : ("pNid" in md ? md.pNid : p.nid||""); nidHint.className = "small nid-hint";
+    if (!nidDigits(raw)){ nidHint.textContent = "🔒 الرقم القومي بيشوفه أب اعترافك والأدمن بس، وبيتأكدوا منه إن بياناتك صح."; return; }
+    const x = parseNid(raw);
+    if (x.error){ nidHint.classList.add("bad"); nidHint.textContent = "⚠️ "+x.error; return; }
+    nidHint.classList.add("ok"); nidHint.textContent = "✅ من الرقم: مولود "+fmtShort(x.birthday)+" · "+SEX_AR[x.sex]+" · "+x.gov;
+    const b = $("#pBirth"), sx = $("#pSex");
+    if (b && !b.value){ b.value = x.birthday; md.pBirth = x.birthday; }
+    if (sx && !sx.value){ sx.value = x.sex; md.pSex = x.sex; }
+  };
+  setTimeout(nidLive);
   wrap.append(h("div",{class:"card form"},
     h("h3",null,"🙋 بياناتك"),
     h("div",{class:"two"},
@@ -4505,7 +4570,11 @@ function memberMe(){
       h("label",null,"الوظيفة", inp("pJob", p.job, {placeholder:"مثلاً: مهندس، مدرّسة، طالب"})),
       h("label",null,"التليفون", inp("pPhone", p.phone, {inputmode:"tel"})),
       h("label",null,"تاريخ الميلاد", inp("pBirth", p.birthday, {type:"date"})),
-      h("label",null,"العنوان", inp("pAddr", p.address, {placeholder:"عشان أبونا يعرف يفتقدك"}))),
+      h("label",null,"العنوان", inp("pAddr", p.address, {placeholder:"عشان أبونا يعرف يفتقدك"})),
+      h("label",null,"النوع", h("select",{id:"pSex", onchange:e => { md.pSex = e.target.value; }},
+        [["","اختار"],["m","ذكر"],["f","أنثى"]].map(([k,t]) => h("option",{value:k, selected:(("pSex" in md) ? md.pSex : (p.sex||"")) === k}, t)))),
+      h("label",null, nidNeeded ? "الرقم القومي (مطلوب)" : "الرقم القومي", inp("pNid", p.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off", placeholder:"١٤ رقم زي اللي في البطاقة", oninput:e => { md.pNid = e.target.value; nidLive(); }}))),
+    nidHint,
     h("h3",{style:"margin-top:6px"},"💍 الزوجة / الزوج (لو متجوز)"),
     h("div",{class:"two"},
       h("label",null,"الاسم", inp("pSpouse", p.spouse)),
@@ -4518,6 +4587,11 @@ function memberMe(){
       const data = Object.assign({}, p, {name:v("pName"), job:v("pJob"), phone:v("pPhone"), birthday:v("pBirth"), address:v("pAddr"),
         spouse:v("pSpouse"), spousePhone:v("pSpPhone"), spouseBirthday:v("pSpBirth"), wedding:v("pWed"), children:cleanKids(S.draft.myKids)});
       delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
+      const nidRaw = v("pNid"), nx = nidRaw ? parseNid(nidRaw) : null;
+      if (nx && nx.error){ toast(nx.error); $("#pNid") && $("#pNid").focus(); return; }
+      if (!nx && nidNeeded){ toast("اكتب الرقم القومي، أبونا محتاجه عشان يتأكد من بياناتك"); $("#pNid") && $("#pNid").focus(); return; }
+      data.nid = nx ? nx.nid : ""; data.sex = ($("#pSex") && $("#pSex").value) || (nx ? nx.sex : "") || "";
+      if (!data.birthday && nx) data.birthday = nx.birthday;
       if (S.draft.photo && !data.photo) data.photo = S.draft.photo;
       if (!data.joined) data.joined = TODAY_S;
       try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
@@ -4577,11 +4651,14 @@ function showPhoto(src){
   const box = h("div",{class:"photo-zoom", role:"dialog", "aria-label":"الصورة", onclick:()=>box.remove()}, h("img",{src, alt:""}), h("button",{class:"btn sm", type:"button"},"✕ قفل"));
   document.body.append(box);
 }
+// the national ID goes only to the admin and the person's own confession father (the server leaves it out for everyone else)
+const nidSees = x => accRole() === "admin" || (accRole() === "priest" && S.account && x.father === S.account.id);
 function pendingDetail(x){
   const p = Object.assign({name:x.name}, x.profile||{}), photo = p.photo || x.photo || "";
-  const facts = [["📞 التليفون", p.phone], ["🎂 الميلاد", p.birthday ? fmtShort(p.birthday)+" ("+ageOf(p.birthday)+")" : ""], ["💼 الوظيفة", p.job], ["📍 العنوان", p.address],
+  const facts = [["📞 التليفون", p.phone], ["🎂 الميلاد", p.birthday ? fmtShort(p.birthday)+" ("+ageOf(p.birthday)+")" : ""], ["👤 النوع", SEX_AR[p.sex]], ["💼 الوظيفة", p.job], ["📍 العنوان", p.address],
     ["⛪ أب الاعتراف", x.fatherName || "لسه ما اختارش"], ["🕒 سجّل", fmtShort(ymd(new Date(x.at)))]].filter(f => f[1]);
   return h("div",{class:"pend-detail"},
+    nidSees(x) ? nidBadge(p, x.id, true) : null,
     h("div",{class:"row", style:"align-items:flex-start;gap:14px"},
       photo ? h("button",{type:"button", class:"pend-photo", title:"كبّر الصورة", onclick:()=>showPhoto(photo)}, h("img",{src:photo, alt:"صورة "+p.name})) : h("div",{class:"pend-photo none"}, "مفيش صورة"),
       h("dl",{class:"pend-facts"}, facts.map(([k,v]) => [h("dt",null,k), h("dd",null,v)]))),
@@ -4599,7 +4676,8 @@ function pendingCard(){
           avatar({name:p.name||x.name, photo:p.photo||x.photo||""}),
           h("div",{class:"who"}, h("strong",null, p.name || x.name, p.name && p.name !== x.name ? h("span",{class:"small muted"}," (اسم الدخول: "+x.name+")") : null),
             h("span",{class:"small muted"}, (info || "لسه ماكتبش بياناته")+" · سجّل "+agoText(ymd(new Date(x.at)))),
-            ["admin","supervisor"].includes(accRole()) && x.fatherName ? h("span",{class:"small", style:"font-weight:700;color:var(--a)"}, "⛪ اختار "+x.fatherName) : null),
+            ["admin","supervisor"].includes(accRole()) && x.fatherName ? h("span",{class:"small", style:"font-weight:700;color:var(--a)"}, "⛪ اختار "+x.fatherName) : null,
+            !open && nidSees(x) ? nidBadge(p, x.id, false) : null),
           h("span",{class:"pend-more small"}, open ? "▲ اقفل" : "▼ البيانات")),
         open ? pendingDetail(x) : null,
         h("div",{class:"row"},
@@ -4627,6 +4705,7 @@ const ICONS = {
    Emoji written anywhere on the screen are swapped for these as they appear; WhatsApp texts keep their emoji. */
 const IC = {
   cloud:"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z",
+  idcard:"M3 6h18v12H3zM7 10.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M5.5 15.5c.6-1.6 3.4-1.6 4 0M13 10h5M13 13h4",
   sun:"M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4",
   cloudsun:"M12 2v2M4.9 4.9l1.4 1.4M20 12h2M19.1 4.9l-1.4 1.4M15.9 12.7a4 4 0 0 0-5.9-4.6M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z",
   moon:"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z",
@@ -4697,7 +4776,7 @@ const IC = {
   finger:"M12 10a2 2 0 0 0-2 2c0 1 0 3.3-.4 5.3M14 13.1c0 2.4 0 6.4-1 8.9M17.3 21.1c.1-.6.4-2.3.5-3.1M2 12a10 10 0 0 1 18-6M2 16h.01M21.8 16c.2-2 .1-5.4 0-6M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .3-2M8.7 22c.2-.7.5-1.3.6-2M9 6.8a6 6 0 0 1 9 5.2v2",
   gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"};
 // emoji → [icon, colour]
-const EMO = {"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
+const EMO = {"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
   "🏠":["home","#f97316"],"🏡":["visit","#a855f7"],"📅":["calendar","#f43f5e"],"🗓️":["calcheck","#f43f5e"],"🎂":["cake","#f97316"],"📞":["phone","#2563eb"],"📵":["phoneoff","#64748b"],
   "✨":["sparkles","#eab308"],"🔄":["refresh","#0ea5e9"],"💬":["chat","#16a34a"],"💼":["work","#78716c"],"💍":["ring","#ec4899"],"🎒":["school","#0ea5e9"],
   "👨‍👩‍👧‍👦":["users","#3b82f6"],"👧":["child","#ec4899"],"👦":["child","#3b82f6"],"💑":["heart","#ef4444"],"🤍":["heart","#ef4444"],"⛪":["church","#0f766e"],"✅":["ok","#16a34a"],"❌":["no","#ef4444"],
@@ -4845,7 +4924,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.29-3";
+const APP_VERSION = "2026.10.31-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5171,7 +5250,8 @@ function adminView(all){
         a.pending ? h("span",{class:"pill warn"},"⏳ مستني موافقة") : null,
         isFatherAcc(a) ? h("span",{class:"pill ok"},"⛪ أب اعتراف · "+arDigits(accs.filter(x=>x.father===a.id).length)) : null,
         a.role==="user" && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?"":" warn")}, a.father ? "أبوه: "+((accs.find(x=>x.id===a.father)||{}).name||"؟") : "من غير أب اعتراف") : null,
-        a.active===false ? h("span",{class:"pill bad"},"متوقف") : null));
+        a.active===false ? h("span",{class:"pill bad"},"متوقف") : null),
+      isAdmin && Store.mode==="cloud" && ["user","pending"].includes(a.role) || (isAdmin && a.pending) ? nidBadge((S.members||[]).find(m => m.id === a.id), a.id, false, !a.pending) : null);
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
       const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("الصلاحية اتغيّرت"); }},
@@ -5353,6 +5433,7 @@ const Cloud = {
     // older databases (setup file not re-run yet) lack the newer columns
     if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c).catch(e => /pending|father|confessor|column/.test(e.message) ? this.req("/rest/v1/accounts?select="+ACC_COLS.replace(",pending,father,confessor","")+"&church_id=eq."+c) : Promise.reject(e)) || []).map(accFromRow);
     if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, photo:r.photo||"", at:r.created_at, profile:r.profile||{}, father:r.father||"", fatherName:r.father_name||""}));
+    if (path === "nid_dupes") return (await this.rpc("nid_dupes").catch(() => [])) || [];  // older databases lack it
     if (path === "pwreq") return (await this.req("/rest/v1/pwreqs?select=uid,name,at&church_id=eq."+c) || []).map(r => ({id:r.uid, accId:r.uid, name:r.name, at:r.at}));
     if (even){
       if (path.startsWith("accounts/")){ const r = (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&uid=eq."+this.q(path.split("/")[1])) || [])[0]; return r ? accFromRow(r) : null; }
