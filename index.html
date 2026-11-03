@@ -14,7 +14,7 @@
 window.RUHIYA_CONFIG = {
   url: "https://bchxqstesohcsdczvvvv.supabase.co",
   key: "sb_publishable_Hn7BrtGV8Rt5qon0_MHYIg_NHXr28Sj",
-  appUrl: "https://youssefnkamel-coder.github.io/Menrit"
+  appUrl: "https://menrit.pinshti.com"
 };
 </script>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -816,6 +816,9 @@ body.one-tab{--nav-h:0px}
 :root[data-theme="light"][data-bg="lilac"]{--bg:#e2daf5;--surface:#fbf9fe;--surface-2:#f1edfb;--line:#d3c7ee}
 :root[data-theme="light"][data-bg="match"]{--bg:color-mix(in oklab,var(--a) 18%,#fbf8f2);--surface:color-mix(in oklab,var(--a) 3%,#fffdf8);--surface-2:color-mix(in oklab,var(--a) 8%,#fffdf8);--line:color-mix(in oklab,var(--a) 22%,#efe7d6)}
 .pal-sw.bg-sw{border-color:var(--line);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.fam-suggest .fam-row{display:grid;gap:8px;align-items:start}
+.fam-suggest .fam-row .who{display:grid;gap:2px}
+.fam-hint{display:block}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3637,7 +3640,7 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > visitDays());
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{class:"dash"}, pendingCard());
+  const wrap = h("div",{class:"dash"}, pendingCard(), famSuggestCard(all));
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
   if (Store.mode !== "demo" && Store.mode !== "cloud" && (!S.account || accRole() === "admin") && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
@@ -3691,6 +3694,75 @@ function households(all){
   const groups = new Map();
   for (const p of all){ const k = find(p.id); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
   return [...groups.values()].filter(g => g.length > 1 || g[0].spouse || (g[0].children||[]).length || g[0].familyName);
+}
+// "might belong to a family already on the list": only strong signs count (a shared phone, spouse names that point at each other,
+// a child with the same name and birthday, or the same address together with the same family name). A shared surname or area alone never asks.
+const phoneKey = s => { const d = nidDigits(s); return d.length >= 8 ? d.slice(-10) : ""; };
+const addrKey = s => { const k = arKey(s).replace(/[^؀-ۿa-z0-9 ]/gi, " ").replace(/\s+/g, " ").trim(); return k.length >= 8 ? k : ""; };
+const lastName = n => { const w = arKey(n).split(" ").filter(Boolean); return w.length >= 2 ? w[w.length-1] : ""; };
+function famReasons(a, b){
+  const out = [], fa = firstName(b.name), pa = phoneKey(a.phone), pb = phoneKey(b.phone);
+  if (pa && pa === phoneKey(b.spousePhone)) out.push("رقم تليفونه هو رقم شريك حياة "+fa);
+  if (pb && pb === phoneKey(a.spousePhone)) out.push("رقم شريك حياته هو رقم "+fa);
+  for (const c of b.children||[]) if (pa && pa === phoneKey(c.phone)) out.push("رقم تليفونه مكتوب لابن "+fa+" ("+c.name+")");
+  for (const c of a.children||[]) if (pb && pb === phoneKey(c.phone)) out.push("رقم "+fa+" مكتوب عنده لابنه "+c.name);
+  const sp = (x, y) => x.spouse && firstName(x.spouse) && arKey(firstName(x.spouse)) === arKey(firstName(y.name));
+  if (sp(a, b) && sp(b, a)) out.push("كاتب "+fa+" شريك حياته، و"+fa+" كاتبه هو كمان");
+  else if (a.spouse && arKey(a.spouse).split(" ").length >= 2 && arKey(a.spouse) === arKey(b.name)) out.push("كاتب اسم "+b.name+" بالكامل كشريك حياة");
+  else if (b.spouse && arKey(b.spouse).split(" ").length >= 2 && arKey(b.spouse) === arKey(a.name)) out.push(fa+" كاتب اسمه بالكامل كشريك حياة");
+  const kid = (x, y) => (y.children||[]).find(c => c.birthday && c.birthday === x.birthday && arKey(firstName(c.name)) === arKey(firstName(x.name)));
+  let k = kid(a, b); if (k) out.push("اسمه وتاريخ ميلاده زي "+k.name+" ابن "+fa);
+  k = kid(b, a); if (k) out.push(fa+" اسمه وتاريخ ميلاده زي ابنه "+k.name);
+  const ad = addrKey(a.address);
+  if (ad && ad === addrKey(b.address) && lastName(a.name) && lastName(a.name) === lastName(b.name)) out.push("نفس العنوان ونفس اسم العيلة");
+  return [...new Set(out)];
+}
+// pairs the father hasn't answered yet; a = the one who joined the app (or the newer entry), b = the one already on his list
+function famSuggestions(all){
+  const fam = new Map(); households(all).forEach((g, i) => g.forEach(p => fam.set(p.id, i)));
+  const no = p => (p.pr && p.pr.famNo) || [];
+  const out = [];
+  for (const a of all) for (const b of all){
+    if (a.id === b.id || !a.onApp || (b.onApp && a.id > b.id)) continue;
+    if (fam.has(a.id) && fam.get(a.id) === fam.get(b.id)) continue;
+    if (a.familyName && a.familyName === b.familyName) continue;
+    if (no(a).includes(b.id) || no(b).includes(a.id)) continue;
+    const why = famReasons(a, b); if (why.length) out.push({a, b, why});
+  }
+  return out;
+}
+async function famAnswer(s, join){
+  const {a, b} = s;
+  if (join){
+    const name = b.familyName || a.familyName || "عائلة "+firstName(b.name)+" و"+firstName(a.name);
+    for (const p of [a, b]) await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:!!p.onApp, familyName:name}));
+    toast("✅ "+a.name+" اتضم لـ «"+name+"»");
+  } else {
+    await editDoc(PP()+"/"+a.id, cur => Object.assign(cur, {onApp:!!a.onApp, famNo:[...new Set([...(cur.famNo||[]), b.id])]}));
+    toast("تمام، مش هنسأل عنهم تاني");
+  }
+}
+function famSuggestCard(all){
+  if (!isFatherView()) return null;
+  const list = famSuggestions(all).slice(0, 5);
+  if (!list.length) return null;
+  return h("section",{class:"card fam-suggest"}, h("h3",null,"🔍 ممكن يكونوا من عيلة واحدة"),
+    h("p",{class:"small muted", style:"margin:0"},"البيانات دي شبه بعض. اتأكد وقولّي: يتضموا لنفس الأسرة ولا مجرد تشابه؟"),
+    h("ul",{class:"list"}, list.map(s => h("li",{class:"fam-row"},
+      h("div",{class:"who"}, h("strong",null, s.a.name+" ↔ "+s.b.name), s.why.map(w => h("span",{class:"small"}, "• "+w))),
+      h("div",{class:"row"},
+        h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, true); }},"🏠 ضمّه للعيلة"),
+        h("button",{class:"btn sm quiet", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, false); }},"تشابه بس"))))));
+}
+// the same check for someone still waiting for approval: a hint only, the father answers after approving
+function famHint(x){
+  if (!isFatherView()) return null;
+  const a = Object.assign({id:x.id, onApp:true, name:x.name}, x.profile||{});
+  const hits = merged().filter(b => b.id !== x.id).map(b => ({b, why:famReasons(a, b)})).filter(r => r.why.length);
+  if (!hits.length) return null;
+  return h("div",{class:"warnbox fam-hint"}, h("div",null, h("strong",null,"🔍 ممكن يكون من عيلة موجودة عندك"),
+    hits.slice(0, 3).map(r => h("div",{class:"small"}, r.b.name+": "+r.why.join("، "))),
+    h("div",{class:"small muted"},"بعد ما توافق هيظهرلك في «النهارده» عشان تضمه للعيلة أو تقول تشابه بس.")));
 }
 function familyCard(members, inline){
   members = [].concat(members);
@@ -4790,7 +4862,7 @@ function pendingDetail(x){
   const facts = [["📞 التليفون", p.phone], ["🎂 الميلاد", p.birthday ? fmtShort(p.birthday)+" ("+ageOf(p.birthday)+")" : ""], ["👤 النوع", SEX_AR[p.sex]], ["💼 الوظيفة", p.job], ["📍 العنوان", p.address],
     ["⛪ أب الاعتراف", x.fatherName || "لسه ما اختارش"], ["🕒 سجّل", fmtShort(ymd(new Date(x.at)))]].filter(f => f[1]);
   return h("div",{class:"pend-detail"},
-    nidSees(x) ? nidBadge(p, x.id, true) : null,
+    nidSees(x) ? nidBadge(p, x.id, true) : null, famHint(x),
     h("div",{class:"row", style:"align-items:flex-start;gap:14px"},
       photo ? h("button",{type:"button", class:"pend-photo", title:"كبّر الصورة", onclick:()=>showPhoto(photo)}, h("img",{src:photo, alt:"صورة "+p.name})) : h("div",{class:"pend-photo none"}, "مفيش صورة"),
       h("dl",{class:"pend-facts"}, facts.map(([k,v]) => [h("dt",null,k), h("dd",null,v)]))),
@@ -5061,7 +5133,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.03-2";
+const APP_VERSION = "2026.11.03-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
