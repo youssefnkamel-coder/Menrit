@@ -3402,11 +3402,18 @@ const S = {
 };
 const NOTE_ITEMS = [["bakr","صلاة باكر"],["noum","صلاة النوم"],["agpeya","باقي صلوات الأجبية"],["bible","قراءة الكتاب المقدس"],["khloa","صلاة المخدع (شخصية)"],["liturgy","حضور القداس والتناول"],["fast","الصوم"],["spiritual","قراءة روحية"]];
 const CONFESS_DAYS = 45, VISIT_DAYS = 90;
+// how many days before a confessee counts as "needs confession / a visit": the admin sets the church's number (settings/app),
+// and on the server each father may keep his own for his children in sched/<his id>.alert = {conf, visit}
+const dayCount = v => { const n = Math.round(Number(v)); return n >= 7 && n <= 365 ? n : 0; };
+const ownAlert = () => Store.mode === "cloud" && !Store.preview && accRole() === "priest" && S.sched && S.sched.alert || {};
+const churchDays = k => dayCount((S.settings || {})[k === "conf" ? "confessDays" : "visitDays"]) || (k === "conf" ? CONFESS_DAYS : VISIT_DAYS);
+const confDays = () => dayCount(ownAlert().conf) || churchDays("conf");
+const visitDays = () => dayCount(ownAlert().visit) || churchDays("visit");
 // the father's quick filters over his list, worked out from the dates the app already has: [key, emoji, label, test]
 const overDays = (d, n) => !d || daysBetween(parseYmd(d), TODAY) > n;
 const PEOPLE_FILTERS = [
-  ["conf","🙏","محتاجين اعتراف", p => overDays(p.lastConfession, CONFESS_DAYS)],
-  ["visit","🏡","محتاجين افتقاد", p => overDays(p.lastVisit, VISIT_DAYS)],
+  ["conf","🙏","محتاجين اعتراف", p => overDays(p.lastConfession, confDays())],
+  ["visit","🏡","محتاجين افتقاد", p => overDays(p.lastVisit, visitDays())],
   ["req","📅","طالبين ميعاد", p => !!(p.request || p.visitReq)],
   ["occ","🎂","أعياد الأسبوع ده", p => occasions([p], 7).length > 0],
   ["off","📵","مش على البرنامج", p => !p.onApp],
@@ -3626,8 +3633,8 @@ function priestTabs(all){
 }
 function priestToday(all){
   const occ = occasions(all, 7);
-  const overdueC = all.filter(p => !p.lastConfession || daysBetween(parseYmd(p.lastConfession),TODAY) > CONFESS_DAYS);
-  const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > VISIT_DAYS);
+  const overdueC = all.filter(p => !p.lastConfession || daysBetween(parseYmd(p.lastConfession),TODAY) > confDays());
+  const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > visitDays());
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
   const wrap = h("div",{class:"dash"}, pendingCard());
@@ -3640,7 +3647,7 @@ function priestToday(all){
     h("div",{class:"stats"},
       stat(all.length,"أولاد في الاعتراف","people",false,"people"),
       stat(reqs.length,"طلبات اعتراف وافتقاد","requests",true,"confession"),
-      stat(overdueC.length,"عدّى "+arDigits(CONFESS_DAYS)+" يوم من آخر اعتراف","people",true,"bell"),
+      stat(overdueC.length,"عدّى "+arDigits(confDays())+" يوم من آخر اعتراف","people",true,"bell"),
       stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
   if (fresh.length) wrap.append(h("section",{class:"half"}, sectionHead("ناس جديدة دخلت البرنامج"),
     h("ul",{class:"list"}, fresh.map(p => h("li",null, h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, p.phone||"")),
@@ -3743,8 +3750,8 @@ function personRow(p){
   return h("li",{class:"click", tabindex:"0", onclick:()=>selectPerson(p.id), onkeydown:e=>{ if(e.key==="Enter") selectPerson(p.id); }},
     h("div",{class:"person-line"}, avatar(p), h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, (p.onApp?"على البرنامج":"مش على البرنامج")+(p.phone?" · "+p.phone:""))), contactBtns(p)),
     h("div",{class:"row"},
-      h("span",{class:"pill "+(cD===null||cD>CONFESS_DAYS?"warn":"ok")},"اعتراف: "+agoText(p.lastConfession)),
-      h("span",{class:"pill "+(vD===null||vD>VISIT_DAYS?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
+      h("span",{class:"pill "+(cD===null||cD>confDays()?"warn":"ok")},"اعتراف: "+agoText(p.lastConfession)),
+      h("span",{class:"pill "+(vD===null||vD>visitDays()?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
       p.request ? h("span",{class:"pill acc"},"🙏 طالب اعتراف") : null,
       p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null,
       accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+(((S.accounts||[]).find(a=>a.id===p.father)||{}).name||"؟")) : null));
@@ -4408,6 +4415,7 @@ function priestSettings(){
     h("label",null,"كل آية في سطر", h("textarea",{id:"stVerses", rows:"8"}, ((st.verses&&st.verses.length)?st.verses:DEFAULT_VERSES).join("\n"))),
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({verses:$("#stVerses").value.split("\n").map(x=>x.trim()).filter(Boolean)},"الآيات اتحفظت")},"احفظ الآيات"),
       h("button",{class:"btn sm quiet", onclick:()=>saveSt({verses:[]},"رجعت الآيات الأصلية")},"رجّع الآيات الأصلية"))));
+  if (churchWide || ownAlertOn()) wrap.append(alertDaysCard(churchWide));
   if (isFatherView()){ const sc = schedCard(); if (sc) wrap.append(sc); }
   if (S.account && !Store.preview) wrap.append(myPasswordCard());
   if (!S.account) wrap.append(backupCard());
@@ -4415,6 +4423,28 @@ function priestSettings(){
     h("p",{class:"small muted"},"نزّل قايمة أولادك ببياناتهم وتواريخ الاعتراف والافتقاد في ملف Excel."),
     h("div",null, h("button",{class:"btn sm", onclick:exportExcel},"تصدير Excel"))));
   return wrap;
+}
+const ownAlertOn = () => Store.mode === "cloud" && !Store.preview && accRole() === "priest" && !!S.account;
+// church-wide card (admin, or the single-file build) or a father's own card on the server
+function alertDaysCard(church){
+  const own = ownAlert(), cc = churchDays("conf"), cv = churchDays("visit");
+  const inp = (id, val, ph) => h("input",{id, type:"number", inputmode:"numeric", min:"7", max:"365", dir:"ltr", value: val || "", placeholder: ph ? String(ph) : ""});
+  const read = id => { const raw = $("#"+id).value.trim(); if (!raw) return 0; const n = dayCount(raw); if (!n) throw 0; return n; };
+  const save = async () => {
+    let c, v; try { c = read("alC"); v = read("alV"); } catch(e){ toast("اكتب عدد أيام من ٧ لحد ٣٦٥"); return; }
+    if (church) await editDoc("settings/app", cur => Object.assign(cur, {confessDays:c, visitDays:v}));
+    else await editDoc("sched/"+S.account.id, cur => Object.assign(cur, {alert:{conf:c, visit:v}}));
+    toast("مواعيد التنبيه اتحفظت"); };
+  const reset = async () => { await editDoc("sched/"+S.account.id, cur => { delete cur.alert; return cur; }); toast("رجعت لأيام الكنيسة"); };
+  const custom = !church && (dayCount(own.conf) || dayCount(own.visit));
+  return h("div",{class:"card form"}, h("h3",null,"🔔 مواعيد التنبيه"),
+    h("p",{class:"small muted", style:"margin:0"}, church
+      ? (Store.mode === "cloud" ? "بعد كام يوم أب الاعتراف يتنبّه إن حد من أولاده ما اعترفش أو محدش افتقده. ده رقم الكنيسة، وكل أب يقدر يغيّره لأولاده من إعداداته." : "بعد كام يوم يطلع لك تنبيه إن حد من أولادك ما اعترفش أو محدش افتقده.")
+      : "بعد كام يوم تتنبّه إن حد من أولادك ما اعترفش أو محدش افتقده. لو سبت الخانة فاضية هتمشي على رقم الكنيسة ("+arDigits(cc)+" يوم للاعتراف و"+arDigits(cv)+" للافتقاد)."),
+    h("label",null,"أيام من آخر اعتراف", church ? inp("alC", dayCount((S.settings||{}).confessDays) || CONFESS_DAYS) : inp("alC", dayCount(own.conf), cc)),
+    h("label",null,"أيام من آخر افتقاد", church ? inp("alV", dayCount((S.settings||{}).visitDays) || VISIT_DAYS) : inp("alV", dayCount(own.visit), cv)),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:save},"احفظ"),
+      custom ? h("button",{class:"btn sm quiet", onclick:reset},"رجّع لأيام الكنيسة") : null));
 }
 function resizeImage(file, max, cb){
   const img = new Image(), url = URL.createObjectURL(file);
@@ -5031,7 +5061,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.03-1";
+const APP_VERSION = "2026.11.03-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
