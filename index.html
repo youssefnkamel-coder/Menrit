@@ -4321,6 +4321,7 @@ async function restoreDocs(docs){
   let n = 0;
   for (const [k, v] of Object.entries(docs || {})){
     if (!RESTORE_OK.test(k) || !v || typeof v !== "object") continue;
+    if (Store.mode === "cloud" && /^priest\/[^/]+\/people\//.test(k) && !k.startsWith(PP()+"/")) continue;  // a father's private notes stay his
     if (k.startsWith("accounts/") && (Store.mode === "cloud" || accRole() !== "admin" || k === "accounts/"+S.account.id)) continue;
     await Store.set(k, v); n++;
   }
@@ -4931,7 +4932,7 @@ function render(){
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
-  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? " (معاينة شاشة المعترف)" : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
+  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? (Store.mode === "cloud" ? " · شاشتي كمعترف" : " (معاينة شاشة المعترف)") : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
   renderNotice(); renderMe();
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
@@ -4958,12 +4959,16 @@ function renderNotice(){
     h("button",{class:"btn sm "+(S.role==="member"?"on":""), onclick:()=>switchRole("member")},"شاشة المعترف"),
     accRole() === "admin" ? h("button",{class:"btn sm "+(S.role==="admin"?"on":""), onclick:()=>switchRole("admin")},"شاشة الأدمن") : null,
     Store.mode === "cloud" && accRole() === "admin" ? h("button",{class:"btn sm "+(Store.preview?"on":""), onclick:()=>startPreview()},"👀 معاينة شاشة أبونا") : null);
+  // server: the admin is also a confessee, so one real switch between his admin screen and his own screen as a confessee (no sample-data previews)
+  const admSwitch = () => { const me = S.role === "member";
+    return h("div",{class:"row adm-switch"}, h("span",{class:"small", style:"font-weight:700"}, me ? "دي شاشتك إنت كمعترف" : "شاشة الأدمن"),
+      h("button",{class:"btn sm", onclick:()=>switchRole(me ? "admin" : "member")}, me ? "🛠️ رجوع لشاشة الأدمن" : "🙏 شاشتي كمعترف")); };
   if (Store.mode === "cloud"){
     const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
       : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn-ink);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
     const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? roleBtns() : null));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? admSwitch() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"ارجع للبيانات الحقيقية") : null)));
@@ -4983,7 +4988,7 @@ function switchRole(r){
   if (Store.preview){ Store.preview = false; Mem.data.clear(); }
   S.role = r; S.tab = null; S.sel = null; S.draft = {};
   if (Store.mode === "demo") S.uid = r==="member" ? "demo-me" : S.uid;
-  else S.uid = S.account ? (r === "member" ? "preview-"+S.account.id : S.account.id) : S.realUid;
+  else S.uid = S.account ? (r === "member" && Store.mode !== "cloud" ? "preview-"+S.account.id : S.account.id) : S.realUid;
   S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[];
   subscribe(); render();
 }
@@ -5026,7 +5031,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.10.31-7";
+const APP_VERSION = "2026.11.03-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5351,7 +5356,7 @@ function adminView(all){
       h("div",{class:"row"}, h("span",{class:"pill "+(a.role==="admin"?"acc":a.role==="priest"?"ok":a.role==="supervisor"?"warn":"")}, (ROLES[a.role]||ROLES.user).label),
         a.pending ? h("span",{class:"pill warn"},"⏳ مستني موافقة") : null,
         isFatherAcc(a) ? h("span",{class:"pill ok"},"⛪ أب اعتراف · "+arDigits(accs.filter(x=>x.father===a.id).length)) : null,
-        a.role==="user" && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?"":" warn")}, a.father ? "أبوه: "+((accs.find(x=>x.id===a.father)||{}).name||"؟") : "من غير أب اعتراف") : null,
+        (a.role==="user" || (a.role==="admin" && a.father)) && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?"":" warn")}, a.father ? "أبوه: "+((accs.find(x=>x.id===a.father)||{}).name||"؟") : "من غير أب اعتراف") : null,
         a.active===false ? h("span",{class:"pill bad"},"متوقف") : null),
       isAdmin && Store.mode==="cloud" && ["user","pending"].includes(a.role) || (isAdmin && a.pending) ? nidBadge((S.members||[]).find(m => m.id === a.id), a.id, false, !a.pending) : null);
     if (open && manage){
@@ -5370,8 +5375,8 @@ function adminView(all){
             if (a.role==="admin" && accs.filter(x=>x.role==="admin").length < 2){ toast("لازم يفضل أدمن واحد على الأقل"); return; }
             if (S.draft.delAsk !== a.id){ S.draft.delAsk = a.id; toast("دوس تاني على «احذف» للتأكيد"); return; }
             await deleteAccount(a); await logAct("حذف حساب "+a.name); S.draft.accOpen = null; S.draft.delAsk = null; toast("الحساب اتحذف"); }},"🗑️ احذف")) : null,
-        isAdmin && Store.mode==="cloud" && a.role==="user" ? h("label",{class:"row small", style:"gap:8px;align-items:center"}, "⛪ أب الاعتراف:",
-          h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("اتنقل"); }},
+        isAdmin && Store.mode==="cloud" && (a.role==="user" || a.role==="admin") ? h("label",{class:"row small", style:"gap:8px;align-items:center"}, "⛪ أب الاعتراف:",
+          h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); if (a.id === S.account.id) await refreshFather(); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("اتنقل"); }},
             h("option",{value:"", selected:!a.father},"من غير"), accs.filter(isFatherAcc).map(f => h("option",{value:f.id, selected:a.father===f.id}, f.name)))) : null,
         h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(ymd(new Date(a.createdAt))) : ""))));
     }
