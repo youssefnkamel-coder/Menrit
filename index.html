@@ -817,6 +817,28 @@ body.one-tab{--nav-h:0px}
 :root[data-theme="light"][data-bg="match"]{--bg:color-mix(in oklab,var(--a) 18%,#fbf8f2);--surface:color-mix(in oklab,var(--a) 3%,#fffdf8);--surface-2:color-mix(in oklab,var(--a) 8%,#fffdf8);--line:color-mix(in oklab,var(--a) 22%,#efe7d6)}
 .pal-sw.bg-sw{border-color:var(--line);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
 .fam-suggest .fam-row{display:grid;gap:8px;align-items:start}
+.act-tbl-wrap{border:1px solid var(--gold);border-radius:14px;overflow:hidden;margin-top:6px}
+.act-tbl{width:100%;border-collapse:collapse;font-size:.85rem}
+.act-tbl th{background:var(--brand-grad);color:#fff;padding:0;font-weight:700}
+.act-tbl th button{all:unset;cursor:pointer;display:grid;justify-items:center;gap:2px;padding:8px 3px;width:100%;box-sizing:border-box}
+.act-tbl th.nm button{justify-items:start;padding-inline-start:10px}
+.act-tbl th.on{box-shadow:inset 0 -3px 0 var(--gold-2)}
+.act-tbl th small{font-size:.68rem;font-weight:500}
+.act-tbl td{padding:9px 3px;border-top:1px solid var(--line);text-align:center}
+.act-tbl td.nm{text-align:start;padding-inline-start:10px}
+.act-tbl td.nm b{display:flex;gap:5px;align-items:center}.act-tbl td.nm span{font-size:.72rem;color:var(--ink-2)}
+.act-tbl td.num{font-weight:800}.act-tbl td.z{color:var(--line);font-weight:400}
+.act-tbl td.last{font-size:.72rem;color:var(--ink-2)}.act-tbl td.last.old{color:var(--warn-ink);font-weight:700}
+.act-tbl tr.act-person{cursor:pointer}.act-tbl tr.act-person:hover td,.act-tbl tr.act-person:focus td{background:color-mix(in oklab,var(--gold) 14%,var(--surface))}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--bad);display:inline-block}
+.act-hint{text-align:center;margin:8px 0 0}
+.act-back{font-weight:700;color:var(--a);margin-bottom:8px}
+.act-head{display:flex;gap:12px;align-items:center;margin:4px 0 12px}
+.act-head strong{display:block;font-size:1.1rem}
+.act-av{width:52px;height:52px;flex:none;border-radius:50%;background:linear-gradient(135deg,#99f6e4,#93c5fd);border:2px solid var(--gold);display:grid;place-items:center;font-weight:800;font-size:1.3rem;color:#0d3b5c}
+.act-facts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;font-size:.85rem}
+.act-facts>div{background:var(--surface-2);border-radius:10px;padding:7px 9px}.act-facts small{display:block;color:var(--ink-2)}
+.act-sums4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
 .act-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
 .act-sum{display:grid;gap:2px;text-align:center;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .act-sum b{font-size:1.4rem}
@@ -825,7 +847,7 @@ body.one-tab{--nav-h:0px}
 .act-card #actQ{width:100%;margin:8px 0}
 .act-day{margin:14px 0 4px;font-size:.95rem;color:var(--muted)}
 .act-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
-.act-row .who{display:grid;gap:2px;min-width:0}
+.act-row .who{display:grid;gap:2px;min-width:0;text-align:start}
 .act-row.fresh{background:color-mix(in oklab,var(--gold) 12%,transparent)}
 .act-time{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;text-align:end}
 .fam-suggest .fam-row .who{display:grid;gap:2px}
@@ -5030,8 +5052,8 @@ function startIcons(){ iconize(document.body);
   new MutationObserver(ms => { for (const m of ms){ if (m.type === "characterData") iconizeText(m.target); else m.addedNodes.forEach(iconize); } })
     .observe(document.body, {childList:true, subtree:true, characterData:true}); }
 if (document.body) startIcons(); else document.addEventListener("DOMContentLoaded", startIcons);
-const ICON_COLORS = {families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
-const EMOJI = {families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
+const ICON_COLORS = {activity:"#0ea5e9", families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
+const EMOJI = {activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
 function icon(k, size){
   const e = emoKey(EMOJI[k]||"✝️") || ["cross","#0f766e"], s = h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||e[1]), "aria-hidden":"true"});
   s.innerHTML = icSvg(e[0]); return s; }
@@ -5041,7 +5063,7 @@ function render(){
   const priest = S.role === "priest", sup = S.role === "supervisor", adm = S.role === "admin" && accRole() === "admin";
   const all = priest || adm ? merged() : [];
   const waiting = accRole() === "pending";
-  const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"]] : memberTabs();
+  const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["activity","النشاط"],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"]] : memberTabs();
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
@@ -5050,7 +5072,7 @@ function render(){
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
-  else if (adm) view = S.tab === "settings" ? priestSettings() : adminView(all);
+  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : adminView(all);
   else if (priest) view = ({today:priestToday, people:priestPeople, families:priestFamilies, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = ({admin:adminView, meditations:priestMeditations}[S.tab])([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
@@ -5144,7 +5166,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.04-1";
+const APP_VERSION = "2026.11.04-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5266,49 +5288,99 @@ const timeAgo = iso => { const t = new Date(iso), min = Math.round((Date.now() -
   if (min < 1) return "دلوقتي"; if (min < 60) return "من "+arDigits(min)+" دقيقة";
   if (min < 180) return "من "+arDigits(Math.round(min/60))+" ساعة";
   return t.toLocaleTimeString("ar-EG",{hour:"numeric",minute:"2-digit"}); };
-function activityCard(logs, accs){
-  const d = S.draft, seenKey = "ruhiya_logseen_"+((S.account && S.account.id)||"");
-  if (d.logSeen === undefined){ d.logSeen = lsGet(seenKey) || ""; const top = logs[0] && logs[0].at; if (top) lsSet(seenKey, top); }
-  else if (logs[0] && logs[0].at > (lsGet(seenKey)||"")) lsSet(seenKey, logs[0].at);
-  const kind = d.actKind || "all", q = arKey(d.actQ || ""), shown = d.actShow || 40;
-  // summary: from the accounts list, so it is right even when the log is short
-  const live = accs.filter(a => a.active !== false && !a.pending), dayOf = a => a.lastLogin ? daysBetween(parseYmd(ymd(new Date(a.lastLogin))), TODAY) : null;
-  const inToday = live.filter(a => dayOf(a) === 0).length, inWeek = live.filter(a => dayOf(a) !== null && dayOf(a) < 7).length;
-  const asleep = live.filter(a => dayOf(a) === null || dayOf(a) >= 30).sort((a,b) => (dayOf(b) ?? 1e9) - (dayOf(a) ?? 1e9));
-  const pill = (n, label, cls) => h("div",{class:"act-sum "+(cls||"")}, h("b",{class:"num"}, arDigits(n)), h("span",{class:"small"}, label));
-  const summary = h("div",{class:"act-sums"}, pill(inToday,"دخلوا النهارده","ok"), pill(inWeek,"دخلوا الأسبوع ده",""), pill(asleep.length,"مدخلوش من شهر", asleep.length ? "warn" : ""));
-  const sleepers = asleep.length ? h("details",{class:"act-asleep"}, h("summary",null,"👀 مين اللي مدخلش من شهر أو أكتر؟"),
-    h("ul",{class:"list"}, asleep.slice(0, 30).map(a => h("li",null, h("div",{class:"who"}, h("strong",null, a.name), h("span",{class:"small muted"}, (ROLES[a.role]||{}).label||"")),
-      h("span",{class:"small muted"}, a.lastLogin ? "آخر دخول "+agoText(ymd(new Date(a.lastLogin))) : "لسه ما دخلش خالص"))))) : null;
-  // filter + search, then merge each person's sign-ins/outs of the same day into one line
-  const rows = logs.filter(l => (kind === "all" || actKind(l.action) === kind) && (!q || arKey((l.who||"")+" "+(l.action||"")).includes(q)));
+// a table: one row per person, a count per kind of activity in the chosen period; a tap opens that person's own timeline
+const ACT_PERIODS = [["day","النهارده",1],["week","الأسبوع ده",7],["month","الشهر ده",30],["all","من الأول",0]];
+const ACT_COLS = [["in","دخول","🟢"],["acc","حسابات","👥"],["pw","كلمة سر","🔑"],["more","غيره","📝"]];
+const actTimes = n => n === 2 ? "مرتين" : arDigits(n)+(n <= 10 ? " مرات" : " مرة");
+function actMerge(rows){ // per person per day: sign-ins become one line
   const items = [], merged = new Map();
   for (const l of rows){
-    const day = ymd(new Date(l.at)), k = actKind(l.action);
-    if (k === "in" && /^(دخل|خرج)/.test(l.action)){
-      const key = day+"|"+(l.who||""), m = merged.get(key);
-      if (m){ m.n += /^دخل/.test(l.action) ? 1 : 0; m.out = m.out || /^خرج/.test(l.action); continue; }
-      const it = {l, day, login:true, n: /^دخل/.test(l.action) ? 1 : 0, out: /^خرج/.test(l.action)}; merged.set(key, it); items.push(it); continue; }
+    const day = ymd(new Date(l.at));
+    if (actKind(l.action) === "in" && /^(دخل|خرج)/.test(l.action)){
+      const key = day+"|"+(l.who||""), m = merged.get(key), inc = /^دخل/.test(l.action) ? 1 : 0;
+      if (m){ m.n += inc; continue; }
+      const it = {l, day, login:true, n:inc}; merged.set(key, it); items.push(it); continue; }
     items.push({l, day});
   }
-  const groupName = day => { const n = daysBetween(parseYmd(day), TODAY); return n <= 0 ? "النهارده" : n === 1 ? "امبارح" : n < 7 ? "الأسبوع ده" : "أقدم"; };
+  return items;
+}
+const actGroup = day => { const n = daysBetween(parseYmd(day), TODAY); return n <= 0 ? "النهارده" : n === 1 ? "امبارح" : n < 7 ? "الأسبوع ده" : "أقدم"; };
+function actLines(items, shown, seen, me){
   const groups = []; let last = null;
-  for (const it of items.slice(0, shown)){ const g = groupName(it.day); if (g !== last){ groups.push({g, list:[]}); last = g; } groups[groups.length-1].list.push(it); }
-  const me = S.account && S.account.name, line = it => { const l = it.l, fresh = d.logSeen && l.at > d.logSeen && l.who !== me, older = groupName(it.day) === "أقدم" || groupName(it.day) === "الأسبوع ده";
-    const times = n => n === 2 ? "مرتين" : arDigits(n)+(n <= 10 ? " مرات" : " مرة"), roleLbl = (ROLES[l.role]||{}).label;
-    const text = it.login ? (it.n > 1 ? "دخل "+times(it.n) : it.n === 1 ? "دخل البرنامج" : "خرج من البرنامج") : l.action;
+  for (const it of items.slice(0, shown)){ const g = actGroup(it.day); if (g !== last){ groups.push({g, list:[]}); last = g; } groups[groups.length-1].list.push(it); }
+  const line = it => { const l = it.l, fresh = seen && l.at > seen && l.who !== me, g = actGroup(it.day);
+    const text = it.login ? (it.n > 1 ? "دخل البرنامج "+actTimes(it.n) : it.n === 1 ? "دخل البرنامج" : "خرج من البرنامج") : l.action;
     return h("li",{class:"act-row"+(fresh ? " fresh" : "")},
       h("span",{class:"act-ic", "aria-hidden":"true"}, it.login ? "🟢" : actIcon(l.action)),
-      h("div",{class:"who"}, h("strong",null, l.who || "—", roleLbl ? h("span",{class:"small muted"}," · "+roleLbl) : null), h("span",{class:"small"}, text)),
-      h("span",{class:"small muted num act-time"}, fresh ? h("span",{class:"pill acc"},"جديد") : null, older ? fmtShort(it.day)+" · " : "", it.login && it.n > 1 ? "آخرها "+timeAgo(l.at) : timeAgo(l.at))); };
-  const chips = h("div",{class:"chips filters act-chips", role:"group", "aria-label":"نوع النشاط"}, ACT_KINDS.map(([k, label, emo]) =>
-    h("button",{type:"button", class:"chip-btn", "aria-pressed": String(kind === k), "data-kind":k, onclick:()=>{ d.actKind = k; d.actShow = 40; render(); }}, (emo ? emo+" " : "")+label)));
-  const search = h("input",{id:"actQ", type:"search", placeholder:"دوّر باسم حد أو حركة", value:d.actQ||"",
-    oninput:e=>{ d.actQ = e.target.value; d.actShow = 40; render(); const s = $("#actQ"); if (s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }});
-  return h("section",{class:"card act-card"}, h("h3",null,"🕒 آخر نشاط"), summary, sleepers, chips, search,
-    groups.length ? groups.map(g => h("div",{class:"act-group"}, h("h4",{class:"act-day"}, g.g), h("ul",{class:"list"}, g.list.map(line))))
-      : h("div",{class:"empty"}, logs.length ? "مفيش نشاط بالشكل ده." : "لسه مفيش نشاط متسجل."),
-    items.length > shown ? h("div",{class:"row"}, h("button",{class:"btn sm ghost", onclick:()=>{ d.actShow = shown + 40; render(); }},"اعرض أقدم ("+arDigits(items.length - shown)+")")) : null);
+      h("div",{class:"who"}, h("span",null, text)),
+      h("span",{class:"small muted num act-time"}, fresh ? h("span",{class:"pill acc"},"جديد") : null,
+        g === "أقدم" || g === "الأسبوع ده" ? fmtShort(it.day)+" · " : "", (it.login && it.n > 1 ? "آخرها " : "")+timeAgo(l.at))); };
+  return groups.map(g => h("div",{class:"act-group"}, h("h4",{class:"act-day"}, g.g), h("ul",{class:"list"}, g.list.map(line))));
+}
+function activityCard(logs, accs){
+  const d = S.draft, me = S.account && S.account.name, seenKey = "ruhiya_logseen_"+((S.account && S.account.id)||"");
+  if (d.logSeen === undefined){ d.logSeen = lsGet(seenKey) || ""; if (logs[0]) lsSet(seenKey, logs[0].at); }
+  else if (logs[0] && logs[0].at > (lsGet(seenKey)||"")) lsSet(seenKey, logs[0].at);
+  const card = (...kids) => h("section",{class:"card act-card"}, h("h3",null,"🕒 آخر نشاط"), ...kids);
+  const dayOf = iso => iso ? daysBetween(parseYmd(ymd(new Date(iso))), TODAY) : null;
+  // everyone: accounts first, then names that only appear in the log (e.g. a deleted account)
+  const people = new Map();
+  for (const a of accs) if (!a.pending) people.set(a.name, {name:a.name, role:a.role, acc:a, last:a.lastLogin || ""});
+  for (const l of logs) if (l.who && !people.has(l.who)) people.set(l.who, {name:l.who, role:l.role, acc:null, last:""});
+  for (const l of logs){ const p = people.get(l.who); if (p && !p.acc && /^دخل البرنامج/.test(l.action) && l.at > p.last) p.last = l.at; }
+  // ---- one person's page
+  const sel = d.actWho && people.get(d.actWho);
+  if (sel){
+    const mine = logs.filter(l => l.who === sel.name), items = actMerge(mine), shown = d.actShow || 40, a = sel.acc;
+    const father = a && a.father ? (accs.find(x => x.id === a.father) || {}).name : "";
+    const count = k => mine.filter(l => actKind(l.action) === k).reduce((n, l) => n + (k === "in" && /^خرج/.test(l.action) ? 0 : 1), 0);
+    const ld = dayOf(sel.last);
+    return card(
+      h("button",{class:"linkish act-back", type:"button", onclick:()=>{ d.actWho = null; d.actShow = 40; render(); }},"→ رجوع للجدول"),
+      h("div",{class:"act-head"}, h("div",{class:"act-av", "aria-hidden":"true"}, (sel.name||"؟").trim().charAt(0)),
+        h("div",null, h("strong",null, sel.name), h("span",{class:"small muted"}, ((ROLES[sel.role]||{}).label || "")+(father ? " · أب اعترافه: "+father : "")))),
+      h("div",{class:"act-facts"},
+        h("div",null, h("small",null,"آخر دخول"), sel.last ? (ld === 0 ? "النهارده " : ld === 1 ? "امبارح " : fmtShort(ymd(new Date(sel.last)))+" ")+new Date(sel.last).toLocaleTimeString("ar-EG",{hour:"numeric",minute:"2-digit"}) : "لسه ما دخلش"),
+        h("div",null, h("small",null,"الحساب"), !a ? "اتمسح" : a.active === false ? "موقوف" : "شغّال"+(a.createdAt ? " · من "+agoText(ymd(new Date(a.createdAt))).replace(/^من /,"") : ""))),
+      h("div",{class:"act-sums4"}, ACT_COLS.map(([k, label, emo]) => h("div",{class:"act-sum"}, h("span",{"aria-hidden":"true"}, emo), h("b",{class:"num"}, arDigits(count(k))), h("span",{class:"small"}, label)))),
+      items.length ? actLines(items, shown, d.logSeen, me) : h("div",{class:"empty"},"مفيش له نشاط متسجل."),
+      items.length > shown ? h("div",{class:"row"}, h("button",{class:"btn sm ghost", onclick:()=>{ d.actShow = shown + 40; render(); }},"اعرض أقدم ("+arDigits(items.length - shown)+")")) : null);
+  }
+  // ---- the table
+  const per = d.actPer || "week", perDays = (ACT_PERIODS.find(p => p[0] === per) || ACT_PERIODS[1])[2];
+  const inPer = l => !perDays || dayOf(l.at) < perDays;
+  const counts = new Map(), fresh = new Set();
+  for (const l of logs){
+    if (d.logSeen && l.at > d.logSeen && l.who !== me) fresh.add(l.who);
+    if (!inPer(l)) continue; const k = actKind(l.action); if (k === "in" && /^خرج/.test(l.action)) continue;
+    const c = counts.get(l.who) || {in:0, acc:0, pw:0, more:0}; c[k]++; counts.set(l.who, c);
+  }
+  const q = arKey(d.actQ || ""), srt = d.actSort || "last";
+  let rows = [...people.values()].filter(p => !q || arKey(p.name).includes(q)).map(p => Object.assign({c: counts.get(p.name) || {in:0, acc:0, pw:0, more:0}}, p));
+  rows.sort((x, y) => srt === "name" ? x.name.localeCompare(y.name, "ar") : srt === "last" ? (y.last || "").localeCompare(x.last || "") || x.name.localeCompare(y.name, "ar") : (y.c[srt] - x.c[srt]) || x.name.localeCompare(y.name, "ar"));
+  const live = accs.filter(a => a.active !== false && !a.pending);
+  const inToday = live.filter(a => dayOf(a.lastLogin) === 0).length, inWeek = live.filter(a => a.lastLogin && dayOf(a.lastLogin) < 7).length;
+  const asleep = live.filter(a => !a.lastLogin || dayOf(a.lastLogin) >= 30).length;
+  const pill = (n, label, cls) => h("div",{class:"act-sum "+(cls||"")}, h("b",{class:"num"}, arDigits(n)), h("span",{class:"small"}, label));
+  const th = (k, kids, cls) => h("th",{class:(cls||"")+(srt === k ? " on" : ""), scope:"col", "aria-sort": srt === k ? "descending" : "none"},
+    h("button",{type:"button", "data-sort":k, onclick:()=>{ d.actSort = k; render(); }}, ...kids));
+  const lastTxt = p => { const n = dayOf(p.last);
+    return !p.last ? "ما دخلش خالص" : n === 0 ? timeAgo(p.last) : n === 1 ? "امبارح" : "من "+arDigits(n)+" يوم"; };
+  const search = h("input",{id:"actQ", type:"search", placeholder:"دوّر باسم حد", value:d.actQ||"",
+    oninput:e=>{ d.actQ = e.target.value; render(); const s = $("#actQ"); if (s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }});
+  const chips = h("div",{class:"chips filters act-chips", role:"group", "aria-label":"الفترة"}, ACT_PERIODS.map(([k, label]) =>
+    h("button",{type:"button", class:"chip-btn", "aria-pressed":String(per === k), "data-per":k, onclick:()=>{ d.actPer = k; render(); }}, label)));
+  const table = h("div",{class:"act-tbl-wrap"}, h("table",{class:"act-tbl"},
+    h("thead",null, h("tr",null, th("name", ["الاسم"], "nm"), ...ACT_COLS.map(([k, label, emo]) => th(k, [h("span",{class:"act-thic","aria-hidden":"true"}, emo), h("small",null,label)])), th("last", [h("small",null,"آخر دخول")]))),
+    h("tbody",null, rows.map(p => { const n = dayOf(p.last), old = !p.last || n >= 30;
+      return h("tr",{class:"act-person", tabindex:"0", "data-who":p.name, onclick:()=>{ d.actWho = p.name; d.actShow = 40; render(); window.scrollTo && $(".act-card") && $(".act-card").scrollIntoView({block:"start"}); },
+        onkeydown:e=>{ if (e.key === "Enter"){ d.actWho = p.name; render(); } }},
+        h("td",{class:"nm"}, h("b",null, p.name, fresh.has(p.name) ? h("span",{class:"act-dot", title:"فيه جديد"}) : null), h("span",null, (ROLES[p.role]||{}).label || (p.acc ? "" : "اتمسح"))),
+        ...ACT_COLS.map(([k]) => h("td",{class:"num"+(p.c[k] ? "" : " z")}, arDigits(p.c[k]))),
+        h("td",{class:"last"+(old ? " old" : "")}, lastTxt(p))); }))));
+  return card(h("div",{class:"act-sums"}, pill(inToday,"دخلوا النهارده","ok"), pill(inWeek,"دخلوا الأسبوع ده",""), pill(asleep,"مدخلوش من شهر", asleep ? "warn" : "")),
+    search, chips, rows.length ? table : h("div",{class:"empty"}, people.size ? "مفيش حد بالاسم ده." : "لسه مفيش نشاط متسجل."),
+    rows.length ? h("p",{class:"small muted act-hint"},"دوس على أي اسم يفتح تفاصيله، ودوس على عنوان أي عمود يرتّب بيه.") : null);
 }
 async function logAct(action, who){
   const a = S.account || {};
@@ -5491,6 +5563,10 @@ function myPasswordCard(){
     }},"غيّر كلمة السر")));
 }
 const isFatherAcc = a => a.active !== false && !a.pending && a.role === "priest";
+function activityView(){
+  const accs = (S.accounts||[]).slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"ar"));
+  return h("div",{style:"display:grid;gap:18px"}, sectionHead("النشاط"), activityCard(S.log || [], accs));
+}
 function adminView(all){
   const me = accRole(), isAdmin = me === "admin";
   const accs = (S.accounts||[]).slice().sort((a,b)=>Object.keys(ROLES).indexOf(a.role)-Object.keys(ROLES).indexOf(b.role) || String(a.name).localeCompare(String(b.name),"ar"));
@@ -5571,8 +5647,8 @@ function adminView(all){
       await logAct("عمل حساب "+ROLES[role].label+": "+name);
       newPwDialog({name}, pw);
     }},"اعمل الحساب"))));
-  // activity
-  wrap.append(activityCard(logs, accs));
+  // activity: the admin has its own «النشاط» screen; elsewhere (supervisor, local priest) it stays here
+  if (!(isAdmin && S.role === "admin")) wrap.append(activityCard(logs, accs));
   wrap.append(myPasswordCard());
   if (isAdmin){ wrap.append(backupCard()); if (Store.mode === "local") wrap.append(resetCard()); }
   return wrap;
