@@ -3480,6 +3480,7 @@ function subscribe(){
     if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   }
   if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
+  S.pfam = {}; if (Store.mode === "cloud" && !Store.preview && accRole() && accRole() !== "pending") L("pfam", null, r => { S.pfam=r||{}; scheduleRender(); });
   S.nidDupes = []; if (Store.mode === "cloud" && !Store.preview && ["admin","priest"].includes(accRole())) L("nid_dupes", null, r => { S.nidDupes=r||[]; scheduleRender(); });
   S.sched = null; S.bookings = []; S.vbookings = [];
   if (isFatherView()){ L("sched/"+schedId(), null, r => { S.sched=r; scheduleRender(); }); L("book/"+schedId()+"/s", null, r => { S.bookings=r||[]; scheduleRender(); });
@@ -3512,9 +3513,11 @@ const PP = () => Store.mode === "cloud" && S.account && !Store.preview ? "priest
 function merged(){
   const map = new Map();
   const waiting = new Set((S.pending||[]).map(x=>x.id));
-  for (const m of S.members) if (!String(m.id).startsWith("preview-") && !waiting.has(m.id)) map.set(m.id, {id:m.id, onApp:true, self:m, name:m.name});
+  // أبونا never shows up among his own confessees (e.g. a confessee who was made a confession father)
+  const self = Store.mode === "cloud" && accRole() === "priest" && !Store.preview ? S.account.id : null;
+  for (const m of S.members) if (!String(m.id).startsWith("preview-") && !waiting.has(m.id) && m.id !== self) map.set(m.id, {id:m.id, onApp:true, self:m, name:m.name});
   for (const p of S.people){
-    if (String(p.id).startsWith("preview-")) continue;
+    if (String(p.id).startsWith("preview-") || p.id === self) continue;
     const e = map.get(p.id) || {id:p.id, onApp:!!p.onApp, self:null};
     Object.assign(e, {pr:p, name:p.name || (e.self && e.self.name) || "بدون اسم"});
     map.set(p.id, e);
@@ -3673,7 +3676,7 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > visitDays());
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{class:"dash"}, pendingCard(), famSuggestCard(all));
+  const wrap = h("div",{class:"dash"}, pushCard(true), pendingCard(), pfamWaitingCard(), famSuggestCard(all));
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
   if (Store.mode !== "demo" && Store.mode !== "cloud" && (!S.account || accRole() === "admin") && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
@@ -3762,11 +3765,27 @@ function famSuggestions(all){
     if (no(a).includes(b.id) || no(b).includes(a.id)) continue;
     const why = famReasons(a, b); if (why.length) out.push({a, b, why});
   }
+  // أبونا's own wife and children among his confessees: they go to «أسرة الأب الكاهن» (nothing is written about أبونا himself)
+  const me = famSelf();
+  if (me) for (const a of all){
+    if (a.id === me.id || a.familyName === FATHER_FAM || no(a).includes(me.id)) continue;
+    const fn = firstName(me.name), why = famReasons(a, me).map(w => fn ? w.split(fn).join("أبونا") : w);
+    if (why.length) out.push({a, b:me, why, self:true});
+  }
   return out;
+}
+const FATHER_FAM = "أسرة الأب الكاهن";
+function famSelf(){
+  if (Store.mode !== "cloud" || accRole() !== "priest" || Store.preview || !S.account) return null;
+  const d = (S.members||[]).find(m => m.id === S.account.id) || {};
+  return Object.assign({}, d, {id:S.account.id, name:S.account.name || d.name || "", onApp:true});
 }
 async function famAnswer(s, join){
   const {a, b} = s;
-  if (join){
+  if (join && s.self){
+    await editDoc(PP()+"/"+a.id, cur => Object.assign(cur, {onApp:!!a.onApp, familyName:FATHER_FAM}));
+    toast("✅ "+a.name+" اتضم لـ «"+FATHER_FAM+"»");
+  } else if (join){
     const name = b.familyName || a.familyName || "عائلة "+firstName(b.name)+" و"+firstName(a.name);
     for (const p of [a, b]) await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:!!p.onApp, familyName:name}));
     toast("✅ "+a.name+" اتضم لـ «"+name+"»");
@@ -3782,9 +3801,9 @@ function famSuggestCard(all){
   return h("section",{class:"card fam-suggest"}, h("h3",null,"🔍 ممكن يكونوا من عيلة واحدة"),
     h("p",{class:"small muted", style:"margin:0"},"البيانات دي شبه بعض. اتأكد وقولّي: يتضموا لنفس الأسرة ولا مجرد تشابه؟"),
     h("ul",{class:"list"}, list.map(s => h("li",{class:"fam-row"},
-      h("div",{class:"who"}, h("strong",null, s.a.name+" ↔ "+s.b.name), s.why.map(w => h("span",{class:"small"}, "• "+w))),
+      h("div",{class:"who"}, h("strong",null, s.a.name+" ↔ "+(s.self ? "إنت (أبونا)" : s.b.name)), s.why.map(w => h("span",{class:"small"}, "• "+w))),
       h("div",{class:"row"},
-        h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, true); }},"🏠 ضمّه للعيلة"),
+        h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, true); }}, s.self ? "🏠 دي أسرتي" : "🏠 ضمّه للعيلة"),
         h("button",{class:"btn sm quiet", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, false); }},"تشابه بس"))))));
 }
 // the same check for someone still waiting for approval: a hint only, the father answers after approving
@@ -3821,6 +3840,47 @@ function familyCard(members, inline){
   }
   return h("div",{class:"card fam-card"}, ...body.flat().filter(Boolean));
 }
+/* ---------- أسرة الأب الكاهن across fathers (server only; cloud.js fills pfamApi; S.pfam = {mine, family, tags}) ---------- */
+let pfamApi = null;
+const pfamOn = () => Store.mode === "cloud" && !Store.preview && !!pfamApi;
+async function pfamDo(fn, msg){ try { await fn(); if (msg) toast(msg); } catch(e){ toast("مقدرناش نحفظ، جرّب تاني."); } }
+function pfamTag(p){
+  if (!pfamOn() || accRole() !== "priest") return null;
+  const t = ((S.pfam||{}).tags||[]).find(x => x.uid === p.id); if (!t) return null;
+  return h("span",{class:"pill pfam-tag"}, t.priest === S.account.id ? "⛪ من أسرتك" : "⛪ من أسرة "+t.priest_name);
+}
+function myFamilyCard(){
+  if (!pfamOn() || accRole() !== "priest") return null;
+  const fam = (S.pfam||{}).family || []; if (!fam.length) return null;
+  const me = S.account.id, waiting = fam.filter(x => !x.approved), ok = fam.filter(x => x.approved);
+  const who = x => !x.father ? "لسه ما اختارش أب اعتراف" : x.father === me ? "بيعترف عندك" : "بيعترف عند "+(x.father_name||"أب تاني");
+  const row = (x, btns) => h("li",null, h("div",{class:"person-line"}, avatar(x), h("div",{class:"who"}, h("strong",null, x.name), h("span",{class:"small muted"}, who(x)))), btns || null);
+  return h("section",{class:"card pfam-card"}, h("h3",null,"⛪ أسرتي"),
+    h("p",{class:"small muted", style:"margin:0"},"مراتك وأولادك، حتى لو بيعترفوا عند أب تاني. بيظهر هنا الاسم والصورة وأب الاعتراف بس."),
+    waiting.length ? h("div",null, h("h4",{class:"act-day"},"مستنيين موافقتك"), h("ul",{class:"list"}, waiting.map(x => row(x, h("div",{class:"row"},
+      h("button",{class:"btn sm", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.answer(x.uid, true), "✅ "+x.name+" اتضاف لأسرتك"); }},"✅ من أسرتي"),
+      h("button",{class:"btn sm quiet", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.answer(x.uid, false), "تمام، اتشال الطلب"); }},"مش من أسرتي")))))) : null,
+    ok.length ? h("ul",{class:"list"}, ok.map(x => row(x, h("button",{class:"btn sm quiet", onclick:e=>{ if (!confirm("تشيل "+x.name+" من أسرتك؟")) return; e.target.disabled = true; pfamDo(() => pfamApi.answer(x.uid, false), "اتشال"); }},"شيل")))) : null);
+}
+function pfamWaitingCard(){
+  if (!pfamOn() || accRole() !== "priest") return null;
+  const n = ((S.pfam||{}).family||[]).filter(x => !x.approved).length; if (!n) return null;
+  return h("section",{class:"card pfam-wait"}, h("h3",null,"⛪ طلب انضمام لأسرتك"),
+    h("p",{class:"small", style:"margin:0"}, n === 1 ? "فيه حد بيقول إنه من أسرتك ومستني موافقتك." : "فيه "+arDigits(n)+" بيقولوا إنهم من أسرتك ومستنيين موافقتك."),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ S.tab = "families"; render(); window.scrollTo({top:0}); }},"افتح «الأسر»")));
+}
+function pfamMemberCard(){
+  if (!pfamOn() || !S.account || accRole() === "pending") return null;
+  const mine = (S.pfam||{}).mine, fathers = (S.fathers||[]).filter(f => f.uid !== S.account.id);
+  if (!mine && !fathers.length) return null;
+  const body = mine ? (mine.approved
+      ? [h("p",{class:"small", style:"font-weight:700;color:var(--ok-ink)"},"✅ إنت مسجّل من أسرة "+mine.priest_name+"."), h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"pfamDrop", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.set(null), "اتشال"); }},"شيل"))]
+      : [h("p",{class:"small"},"⏳ مستني موافقة "+mine.priest_name+"."), h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"pfamDrop", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.set(null), "الطلب اتلغى"); }},"إلغي الطلب"))])
+    : [h("p",{class:"small muted", style:"margin:0"},"لو إنت زوجة أو ابن أو بنت أب كاهن في الكنيسة، اختار أبونا عشان يعرف إنك من أسرته، حتى لو بتعترف عند أب تاني. أبونا هيشوف اسمك وصورتك وأب اعترافك بس."),
+       h("div",{class:"row"}, h("select",{id:"pfamSel", style:"max-width:220px"}, h("option",{value:""},"اختار أبونا"), fathers.map(f => h("option",{value:f.uid}, f.name))),
+         h("button",{class:"btn sm", onclick:e=>{ const v = $("#pfamSel").value; if (!v){ toast("اختار أبونا الأول"); return; } e.target.disabled = true; pfamDo(() => pfamApi.set(v), "اتبعت لأبونا، مستني موافقته"); }},"ابعت لأبونا"))];
+  return h("section",{class:"card pfam-me"}, h("h3",null,"⛪ أسرة أب كاهن"), ...body);
+}
 function priestFamilies(all){
   const hs = households(all).sort((a,b) => a[0].name.localeCompare(b[0].name,"ar"));
   const kids = hs.reduce((n,g) => n + new Set(g.flatMap(m => (m.children||[]).map(k => firstName(k.name)))).size, 0);
@@ -3830,6 +3890,7 @@ function priestFamilies(all){
     h("div",{class:"stat"}, h("span",{class:"prep-emo"},"👧"), h("b",null, arDigits(kids)), h("span",null,"ابن وبنت")),
     h("div",{class:"stat"}, h("span",{class:"prep-emo"},"💑"), h("b",null, arDigits(hs.filter(g=>g.length>1).length)), h("span",null,"الزوجين بيعترفوا عندك"))));
   wrap.append(h("p",{class:"small muted", style:"margin:0"},"لو الزوج والزوجة الاتنين بيعترفوا عندك وكل واحد كتب اسم التاني، البرنامج بيجمعهم في أسرة واحدة لوحده. وتقدر تجمعهم بنفسك من خانة «العيلة» في بيانات الشخص."));
+  const mf = myFamilyCard(); if (mf) wrap.append(mf);
   if (!hs.length) wrap.append(h("div",{class:"empty"},"لسه مفيش أسر. لما أولادك يكتبوا بيانات الزوجة والأبناء هيظهروا هنا."));
   for (const g of hs) wrap.append(familyCard(g));
   return wrap;
@@ -3859,6 +3920,7 @@ function personRow(p){
       h("span",{class:"pill "+(vD===null||vD>visitDays()?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
       p.request ? h("span",{class:"pill acc"},"🙏 طالب اعتراف") : null,
       p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null,
+      pfamTag(p),
       accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+(((S.accounts||[]).find(a=>a.id===p.father)||{}).name||"؟")) : null));
 }
 function priestPeople(all){
@@ -4484,9 +4546,32 @@ function resetCard(){
     h("p",{class:"small muted"},"يرجّع البرنامج جديد ويمسح كل البيانات اللي على الجهاز، ويسيب حسابك إنت بس عشان تقدر تدخل."),
     h("div",{class:"row"}, h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:ask},"تصفير البرنامج…")), box);
 }
+/* ---------- phone notifications for أبونا (server only; cloud.js fills pushApi) ---------- */
+let pushApi = null;
+let deepTab = (()=>{ try { return new URLSearchParams(location.search).get("tab"); } catch(e){ return null; } })();
+const pushOk = () => Store.mode === "cloud" && accRole() === "priest" && !Store.preview && !!pushApi;
+function pushCard(compact){
+  if (!pushOk()) return null;
+  const P = S.push || (S.push = {});
+  if (!P.checked){ P.checked = true; pushApi.status().then(r => { P.on = !!(r && r.on); P.ready = true; scheduleRender(); }).catch(() => { P.ready = true; scheduleRender(); }); }
+  const hideKey = "ruhiya_pushhint_"+S.account.id;
+  if (compact && (!P.ready || P.on || lsGet(hideKey) || !pushApi.supported() || Notification.permission === "denied")) return null;
+  const busy = async (btn, fn) => { btn.disabled = true; try { await fn(); } catch(e){ console.warn("push", e && e.message); toast(e && e.ui ? e.message : "معرفناش نشغّل التنبيهات، جرّب تاني."); } finally { btn.disabled = false; render(); } };
+  const on = h("button",{class:"btn sm", id:"pushOn", onclick:e => busy(e.currentTarget, async () => { await pushApi.enable(); P.on = true; toast("✅ التنبيهات اشتغلت على الموبايل ده"); })},"🔔 شغّل التنبيهات");
+  let body;
+  if (!pushApi.supported()) body = pushApi.ios() && !pushApi.standalone()
+    ? [h("p",{class:"small"},"على الآيفون: افتح البرنامج من Safari، ودوس على زرار المشاركة، واختار «Add to Home Screen» (إضافة إلى الشاشة الرئيسية). بعد كده افتح البرنامج من الأيقونة اللي على الشاشة وشغّل التنبيهات من هنا.")]
+    : [h("p",{class:"small muted"},"الموبايل أو المتصفح ده مش بيدعم الإشعارات. جرّب من Chrome على أندرويد، أو من البرنامج بعد ما تضيفه للشاشة الرئيسية على الآيفون.")];
+  else if (Notification.permission === "denied") body = [h("p",{class:"small"},"الإشعارات مقفولة للبرنامج ده. افتحها من إعدادات الموبايل (الإشعارات ← المتصفح أو ⲙⲉⲛⲣⲓⲧ) وبعدين ارجع هنا.")];
+  else if (P.on) body = [h("p",{class:"small", style:"font-weight:700;color:var(--ok-ink)"},"✅ التنبيهات شغّالة على الموبايل ده. أي طلب اعتراف أو افتقاد جديد هيوصلك إشعار حتى لو البرنامج مقفول."),
+    h("div",{class:"row"}, h("button",{class:"btn sm ghost", id:"pushOff", onclick:e => busy(e.currentTarget, async () => { await pushApi.disable(); P.on = false; toast("التنبيهات اتقفلت على الموبايل ده"); })},"وقّف التنبيهات"))];
+  else body = [h("p",{class:"small"},"أول ما حد من أولادك يطلب اعتراف أو افتقاد، هيوصلك إشعار على الموبايل حتى لو البرنامج مقفول."),
+    h("div",{class:"row"}, on, compact ? h("button",{class:"btn sm ghost", onclick:()=>{ lsSet(hideKey, "1"); render(); }},"مش دلوقتي") : null)];
+  return h("section",{class:"card push-card"}, h("h3",null,"🔔 تنبيهات الطلبات على الموبايل"), ...body);
+}
 function priestSettings(){
   const st = S.settings || {};
-  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"));
+  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), pushCard(false));
   const manyFathers = Store.mode === "cloud";
   const saveSt = async (patch, msg) => { await editDoc("settings/app", cur => Object.assign(cur, patch)); toast(msg||"اتحفظ"); };
   // on the server the church's name, logo and verses belong to the admin; a father keeps his own password and export
@@ -4834,6 +4919,7 @@ function memberMe(){
       try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
       catch(e){ toast("مقدرناش نحفظ. اتأكد إن أبونا ضافك على البرنامج."); }
     }},"احفظ"))));
+  const pf = pfamMemberCard(); if (pf) wrap.append(pf);
   if (S.account && S.account.role === "user") wrap.append(myPasswordCard());
   return wrap;
 }
@@ -5064,6 +5150,7 @@ function render(){
   const all = priest || adm ? merged() : [];
   const waiting = accRole() === "pending";
   const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["activity","النشاط"],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"]] : memberTabs();
+  if (deepTab && S.account && tabs.some(t=>t[0]===deepTab)){ S.tab = deepTab; deepTab = null; }
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
@@ -5166,7 +5253,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.04-2";
+const APP_VERSION = "2026.11.04-6";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5253,7 +5340,7 @@ function idleWarn(){
   idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, 30000);
 }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
-function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -5785,6 +5872,7 @@ const Cloud = {
     // older databases (setup file not re-run yet) lack the newer columns
     if (path === "accounts") return (await this.req("/rest/v1/accounts?select="+ACC_COLS+"&church_id=eq."+c).catch(e => /pending|father|confessor|column/.test(e.message) ? this.req("/rest/v1/accounts?select="+ACC_COLS.replace(",pending,father,confessor","")+"&church_id=eq."+c) : Promise.reject(e)) || []).map(accFromRow);
     if (path === "pending") return (await this.rpc("pending_list") || []).map(r => ({id:r.uid, name:r.name, photo:r.photo||"", at:r.created_at, profile:r.profile||{}, father:r.father||"", fatherName:r.father_name||""}));
+    if (path === "pfam") return (await this.rpc("priest_family_view").catch(() => null)) || {};  // older databases lack it
     if (path === "nid_dupes") return (await this.rpc("nid_dupes").catch(() => [])) || [];  // older databases lack it
     if (path === "pwreq") return (await this.req("/rest/v1/pwreqs?select=uid,name,at&church_id=eq."+c) || []).map(r => ({id:r.uid, accId:r.uid, name:r.name, at:r.at}));
     if (even){
@@ -5865,7 +5953,16 @@ reviewAccount = async (id, okk) => { const done = await accTry(() => Cloud.rpc("
 // someone who signed themselves up: check now and then whether they were approved, then open the whole app
 function watchApproval(){
   clearInterval(watchApproval.t);
-  if (!S.account || S.account.role !== "pending") return;
+  if (!S.account) return;
+  // a signed-in account whose role the admin changes (e.g. a confessee made أبونا) is signed out and signs in again into its new screen
+  if (S.account.role !== "pending"){ const role = S.account.role;
+    watchApproval.t = setInterval(async () => {
+      if (document.hidden || !Cloud.sess || !S.account || Store.preview) return;
+      try { const me = await Cloud.rpc("me"); if (!me || !S.account) return;
+        if (me.role !== role || !me.active){ clearInterval(watchApproval.t); S.gateNote = me.active ? "برجاء الدخول بالاسم وكلمة السر." : ""; logout(); }
+      } catch(e){}
+    }, 20000);
+    return; }
   watchApproval.t = setInterval(async () => {
     if (document.hidden || !Cloud.sess) return;
     try { const me = await Cloud.rpc("me");
@@ -5873,7 +5970,7 @@ function watchApproval(){
       clearInterval(watchApproval.t); Cloud.me = me;
       if (!me.active){ logout(); return; }
       const keep = {meForm:S.draft.meForm, myKids:S.draft.myKids, myKidsFor:S.draft.myKidsFor, photo:S.draft.photo};
-      applyAccount(cloudAccount(me)); Object.assign(S.draft, keep); S.tab = "me"; subscribe(); render(); toast("🎉 حسابك اتوافق عليه، والبرنامج كله فتحلك");
+      applyAccount(cloudAccount(me)); Object.assign(S.draft, keep); S.tab = "me"; subscribe(); render(); toast("🎉 حسابك اتوافق عليه، والبرنامج كله فتحلك"); watchApproval();
     } catch(e){ if (e.status === 401 || /no account/.test(e.message||"")) { clearInterval(watchApproval.t); logout(); } }
   }, 20000);
 }
@@ -5958,6 +6055,7 @@ async function showCloudGate(){
   };
   const draw = () => {
     const err = h("p",{class:"gate-err", role:"alert"});
+    if (S.gateNote && mode === "login"){ err.textContent = S.gateNote; S.gateNote = ""; }
     const busy = async (form, fn) => { const b = form.querySelector("button[type=submit]"); if (b){ b.disabled = true; b.setAttribute("aria-busy","true"); } err.textContent = "";
       try { await fn(); } catch(e){ err.textContent = e && e.ui ? e.message : cloudMsg(e); } finally { if (b){ b.removeAttribute("aria-busy"); if (b.isConnected) b.disabled = false; } } };
     const fail = m => { const e = new Error(m); e.ui = true; throw e; };
@@ -6121,6 +6219,34 @@ async function showCloudGate(){
   };
   draw();
 }
+// phone notifications (أبونا only): the public key comes from the «menrit-push» Edge Function; the subscription is kept by save_push
+pushApi = {
+  fn: SB + "/functions/v1/menrit-push",
+  supported(){ return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; },
+  ios(){ return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); },
+  standalone(){ try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch(e){ return false; } },
+  async current(){ if (!this.supported()) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? await reg.pushManager.getSubscription() : null; },
+  async status(){ const s = await this.current(); if (!s) return {on:false}; return await Cloud.rpc("push_status", {p_endpoint:s.endpoint}).catch(() => ({on:false})) || {on:false}; },
+  async enable(){
+    const ui = m => { const e = new Error(m); e.ui = true; return e; };
+    const r = await fetch(this.fn).then(x => x.ok ? x.json() : null).catch(() => null);
+    if (!r || !r.key) throw ui("التنبيهات لسه متجهزتش على السيرفر. كلّم الأدمن.");
+    if (await Notification.requestPermission() !== "granted") throw ui("لازم توافق على الإشعارات عشان التنبيهات توصلك.");
+    const reg = await navigator.serviceWorker.ready;
+    const key = Uint8Array.from(atob(r.key.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((r.key.length + 3) % 4)), c => c.charCodeAt(0));
+    let sub = await reg.pushManager.getSubscription();
+    if (sub && sub.options && sub.options.applicationServerKey && new Uint8Array(sub.options.applicationServerKey).join() !== key.join()){ await sub.unsubscribe().catch(()=>{}); sub = null; }
+    if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:key});
+    const j = sub.toJSON();
+    await Cloud.rpc("save_push", {p_endpoint:j.endpoint, p_p256dh:j.keys.p256dh, p_auth:j.keys.auth});
+  },
+  async disable(){ const s = await this.current(); if (s){ await Cloud.rpc("drop_push", {p_endpoint:s.endpoint}).catch(()=>{}); await s.unsubscribe().catch(()=>{}); } }
+};
+// أسرة الأب الكاهن: the person asks, that أبونا answers; the server keeps it (priest_family)
+pfamApi = {
+  async set(uid){ await Cloud.rpc("set_priest_family", {p_priest:uid || null}); Cloud.refresh("pfam"); },
+  async answer(uid, ok){ await Cloud.rpc("answer_priest_family", {p_uid:uid, p_ok:!!ok}); Cloud.refresh("pfam"); }
+};
 
 boot();
 })();
