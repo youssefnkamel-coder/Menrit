@@ -817,6 +817,17 @@ body.one-tab{--nav-h:0px}
 :root[data-theme="light"][data-bg="match"]{--bg:color-mix(in oklab,var(--a) 18%,#fbf8f2);--surface:color-mix(in oklab,var(--a) 3%,#fffdf8);--surface-2:color-mix(in oklab,var(--a) 8%,#fffdf8);--line:color-mix(in oklab,var(--a) 22%,#efe7d6)}
 .pal-sw.bg-sw{border-color:var(--line);box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
 .fam-suggest .fam-row{display:grid;gap:8px;align-items:start}
+.act-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
+.act-sum{display:grid;gap:2px;text-align:center;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.act-sum b{font-size:1.4rem}
+.act-sum.ok b{color:#0f8a5f}.act-sum.warn{border-color:var(--gold)}.act-sum.warn b{color:#b45309}
+.act-asleep{margin:0 0 10px}.act-asleep summary{cursor:pointer;font-weight:700;padding:6px 0}
+.act-card #actQ{width:100%;margin:8px 0}
+.act-day{margin:14px 0 4px;font-size:.95rem;color:var(--muted)}
+.act-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.act-row .who{display:grid;gap:2px;min-width:0}
+.act-row.fresh{background:color-mix(in oklab,var(--gold) 12%,transparent)}
+.act-time{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;text-align:end}
 .fam-suggest .fam-row .who{display:grid;gap:2px}
 .fam-hint{display:block}
 </style>
@@ -3443,7 +3454,7 @@ function subscribe(){
   if (["admin","supervisor"].includes(accRole())){
     L("accounts", null, r => { S.accounts=r; scheduleRender(); });
     L("pwreq", null, r => { S.pwreqs=r; scheduleRender(); });
-    L("log", {orderBy:"at", dir:"desc", limit:60}, r => { S.log=r; scheduleRender(); });
+    L("log", {orderBy:"at", dir:"desc", limit:300}, r => { S.log=r; scheduleRender(); });
     if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   }
   if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
@@ -5133,7 +5144,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.03-3";
+const APP_VERSION = "2026.11.04-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5239,6 +5250,66 @@ function genPassword(){ const a = new Uint32Array(6); crypto.getRandomValues(a);
 const hashed = makeHash;
 async function listAccounts(){ try { return await Store.list("accounts"); } catch(e){ return []; } }
 const findAcc = (list, name) => list.find(a => String(a.name||"").trim().toLowerCase() === String(name||"").trim().toLowerCase());
+/* ---------- «آخر نشاط»: summary, day groups, merged sign-ins, filters, search, new marks, show older ---------- */
+const ACT_KINDS = [["all","الكل",""],["in","الدخول","🟢"],["acc","الحسابات","👥"],["pw","كلمات السر","🔑"],["more","غيره","📝"]];
+const actKind = a => { a = String(a||"");
+  if (/^(دخل البرنامج|خرج من البرنامج|فعّل الدخول بالبصمة)/.test(a)) return "in";
+  if (/كلمة (ال)?سر/.test(a)) return "pw";
+  if (/حساب|صلاحية|^نقل |أب اعترافه|حط صورته/.test(a)) return "acc";
+  return "more"; };
+const actIcon = a => { a = String(a||"");
+  if (/^دخل البرنامج/.test(a)) return "🟢"; if (/^خرج من البرنامج/.test(a)) return "⏸"; if (/بصمة/.test(a)) return "👆";
+  if (/كلمة (ال)?سر/.test(a)) return "🔑"; if (/حذف حساب|رفض حساب/.test(a)) return "🗑"; if (/وافق على حساب|عمل حساب/.test(a)) return "➕";
+  if (/أب اعترافه|^نقل /.test(a)) return "⛪"; if (/صورته/.test(a)) return "📷"; if (/نسخة احتياطية/.test(a)) return "💾"; if (/حساب|صلاحية/.test(a)) return "👥";
+  return "📝"; };
+const timeAgo = iso => { const t = new Date(iso), min = Math.round((Date.now() - t) / 60000);
+  if (min < 1) return "دلوقتي"; if (min < 60) return "من "+arDigits(min)+" دقيقة";
+  if (min < 180) return "من "+arDigits(Math.round(min/60))+" ساعة";
+  return t.toLocaleTimeString("ar-EG",{hour:"numeric",minute:"2-digit"}); };
+function activityCard(logs, accs){
+  const d = S.draft, seenKey = "ruhiya_logseen_"+((S.account && S.account.id)||"");
+  if (d.logSeen === undefined){ d.logSeen = lsGet(seenKey) || ""; const top = logs[0] && logs[0].at; if (top) lsSet(seenKey, top); }
+  else if (logs[0] && logs[0].at > (lsGet(seenKey)||"")) lsSet(seenKey, logs[0].at);
+  const kind = d.actKind || "all", q = arKey(d.actQ || ""), shown = d.actShow || 40;
+  // summary: from the accounts list, so it is right even when the log is short
+  const live = accs.filter(a => a.active !== false && !a.pending), dayOf = a => a.lastLogin ? daysBetween(parseYmd(ymd(new Date(a.lastLogin))), TODAY) : null;
+  const inToday = live.filter(a => dayOf(a) === 0).length, inWeek = live.filter(a => dayOf(a) !== null && dayOf(a) < 7).length;
+  const asleep = live.filter(a => dayOf(a) === null || dayOf(a) >= 30).sort((a,b) => (dayOf(b) ?? 1e9) - (dayOf(a) ?? 1e9));
+  const pill = (n, label, cls) => h("div",{class:"act-sum "+(cls||"")}, h("b",{class:"num"}, arDigits(n)), h("span",{class:"small"}, label));
+  const summary = h("div",{class:"act-sums"}, pill(inToday,"دخلوا النهارده","ok"), pill(inWeek,"دخلوا الأسبوع ده",""), pill(asleep.length,"مدخلوش من شهر", asleep.length ? "warn" : ""));
+  const sleepers = asleep.length ? h("details",{class:"act-asleep"}, h("summary",null,"👀 مين اللي مدخلش من شهر أو أكتر؟"),
+    h("ul",{class:"list"}, asleep.slice(0, 30).map(a => h("li",null, h("div",{class:"who"}, h("strong",null, a.name), h("span",{class:"small muted"}, (ROLES[a.role]||{}).label||"")),
+      h("span",{class:"small muted"}, a.lastLogin ? "آخر دخول "+agoText(ymd(new Date(a.lastLogin))) : "لسه ما دخلش خالص"))))) : null;
+  // filter + search, then merge each person's sign-ins/outs of the same day into one line
+  const rows = logs.filter(l => (kind === "all" || actKind(l.action) === kind) && (!q || arKey((l.who||"")+" "+(l.action||"")).includes(q)));
+  const items = [], merged = new Map();
+  for (const l of rows){
+    const day = ymd(new Date(l.at)), k = actKind(l.action);
+    if (k === "in" && /^(دخل|خرج)/.test(l.action)){
+      const key = day+"|"+(l.who||""), m = merged.get(key);
+      if (m){ m.n += /^دخل/.test(l.action) ? 1 : 0; m.out = m.out || /^خرج/.test(l.action); continue; }
+      const it = {l, day, login:true, n: /^دخل/.test(l.action) ? 1 : 0, out: /^خرج/.test(l.action)}; merged.set(key, it); items.push(it); continue; }
+    items.push({l, day});
+  }
+  const groupName = day => { const n = daysBetween(parseYmd(day), TODAY); return n <= 0 ? "النهارده" : n === 1 ? "امبارح" : n < 7 ? "الأسبوع ده" : "أقدم"; };
+  const groups = []; let last = null;
+  for (const it of items.slice(0, shown)){ const g = groupName(it.day); if (g !== last){ groups.push({g, list:[]}); last = g; } groups[groups.length-1].list.push(it); }
+  const me = S.account && S.account.name, line = it => { const l = it.l, fresh = d.logSeen && l.at > d.logSeen && l.who !== me, older = groupName(it.day) === "أقدم" || groupName(it.day) === "الأسبوع ده";
+    const times = n => n === 2 ? "مرتين" : arDigits(n)+(n <= 10 ? " مرات" : " مرة"), roleLbl = (ROLES[l.role]||{}).label;
+    const text = it.login ? (it.n > 1 ? "دخل "+times(it.n) : it.n === 1 ? "دخل البرنامج" : "خرج من البرنامج") : l.action;
+    return h("li",{class:"act-row"+(fresh ? " fresh" : "")},
+      h("span",{class:"act-ic", "aria-hidden":"true"}, it.login ? "🟢" : actIcon(l.action)),
+      h("div",{class:"who"}, h("strong",null, l.who || "—", roleLbl ? h("span",{class:"small muted"}," · "+roleLbl) : null), h("span",{class:"small"}, text)),
+      h("span",{class:"small muted num act-time"}, fresh ? h("span",{class:"pill acc"},"جديد") : null, older ? fmtShort(it.day)+" · " : "", it.login && it.n > 1 ? "آخرها "+timeAgo(l.at) : timeAgo(l.at))); };
+  const chips = h("div",{class:"chips filters act-chips", role:"group", "aria-label":"نوع النشاط"}, ACT_KINDS.map(([k, label, emo]) =>
+    h("button",{type:"button", class:"chip-btn", "aria-pressed": String(kind === k), "data-kind":k, onclick:()=>{ d.actKind = k; d.actShow = 40; render(); }}, (emo ? emo+" " : "")+label)));
+  const search = h("input",{id:"actQ", type:"search", placeholder:"دوّر باسم حد أو حركة", value:d.actQ||"",
+    oninput:e=>{ d.actQ = e.target.value; d.actShow = 40; render(); const s = $("#actQ"); if (s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }});
+  return h("section",{class:"card act-card"}, h("h3",null,"🕒 آخر نشاط"), summary, sleepers, chips, search,
+    groups.length ? groups.map(g => h("div",{class:"act-group"}, h("h4",{class:"act-day"}, g.g), h("ul",{class:"list"}, g.list.map(line))))
+      : h("div",{class:"empty"}, logs.length ? "مفيش نشاط بالشكل ده." : "لسه مفيش نشاط متسجل."),
+    items.length > shown ? h("div",{class:"row"}, h("button",{class:"btn sm ghost", onclick:()=>{ d.actShow = shown + 40; render(); }},"اعرض أقدم ("+arDigits(items.length - shown)+")")) : null);
+}
 async function logAct(action, who){
   const a = S.account || {};
   try { await Store.set("log/"+newId(), {at:new Date().toISOString(), who: who || a.name || "", role: a.role || "", action}); } catch(e){}
@@ -5501,11 +5572,7 @@ function adminView(all){
       newPwDialog({name}, pw);
     }},"اعمل الحساب"))));
   // activity
-  wrap.append(h("section",null, h("h3",null,"🕒 آخر نشاط"),
-    logs.length ? h("ul",{class:"list"}, logs.slice(0,40).map(l => h("li",null,
-      h("div",{class:"who"}, h("strong",null, l.who || "—", l.role ? " · "+((ROLES[l.role]||{}).label||"") : ""), h("span",{class:"small"}, l.action)),
-      h("span",{class:"small muted num"}, fmtShort(ymd(new Date(l.at)))+" · "+new Date(l.at).toLocaleTimeString("ar-EG",{hour:"numeric",minute:"2-digit"})))))
-    : h("div",{class:"empty"},"لسه مفيش نشاط متسجل.")));
+  wrap.append(activityCard(logs, accs));
   wrap.append(myPasswordCard());
   if (isAdmin){ wrap.append(backupCard()); if (Store.mode === "local") wrap.append(resetCard()); }
   return wrap;
