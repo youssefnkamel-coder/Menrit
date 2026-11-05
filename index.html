@@ -296,6 +296,8 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .bio-art{font-size:3rem;text-align:center;line-height:1}
 .bio-btn{background:linear-gradient(135deg,#7c3aed,#1e40af)!important}
 .invite-card{background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box;border:2px solid transparent}
+.signup-box{display:grid;gap:8px;padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--gold-line)}
+.signup-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.35rem;font-weight:800;letter-spacing:.18em;color:var(--brand,#0e7490)}
 .invite-url{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;background:var(--surface-2);border:1px dashed var(--gold-line);border-radius:12px;padding:10px 12px;word-break:break-all;user-select:all;text-align:left}
 .invite-btns{flex-wrap:wrap;gap:8px}
 .btn.wa{background:linear-gradient(135deg,#16a34a,#15803d);text-decoration:none}
@@ -4004,7 +4006,7 @@ function personDetail(all){
     p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
     p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
   const ro = p.onApp && !isNew;
-  if (ro && p.self) card.append(nidBadge(self, p.id, true));
+  if (ro && p.self) card.append(nidBadge(self, p.id, true), h("div",{class:"row"}, nidFixBtn(p.id, self && self.nid)));
   card.append(h("div",{class:"form"},
     ro ? familyCard(p, true) :
     h("div",{class:"two"},
@@ -4343,11 +4345,28 @@ function ageOf(b){ const d = parseYmd(b); if (!d) return ""; let y = TODAY.getFu
 function historyBlock(p, pr){
   const visits = [...(pr.visits||[])].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
   const conf = [...(pr.confessions||[])].sort().reverse();
-  const addVisit = async () => {
+  // one tap = one visit (2026-11-05: a slow save let the button be pressed again and the visit was saved several times)
+  const addVisit = async e => {
+    const btn = e && e.currentTarget; if (addVisit.busy) return;
     const date = $("#vDate").value || TODAY_S, type = $("#vType").value, note = $("#vNote").value.trim();
-    await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[]), {date, type, note}];
-      return Object.assign(cur, {onApp:!!p.onApp, visits:vs, lastVisit:vs.map(v=>v.date).sort().pop()}); });
-    toast("الافتقاد اتسجل");
+    if ((pr.visits||[]).some(v => v.date === date && v.type === type) && !confirm("فيه "+type+" متسجلة يوم "+fmtShort(date)+" قبل كده. تسجلها تاني؟")) return;
+    addVisit.busy = true; if (btn){ btn.disabled = true; btn.setAttribute("aria-busy","true"); }
+    try {
+      await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[]), {date, type, note}];
+        return Object.assign(cur, {onApp:!!p.onApp, visits:vs, lastVisit:vs.map(v=>v.date).sort().pop()}); });
+      if ($("#vNote")) $("#vNote").value = "";
+      toast("الافتقاد اتسجل");
+    } catch(x){ toast("مقدرناش نسجّل الافتقاد. جرّب تاني."); }
+    finally { addVisit.busy = false; if (btn && btn.isConnected){ btn.disabled = false; btn.removeAttribute("aria-busy"); } }
+  };
+  const dropVisit = async v => {
+    if (!confirm("تمسح "+v.type+" يوم "+fmtShort(v.date)+"؟")) return;
+    try {
+      await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[])], i = vs.findIndex(x => x.date === v.date && x.type === v.type && (x.note||"") === (v.note||""));
+        if (i >= 0) vs.splice(i, 1);
+        return Object.assign(cur, {visits:vs, lastVisit:vs.map(x=>x.date).sort().pop() || ""}); });
+      toast("اتمسح");
+    } catch(x){ toast("مقدرناش نمسحه. جرّب تاني."); }
   };
   return h("div",{class:"form"},
     h("h3",null,"سجل الافتقاد"),
@@ -4356,7 +4375,8 @@ function historyBlock(p, pr){
       h("label",null,"نوع الافتقاد", h("select",{id:"vType"}, VISIT_TYPES.map(t=>h("option",{value:t},t)))),
       h("label",null,"ملاحظة", h("input",{id:"vNote", placeholder:"اختياري"}))),
     h("div",null, h("button",{class:"btn sm", type:"button", onclick:addVisit},"سجّل الافتقاد")),
-    visits.length ? h("ul",{class:"list"}, visits.slice(0,6).map(v => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(v.date)), v.note ? h("span",{class:"small muted"}, v.note) : null), h("span",{class:"pill"}, v.type)))) : h("p",{class:"small muted"},"لسه مفيش افتقاد متسجل."),
+    visits.length ? h("ul",{class:"list"}, visits.slice(0,6).map(v => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(v.date)), v.note ? h("span",{class:"small muted"}, v.note) : null), h("div",{class:"row", style:"gap:6px;align-items:center"}, h("span",{class:"pill"}, v.type),
+        h("button",{class:"btn sm quiet visit-del", type:"button", title:"امسح الافتقاد ده", "aria-label":"امسح "+v.type+" يوم "+fmtShort(v.date), onclick:()=>dropVisit(v)},"✕"))))) : h("p",{class:"small muted"},"لسه مفيش افتقاد متسجل."),
     h("h3",null,"سجل الاعتراف"),
     conf.length ? h("p",{class:"small"}, "اعترف "+arDigits(conf.length)+" مرة متسجلة. آخر مرات: "+conf.slice(0,6).map(fmtShort).join("، ")) : h("p",{class:"small muted"},"لسه مفيش اعترافات متسجلة."));
 }
@@ -4616,6 +4636,15 @@ function pushCard(compact){
 }
 // أبونا's phone calendar subscribes once to a private link; every appointment he sends shows up there by itself (2026-11-05)
 let calApi = null;
+let signupApi = null;
+let nidApi = null;
+// «✏️ صلّح الرقم القومي»: the person's own father or the admin (2026-11-05)
+function nidFixBtn(uid, cur){
+  if (!(nidApi && Store.mode === "cloud" && !Store.preview && uid && (accRole() === "admin" || accRole() === "priest"))) return null;
+  return h("button",{class:"btn sm ghost nid-fix", type:"button", onclick:async e => { e.stopPropagation();
+    const raw = prompt("اكتب الرقم القومي الصح (١٤ رقم):", cur || ""); if (raw === null) return;
+    const x = parseNid(raw); if (x.error){ toast(x.error); return; }
+    try { await nidApi.set(uid, x.nid); toast("الرقم القومي اتصلّح ✅ مولود "+fmtShort(x.birthday)+" · "+SEX_AR[x.sex]); } catch(err){ toast(cloudMsg(err)); } }}, "✏️ صلّح الرقم القومي"); }
 function calCard(){
   if (!(Store.mode === "cloud" && accRole() === "priest" && !Store.preview && calApi)) return null;
   const C = S.cal || (S.cal = {});
@@ -4953,13 +4982,13 @@ function memberMe(){
   wrap.append(h("div",{class:"card form"},
     h("h3",null,"🙋 بياناتك"),
     h("div",{class:"two"},
-      h("label",null,"الاسم", inp("pName", p.name||S.draft.loginName||(S.account && S.account.name)||"", {autocomplete:"name"})),
+      h("label",null, nidNeeded ? "الاسم ثلاثي (مطلوب)" : "الاسم", inp("pName", p.name||S.draft.loginName||(S.account && S.account.name)||"", {autocomplete:"name"})),
       h("label",null,"الوظيفة", inp("pJob", p.job, {placeholder:"مثلاً: مهندس، مدرّسة، طالب"})),
-      h("label",null,"التليفون", inp("pPhone", p.phone, {inputmode:"tel"})),
-      h("label",null,"تاريخ الميلاد", inp("pBirth", p.birthday, {type:"date"})),
-      h("label",null,"العنوان", inp("pAddr", p.address, {placeholder:"عشان أبونا يعرف يفتقدك"})),
+      h("label",null, nidNeeded ? "الموبايل (مطلوب)" : "التليفون", inp("pPhone", p.phone, {inputmode:"tel"})),
+      h("label",null, nidNeeded ? "تاريخ الميلاد (مطلوب)" : "تاريخ الميلاد", inp("pBirth", p.birthday, {type:"date"})),
+      h("label",null, nidNeeded ? "العنوان (مطلوب)" : "العنوان", inp("pAddr", p.address, {placeholder:"عشان أبونا يعرف يفتقدك"})),
       h("label",null,"لوكيشن البيت (اختياري)", inp("pLoc", p.loc, {dir:"ltr", inputmode:"url", placeholder:"الصق رابط موقعك من جوجل ماب أو واتساب"})),
-      h("label",null,"النوع", h("select",{id:"pSex", onchange:e => { md.pSex = e.target.value; }},
+      h("label",null, nidNeeded ? "النوع (مطلوب)" : "النوع", h("select",{id:"pSex", onchange:e => { md.pSex = e.target.value; }},
         [["","اختار"],["m","ذكر"],["f","أنثى"]].map(([k,t]) => h("option",{value:k, selected:(("pSex" in md) ? md.pSex : (p.sex||"")) === k}, t)))),
       h("label",null, nidNeeded ? "الرقم القومي (مطلوب)" : "الرقم القومي", inp("pNid", p.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off", placeholder:"١٤ رقم زي اللي في البطاقة", oninput:e => { md.pNid = e.target.value; nidLive(); }}))),
     nidHint,
@@ -4981,6 +5010,9 @@ function memberMe(){
       data.nid = nx ? nx.nid : ""; data.sex = ($("#pSex") && $("#pSex").value) || (nx ? nx.sex : "") || "";
       if (!data.birthday && nx) data.birthday = nx.birthday;
       if (S.draft.photo && !data.photo) data.photo = S.draft.photo;
+      if (nidNeeded){ data.phone = phoneDigits(data.phone); data.name = data.name.replace(/\s+/g, " ");
+        const miss = profileMissing(data, S.account && S.account.photo);
+        if (miss.length){ toast("لسه ناقص: "+miss.join("، ")); return; } }
       if (!data.joined) data.joined = TODAY_S;
       try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
       catch(e){ toast("مقدرناش نحفظ. اتأكد إن أبونا ضافك على البرنامج."); }
@@ -4995,26 +5027,58 @@ function memberMe(){
 /* ---------- self sign-up: waiting for approval ---------- */
 // only a photo from the sign-in step is not a filled profile yet
 const profileFilled = () => !!(S.profile && S.profile.name && (S.profile.joined || S.profile.phone || S.profile.birthday));
+// a new sign-up reaches أبونا only with all of this filled (the server checks the same in profile_ok)
+const phoneDigits = s => nidDigits(s).replace(/^(\+?20|0020)(?=1)/, "0");
+const phoneOk = s => /^01[0125]\d{8}$/.test(phoneDigits(s));
+function profileMissing(p, photo){ p = p || {}; const m = [];
+  if (String(p.name||"").trim().split(/\s+/).filter(Boolean).length < 3) m.push("اسمك ثلاثي");
+  if (!phoneOk(p.phone)) m.push("رقم موبايلك (١١ رقم)");
+  if (!/^[23]\d{13}$/.test(String(p.nid||""))) m.push("الرقم القومي");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p.birthday||""))) m.push("تاريخ الميلاد");
+  if (!["m","f"].includes(p.sex)) m.push("النوع");
+  if (String(p.address||"").trim().length < 5) m.push("العنوان");
+  if (!photo && !p.photo) m.push("صورتك");
+  return m; }
 function pendingView(){
-  const done = profileFilled();
+  const miss = profileMissing(S.profile, S.account && S.account.photo), done = S.profileLoaded && !miss.length;
   return h("div",{style:"display:grid;gap:16px"},
     h("div",{class:"card pending-wait"}, h("span",{class:"prep-emo"},"⏳"),
       h("div",null, h("h3",null, done ? "بياناتك وصلت، ومستنية موافقة أبونا" : "أهلاً بيك في البرنامج 🌿"),
         h("p",{class:"small muted", style:"margin:4px 0 0"}, done
           ? "أول ما أب اعترافك يوافق على حسابك، البرنامج كله هيفتحلك لوحده. تقدر تقفل الصفحة وترجع بعدين."
-          : "اكتب بياناتك وحط صورتك تحت ودوس «احفظ». أب اعترافك هيشوفها ويوافق على حسابك، وبعدها البرنامج كله هيفتحلك."))),
+          : "كمّل بياناتك كلها تحت ودوس «احفظ». طلبك مش هيوصل لأب اعترافك غير لما تكمّلها، وبعد ما يوافق البرنامج كله هيفتحلك."),
+        !done && S.profileLoaded ? h("p",{class:"small", style:"margin:6px 0 0;font-weight:700"}, "ناقص: "+miss.join("، ")) : null)),
     memberMe());
 }
 /* the church's sign-in link, ready to copy or send */
 function inviteLink(){
   const slug = S.church && S.church.slug; if (Store.mode !== "cloud" || !slug) return "";
   const base = ((window.RUHIYA_CONFIG && window.RUHIYA_CONFIG.appUrl) || (location.origin + location.pathname.replace(/[^/]*$/, ""))).replace(/\/+$/, "");
-  return base + "/?c=" + encodeURIComponent(slug);
+  return base + "/?c=" + encodeURIComponent(slug) + (S.signup && S.signup.open && S.signup.code ? "&k=" + S.signup.code : "");
+}
+// the admin's sign-up code and switch (2026-11-05): nobody can make an account without the code
+function signupBox(){
+  if (!(signupApi && accRole() === "admin" && !Store.preview)) return null;
+  if (!S.signup){ if (!signupBox.busy){ signupBox.busy = true; signupApi.get().then(r => { S.signup = r || {open:true, code:""}; scheduleRender(); }).catch(() => {}).finally(() => { signupBox.busy = false; }); }
+    return h("p",{class:"small muted", style:"margin:0"},"بيحمّل كود التسجيل…"); }
+  const sg = S.signup;
+  const act = async (open, fresh, msg) => { try { S.signup = await signupApi.set(open, fresh); scheduleRender(); toast(msg); } catch(e){ toast(cloudMsg(e)); } };
+  return h("div",{class:"signup-box"},
+    h("div",{class:"row between", style:"align-items:center"},
+      h("strong",null, sg.open ? "🔐 كود التسجيل الجديد" : "🔒 التسجيل الجديد مقفول"),
+      sg.open ? h("span",{class:"signup-code", dir:"ltr"}, sg.code) : null),
+    h("p",{class:"small muted", style:"margin:0"}, sg.open
+      ? "أي حد عايز يعمل حساب جديد لازم يكتب الكود ده. اللينك اللي تحت فيه الكود جاهز، فابعته بس للناس اللي تعرفهم. لو الكود اتنشر لناس غريبة، غيّره."
+      : "محدش يقدر يعمل حساب جديد دلوقتي. الحسابات اللي موجودة شغالة عادي، وتقدر تضيف الناس بنفسك من «الأدمن»."),
+    h("div",{class:"row"},
+      sg.open ? h("button",{class:"btn ghost sm", id:"signupNew", onclick:() => { if (confirm("هتعمل كود جديد، والقديم مش هيشتغل تاني. اللي معاه اللينك القديم محتاج اللينك الجديد. أكمّل؟")) act(true, true, "اتعمل كود جديد"); }},"🔄 كود جديد") : null,
+      h("button",{class:"btn ghost sm", id:"signupToggle", onclick:() => act(!sg.open, false, sg.open ? "التسجيل الجديد اتقفل" : "التسجيل الجديد اتفتح")}, sg.open ? "🔒 اقفل التسجيل الجديد" : "🔓 افتح التسجيل الجديد")));
 }
 function inviteCard(){
   const url = inviteLink(); if (!url) return null;
   const church = (S.church && S.church.name) || "الكنيسة";
-  const msg = "سلام ونعمة 🌿\nادخل على برنامج ⲙⲉⲛⲣⲓⲧ للمتابعة الروحية في "+church+" من اللينك ده:\n"+url+"\n\nلو أول مرة تدخل، دوس «أول مرة؟ اعمل حساب جديد» واكتب اسمك وكلمة سر، وأبونا هيوافق على حسابك.";
+  const sc = S.signup && S.signup.open && S.signup.code;
+  const msg = "سلام ونعمة 🌿\nادخل على برنامج ⲙⲉⲛⲣⲓⲧ للمتابعة الروحية في "+church+" من اللينك ده:\n"+url+"\n\n"+(S.signup && !S.signup.open ? "لو عندك حساب، ادخل باسمك وكلمة السر." : "لو أول مرة تدخل، دوس «أول مرة؟ اعمل حساب جديد» واكتب اسمك وكلمة سر"+(sc ? " وكود التسجيل "+sc : "")+"، وبعدها كمّل بياناتك، وأبونا هيوافق على حسابك.");
   const copy = async (t, done) => { try { await navigator.clipboard.writeText(t); toast(done); } catch(e){ const ta = h("textarea",{style:"position:fixed;opacity:0"}, t); document.body.append(ta); ta.select(); try { document.execCommand("copy"); toast(done); } catch(x){ toast("انسخه بإيدك من المربع"); } ta.remove(); } };
   const qrBox = h("div",{class:"qr-box", hidden:true});
   const showQr = () => {
@@ -5027,6 +5091,7 @@ function inviteCard(){
   return h("div",{class:"card invite-card"},
     h("div",{class:"row between"}, h("h3",null,"🔗 لينك دخول الكنيسة"), h("span",{class:"pill"}, "كود "+S.church.slug)),
     h("p",{class:"small muted", style:"margin:0"},"ابعت اللينك ده لأي حد عايز يدخل البرنامج. هيفتح على كنيستك على طول."),
+    signupBox(),
     h("div",{class:"invite-url", dir:"ltr"}, url),
     h("div",{class:"row invite-btns"},
       h("button",{class:"btn", onclick:()=>copy(url, "اللينك اتنسخ 👍")},"📋 انسخ اللينك"),
@@ -5046,13 +5111,16 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null;
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-05", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-05b", title:"الجديد في آخر تحديث", items:{
   admin:[
     ["🔒","خصوصية أكتر","مبقتش تشوف كراسة أي معترف ولا رسايل أبونا لأولاده، ومتقدرش تغيّر كلمة سر أبونا ولا تخليه أدمن. لو أب نسي كلمة السر، المطوّر هو اللي يعملهاله."],
     ["🔑","«نسيت كلمة السر»","الطلبات دي بقت بتوصلك إنت بس، والمشرف بيعمل كلمة سر للحسابات الجديدة بس."],
     ["🗑️","مسح حساب أب","لما تمسح حساب أب، ملاحظاته عن أولاده بتتمسح معاه، وأولاده بيختاروا أب تاني."],
     ["🧹","المساحة","النشاط اللي عدّى عليه ٦ شهور بيتمسح لوحده، فالبرنامج مش هيكبر مع الوقت."],
     ["⚡","أسرع وأخف","البرنامج بيفتح أسرع، وبيسحب نت أقل كتير، ومكتبة Excel بتتحمّل بس لما تصدّر."],
+    ["🔐","كود التسجيل","محدش يقدر يعمل حساب جديد من غير كود من ٦ أرقام. هتلاقيه في «الأدمن ← لينك دخول الكنيسة»، واللينك نفسه فيه الكود. تقدر تغيّره، أو تقفل التسجيل الجديد خالص."],
+    ["📝","البيانات كاملة","الحساب الجديد مش بيوصلك ولا بيوصل لأبونا غير لما صاحبه يكمّل اسمه ثلاثي وموبايله ورقمه القومي وميلاده ونوعه وعنوانه وصورته. واللي مايكمّلش في ٣ أيام بيتمسح لوحده."],
+    ["✏️","تصليح الرقم القومي","من «الأدمن» افتح حساب الشخص ودوس «✏️ صلّح الرقم القومي»."],
     ["🆕","الشاشة دي","إنت اللي بتقرر إمتى الآباء والمعترفين يشوفوا الجديد، بالزراير اللي تحت."]],
   priest:[
     ["🔁","تكرار المواعيد","من «الإعدادات ← 🗓️ مواعيدي» اختار «بيتكرر»: كل أسبوع، أو كل أسبوعين، أو كل ١٠ أيام، أو مرة في الشهر (زي آخر جمعة)."],
@@ -5060,6 +5128,9 @@ const NEWS = {id:"2026-11-05", title:"الجديد في آخر تحديث", item
     ["🔔","تنبيه بالطلبات","شغّل التنبيهات من «الإعدادات»، وأي طلب اعتراف أو افتقاد هيوصلك إشعار حتى لو البرنامج مقفول."],
     ["📍","الخريطة","جنب العنوان فيه زرار يفتح جوجل ماب، ولو الشخص حط لوكيشن بيته بيفتح على البيت بالظبط."],
     ["🏠","أسرة الأب الكاهن","تقدر تضم مراتك وولادك لأسرتك، حتى لو بيعترفوا عند أب تاني."],
+    ["✏️","تصليح الرقم القومي","لو حد من أولادك كاتب رقمه القومي غلط، افتح كارته ودوس «✏️ صلّح الرقم القومي»."],
+    ["🏠","سجّل الافتقاد","الدوسة الواحدة بتسجّل مرة واحدة بس، وجنب كل افتقاد فيه ✕ تمسح بيه أي حاجة اتسجلت غلط."],
+    ["📝","الحسابات الجديدة","طلب الحساب الجديد بيوصلك بعد ما صاحبه يكمّل بياناته كلها، فتلاقي اسمه الثلاثي وموبايله ورقمه القومي وعنوانه قدامك."],
     ["🔐","كلمة السر","لازم تبقى ٨ حروف أو أرقام على الأقل، ولو نسيتها كلّم المطوّر. ملاحظاتك محدش بيشوفها غيرك، ولا حتى الأدمن."]],
   user:[
     ["🔔","تنبيه بميعادك","شغّل التنبيهات من «بياناتي»، ويوم ميعاد اعترافك أو افتقادك هيوصلك تنبيه الصبح، وتاني قبل الميعاد بساعة."],
@@ -5110,7 +5181,7 @@ function pendingDetail(x){
   const facts = [["📞 التليفون", p.phone], ["🎂 الميلاد", p.birthday ? fmtShort(p.birthday)+" ("+ageOf(p.birthday)+")" : ""], ["👤 النوع", SEX_AR[p.sex]], ["💼 الوظيفة", p.job], ["📍 العنوان", p.address],
     ["⛪ أب الاعتراف", x.fatherName || "لسه ما اختارش"], ["🕒 سجّل", fmtShort(ymd(new Date(x.at)))]].filter(f => f[1]);
   return h("div",{class:"pend-detail"},
-    nidSees(x) ? nidBadge(p, x.id, true) : null, famHint(x),
+    nidSees(x) ? nidBadge(p, x.id, true) : null, nidSees(x) ? h("div",{class:"row"}, nidFixBtn(x.id, p.nid)) : null, famHint(x),
     h("div",{class:"row", style:"align-items:flex-start;gap:14px"},
       photo ? h("button",{type:"button", class:"pend-photo", title:"كبّر الصورة", onclick:()=>showPhoto(photo)}, h("img",{src:photo, alt:"صورة "+p.name})) : h("div",{class:"pend-photo none"}, "مفيش صورة"),
       h("dl",{class:"pend-facts"}, facts.map(([k,v]) => [h("dt",null,k), h("dd",null,v)]))),
@@ -5384,7 +5455,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.05-3";
+const APP_VERSION = "2026.11.05-4";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5471,7 +5542,7 @@ function idleWarn(){
   idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, 30000);
 }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
-function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -5828,6 +5899,7 @@ function adminView(all){
         (a.role==="user" || (a.role==="admin" && a.father)) && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?"":" warn")}, a.father ? "أبوه: "+((accs.find(x=>x.id===a.father)||{}).name||"؟") : "من غير أب اعتراف") : null,
         a.active===false ? h("span",{class:"pill bad"},"متوقف") : null),
       isAdmin && Store.mode==="cloud" && ["user","pending"].includes(a.role) || (isAdmin && a.pending) ? nidBadge((S.members||[]).find(m => m.id === a.id), a.id, false, !a.pending) : null);
+    if (open && isAdmin && !self && Store.mode==="cloud" && ["user","pending"].includes(a.role)) li.append(h("div",{class:"row"}, nidFixBtn(a.id, ((S.members||[]).find(m => m.id === a.id)||{}).nid)));
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
       const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("الصلاحية اتغيّرت"); }},
@@ -5947,6 +6019,12 @@ function cloudMsg(e){
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
   if (/already registered|already exists|already a member|duplicate key/i.test(m)) return "فيه حساب بالاسم ده.";
+  if (/bad signup code/.test(m)) return "كود التسجيل غلط. خده من أبونا أو من أدمن الكنيسة.";
+  if (/signup closed/.test(m)) return "التسجيل الجديد مقفول دلوقتي. كلّم أدمن الكنيسة.";
+  if (/too many tries/.test(m)) return "اتكتب كود غلط كذا مرة. استنى ربع ساعة وجرّب تاني.";
+  if (/too many pending/.test(m)) return "فيه حسابات جديدة كتير مستنية الموافقة دلوقتي. جرّب بعد يومين أو كلّم الأدمن.";
+  if (/bad nid/.test(m)) return "الرقم القومي ده مش صحيح.";
+  if (/profile incomplete/.test(m)) return "الشخص ده لسه ماكمّلش بياناته.";
   if (/licence expired/.test(m)) return "رخصة الكنيسة خلصت. كلّم المطوّر على "+DEV.phone+".";
   if (/bad code/.test(m)) return "كود الرخصة غلط.";
   if (/register_self|pending_list|review_account/.test(m) && /function|schema cache|does not exist/i.test(m)) return "التسجيل الجديد لسه مش متفعّل على السيرفر. كلّم المطوّر على "+DEV.phone+".";
@@ -6188,6 +6266,9 @@ async function showCloudGate(){
   const v = id => ($("#"+id) ? $("#"+id).value : "");
   const btn = (label, extra) => h("button",Object.assign({class:"btn", type:"submit", style:"width:100%;padding-block:12px"}, extra||{}), label);
   let newPhoto = "", pickFather = "";
+  // since 2026-11-05 a new account needs the church's sign-up code (the link the admin sends can carry it as &k=)
+  const needCode = () => !!(info && info.signup);
+  const urlCode = () => { try { return (new URLSearchParams(location.search).get("k") || "").replace(/\D/g, "").slice(0, 6); } catch(e){ return ""; } };
   // the list of confession fathers as big tappable cards
   const fatherPicker = (list) => h("div",{class:"father-pick", role:"radiogroup", "aria-label":"أب الاعتراف"}, list.map(f =>
     h("button",{type:"button", role:"radio", class:"father-opt", "aria-checked": pickFather === f.uid ? "true" : "false", onclick:()=>{ pickFather = f.uid;
@@ -6259,10 +6340,11 @@ async function showCloudGate(){
           await enter(me);
         } catch(x){ err.textContent = cloudMsg(x); } finally { if (b.isConnected) b.disabled = false; }
       }}, "👆 ادخل بالبصمة أو الوش · "+bio.name));
-      extra = [...extra, info && info.claimed !== false ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
+      extra = [...extra, info && info.claimed !== false && info.signup !== "off" ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
         h("div",{class:"gate-links"}, h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
         h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود"))];
     } else if (mode === "register"){
+      if (info && info.signup === "off"){ mode = "login"; S.gateNote = "التسجيل الجديد مقفول دلوقتي. كلّم أدمن الكنيسة."; draw(); return; }
       sub = "اختار اسم وكلمة سر هتدخل بيهم على طول. بعد كده هتكتب بياناتك، وأب اعترافك يوافق على حسابك.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const name = v("gName").trim().replace(/\s+/g, " "), pw = v("gPw");
@@ -6271,12 +6353,17 @@ async function showCloudGate(){
         if (info && info.live === false) fail("رخصة الكنيسة خلصت، ومينفعش تسجيل جديد دلوقتي.");
         const fl = (info && info.fathers) || [];
         if (fl.length && !pickFather) fail("اختار أب اعترافك من القايمة.");
+        const code = needCode() ? v("gCode").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, "") : null;
+        if (needCode() && code.length !== 6) fail("اكتب كود التسجيل (٦ أرقام) اللي أخدته من أبونا أو الأدمن.");
+        if (needCode()){ const ck = await Cloud.rpc("signup_check", {p_slug:slug, p_code:code}); if (ck && ck.error) fail(cloudMsg({message:ck.error})); }
         const email = await mailFor(slug, name);
         try { await Cloud.signUp(email, pw); } catch(e){ if (!/already|exists/i.test(e.message)) throw e; }
         try { await Cloud.signIn(email, pw); } catch(e){ if (e.offline) throw e; fail("الاسم ده متسجّل قبل كده. لو ده إنت، ارجع وادخل بكلمة السر بتاعتك. لو لأ، زوّد اسم العيلة."); }
         let me; try { me = await Cloud.rpc("touch_login"); } catch(e){
           if (!/no account/.test(e.message)){ await Cloud.signOut(); throw e; }
-          try { await Cloud.rpc("register_self", info && info.fathers ? {p_slug:slug, p_name:name, p_father:pickFather||null} : {p_slug:slug, p_name:name}); } catch(e2){ await Cloud.signOut(); throw e2; }
+          const args = info && info.fathers ? {p_slug:slug, p_name:name, p_father:pickFather||null} : {p_slug:slug, p_name:name}; if (needCode()) args.p_code = code;
+          let rs; try { rs = await Cloud.rpc("register_self", args); } catch(e2){ await Cloud.signOut(); throw e2; }
+          if (rs && rs.error){ await Cloud.signOut(); fail(cloudMsg({message:rs.error})); }
           me = await Cloud.rpc("touch_login");
           Cloud.me = me; applyAccount(cloudAccount(me)); await logAct("سجّل حساب جديد ومستني الموافقة"); }
         if (!me.active){ await Cloud.signOut(); fail("الحساب ده متوقف. كلّم الأدمن."); }
@@ -6285,6 +6372,7 @@ async function showCloudGate(){
         h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","new-password")),
         h("label",null,"اكتب كلمة السر تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
         h("p",{class:"small muted", style:"margin:0"},"افتكر الاسم ده بالظبط، لأنك هتدخل بيه كل مرة."),
+        needCode() ? h("label",null,"كود التسجيل", h("input",{id:"gCode", inputmode:"numeric", dir:"ltr", maxlength:"10", autocomplete:"off", placeholder:"٦ أرقام من أبونا أو الأدمن", value:urlCode()})) : null,
         info && info.fathers && info.fathers.length ? h("div",{class:"form", style:"gap:6px"}, h("span",{style:"font-weight:700"},"مين أب اعترافك؟"), fatherPicker(info.fathers),
           h("span",{class:"small muted"},"طلبك هيروح لأبونا ده بس، وهو اللي هيوافق على حسابك.")) : null,
         err, btn("اعمل الحساب وادخل"));
@@ -6385,6 +6473,13 @@ async function showCloudGate(){
 newsApi = {
   seen(){ return (Cloud.me && Cloud.me.news_seen) || ""; },
   async mark(id){ await Cloud.rpc("set_news_seen", {p_id:id}); if (Cloud.me) Cloud.me.news_seen = id; }
+};
+// new sign-ups (2026-11-05): the admin's code and the open / closed switch
+// fixing someone's national ID (his own father or the admin)
+nidApi = { async set(uid, nid){ await Cloud.rpc("set_nid", {p_uid:uid, p_nid:nid}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); } };
+signupApi = {
+  get(){ return Cloud.rpc("signup_get"); },
+  set(open, fresh){ return Cloud.rpc("signup_set", {p_open:open, p_new_code:!!fresh}); }
 };
 calApi = {
   async link(){ const t = await Cloud.rpc("cal_link"); return SB + "/functions/v1/menrit-push?cal=" + t; },
