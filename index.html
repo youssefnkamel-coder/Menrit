@@ -422,7 +422,13 @@ nav.tabs button[aria-current="page"]{color:var(--gold-d)}
 ul.acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;border:0;background:none;box-shadow:none;padding:0}
 ul.acc-grid li.acc-row{border:1px solid var(--gold-line);border-radius:16px;background:var(--surface);padding:12px;align-content:start}
 ul.acc-grid li.acc-row.open{grid-column:1/-1}
-ul.father-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;border:0;background:none;box-shadow:none;padding:0}
+/* cards (2026-11-05 fix): one column inside each card, so the name, the pills and the buttons each get the full width */
+ul.acc-grid li.acc-row{grid-template-columns:minmax(0,1fr)!important;gap:8px}
+ul.acc-grid li.acc-row > *{min-width:0}
+ul.acc-grid li.acc-row .person-line .who strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+ul.acc-grid li.acc-row > .row{flex-wrap:wrap;justify-content:flex-start;gap:6px}
+ul.acc-grid li.acc-row .acc-contact{display:flex;gap:8px;flex-wrap:wrap}
+ul.father-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
 ul.father-grid li.father-card{display:flex;gap:10px;align-items:center;border:1px solid var(--gold-line);border-radius:16px;background:var(--surface);padding:10px 12px;cursor:pointer}
 ul.father-grid li.father-card.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-line) inset}
 .father-n{font-weight:700;color:var(--brand)}
@@ -486,6 +492,8 @@ footer{margin-top:28px}
 /* every section in a gold frame */
 .card, ul.list, .stat, .ticker, .notice, .rsec{border:1.5px solid transparent!important;
   background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box!important}
+/* card grids: each card has its own gold frame, the list around them has none */
+ul.list.acc-grid, ul.list.father-grid{border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
 .empty{border:1.5px dashed var(--gold)!important;background:color-mix(in oklab,var(--gold) 4%,var(--surface))}
 .prep-list li, .acc-tools, .reset-warn{border-color:var(--gold-line)!important}
 ul.list li{border-top-color:var(--gold-line)!important}
