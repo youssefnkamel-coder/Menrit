@@ -1,15 +1,18 @@
 // Lets phones install the app. Always tries the network first so every update reaches people at once;
 // the saved copy is only used when there is no internet. Data never goes through here (it lives on the server).
-const CACHE = "menrit-v2";
+const CACHE = "menrit-v3";
 self.addEventListener("install", e => { self.skipWaiting(); });
-self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
+// older copies (an earlier CACHE name) are removed, so the phone never fills up with old versions
+self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);
   if (e.request.method !== "GET" || u.origin !== location.origin) return;
+  // one saved copy per file: the church link (?c=…) does not make a new copy each time
+  const key = u.origin + u.pathname;
   e.respondWith(fetch(e.request).then(r => {
-    if (r.ok) { const c = r.clone(); caches.open(CACHE).then(k => k.put(e.request, c)); }
+    if (r.ok) { const c = r.clone(); caches.open(CACHE).then(k => k.put(key, c)); }
     return r;
-  }).catch(() => caches.match(e.request).then(r => r || caches.match("./"))));
+  }).catch(() => caches.match(key).then(r => r || caches.match(new URL("./", self.registration.scope).href))));
 });
 // a new confession / visit request reaches أبونا's phone even when the app is closed
 self.addEventListener("push", e => {
