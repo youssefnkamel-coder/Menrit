@@ -494,6 +494,45 @@ footer{margin-top:28px}
   background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box!important}
 /* card grids: each card has its own gold frame, the list around them has none */
 ul.list.acc-grid, ul.list.father-grid{border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
+/* «دليل الأسماء» (2026-11-05): A-to-Z list + letter rail; the chosen card beside it (computer) or as a bottom sheet (phone) */
+.dir{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+.dir-main{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:6px;align-items:start}
+.dir-list{display:grid;gap:10px;min-width:0}
+.dir-letter{position:sticky;top:0;z-index:2;margin:0;padding:4px 12px;font-size:1.05rem;font-weight:800;color:var(--gold);background:var(--bg,var(--surface));border-bottom:1.5px solid var(--gold-line)}
+ul.list.dir-ul{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;display:grid;gap:4px}
+ul.list.dir-ul li.dir-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid transparent;border-radius:12px;background:var(--surface);cursor:pointer;justify-content:flex-start;flex-wrap:nowrap}
+ul.list.dir-ul li.dir-row:hover{border-color:var(--gold-line)}
+ul.list.dir-ul li.dir-row.on{border-color:var(--gold);background:color-mix(in oklab,var(--gold) 12%,var(--surface))}
+li.dir-row[hidden]{display:none!important}
+ul.list.dir-ul li.dir-row{padding:6px 10px!important;min-height:0!important;margin:0!important;box-shadow:none!important}
+ul.list.dir-ul li.dir-row .avatar{width:40px!important;height:40px!important;min-width:40px;font-size:1.05rem!important;border-width:2px!important}
+.dir-sec{display:grid;gap:4px}
+ul.list.dir-ul li.dir-row .who strong{font-size:1rem}
+li.dir-row .who{min-width:0;flex:1}
+li.dir-row .who strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+li.dir-row .who .small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dir-marks{display:flex;gap:4px;flex:none}
+.dir-mark{font-size:.95rem}
+.dir-rail{position:sticky;top:70px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:999px;background:var(--surface);border:1px solid var(--gold-line);max-height:calc(100vh - 90px);overflow-y:auto}
+.dir-rail button{all:unset;cursor:pointer;width:26px;height:24px;display:grid;place-items:center;border-radius:50%;font-weight:800;font-size:.82rem;color:var(--brand)}
+.dir-rail button:hover,.dir-rail button:focus-visible{background:var(--gold);color:#fff}
+.dir-rail button:disabled{opacity:.25;cursor:default;background:none;color:inherit}
+.dir-pane{position:sticky;top:70px;max-height:calc(100vh - 90px);overflow-y:auto}
+.dir-pane-in{position:relative}
+.dir-close{position:absolute;top:8px;left:8px;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid var(--gold-line);background:var(--surface);cursor:pointer;font-size:1rem}
+ul.list.acc-grid.dir-card{display:block}
+.dir-empty{display:grid;justify-items:center;gap:6px;text-align:center;padding:40px 16px;border:1.5px dashed var(--gold-line);border-radius:18px;color:var(--muted)}
+.dir-empty p{margin:0}
+.dir-backdrop{display:none}
+@media (max-width:899px){
+  .dir{grid-template-columns:minmax(0,1fr)}
+  .dir-pane{position:static;max-height:none}
+  .dir:not(.has-sel) .dir-pane{display:none}
+  .dir.has-sel .dir-pane{position:fixed;inset:auto 0 0 0;z-index:60;max-height:86vh;overflow-y:auto;background:var(--bg,var(--surface));border-radius:22px 22px 0 0;border-top:3px solid var(--gold);padding:14px 12px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.35)}
+  .dir.has-sel .dir-pane::before{content:"";display:block;width:44px;height:5px;border-radius:5px;background:var(--gold-line);margin:0 auto 10px}
+  .dir.has-sel .dir-backdrop{display:block;position:fixed;inset:0;z-index:59;background:rgba(0,0,0,.45)}
+  .dir-close{top:0}
+}
 .empty{border:1.5px dashed var(--gold)!important;background:color-mix(in oklab,var(--gold) 4%,var(--surface))}
 .prep-list li, .acc-tools, .reset-warn{border-color:var(--gold-line)!important}
 ul.list li{border-top-color:var(--gold-line)!important}
@@ -3258,6 +3297,7 @@ const nidDupesOf = id => ((S.nidDupes||[]).find(x => x.uid === id) || {}).others
 // the badge the admin and the confession father see
 function nidBadge(p, id, full, quiet){
   const c = nidCheck(p||{}), dup = id ? nidDupesOf(id) : [];
+  if (!c && p && p.passport) return h("div",{class:"row nid-row"}, h("span",{class:"pill ok nid-pill"}, "🛂 باسبور: ", h("bdi",{dir:"ltr", class:"num"}, p.passport)));
   if (!c && quiet && !dup.length) return null;
   const pills = [];
   if (!c) pills.push(h("span",{class:"pill warn nid-pill"},"🪪 لسه ماكتبش الرقم القومي"));
@@ -4037,7 +4077,7 @@ function personDetail(all){
     p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
     p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
   const ro = p.onApp && !isNew;
-  if (ro && p.self) card.append(nidBadge(self, p.id, true), h("div",{class:"row"}, nidFixBtn(p.id, self && self.nid)));
+  if (ro && p.self){ const ce = childEdit(p.id, self); card.append(nidBadge(self, p.id, true), ce && S.draft.chEdit === p.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(p.id, self && self.nid))); }
   card.append(h("div",{class:"form"},
     ro ? familyCard(p, true) :
     h("div",{class:"two"},
@@ -4671,7 +4711,48 @@ function pushCard(compact){
 // أبونا's phone calendar subscribes once to a private link; every appointment he sends shows up there by itself (2026-11-05)
 let calApi = null;
 let signupApi = null;
+let passportApi = null;  // passport instead of the national ID with a one-time code from the admin (2026-11-05)
 let nidApi = null;
+let childApi = null;
+// «✏️ عدّل البيانات» (2026-11-05): أبونا (or the admin) fixes a confessee's «بياناتي» fields; the server checks, logs and tells the person
+function childEdit(uid, m){
+  if (!(childApi && Store.mode === "cloud" && !Store.preview && uid && (accRole() === "admin" || accRole() === "priest"))) return null;
+  m = m || {};
+  if (S.draft.chEdit !== uid) return h("button",{class:"btn sm ghost ch-edit", type:"button", onclick:e => { e.stopPropagation(); S.draft.chEdit = uid; render(); }},"✏️ عدّل البيانات");
+  const inp = (id, val, extra) => h("input", Object.assign({id, value:val||""}, extra||{}));
+  const v = id => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
+  const save = async e => {
+    const btn = e.currentTarget;
+    const d = {name:v("ceName").replace(/\s+/g, " "), job:v("ceJob"), phone:v("cePhone"), birthday:v("ceBirth"), sex:v("ceSex"), address:v("ceAddr"), loc:v("ceLoc")};
+    if (!m.passport) d.nid = nidDigits(v("ceNid"));
+    if (d.name.split(" ").length < 3){ toast("اكتب الاسم ثلاثي"); return; }
+    d.phone = m.passport && !phoneOk(d.phone) ? nidDigits(d.phone) : phoneDigits(d.phone);
+    if (!(phoneOk(d.phone) || (m.passport && /^\d{8,15}$/.test(d.phone)))){ toast("رقم الموبايل لازم يكون ١١ رقم ويبدأ بـ 01"); return; }
+    if (d.nid){ const x = parseNid(d.nid); if (x.error){ toast(x.error); return; } d.nid = x.nid; } else delete d.nid;
+    if (d.loc && !locOk(d.loc)){ toast("لوكيشن البيت لازم يكون رابط https من جوجل ماب أو واتساب"); return; }
+    if (!d.birthday) delete d.birthday; if (!d.sex) delete d.sex;
+    const patch = {}; for (const k in d) if (String(m[k] || "") !== d[k]) patch[k] = d[k];
+    if (!Object.keys(patch).length){ S.draft.chEdit = null; render(); toast("مفيش حاجة اتغيّرت"); return; }
+    btn.disabled = true;
+    try { await childApi.set(uid, patch); S.draft.chEdit = null; toast("✅ البيانات اتعدّلت، واتسجّلت في «النشاط»، وصاحبها هيوصله إشعار."); render(); }
+    catch(err){ btn.disabled = false; toast(cloudMsg(err)); }
+  };
+  return h("div",{class:"card form ch-form", onclick:e => e.stopPropagation()},
+    h("h3",null,"✏️ تعديل البيانات"),
+    h("div",{class:"two"},
+      h("label",null,"الاسم ثلاثي", inp("ceName", m.name, {autocomplete:"off"})),
+      h("label",null,"الوظيفة", inp("ceJob", m.job)),
+      h("label",null,"الموبايل", inp("cePhone", m.phone, {inputmode:"tel", dir:"ltr"})),
+      h("label",null,"تاريخ الميلاد", inp("ceBirth", m.birthday, {type:"date"})),
+      h("label",null,"النوع", h("select",{id:"ceSex"}, [["","اختار"],["m","ذكر"],["f","أنثى"]].map(([k,t]) => h("option",{value:k, selected:(m.sex||"") === k}, t)))),
+      h("label",null,"العنوان", inp("ceAddr", m.address)),
+      h("label",null,"لوكيشن البيت (اختياري)", inp("ceLoc", m.loc, {dir:"ltr", inputmode:"url", placeholder:"https://maps.app.goo.gl/…"})),
+      m.passport ? h("label",{class:"pp-have"},"🛂 رقم الباسبور", h("input",{value:m.passport, dir:"ltr", readonly:true}))
+        : h("label",null,"الرقم القومي", inp("ceNid", m.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off"}))),
+    h("p",{class:"small muted"},"الصورة والكراسة وكلمة السر صاحبها بس اللي يغيّرهم. التعديل بيتسجّل في «النشاط» باسمك."),
+    h("div",{class:"row"}, h("button",{class:"btn sm ch-save", type:"button", onclick:save},"احفظ التعديل"),
+      h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ S.draft.chEdit = null; render(); }},"إلغاء")));
+}
 // «✏️ صلّح الرقم القومي»: the person's own father or the admin (2026-11-05)
 function nidFixBtn(uid, cur){
   if (!(nidApi && Store.mode === "cloud" && !Store.preview && uid && (accRole() === "admin" || accRole() === "priest"))) return null;
@@ -5026,8 +5107,10 @@ function memberMe(){
       h("label",null,"لوكيشن البيت (اختياري)", inp("pLoc", p.loc, {dir:"ltr", inputmode:"url", placeholder:"الصق رابط موقعك من جوجل ماب أو واتساب"})),
       h("label",null, nidNeeded ? "النوع (مطلوب)" : "النوع", h("select",{id:"pSex", onchange:e => { md.pSex = e.target.value; }},
         [["","اختار"],["m","ذكر"],["f","أنثى"]].map(([k,t]) => h("option",{value:k, selected:(("pSex" in md) ? md.pSex : (p.sex||"")) === k}, t)))),
-      h("label",null, nidNeeded ? "الرقم القومي (مطلوب)" : "الرقم القومي", inp("pNid", p.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off", placeholder:"١٤ رقم زي اللي في البطاقة", oninput:e => { md.pNid = e.target.value; nidLive(); }}))),
-    nidHint,
+      p.passport ? h("label",{class:"pp-have"},"🛂 رقم الباسبور", h("input",{value:p.passport, dir:"ltr", readonly:true, "aria-readonly":"true"}))
+        : h("label",null, nidNeeded ? "الرقم القومي (مطلوب)" : "الرقم القومي", inp("pNid", p.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off", placeholder:"١٤ رقم زي اللي في البطاقة", oninput:e => { md.pNid = e.target.value; nidLive(); }}))),
+    p.passport ? h("p",{class:"small muted"},"✅ رقم الباسبور اتسجّل بموافقة الأدمن. لو محتاج تغيّره كلّم الأدمن.") : nidHint,
+    passportBox(p),
     h("h3",{style:"margin-top:6px"},"💍 الزوجة / الزوج (لو متجوز)"),
     h("div",{class:"two"},
       h("label",null,"الاسم", inp("pSpouse", p.spouse)),
@@ -5042,11 +5125,11 @@ function memberMe(){
       delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
       const nidRaw = v("pNid"), nx = nidRaw ? parseNid(nidRaw) : null;
       if (nx && nx.error){ toast(nx.error); $("#pNid") && $("#pNid").focus(); return; }
-      if (!nx && nidNeeded){ toast("اكتب الرقم القومي، أبونا محتاجه عشان يتأكد من بياناتك"); $("#pNid") && $("#pNid").focus(); return; }
+      if (!nx && nidNeeded && !p.passport){ toast("اكتب الرقم القومي، أبونا محتاجه عشان يتأكد من بياناتك. لو معاك باسبور بس، دوس «معاك باسبور؟» تحت الخانة."); $("#pNid") && $("#pNid").focus(); return; }
       data.nid = nx ? nx.nid : ""; data.sex = ($("#pSex") && $("#pSex").value) || (nx ? nx.sex : "") || "";
       if (!data.birthday && nx) data.birthday = nx.birthday;
       if (S.draft.photo && !data.photo) data.photo = S.draft.photo;
-      if (nidNeeded){ data.phone = phoneDigits(data.phone); data.name = data.name.replace(/\s+/g, " ");
+      if (nidNeeded){ data.phone = phoneOk(data.phone) || !p.passport ? phoneDigits(data.phone) : nidDigits(data.phone); data.name = data.name.replace(/\s+/g, " ");
         const miss = profileMissing(data, S.account && S.account.photo);
         if (miss.length){ toast("لسه ناقص: "+miss.join("، ")); return; } }
       if (!data.joined) data.joined = TODAY_S;
@@ -5067,10 +5150,49 @@ const profileFilled = () => !!(S.profile && S.profile.name && (S.profile.joined 
 // a new sign-up reaches أبونا only with all of this filled (the server checks the same in profile_ok)
 const phoneDigits = s => nidDigits(s).replace(/^(\+?20|0020)(?=1)/, "0");
 const phoneOk = s => /^01[0125]\d{8}$/.test(phoneDigits(s));
+// «معاك باسبور مش رقم قومي؟» (2026-11-05): the passport number goes in only with a one-time code from the admin
+function passportBox(p){
+  if (!passportApi || p.passport || nidCheck(p||{})) return null;
+  const open = !!S.draft.ppOpen;
+  if (!open) return h("button",{type:"button", class:"btn sm quiet pp-open", id:"ppOpen", onclick:()=>{ S.draft.ppOpen = true; render(); }},"🛂 معاك باسبور مش رقم قومي؟");
+  return h("div",{class:"card pp-box", style:"display:grid;gap:8px;padding:12px"},
+    h("strong",null,"🛂 التسجيل برقم الباسبور"),
+    h("p",{class:"small muted", style:"margin:0"},"ده لغير المصريين أو اللي معاهوش رقم قومي. اطلب من أدمن الكنيسة «كود باسبور» (٦ أرقام)، واكتبه هنا مع رقم الباسبور. الكود بيشتغل مرة واحدة بس."),
+    h("div",{class:"two"},
+      h("label",null,"رقم الباسبور", h("input",{id:"ppNo", dir:"ltr", maxlength:"24", autocomplete:"off", placeholder:"A1234567"})),
+      h("label",null,"كود الباسبور من الأدمن", h("input",{id:"ppCode", dir:"ltr", inputmode:"numeric", maxlength:"6", autocomplete:"one-time-code", placeholder:"٦ أرقام"}))),
+    h("div",{class:"row"},
+      h("button",{class:"btn sm", id:"ppSend", onclick:async()=>{
+        const no = ($("#ppNo")||{}).value || "", code = ($("#ppCode")||{}).value || "";
+        if (!/^[A-Za-z0-9]{6,20}$/.test(no.replace(/[\s-]/g, ""))){ toast("رقم الباسبور لازم يكون من ٦ لـ ٢٠ حرف إنجليزي أو رقم."); return; }
+        if (nidDigits(code).length !== 6){ toast("اكتب كود الباسبور (٦ أرقام) اللي أخدته من الأدمن."); return; }
+        try { await passportApi.use(code, no); S.draft.ppOpen = false; toast("✅ رقم الباسبور اتسجّل. كمّل باقي بياناتك ودوس «احفظ»."); }
+        catch(e){ toast(cloudMsg(e)); } }},"سجّل الباسبور"),
+      h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ S.draft.ppOpen = false; render(); }},"إلغاء")));
+}
+function passportCard(){
+  if (!(passportApi && accRole() === "admin" && !Store.preview)) return null;
+  if (!S.ppCodes && !passportCard.busy){ passportCard.busy = true; passportApi.list().then(r => { S.ppCodes = r || []; scheduleRender(); }).catch(() => { S.ppCodes = []; }).finally(() => { passportCard.busy = false; }); }
+  const list = S.ppCodes || [], live = list.filter(x => x.live), used = list.filter(x => x.usedAt);
+  const msg = c => "أهلاً بيك 🌿\nكود الباسبور بتاعك في برنامج "+((S.church && S.church.name) || "الكنيسة")+": "+c.code+"\nافتح «بياناتي»، ودوس «معاك باسبور مش رقم قومي؟»، واكتب رقم الباسبور والكود ده. الكود بيشتغل مرة واحدة بس، ولمدة ٧ أيام.";
+  return h("div",{class:"card form pp-admin"}, h("h3",null,"🛂 أكواد الباسبور"),
+    h("p",{class:"small muted", style:"margin:0"},"للي مش مصري أو معاهوش رقم قومي. اعمل كود لكل شخص لوحده وابعتهوله. الكود بيشتغل مرة واحدة بس، ولمدة ٧ أيام."),
+    h("div",{class:"row", style:"align-items:end"},
+      h("label",{style:"flex:1"},"لمين؟ (اختياري)", h("input",{id:"ppNote", maxlength:"60", placeholder:"اسم الشخص عشان تفتكر"})),
+      h("button",{class:"btn sm", id:"ppMake", onclick:async()=>{ try { const r = await passportApi.make(($("#ppNote")||{}).value || ""); S.ppCodes = null; S.ppLast = r.code; toast("الكود: "+r.code); scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"➕ اعمل كود")),
+    live.length ? h("ul",{class:"list pp-list"}, live.map(c => h("li",{class:"pp-row"+(S.ppLast === c.code ? " new" : "")},
+      h("div",{class:"who"}, h("strong",{dir:"ltr", class:"num pp-code"}, c.code), h("span",{class:"small muted"}, (c.note ? c.note+" · " : "")+"بيخلص "+fmtShort(ymd(new Date(c.expires))))),
+      h("div",{class:"row"},
+        h("a",{class:"btn sm wa-btn", href:"https://wa.me/?text="+encodeURIComponent(msg(c)), target:"_blank", rel:"noopener"},"💬 ابعته واتساب"),
+        h("button",{class:"btn sm quiet pp-drop", onclick:async()=>{ try { await passportApi.drop(c.code); S.ppCodes = null; scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"✕"))))) : h("p",{class:"small muted", style:"margin:0"},"مفيش أكواد شغالة دلوقتي."),
+    used.length ? h("details",null, h("summary",{class:"small"},"اتستخدموا ("+arDigits(used.length)+")"),
+      h("ul",{class:"list"}, used.map(c => h("li",null, h("span",{dir:"ltr", class:"num"}, c.code), h("span",{class:"small muted"}, "استخدمه "+c.usedName+" · "+fmtShort(ymd(new Date(c.usedAt)))))))) : null);
+}
 function profileMissing(p, photo){ p = p || {}; const m = [];
   if (String(p.name||"").trim().split(/\s+/).filter(Boolean).length < 3) m.push("اسمك ثلاثي");
-  if (!phoneOk(p.phone)) m.push("رقم موبايلك (١١ رقم)");
-  if (!/^[23]\d{13}$/.test(String(p.nid||""))) m.push("الرقم القومي");
+  const pp = /^[A-Z0-9]{6,20}$/.test(String(p.passport||""));
+  if (!phoneOk(p.phone) && !(pp && /^\d{8,15}$/.test(phoneDigits(p.phone)))) m.push(pp ? "رقم موبايلك" : "رقم موبايلك (١١ رقم)");
+  if (!/^[23]\d{13}$/.test(String(p.nid||"")) && !pp) m.push("الرقم القومي");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(p.birthday||""))) m.push("تاريخ الميلاد");
   if (!["m","f"].includes(p.sex)) m.push("النوع");
   if (String(p.address||"").trim().length < 5) m.push("العنوان");
@@ -5247,42 +5369,15 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null;
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-05b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-05c", title:"الجديد في آخر تحديث", items:{
   admin:[
-    ["🔒","خصوصية أكتر","مبقتش تشوف كراسة أي معترف ولا رسايل أبونا لأولاده، ومتقدرش تغيّر كلمة سر أبونا ولا تخليه أدمن. لو أب نسي كلمة السر، المطوّر هو اللي يعملهاله."],
-    ["🔑","«نسيت كلمة السر»","الطلبات دي بقت بتوصلك إنت بس، والمشرف بيعمل كلمة سر للحسابات الجديدة بس."],
-    ["🗑️","مسح حساب أب","لما تمسح حساب أب، ملاحظاته عن أولاده بتتمسح معاه، وأولاده بيختاروا أب تاني."],
-    ["🧹","المساحة","النشاط اللي عدّى عليه ٦ شهور بيتمسح لوحده، فالبرنامج مش هيكبر مع الوقت."],
-    ["⚡","أسرع وأخف","البرنامج بيفتح أسرع، وبيسحب نت أقل كتير، ومكتبة Excel بتتحمّل بس لما تصدّر."],
-    ["🔐","كود التسجيل","محدش يقدر يعمل حساب جديد من غير كود من ٦ أرقام. هتلاقيه في «الأدمن ← لينك دخول الكنيسة»، واللينك نفسه فيه الكود. تقدر تغيّره، أو تقفل التسجيل الجديد خالص."],
-    ["📝","البيانات كاملة","الحساب الجديد مش بيوصلك ولا بيوصل لأبونا غير لما صاحبه يكمّل اسمه ثلاثي وموبايله ورقمه القومي وميلاده ونوعه وعنوانه وصورته. واللي مايكمّلش في ٣ أيام بيتمسح لوحده."],
-    ["✏️","تصليح الرقم القومي","من «الأدمن» افتح حساب الشخص ودوس «✏️ صلّح الرقم القومي»."],
-    ["🔔","تنبيه بالحسابات الجديدة","شغّل التنبيهات من «الإعدادات»، وأول ما حد جديد يكمّل بياناته ويطلب الموافقة هيوصلك إشعار حتى لو البرنامج مقفول."],
-    ["🗂️","الناس في كروت","شاشة «الأدمن» بقت أقسام: الآباء، والمعترفين، ومستنيين الموافقة، والأدمن والمشرفين، ومعاها بحث بالاسم وزرار «📝 ناقص بيانات»."],
-    ["💬","اتصال وواتساب","جنب كل واحد زرار اتصال وزرار واتساب فيه رسايل جاهزة: ترحيب، واستكمال بيانات، وتنبيه، ورسالة حرة. تقدر تعدّلها من «الإعدادات»."],
-    ["🔄","طلب تغيير أب الاعتراف","المعترف يختار الأب الجديد ويكتب السبب، والطلب بيوصلك إنت بس. أبونا الحالي مش بيشوفه، ولما توافق الشخص بيتنقل لوحده."],
-    ["⛪","أولاد كل أب","فوق شاشة «الأدمن» فيه كارت لكل أب بعدد أولاده واللي مستنيين موافقته. دوس عليه تشوف أولاده بس."],
-    ["👤","مين دخّله","كارت كل حساب بيقول مين وافق على دخوله وإمتى، أو مين اللي عمله، وكل موافقة أو رفض بيتسجّل في «النشاط»."],
-    ["🔢","شكل الأرقام","من «الإعدادات» اختار الأرقام عربي ٠١٢٣ أو إنجليزي 0123، وبتتطبّق على الكنيسة كلها."],
-    ["🆕","الشاشة دي","إنت اللي بتقرر إمتى الآباء والمعترفين يشوفوا الجديد، بالزراير اللي تحت."]],
+    ["📖","دليل الأسماء","شاشة «الأدمن» بقت قايمة أسماء بالأبجدية، تحت كل حرف اللي بيبدأوا بيه، وعلى الجنب شريط حروف تدوس على أي حرف يوديك عنده. دوس على أي اسم يظهر كارته: على الكمبيوتر جنب القايمة، وعلى الموبايل من تحت."],
+    ["🔎","البحث والفلاتر","البحث بالاسم وزرار «📝 ناقص بيانات» وكروت الآباء والأقسام فوق لسه شغالين مع القايمة الجديدة."],
+    ["🛂","كود الباسبور","لو حد معهوش رقم قومي مصري، من «الأدمن ← 🛂 أكواد الباسبور» اعمله كود من ٦ أرقام وابعته له على واتساب. يكتبه في «بياناتي» مع رقم الباسبور، والكود بيشتغل مرة واحدة بس ولمدة ٧ أيام."]],
   priest:[
-    ["🔁","تكرار المواعيد","من «الإعدادات ← 🗓️ مواعيدي» اختار «بيتكرر»: كل أسبوع، أو كل أسبوعين، أو كل ١٠ أيام، أو مرة في الشهر (زي آخر جمعة)."],
-    ["📅","مواعيدك في تقويم الموبايل","من «الإعدادات» دوس «اربط بتقويم الموبايل» مرة واحدة، وكل ميعاد تبعته هيظهر في تقويمك لوحده. وجنب كل ميعاد في «الطلبات» فيه زرار 📅."],
-    ["🔔","تنبيه بالطلبات","شغّل التنبيهات من «الإعدادات»، وأي طلب اعتراف أو افتقاد هيوصلك إشعار حتى لو البرنامج مقفول."],
-    ["📍","الخريطة","جنب العنوان فيه زرار يفتح جوجل ماب، ولو الشخص حط لوكيشن بيته بيفتح على البيت بالظبط."],
-    ["🏠","أسرة الأب الكاهن","تقدر تضم مراتك وولادك لأسرتك، حتى لو بيعترفوا عند أب تاني."],
-    ["✏️","تصليح الرقم القومي","لو حد من أولادك كاتب رقمه القومي غلط، افتح كارته ودوس «✏️ صلّح الرقم القومي»."],
-    ["🏠","سجّل الافتقاد","الدوسة الواحدة بتسجّل مرة واحدة بس، وجنب كل افتقاد فيه ✕ تمسح بيه أي حاجة اتسجلت غلط."],
-    ["📝","الحسابات الجديدة","طلب الحساب الجديد بيوصلك بعد ما صاحبه يكمّل بياناته كلها، فتلاقي اسمه الثلاثي وموبايله ورقمه القومي وعنوانه قدامك."],
-    ["👋","ابن جديد","لما الأدمن يوافق على نقل حد لعندك، هيوصلك إشعار إنه بقى في «أولادي»."],
-    ["🔐","كلمة السر","لازم تبقى ٨ حروف أو أرقام على الأقل، ولو نسيتها كلّم المطوّر. ملاحظاتك محدش بيشوفها غيرك، ولا حتى الأدمن."]],
+    ["🛂","الباسبور","اللي معهوش رقم قومي مصري يقدر يسجّل برقم الباسبور بكود من الأدمن، وهتلاقي جنب اسمه «🛂 باسبور»."]],
   user:[
-    ["🔄","تغيير أب الاعتراف","من «بياناتي» تقدر تطلب تغيير أب اعترافك وتكتب السبب. الطلب بيروح للأدمن بس، وأبونا الحالي مش بيشوفه."],
-    ["🔔","تنبيه بميعادك","شغّل التنبيهات من «بياناتي»، ويوم ميعاد اعترافك أو افتقادك هيوصلك تنبيه الصبح، وتاني قبل الميعاد بساعة."],
-    ["📅","ضيفه لتقويمي","جنب ميعادك فيه زرار بيحطه في تقويم موبايلك ومعاه منبّه."],
-    ["📍","لوكيشن البيت","في «بياناتي» تقدر تلزق رابط موقعك، عشان أبونا يوصلك بسهولة."],
-    ["🏠","أسرة أب كاهن","لو إنت من أسرة أب كاهن في الكنيسة، تقدر تقول كده من «بياناتي»."],
-    ["🔒","خصوصيتك","كراستك ورسايل أبونا ليك محدش بيشوفها غيركم، ولا حتى الأدمن."]]}};
+    ["🛂","معاك باسبور؟","لو معكش رقم قومي مصري، اطلب من أدمن الكنيسة كود الباسبور، وفي «بياناتي» دوس «🛂 معاك باسبور مش رقم قومي؟» واكتب الكود ورقم الباسبور."]]}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -5600,7 +5695,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.05-4";
+const APP_VERSION = "2026.11.05-5";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -6023,6 +6118,7 @@ function adminView(all){
   const pc = pendingCard(); if (pc) wrap.append(pc);
   const fa = freqAdminCard(); if (fa) wrap.append(fa);
   const inv = inviteCard(); if (inv) wrap.append(inv);
+  const ppc = passportCard(); if (ppc) wrap.append(ppc);
   if (reqs.length) wrap.append(h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
     h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
       h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "طلب "+agoText(ymd(new Date(r.at))))),
@@ -6051,7 +6147,8 @@ function adminView(all){
       isAdmin && Store.mode==="cloud" && ["user","pending"].includes(a.role) || (isAdmin && a.pending) ? nidBadge((S.members||[]).find(m => m.id === a.id), a.id, false, !a.pending) : null,
       miss.length ? h("p",{class:"small acc-miss", style:"margin:0;grid-column:1/-1"},"📝 ناقص: "+miss.join("، ")) : null,
       cloudAdm && !self ? h("div",{class:"acc-contact", style:"grid-column:1/-1"}, contactRow(a)) : null);
-    if (open && isAdmin && !self && Store.mode==="cloud" && ["user","pending"].includes(a.role)) li.append(h("div",{class:"row"}, nidFixBtn(a.id, ((S.members||[]).find(m => m.id === a.id)||{}).nid)));
+    if (open && isAdmin && !self && Store.mode==="cloud" && ["user","pending"].includes(a.role)) { const mm = (S.members||[]).find(m => m.id === a.id) || {}, ce = childEdit(a.id, mm);
+      li.append(ce && S.draft.chEdit === a.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(a.id, mm.nid))); }
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
       const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("الصلاحية اتغيّرت"); }},
@@ -6098,16 +6195,59 @@ function adminView(all){
   if (fStrip) wrap.append(fStrip);
   const grp = GROUPS.some(g => g[0] === S.draft.accGroup) ? S.draft.accGroup : "all";
   const onlyMiss = !!S.draft.accMiss;
-  const sift = () => { const q = arKey(($("#accSearch")||{}).value || ""); document.querySelectorAll("#accLists li.acc-row").forEach(li => {
-      li.hidden = (!!q && !li.dataset.name.includes(q)) || (onlyMiss && !li.dataset.miss); });
-    document.querySelectorAll("#accLists .acc-group").forEach(g => { g.hidden = !g.querySelector("li.acc-row:not([hidden])"); }); };
-  const lists = h("div",{id:"accLists", style:"display:grid;gap:14px"}, GROUPS.filter(g => grp === "all" || g[0] === grp).map(([k, label, f]) => {
+  const sift = () => { const q = arKey(($("#accSearch")||{}).value || ""); let first = null;
+    document.querySelectorAll("#accLists li.acc-row, #accLists li.dir-row").forEach(li => {
+      li.hidden = (!!q && !li.dataset.name.includes(q)) || (onlyMiss && !li.dataset.miss); if (!li.hidden && !first) first = li; });
+    document.querySelectorAll("#accLists .acc-group, #accLists .dir-sec").forEach(g => { g.hidden = !g.querySelector("li.acc-row:not([hidden]), li.dir-row:not([hidden])"); });
+    document.querySelectorAll(".dir-rail button").forEach(b => { const sec = document.getElementById(b.dataset.to); b.disabled = !sec || sec.hidden; });
+    if (q && first && cloudAdm) first.scrollIntoView({block:"nearest"}); };
+  // «دليل الأسماء» (2026-11-05): on the server the admin gets one A-to-Z list with a letter rail; a tap shows the full card
+  // beside the list (computer) or as a sheet from the bottom (phone). The local build keeps the cards in groups.
+  const dirRow = a => {
+    const m = memberOf(a.id) || {}, miss = ["user","pending"].includes(a.role) ? profileMissing(m, a.photo) : [], on = S.draft.accOpen === a.id;
+    const sub = a.role === "priest" ? "⛪ أب اعتراف · "+arDigits(accs.filter(x => x.id !== a.id && x.role !== "priest" && x.father === a.id && !x.pending).length)+" معترف"
+      : a.role === "user" || a.father ? (a.father ? "أبوه: "+((accs.find(x => x.id === a.father)||{}).name||"؟") : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
+    return h("li",{class:"dir-row"+(on ? " on" : ""), role:"button", tabindex:"0", "aria-pressed":on ? "true" : "false", "data-id":a.id,
+        "data-name":arKey(a.name+" "+(m.name||"")), "data-miss":miss.length ? "1" : "",
+        onclick:()=>{ S.draft.accOpen = on ? null : a.id; S.draft.delAsk = null; render(); },
+        onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
+      avatar({name:a.name, photo:a.photo || m.photo}, "sm"),
+      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), h("span",{class:"small muted"}, sub)),
+      h("span",{class:"dir-marks"},
+        a.pending ? h("span",{class:"dir-mark warn", title:"مستني موافقة"},"⏳") : null,
+        miss.length ? h("span",{class:"dir-mark miss", title:"ناقص: "+miss.join("، ")},"📝") : null,
+        a.active === false ? h("span",{class:"dir-mark bad", title:"متوقف"},"⛔") : null));
+  };
+  let lists;
+  if (cloudAdm){
+    if (!window.__dirEsc){ window.__dirEsc = 1; document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && S.draft && S.draft.accOpen && document.querySelector(".dir.has-sel")){ S.draft.accOpen = null; render(); } }); }
+    const shown = accs.filter(a => GROUPS.some(g => (grp === "all" || g[0] === grp) && g[2](a)))
+      .sort((x, y) => arKey(x.name).localeCompare(arKey(y.name), "ar"));
+    const byL = new Map(); for (const a of shown){ const L = arKey(a.name).charAt(0) || "#"; if (!byL.has(L)) byL.set(L, []); byL.get(L).push(a); }
+    const letters = [...byL.keys()], sel = accs.find(a => a.id === S.draft.accOpen);
+    const card = sel ? accCard(sel) : null;
+    lists = h("div",{id:"accLists", class:"dir"+(sel ? " has-sel" : "")},
+      h("div",{class:"dir-main"},
+        h("div",{class:"dir-list"}, shown.length ? letters.map((L, i) => h("section",{class:"dir-sec", id:"dirL"+i},
+            h("h4",{class:"dir-letter"}, L), h("ul",{class:"list dir-ul"}, byL.get(L).map(dirRow))))
+          : h("p",{class:"small muted"},"مفيش حد هنا.")),
+        letters.length > 1 ? h("nav",{class:"dir-rail", "aria-label":"الحروف"}, letters.map((L, i) =>
+          h("button",{type:"button", "data-to":"dirL"+i, onclick:()=>{ const t = document.getElementById("dirL"+i); if (t) t.scrollIntoView({block:"start", behavior:"smooth"}); }}, L))) : null),
+      h("aside",{class:"dir-pane", "aria-live":"polite"},
+        sel ? h("div",{class:"dir-pane-in"},
+            h("button",{type:"button", class:"dir-close", "aria-label":"اقفل", onclick:()=>{ S.draft.accOpen = null; render(); }},"✕"),
+            h("ul",{class:"list acc-grid dir-card"}, card))
+          : h("div",{class:"dir-empty"}, h("span",{class:"prep-emo"},"👆"), h("p",null,"دوس على أي اسم في القايمة عشان يظهر كارته هنا."),
+              h("p",{class:"small muted"}, arDigits(shown.length)+" اسم في القايمة دي"))),
+      sel ? h("div",{class:"dir-backdrop", onclick:()=>{ S.draft.accOpen = null; render(); }}) : null);
+  } else lists = h("div",{id:"accLists", style:"display:grid;gap:14px"}, GROUPS.filter(g => grp === "all" || g[0] === grp).map(([k, label, f]) => {
     const rows = accs.filter(f); if (!rows.length && grp === "all") return null;
     return h("div",{class:"acc-group", "data-group":k}, h("h4",{class:"acc-group-h"}, label+" ("+arDigits(rows.length)+")"),
       rows.length ? h("ul",{class:"list acc-grid"}, rows.map(accCard)) : h("p",{class:"small muted"},"مفيش حد هنا."));
   }));
   const missN = cloudAdm ? accs.filter(a => ["user","pending"].includes(a.role) && profileMissing(memberOf(a.id), a.photo).length).length : 0;
-  wrap.append(h("section",null, h("div",{class:"sec-head"}, h("h3",null,"👥 الناس"), h("span",{class:"small muted"},"دوس على أي كارت عشان تغيّر كلمة السر أو الصلاحية")),
+  wrap.append(h("section",null, h("div",{class:"sec-head"}, h("h3",null,"👥 الناس"), h("span",{class:"small muted"}, cloudAdm ? "بالأبجدية · دوس على أي اسم يظهر كارته" : "دوس على أي كارت عشان تغيّر كلمة السر أو الصلاحية")),
     h("div",{class:"acc-filter row", role:"tablist", "aria-label":"الأقسام"},
       [["all","الكل", accs.length], ...GROUPS.map(([k, l, f]) => [k, l, accs.filter(f).length])].map(([k, l, n]) =>
         h("button",{type:"button", role:"tab", class:"chip-btn acc-tab", "aria-selected":grp === k ? "true" : "false", "aria-pressed":grp === k ? "true" : "false", "data-group":k, onclick:()=>{ S.draft.accGroup = k; render(); }}, l+" · "+arDigits(n))),
@@ -6211,6 +6351,9 @@ function cloudMsg(e){
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
   if (/already registered|already exists|already a member|duplicate key/i.test(m)) return "فيه حساب بالاسم ده.";
+  if (/bad passport code/.test(m)) return "كود الباسبور غلط أو خلص. خد كود جديد من أدمن الكنيسة.";
+  if (/bad passport/.test(m)) return "رقم الباسبور لازم يكون من ٦ لـ ٢٠ حرف إنجليزي أو رقم.";
+  if (/too many codes/.test(m)) return "فيه ٣٠ كود باسبور لسه متستخدموش. امسح القديم الأول.";
   if (/bad signup code/.test(m)) return "كود التسجيل غلط. خده من أبونا أو من أدمن الكنيسة.";
   if (/signup closed/.test(m)) return "التسجيل الجديد مقفول دلوقتي. كلّم أدمن الكنيسة.";
   if (/too many tries/.test(m)) return "اتكتب كود غلط كذا مرة. استنى ربع ساعة وجرّب تاني.";
@@ -6218,6 +6361,10 @@ function cloudMsg(e){
   if (/reason short/.test(m)) return "اكتب سبب الطلب (كلمتين على الأقل).";
   if (/already asked/.test(m)) return "عندك طلب لسه مستني رد الأدمن.";
   if (/bad nid/.test(m)) return "الرقم القومي ده مش صحيح.";
+  if (/bad phone/.test(m)) return "رقم الموبايل مش صحيح.";
+  if (/bad date/.test(m)) return "تاريخ الميلاد مش صحيح.";
+  if (/bad address/.test(m)) return "اكتب العنوان بالتفصيل (من ٥ حروف لـ ٢٠٠).";
+  if (/bad loc/.test(m)) return "لوكيشن البيت لازم يكون رابط https.";
   if (/profile incomplete/.test(m)) return "الشخص ده لسه ماكمّلش بياناته.";
   if (/licence expired/.test(m)) return "رخصة الكنيسة خلصت. كلّم المطوّر على "+DEV.phone+".";
   if (/bad code/.test(m)) return "كود الرخصة غلط.";
@@ -6672,12 +6819,20 @@ newsApi = {
 };
 // new sign-ups (2026-11-05): the admin's code and the open / closed switch
 // fixing someone's national ID (his own father or the admin)
+childApi = { async set(uid, data){ const r = await Cloud.rpc("child_profile_set", {p_uid:uid, p_data:data}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); return r; } };
 nidApi = { async set(uid, nid){ await Cloud.rpc("set_nid", {p_uid:uid, p_nid:nid}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); } };
 // asking to move to another confession father (2026-11-05): the confessee asks, only the admin answers
 freqApi = {
   async create(to, reason){ await Cloud.rpc("freq_create", {p_to:to, p_reason:reason}); Cloud.refresh("freqmine/x"); },
   async cancel(){ await Cloud.rpc("freq_cancel"); Cloud.refresh("freqmine/x"); },
   async answer(id, okk, reply){ await Cloud.rpc("freq_answer", {p_id:id, p_ok:okk, p_reply:reply||""}); Cloud.refresh("freq/x"); Cloud.refresh("accounts/x"); }
+};
+// passport instead of the national ID (2026-11-05): the admin makes a one-time code, the person uses it with the passport number
+passportApi = {
+  make(note){ return Cloud.rpc("passport_new", {p_note:note||""}); },
+  list(){ return Cloud.rpc("passport_list"); },
+  drop(code){ return Cloud.rpc("passport_drop", {p_code:code}); },
+  async use(code, passport){ const r = await Cloud.rpc("passport_use", {p_code:code, p_passport:passport}); if (r && r.error) throw new Error(r.error); const me = Cloud.sess && Cloud.sess.uid; if (me) Cloud.refresh("members/"+me); return r; }
 };
 signupApi = {
   get(){ return Cloud.rpc("signup_get"); },
