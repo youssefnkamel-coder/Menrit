@@ -494,6 +494,21 @@ footer{margin-top:28px}
   background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--gold-grad) border-box!important}
 /* card grids: each card has its own gold frame, the list around them has none */
 ul.list.acc-grid, ul.list.father-grid{border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
+/* «النوتة الروحية» month (2026-11-06) */
+.nbm{display:grid;gap:8px}
+.nbm-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nbm-head .btn{min-width:40px;font-size:1.2rem;font-weight:800}
+.nbm-title{font-size:1.05rem}
+.nbm-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.nbm-wd{font-size:.7rem;text-align:center;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nbm-day{all:unset;box-sizing:border-box;cursor:pointer;aspect-ratio:1/1;display:grid;place-items:center;border-radius:10px;border:1px solid var(--gold-line);background:var(--surface);font-weight:700;font-size:.9rem}
+.nbm-day.l1{background:color-mix(in oklab,var(--brand) 22%,var(--surface))}
+.nbm-day.l2{background:color-mix(in oklab,var(--brand) 50%,var(--surface));color:#fff}
+.nbm-day.l3{background:var(--brand);color:#fff}
+.nbm-day.today{outline:2px solid var(--gold);outline-offset:1px}
+.nbm-day.on{box-shadow:0 0 0 3px var(--gold)}
+.nbm-day:disabled{opacity:.35;cursor:default}
+.nbm-day:focus-visible{outline:3px solid var(--gold)}
 /* «دليل الأسماء» (2026-11-05): A-to-Z list + letter rail; the chosen card beside it (computer) or as a bottom sheet (phone) */
 .dir{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
 .dir-main{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:6px;align-items:start}
@@ -3315,7 +3330,7 @@ const fmtShort = s => { const d = parseYmd(s); return d ? arDigits(d.getDate())+
 function agoText(s){
   if (!s) return "ولا مرة";
   const n = daysBetween(parseYmd(s), TODAY);
-  if (n <= 0) return "النهارده"; if (n === 1) return "امبارح";
+  if (n <= 0) return "اليوم"; if (n === 1) return "أمس";
   if (n < 30) return "من "+arDigits(n)+" يوم";
   const m = Math.round(n/30); return "من "+arDigits(m)+(m<=10?" شهور":" شهر");
 }
@@ -3424,6 +3439,8 @@ const Store = {
     return Mem.listen(path, opts, cb);
   },
   async list(path){ if (this.ext && !this.preview) return this.ext.list(path); if (this.mode==="live"){ const s = await this.db.collection(path).get(); return s.docs.map(d=>Object.assign({id:d.id}, d.data())); } return Mem.snapshot({path}); },
+  async range(path, from, to){ if (this.ext && !this.preview && this.ext.range) return this.ext.range(path, from, to);
+    return (await this.list(path)).filter(d => d.id >= from && d.id <= to); },
   async get(path){ if (this.ext && !this.preview) return this.ext.get(path); if (this.mode==="live"){ const d = await this.db.doc(path).get(); return d.exists ? d.data() : null; } const v = Mem.data.get(path); return v ? JSON.parse(JSON.stringify(v)) : null; },
   async set(path, data){ if (this.ext && !this.preview) return this.ext.set(path, data); return this.mode==="live" ? this.db.doc(path).set(data) : Mem.set(path, data); },
   async update(path, data){ if (this.ext && !this.preview) return this.ext.update(path, data); return this.mode==="live" ? this.db.doc(path).update(data) : Mem.set(path, Object.assign({}, Mem.data.get(path)||{}, data)); },
@@ -3506,7 +3523,7 @@ const PEOPLE_FILTERS = [
   ["conf","🙏","محتاجين اعتراف", p => overDays(p.lastConfession, confDays())],
   ["visit","🏡","محتاجين افتقاد", p => overDays(p.lastVisit, visitDays())],
   ["req","📅","طالبين ميعاد", p => !!(p.request || p.visitReq)],
-  ["occ","🎂","أعياد الأسبوع ده", p => occasions([p], 7).length > 0],
+  ["occ","🎂","أعياد هذا الأسبوع", p => occasions([p], 7).length > 0],
   ["off","📵","مش على البرنامج", p => !p.onApp],
   ["new","✨","جداد", p => !!p.isNew]];
 
@@ -3535,7 +3552,7 @@ function subscribe(){
     if (accRole()==="supervisor") L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   }
   if (Store.mode === "cloud" && ["admin","priest","supervisor"].includes(accRole())) L("pending", null, r => { S.pending=r||[]; scheduleRender(); });
-  S.pfam = {}; if (Store.mode === "cloud" && !Store.preview && accRole() && accRole() !== "pending") L("pfam", null, r => { S.pfam=r||{}; scheduleRender(); });
+  S.pfam = {};
   S.freqs = []; S.freqMine = null;
   if (Store.mode === "cloud" && !Store.preview && accRole() === "admin") L("freq", null, r => { S.freqs=r||[]; scheduleRender(); });
   if (Store.mode === "cloud" && !Store.preview && accRole() && !["pending","priest"].includes(accRole())) L("freqmine", null, r => { S.freqMine=r||null; scheduleRender(); });
@@ -3584,16 +3601,18 @@ function merged(){
     const s = e.self || {}, p = e.pr || {};
     return Object.assign(e, {
       name: p.name || s.name || "بدون اسم", phone: p.phone || s.phone || "",
-      birthday: p.birthday || s.birthday || "", wedding: p.wedding || s.wedding || "", spouse: p.spouse || s.spouse || "",
-      familyName: p.familyName || "", lastConfession: p.lastConfession || "", lastVisit: p.lastVisit || "", notes: p.notes || "",
+      birthday: p.birthday || s.birthday || "", wedding: "", spouse: "",
+      familyName: "", lastConfession: p.lastConfession || "", lastVisit: p.lastVisit || "", notes: p.notes || "",
       photo: p.photo || s.photo || "", area: p.area || "", address: p.address || s.address || "", loc: p.loc || s.loc || "", job: p.job || s.job || "",
-      children: (p.children && p.children.length ? p.children : s.children) || [], spousePhone: s.spousePhone || p.spousePhone || "", spouseBirthday: s.spouseBirthday || p.spouseBirthday || "",
+      children: [], spousePhone: "", spouseBirthday: "",
       father: (S.accounts||[]).find(a => a.id === e.id)?.father || "", visits: p.visits || [], confessions: p.confessions || [],
       request: s.request && s.request.id !== p.handledRequest ? s.request : null,
       visitReq: s.visitReq && s.visitReq.id !== p.handledVisit ? s.visitReq : null, isNew: e.onApp && !e.pr
     });
   }).sort((a,b)=>a.name.localeCompare(b.name,"ar"));
 }
+// fields that are no longer kept anywhere (2026-11-06: the confessee's data is personal only)
+const FAM_KEYS = ["spouse","spousePhone","spouseBirthday","wedding","children","familyName","famNo"];
 function nextOccurrence(s){
   const d = parseYmd(s); if (!d) return null;
   let n = new Date(TODAY.getFullYear(), d.getMonth(), d.getDate()); if (n < TODAY) n.setFullYear(n.getFullYear()+1);
@@ -3602,11 +3621,11 @@ function nextOccurrence(s){
 function occasions(people, within){
   const out = [];
   for (const p of people){
-    for (const [k,label] of [["birthday","عيد ميلاد"],["wedding","عيد جواز"]]){
+    for (const [k,label] of [["birthday","عيد ميلاد"]]){
       const o = nextOccurrence(p[k]); if (o && o.inDays <= within) out.push({p, kind:k, label, ...o});
     }
-    if (p.spouse && p.spouseBirthday){ const o = nextOccurrence(p.spouseBirthday); if (o && o.inDays <= within) out.push({p, kind:"spouse", label:"عيد ميلاد "+p.spouse+" (من أسرة "+p.name.split(" ")[0]+")", ...o}); }
-    for (const c of (p.children||[])){ const o = nextOccurrence(c.birthday); if (o && c.name && o.inDays <= within) out.push({p, kind:"child", child:c.name, label:"عيد ميلاد "+c.name+" (من أولاد "+p.name.split(" ")[0]+")", ...o}); }
+    if (false && p.spouse && p.spouseBirthday){ const o = nextOccurrence(p.spouseBirthday); if (o && o.inDays <= within) out.push({p, kind:"spouse", label:"عيد ميلاد "+p.spouse+" (من أسرة "+p.name.split(" ")[0]+")", ...o}); }
+    for (const c of []){ const o = nextOccurrence(c.birthday); if (o && c.name && o.inDays <= within) out.push({p, kind:"child", child:c.name, label:"عيد ميلاد "+c.name+" (من أولاد "+p.name.split(" ")[0]+")", ...o}); }
   }
   return out.sort((a,b)=>a.inDays-b.inDays);
 }
@@ -3628,7 +3647,10 @@ function photoPicker(id, label, onPick){
     h("input",{id, type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 240, onPick); e.target.value=""; }})];
 }
 const P2 = n => String(n).padStart(2,"0");
-const AUTO_ID = "auto-"+TODAY.getFullYear()+"-"+P2(TODAY.getMonth()+1)+"-"+P2(TODAY.getDate());
+// the church day starts with the evening prayers: from 6 pm the readings are the next day's (2026-11-06)
+const RDAY = (()=>{ const d = new Date(TODAY); if (new Date().getHours() >= 18) d.setDate(d.getDate()+1); return d; })();
+const RDAY_C = toCoptic(RDAY), R_EVE = RDAY.getTime() !== TODAY.getTime();
+const AUTO_ID = "auto-"+RDAY.getFullYear()+"-"+P2(RDAY.getMonth()+1)+"-"+P2(RDAY.getDate());
 function htmlText(s){
   if (!s) return "";
   const d = new DOMParser().parseFromString(String(s), "text/html");
@@ -3665,15 +3687,15 @@ async function loadAutoReadings(force){
   if (!force){ try{ const c = localStorage.getItem(lsKey); if (c){ S.auto = JSON.parse(c); scheduleRender(); return; } }catch(e){} }
   S.autoLoading = true; S.autoFailed = false; scheduleRender();
   try{
-    const res = await fetch("https://api.katameros.app/readings/gregorian/"+P2(TODAY.getDate())+"-"+P2(TODAY.getMonth()+1)+"-"+TODAY.getFullYear()+"?languageId=3");
+    const res = await fetch("https://api.katameros.app/readings/gregorian/"+P2(RDAY.getDate())+"-"+P2(RDAY.getMonth()+1)+"-"+RDAY.getFullYear()+"?languageId=3");
     if (!res.ok) throw new Error("http "+res.status);
     const a = parseKatameros(await res.json());
     if (!a.sections.length) throw new Error("empty");
     S.auto = a;
     try{ localStorage.setItem(lsKey, JSON.stringify(a)); }catch(e){}
     if (S.role === "priest" && Store.mode !== "local" && Store.mode !== "cloud") Store.set("readings/"+AUTO_ID, a).catch(()=>{});
-    if (force) toast("القراءات اتحدّثت");
-  }catch(e){ S.autoFailed = true; if (force) toast("مقدرتش أوصل لموقع القطمارس دلوقتي"); }
+    if (force) toast("تم تحديث القراءات");
+  }catch(e){ S.autoFailed = true; if (force) toast("تعذّر الوصول إلى موقع القطمارس الآن"); }
   S.autoLoading = false; scheduleRender();
 }
 function autoBlock(a){
@@ -3703,12 +3725,13 @@ function autoBlock(a){
 // readings come only from the katameros (updated every day); أبونا no longer types them by hand
 function readingCard(){
   const auto = S.auto || (S.autoDb && S.autoDb.v === 2 ? S.autoDb : null);
-  const head = h("h3",null,"قراءات اليوم · "+arDigits(TODAY_C.d)+" "+CMONTHS[TODAY_C.m-1]);
+  const head = h("div",null, h("h3",{style:"margin:0"},"قراءات اليوم · "+arDigits(RDAY_C.d)+" "+CMONTHS[RDAY_C.m-1]),
+    R_EVE ? h("p",{class:"small muted r-eve", style:"margin:4px 0 0"},"🌙 من ٦ المسا بنعرض قراءات "+WDAYS[RDAY.getDay()]+" "+fmtShort(ymd(RDAY))+"، لأن اليوم في الكنيسة بيبدأ بصلاة العشية.") : null);
   if (auto && auto.sections) return h("div",{class:"card reading"}, head, autoBlock(auto));
   if (S.autoLoading) return h("div",{class:"card reading"}, head, h("p",{class:"muted"},"بنزّل قراءات النهارده..."));
   return h("div",{class:"card reading"}, head,
     h("p",{class:"muted"},"القراءات مش متاحة دلوقتي. اتأكد إن النت شغال وحاول تاني."),
-    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>loadAutoReadings(true)},"🔄 حاول تاني")),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>loadAutoReadings(true)},"🔄 إعادة المحاولة")),
     h("p",{class:"small muted"},"أو اقراها من: ",
       h("a",{href:"https://katamars.avabishoy.com/", target:"_blank", rel:"noopener"},"القطمارس (موقع الأنبا بيشوي)"), " · ",
       h("a",{href:"https://st-takla.org/Full-Free-Coptic-Books/Synaxarium-or-Synexarion/index.html", target:"_blank", rel:"noopener"},"السنكسار (موقع الأنبا تكلا)")));
@@ -3717,13 +3740,13 @@ function meditationBlock(m){
   return h("div",{class:"medit"}, m.title ? h("h3",null,m.title) : null, h("div",{class:"text"}, m.text||""),
     h("span",{class:"small muted"}, m.date ? fmtShort(m.date) : ""));
 }
-const HEAD_ICONS = [["الأدمن","admin"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أولادي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
+const HEAD_ICONS = [["الأدمن","admin"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أبنائي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
 function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.includes(w)); return h("div",{class:"sec-head"}, h("h2",null, m ? icon(m[1]) : null, title), extra||null); }
 
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
   const req = all.filter(p=>p.request||p.visitReq).length;
-  const t = [["today","النهارده", (S.pending||[]).length],["people","أولادي"],["families","الأسر"],["requests","الطلبات", req],["meditations","التأملات"],["settings","الإعدادات"]];
+  const t = [["today","اليوم", (S.pending||[]).length],["people","أبنائي"],["requests","الطلبات", req],["meditations","التأملات"],["settings","الإعدادات"]];
   // on the server the admin has a screen of its own (شاشة الأدمن)
   if (accRole() === "admin" && Store.mode !== "cloud") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
   return t;
@@ -3734,32 +3757,32 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > visitDays());
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{class:"dash"}, pushCard(true), pendingCard(), pfamWaitingCard(), famSuggestCard(all));
+  const wrap = h("div",{class:"dash"}, pushCard(true), pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
   if (Store.mode !== "demo" && Store.mode !== "cloud" && (!S.account || accRole() === "admin") && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
     h("span",null, lb ? "آخر نسخة احتياطية كانت من "+arDigits(lbDays)+" يوم." : "لسه ماعملتش نسخة احتياطية من بياناتك."),
-    h("button",{class:"btn sm", onclick:()=>{ S.tab = S.account ? "admin" : "settings"; render(); }},"اعمل نسخة دلوقتي")));
+    h("button",{class:"btn sm", onclick:()=>{ S.tab = S.account ? "admin" : "settings"; render(); }},"إنشاء نسخة الآن")));
   wrap.append(h("section",null,
     h("div",{class:"stats"},
       stat(all.length,"أولاد في الاعتراف","people",false,"people"),
       stat(reqs.length,"طلبات اعتراف وافتقاد","requests",true,"confession"),
       stat(overdueC.length,"عدّى "+arDigits(confDays())+" يوم من آخر اعتراف","people",true,"bell"),
       stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
-  if (fresh.length) wrap.append(h("section",{class:"half"}, sectionHead("ناس جديدة دخلت البرنامج"),
+  if (fresh.length) wrap.append(h("section",{class:"half"}, sectionHead("أشخاص جدد انضموا إلى البرنامج"),
     h("ul",{class:"list"}, fresh.map(p => h("li",null, h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, p.phone||"")),
-      h("button",{class:"btn sm", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:true})); toast("اتضاف لقايمة أولادك"); }},"ضيفه لأولادي"))))));
-  wrap.append(h("section",{class:"half"}, sectionHead("أعياد الأسبوع ده"),
+      h("button",{class:"btn sm", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:true})); toast("تمت إضافته إلى قائمة أبنائك"); }},"إضافته إلى أبنائي"))))));
+  wrap.append(h("section",{class:"half"}, sectionHead("أعياد هذا الأسبوع"),
     occ.length ? h("ul",{class:"list"}, occ.map(o => h("li",null,
-      h("div",{class:"who"}, h("strong",null,o.p.name), h("span",{class:"small muted"}, o.label+(o.years>0?" ("+arDigits(o.years)+")":"")+" · "+(o.inDays===0?"النهارده":WDAYS[o.date.getDay()]+" "+fmtShort(ymd(o.date))))),
-      h("div",{class:"row"}, o.inDays===0 ? h("span",{class:"pill acc"},"النهارده") : null,
-        o.p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>sendGreeting(o)},"ابعت تهنئة") : null,
+      h("div",{class:"who"}, h("strong",null,o.p.name), h("span",{class:"small muted"}, o.label+(o.years>0?" ("+arDigits(o.years)+")":"")+" · "+(o.inDays===0?"اليوم":WDAYS[o.date.getDay()]+" "+fmtShort(ymd(o.date))))),
+      h("div",{class:"row"}, o.inDays===0 ? h("span",{class:"pill acc"},"اليوم") : null,
+        o.p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>sendGreeting(o)},"إرسال تهنئة") : null,
         o.p.phone ? h("a",{class:"btn sm wa", href:waLink(o.p.phone, greetText(o)+"\n"+fatherSign()), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
         o.p.phone ? h("a",{class:"btn sm ghost", href:"tel:"+telOf(o.p.phone)},"📞 اتصل") : null))))
     : h("div",{class:"empty"},"مفيش أعياد ميلاد أو جواز في السبع أيام الجايين.")));
-  wrap.append(h("section",{class:"half"}, sectionHead("الاعترافات في آخر ٦ شهور"), h("div",{class:"card chart"}, confessionChart(all))));
+  wrap.append(h("section",{class:"half"}, sectionHead("الاعترافات في آخر ٦ أشهر"), h("div",{class:"card chart"}, confessionChart(all))));
   const attention = [...new Set([...overdueC, ...overdueV])].slice(0,8);
-  wrap.append(h("section",{class:"half"}, sectionHead("محتاجين سؤال"),
+  wrap.append(h("section",{class:"half"}, sectionHead("يحتاجون إلى سؤال"),
     attention.length ? h("ul",{class:"list"}, attention.map(p => personRow(p))) : h("div",{class:"empty"},"كل أولادك متابَعين. ربنا يبارك.")));
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(true)));
   return wrap;
@@ -3773,7 +3796,7 @@ function greetText(o){
 async function sendGreeting(o){
   const text = greetText(o);
   await Store.set("members/"+o.p.id+"/inbox/"+newId(), {type:"greeting", title:"كل سنة وانت طيب", text, at:new Date().toISOString()});
-  toast("التهنئة وصلت لـ "+o.p.name);
+  toast("تم إرسال التهنئة إلى "+o.p.name);
 }
 /* ---------- families ---------- */
 const firstName = n => String(n||"").trim().split(/\s+/)[0] || "";
@@ -3849,20 +3872,20 @@ async function famAnswer(s, join){
     toast("✅ "+a.name+" اتضم لـ «"+name+"»");
   } else {
     await editDoc(PP()+"/"+a.id, cur => Object.assign(cur, {onApp:!!a.onApp, famNo:[...new Set([...(cur.famNo||[]), b.id])]}));
-    toast("تمام، مش هنسأل عنهم تاني");
+    toast("حسنًا، لن نسأل عنهم مرة أخرى");
   }
 }
 function famSuggestCard(all){
   if (!isFatherView()) return null;
   const list = famSuggestions(all).slice(0, 5);
   if (!list.length) return null;
-  return h("section",{class:"card fam-suggest"}, h("h3",null,"🔍 ممكن يكونوا من عيلة واحدة"),
+  return h("section",{class:"card fam-suggest"}, h("h3",null,"🔍 قد يكونون من عائلة واحدة"),
     h("p",{class:"small muted", style:"margin:0"},"البيانات دي شبه بعض. اتأكد وقولّي: يتضموا لنفس الأسرة ولا مجرد تشابه؟"),
     h("ul",{class:"list"}, list.map(s => h("li",{class:"fam-row"},
       h("div",{class:"who"}, h("strong",null, s.a.name+" ↔ "+(s.self ? "إنت (أبونا)" : s.b.name)), s.why.map(w => h("span",{class:"small"}, "• "+w))),
       h("div",{class:"row"},
         h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, true); }}, s.self ? "🏠 دي أسرتي" : "🏠 ضمّه للعيلة"),
-        h("button",{class:"btn sm quiet", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, false); }},"تشابه بس"))))));
+        h("button",{class:"btn sm quiet", onclick:async e=>{ e.target.disabled = true; await famAnswer(s, false); }},"تشابه فقط"))))));
 }
 // the same check for someone still waiting for approval: a hint only, the father answers after approving
 function famHint(x){
@@ -3901,7 +3924,7 @@ function familyCard(members, inline){
 /* ---------- أسرة الأب الكاهن across fathers (server only; cloud.js fills pfamApi; S.pfam = {mine, family, tags}) ---------- */
 let pfamApi = null;
 const pfamOn = () => Store.mode === "cloud" && !Store.preview && !!pfamApi;
-async function pfamDo(fn, msg){ try { await fn(); if (msg) toast(msg); } catch(e){ toast("مقدرناش نحفظ، جرّب تاني."); } }
+async function pfamDo(fn, msg){ try { await fn(); if (msg) toast(msg); } catch(e){ toast("تعذّر الحفظ، حاول مرة أخرى."); } }
 function pfamTag(p){
   if (!pfamOn() || accRole() !== "priest") return null;
   const t = ((S.pfam||{}).tags||[]).find(x => x.uid === p.id); if (!t) return null;
@@ -3911,38 +3934,40 @@ function myFamilyCard(){
   if (!pfamOn() || accRole() !== "priest") return null;
   const fam = (S.pfam||{}).family || []; if (!fam.length) return null;
   const me = S.account.id, waiting = fam.filter(x => !x.approved), ok = fam.filter(x => x.approved);
-  const who = x => !x.father ? "لسه ما اختارش أب اعتراف" : x.father === me ? "بيعترف عندك" : "بيعترف عند "+(x.father_name||"أب تاني");
-  const row = (x, btns) => h("li",null, h("div",{class:"person-line"}, avatar(x), h("div",{class:"who"}, h("strong",null, x.name), h("span",{class:"small muted"}, who(x)))), btns || null);
+  // (2026-11-06) two clear buttons «قبول» / «رفض», formal wording
+  const who = x => !x.father ? "لم يختر أب اعتراف بعد" : x.father === me ? "يعترف عندك" : "يعترف عند "+(x.father_name||"أب آخر");
+  const row = (x, btns) => h("li",{class:"pfam-row"}, h("div",{class:"person-line"}, avatar(x), h("div",{class:"who"}, h("strong",null, x.name), h("span",{class:"small muted"}, who(x)))), btns || null);
+  const btns = (x, on) => h("div",{class:"row pfam-btns"},
+    h("button",{class:"btn sm pfam-yes", disabled:on, "aria-pressed":on ? "true" : "false", onclick:e=>{ e.currentTarget.disabled = true; pfamDo(() => pfamApi.answer(x.uid, true), "تمت إضافة "+x.name+" إلى أسرتك."); }}, on ? "✅ مقبول" : "قبول"),
+    h("button",{class:"btn sm quiet pfam-no", onclick:e=>{ if (on && !confirm("هل تريد رفض "+x.name+" وإزالته من أسرتك؟")) return; e.currentTarget.disabled = true; pfamDo(() => pfamApi.answer(x.uid, false), on ? "تمت إزالة "+x.name+" من أسرتك." : "تم رفض الطلب."); }},"رفض"));
   return h("section",{class:"card pfam-card"}, h("h3",null,"⛪ أسرتي"),
-    h("p",{class:"small muted", style:"margin:0"},"مراتك وأولادك، حتى لو بيعترفوا عند أب تاني. بيظهر هنا الاسم والصورة وأب الاعتراف بس."),
-    waiting.length ? h("div",null, h("h4",{class:"act-day"},"مستنيين موافقتك"), h("ul",{class:"list"}, waiting.map(x => row(x, h("div",{class:"row"},
-      h("button",{class:"btn sm", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.answer(x.uid, true), "✅ "+x.name+" اتضاف لأسرتك"); }},"✅ من أسرتي"),
-      h("button",{class:"btn sm quiet", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.answer(x.uid, false), "تمام، اتشال الطلب"); }},"مش من أسرتي")))))) : null,
-    ok.length ? h("ul",{class:"list"}, ok.map(x => row(x, h("button",{class:"btn sm quiet", onclick:e=>{ if (!confirm("تشيل "+x.name+" من أسرتك؟")) return; e.target.disabled = true; pfamDo(() => pfamApi.answer(x.uid, false), "اتشال"); }},"شيل")))) : null);
+    h("p",{class:"small muted", style:"margin:0"},"الزوجة والأبناء، حتى إن كانوا يعترفون عند أب آخر. يظهر هنا الاسم والصورة وأب الاعتراف فقط."),
+    waiting.length ? h("div",null, h("h4",{class:"act-day"},"في انتظار موافقتك"), h("ul",{class:"list"}, waiting.map(x => row(x, btns(x, false))))) : null,
+    ok.length ? h("ul",{class:"list"}, ok.map(x => row(x, btns(x, true)))) : null);
 }
 function pfamWaitingCard(){
   if (!pfamOn() || accRole() !== "priest") return null;
   const n = ((S.pfam||{}).family||[]).filter(x => !x.approved).length; if (!n) return null;
   return h("section",{class:"card pfam-wait"}, h("h3",null,"⛪ طلب انضمام لأسرتك"),
     h("p",{class:"small", style:"margin:0"}, n === 1 ? "فيه حد بيقول إنه من أسرتك ومستني موافقتك." : "فيه "+arDigits(n)+" بيقولوا إنهم من أسرتك ومستنيين موافقتك."),
-    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ S.tab = "families"; render(); window.scrollTo({top:0}); }},"افتح «الأسر»")));
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ S.tab = "families"; render(); window.scrollTo({top:0}); }},"فتح «الأسر»")));
 }
 function pfamMemberCard(){
   if (!pfamOn() || !S.account || accRole() === "pending") return null;
   const mine = (S.pfam||{}).mine, fathers = (S.fathers||[]).filter(f => f.uid !== S.account.id);
   if (!mine && !fathers.length) return null;
   const body = mine ? (mine.approved
-      ? [h("p",{class:"small", style:"font-weight:700;color:var(--ok-ink)"},"✅ إنت مسجّل من أسرة "+mine.priest_name+"."), h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"pfamDrop", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.set(null), "اتشال"); }},"شيل"))]
-      : [h("p",{class:"small"},"⏳ مستني موافقة "+mine.priest_name+"."), h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"pfamDrop", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.set(null), "الطلب اتلغى"); }},"إلغي الطلب"))])
+      ? [h("p",{class:"small", style:"font-weight:700;color:var(--ok-ink)"},"✅ إنت مسجّل من أسرة "+mine.priest_name+"."), h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"pfamDrop", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.set(null), "اتشال"); }},"إزالة"))]
+      : [h("p",{class:"small"},"⏳ مستني موافقة "+mine.priest_name+"."), h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"pfamDrop", onclick:e=>{ e.target.disabled = true; pfamDo(() => pfamApi.set(null), "تم إلغاء الطلب"); }},"إلغاء الطلب"))])
     : [h("p",{class:"small muted", style:"margin:0"},"لو إنت زوجة أو ابن أو بنت أب كاهن في الكنيسة، اختار أبونا عشان يعرف إنك من أسرته، حتى لو بتعترف عند أب تاني. أبونا هيشوف اسمك وصورتك وأب اعترافك بس."),
        h("div",{class:"row"}, h("select",{id:"pfamSel", style:"max-width:220px"}, h("option",{value:""},"اختار أبونا"), fathers.map(f => h("option",{value:f.uid}, f.name))),
-         h("button",{class:"btn sm", onclick:e=>{ const v = $("#pfamSel").value; if (!v){ toast("اختار أبونا الأول"); return; } e.target.disabled = true; pfamDo(() => pfamApi.set(v), "اتبعت لأبونا، مستني موافقته"); }},"ابعت لأبونا"))];
+         h("button",{class:"btn sm", onclick:e=>{ const v = $("#pfamSel").value; if (!v){ toast("اختر أبونا أولًا"); return; } e.target.disabled = true; pfamDo(() => pfamApi.set(v), "اتبعت لأبونا، مستني موافقته"); }},"إرسال إلى أبونا"))];
   return h("section",{class:"card pfam-me"}, h("h3",null,"⛪ أسرة أب كاهن"), ...body);
 }
 function priestFamilies(all){
   const hs = households(all).sort((a,b) => a[0].name.localeCompare(b[0].name,"ar"));
   const kids = hs.reduce((n,g) => n + new Set(g.flatMap(m => (m.children||[]).map(k => firstName(k.name)))).size, 0);
-  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("الأسر اللي بتعترف عندك"));
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("الأسر التي تعترف عندك"));
   wrap.append(h("div",{class:"stats"},
     h("div",{class:"stat"}, h("span",{class:"prep-emo"},"🏠"), h("b",null, arDigits(hs.length)), h("span",null,"أسرة")),
     h("div",{class:"stat"}, h("span",{class:"prep-emo"},"👧"), h("b",null, arDigits(kids)), h("span",null,"ابن وبنت")),
@@ -3978,15 +4003,14 @@ function personRow(p){
       h("span",{class:"pill "+(vD===null||vD>visitDays()?"warn":"")},"افتقاد: "+agoText(p.lastVisit)),
       p.request ? h("span",{class:"pill acc"},"🙏 طالب اعتراف") : null,
       p.visitReq ? h("span",{class:"pill acc"},"🏡 طالب افتقاد") : null,
-      pfamTag(p),
       accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+(((S.accounts||[]).find(a=>a.id===p.father)||{}).name||"؟")) : null));
 }
 function priestPeople(all){
   const q = (S.draft.q||"").trim(), qk = arKey(q), qd = q.replace(/\D/g,"");
-  const hit = p => arKey(p.name+" "+p.familyName+" "+p.area).includes(qk) || (qd.length >= 3 && String(p.phone||"").replace(/\D/g,"").includes(qd));
+  const hit = p => arKey(p.name+" "+p.area).includes(qk) || (qd.length >= 3 && String(p.phone||"").replace(/\D/g,"").includes(qd));
   const flt = PEOPLE_FILTERS.find(f => f[0] === S.draft.pf), srt = S.draft.sort || "name";
   const base = q ? all.filter(hit) : all, list = flt ? base.filter(flt[3]) : base;
-  const by = S.draft.groupBy || "letter";
+  const by = S.draft.groupBy === "area" ? "area" : "letter";
   const old = f => p => p[f] || "0000";  // never-done first
   const cmp = srt === "conf" || (flt && flt[0] === "conf") ? (a,b) => old("lastConfession")(a).localeCompare(old("lastConfession")(b))
     : srt === "visit" || (flt && flt[0] === "visit") ? (a,b) => old("lastVisit")(a).localeCompare(old("lastVisit")(b)) : (a,b) => a.name.localeCompare(b.name,"ar");
@@ -3995,8 +4019,8 @@ function priestPeople(all){
   for (const p of [...list].sort(cmp)){ const k = flat ? "" : by==="letter" ? (arKey(p.name).charAt(0) || "؟") : (by==="area" ? p.area : p.familyName) || ""; if(!groups.has(k)) groups.set(k, []); groups.get(k).push(p); }
   const keys = [...groups.keys()].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b,"ar"));
   const wrap = h("div",{style:"display:grid;gap:18px"});
-  wrap.append(sectionHead("أولادي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; S.draft.newPid = null; render(); }},"ضيف شخص مش على البرنامج")));
-  wrap.append(h("input",{id:"q", type:"search", placeholder: Store.mode==="cloud" && accRole()==="priest" ? "دوّر في أولادك وفي ولاد الكنيسة" : "دوّر بالاسم أو العيلة أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
+  wrap.append(sectionHead("أبنائي في الاعتراف", h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; S.draft.newPid = null; render(); }},"إضافة شخص غير مسجّل في البرنامج")));
+  wrap.append(h("input",{id:"q", type:"search", placeholder: Store.mode==="cloud" && accRole()==="priest" ? "دوّر في أولادك وفي ولاد الكنيسة" : "البحث بالاسم أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
   const counts = PEOPLE_FILTERS.map(f => [f, base.filter(f[3]).length]).filter(([f,n]) => n || (flt && flt[0] === f[0]));
   if (counts.length) wrap.append(h("div",{class:"chips filters"}, counts.map(([f,n]) => h("button",{class:"chip-btn f-"+f[0], "aria-pressed":String(!!flt && flt[0]===f[0]),
     onclick:()=>{ S.draft.pf = flt && flt[0]===f[0] ? null : f[0]; render(); }}, f[1]+" "+f[2]+" ", h("b",{class:"num"}, arDigits(n))))));
@@ -4004,7 +4028,7 @@ function priestPeople(all){
   wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"ترتيب:"),
     [["name","بالاسم"],["conf","الأقدم في الاعتراف"],["visit","الأقدم في الافتقاد"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(srt===k), onclick:()=>{ S.draft.sort=k; render(); }}, l))));
   wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"تجميع حسب:"),
-    [["letter","الحروف"],["family","العيلة"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
+    [["letter","الحروف"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
     h("button",{class:"chip-btn", onclick:exportExcel},"تصدير Excel")));
   if (S.sel) wrap.append(personDetail(all));
   if (!list.length && flt && base.length) wrap.append(h("div",{class:"empty"},"مفيش حد في الفلتر ده دلوقتي."));
@@ -4047,15 +4071,15 @@ function personDetail(all){
   if (!p) return null;
   const pr = (p.pr) || {};
   const self = p.self || {};
-  const families = [...new Set(all.map(x=>x.familyName).filter(Boolean))];
   const f = id => document.getElementById(id).value.trim();
   const save = async () => {
-    const data = Object.assign({}, pr, {onApp:!!p.onApp, familyName:f("fFam"), lastConfession:f("fConf"), lastVisit:f("fVisit"), notes:f("fNotes"),
-      area:f("fArea"), address:f("fAddr"), loc:locOk(f("fLoc")), job:f("fJob"), children:cleanKids(S.draft.kids)});
+    const data = Object.assign({}, pr, {onApp:!!p.onApp, lastConfession:f("fConf"), lastVisit:f("fVisit"), notes:f("fNotes"),
+      area:f("fArea"), address:f("fAddr"), loc:locOk(f("fLoc")), job:f("fJob")});
+    for (const k of FAM_KEYS) delete data[k];
     if (data.lastConfession && data.lastConfession !== pr.lastConfession) data.confessions = [...new Set([...(pr.confessions||[]), data.lastConfession])].sort();
-    if (!p.onApp || isNew){ Object.assign(data, {name:f("fName"), phone:f("fPhone"), birthday:f("fBirth"), wedding:f("fWed"), spouse:f("fSpouse")}); if(!data.name){ toast("اكتب الاسم الأول"); return; } }
+    if (!p.onApp || isNew){ Object.assign(data, {name:f("fName"), phone:f("fPhone"), birthday:f("fBirth")}); if(!data.name){ toast("اكتب الاسم أولًا"); return; } }
     delete data.id;
-    await patchDoc(PP()+"/"+p.id, isNew ? {} : pr, data); toast("اتحفظ"); if (isNew){ S.sel = p.id; S.draft.newPid = null; } render();
+    await patchDoc(PP()+"/"+p.id, isNew ? {} : pr, data); toast("تم الحفظ"); if (isNew){ S.sel = p.id; S.draft.newPid = null; } render();
   };
   const quick = async (field) => {
     await editDoc(PP()+"/"+p.id, cur => {
@@ -4063,31 +4087,27 @@ function personDetail(all){
       if (field==="lastConfession") extra.confessions = [...new Set([...(cur.confessions||[]), TODAY_S])].sort();
       if (field==="lastVisit") extra.visits = [...(cur.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}];
       return Object.assign(cur, extra); });
-    toast("اتسجل النهارده"); };
-  if (S.draft.kidsFor !== p.id){ S.draft.kidsFor = p.id; S.draft.kids = (pr.children||[]).map(k=>Object.assign({}, k)); }
+    toast("تم التسجيل اليوم"); };
   const card = h("div",{class:"card detail", id:"detail"},
     h("div",{class:"row between"}, h("div",{class:"person-line"}, isNew ? null : avatar(p,"lg"), h("div",{class:"who"}, h("h2",null, isNew ? "شخص جديد" : p.name),
-        isNew ? null : h("div",{class:"row", style:"margin-top:6px"}, photoPicker("prPhoto", p.photo ? "غيّر الصورة" : "ضيف صورة", async url => { await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:!!p.onApp, photo:url})); toast("الصورة اتحفظت"); }),
-          pr.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:!!p.onApp, photo:""})); toast("الصورة اتشالت"); }},"شيل الصورة") : null))),
-      h("button",{class:"btn sm quiet", onclick:()=>{ selectPersonClear(); }},"قفل")));
+        isNew ? null : h("div",{class:"row", style:"margin-top:6px"}, photoPicker("prPhoto", p.photo ? "غيّر الصورة" : "ضيف صورة", async url => { await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:!!p.onApp, photo:url})); toast("تم حفظ الصورة"); }),
+          pr.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {onApp:!!p.onApp, photo:""})); toast("تمت إزالة الصورة"); }},"إزالة الصورة") : null))),
+      h("button",{class:"btn sm quiet", onclick:()=>{ selectPersonClear(); }},"إغلاق")));
   if (!isNew) card.append(h("div",{class:"row", "data-keep":""},
-    h("button",{class:"btn sm", onclick:()=>quick("lastConfession")},"اعترف النهارده"),
-    h("button",{class:"btn sm ghost", onclick:()=>quick("lastVisit")},"افتقدته النهارده"),
+    h("button",{class:"btn sm", onclick:()=>quick("lastConfession")},"اعترف اليوم"),
+    h("button",{class:"btn sm ghost", onclick:()=>quick("lastVisit")},"تم الافتقاد اليوم"),
     p.phone ? h("a",{class:"btn sm ghost", href:"tel:"+telOf(p.phone)},"📞 اتصل") : null,
     p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
-    p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"ابعتله تأمل") : null));
+    p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"إرسال تأمل") : null));
   const ro = p.onApp && !isNew;
   if (ro && p.self){ const ce = childEdit(p.id, self); card.append(nidBadge(self, p.id, true), ce && S.draft.chEdit === p.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(p.id, self && self.nid))); }
   card.append(h("div",{class:"form"},
-    ro ? familyCard(p, true) :
+    ro ? null :
     h("div",{class:"two"},
       h("label",null,"الاسم", h("input",{id:"fName", value:pr.name||""})),
       h("label",null,"التليفون", h("input",{id:"fPhone", value:pr.phone||"", inputmode:"tel"})),
-      h("label",null,"عيد الميلاد", h("input",{id:"fBirth", type:"date", value:pr.birthday||""})),
-      h("label",null,"عيد الجواز", h("input",{id:"fWed", type:"date", value:pr.wedding||""})),
-      h("label",null,"اسم شريك الحياة", h("input",{id:"fSpouse", value:pr.spouse||""}))),
+      h("label",null,"عيد الميلاد", h("input",{id:"fBirth", type:"date", value:pr.birthday||""}))),
     h("div",{class:"two"},
-      h("label",null,"العيلة (لربط الأسرة ببعض)", h("input",{id:"fFam", value:pr.familyName||"", list:"famList", placeholder:"مثلاً: عائلة مينا ومارينا"}), h("datalist",{id:"famList"}, families.map(x=>h("option",{value:x})))),
       h("label",null,"آخر اعتراف", h("input",{id:"fConf", type:"date", value:pr.lastConfession||""})),
       h("label",null,"آخر افتقاد", h("input",{id:"fVisit", type:"date", value:pr.lastVisit||""}))),
     h("div",{class:"two"},
@@ -4096,18 +4116,15 @@ function personDetail(all){
       h("label",null,"لوكيشن البيت (رابط من جوجل ماب أو واتساب)", h("input",{id:"fLoc", value:pr.loc||p.loc||"", dir:"ltr", inputmode:"url", placeholder:"https://maps.app.goo.gl/…"})),
       mapBtn({address:pr.address||p.address, area:pr.area||p.area, loc:pr.loc||p.loc}),
       h("label",null,"الشغل", h("input",{id:"fJob", value:pr.job||""}))),
-    ro ? null : kidsEditor(),
     h("label",null,"ملاحظات أبونا (المعترفين مابيشوفوهاش)", h("textarea",{id:"fNotes"}, pr.notes||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:save},"حفظ"),
-      !isNew && !p.onApp ? h("button",{class:"btn quiet", onclick:async()=>{ await Store.del(PP()+"/"+p.id); selectPersonClear(); toast("اتشال من القايمة"); }},"شيله من القايمة") : null)));
+      !isNew && !p.onApp ? h("button",{class:"btn quiet", onclick:async()=>{ await Store.del(PP()+"/"+p.id); selectPersonClear(); toast("تمت إزالته من القائمة"); }},"إزالته من القائمة") : null)));
   if (!isNew) card.append(historyBlock(p, pr));
-  if (p.familyName){
-    const fam = all.filter(x=>x.familyName===p.familyName && x.id!==p.id);
-    if (fam.length) card.append(h("p",{class:"small"}, "من نفس العيلة: ", fam.map(x=>x.name).join("، ")));
-  }
   if (p.onApp && !isNew){
-    card.append(h("h3",null,"النوتة الروحية"), notebookGrid(S.selNotebook));
-    const last = S.selNotebook.slice(0,5);
+    const pk = S.draft.nbPick && S.draft.nbPick.uid === p.id ? S.draft.nbPick : null;
+    const pick = (ds, r) => { S.draft.nbPick = pk && pk.date === ds ? null : {uid:p.id, date:ds, r}; render(); };
+    card.append(h("h3",null,"النوتة الروحية"), notebookMonth(p.id, S.selNotebook, pick, pk && pk.date));
+    const last = pk ? [Object.assign({date:pk.date}, pk.r || {})] : S.selNotebook.slice(0,5);
     card.append(last.length ? h("ul",{class:"list"}, last.map(n => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(n.date)),
       h("span",{class:"small muted"}, NOTE_ITEMS.filter(([k])=>n.items&&n.items[k]).map(([,l])=>l).join("، ") || "ما سجلش حاجة"),
       n.portion ? h("span",{class:"small"},"القراءة: "+n.portion) : null, n.reflection ? h("span",{class:"small"}, "«"+n.reflection+"»") : null),
@@ -4166,9 +4183,9 @@ async function takenLocal(father, from, to, kind){ return (await Store.list("boo
 async function bookLocal(date, time, note, kind, address){
   kind = kind === "visit" ? "visit" : "confession";
   const f = schedId(), k = bookKey(f, date, time, kind);
-  if (await Store.get(k)){ toast("الميعاد ده لسه اتحجز. اختار ميعاد تاني."); return false; }
+  if (await Store.get(k)){ toast("تم حجز هذا الموعد للتو. اختر موعدًا آخر."); return false; }
   const mine = (await Store.list("book/"+f+"/"+bookSeg(kind))).find(d => d.uid === S.uid && d.id >= TODAY_S);
-  if (mine){ toast("عندك حجز لسه. لو عاوز تغيّره الغيه الأول."); return false; }
+  if (mine){ toast("لديك حجز قائم. لتغييره، ألغِه أولًا."); return false; }
   await Store.set(k, {uid:S.uid, name:(S.profile&&S.profile.name)||(S.account&&S.account.name)||"", at:new Date().toISOString()});
   const r = {id:newId(), kind, date, time, slot:"", note:(note||"").slice(0,600), booking:k, at:TODAY_S};
   if (kind === "visit") r.address = (address||"").slice(0,300);
@@ -4202,7 +4219,7 @@ function schedCard(){
   const d = S.draft.sc;
   const save = async () => {
     const tenD = d.rep === "10d", wins = tenD ? [{from:d.tenFrom, to:d.tenTo}] : d.days.filter(x=>x.on);
-    if ((d.rep === "10d" || d.rep === "2w") && !d.start){ toast("اختار تاريخ أول يوم"); return; }
+    if ((d.rep === "10d" || d.rep === "2w") && !d.start){ toast("اختر تاريخ أول يوم"); return; }
     for (const x of [...wins, ...d.extra]) if (!x.from || !x.to || hmOf(x.to) - hmOf(x.from) < Number(d.len)){ toast("راجع الساعات: «لحد» لازم تبقى بعد «من» بوقت "+(vis?"زيارة":"اعتراف")+" واحد على الأقل"); return; }
     const obj = {rep:d.rep, len:Number(d.len)||(vis?45:15), days: tenD ? [{from:d.tenFrom, to:d.tenTo}] : d.days.filter(x=>x.on).map(({wd,from,to})=>({wd,from,to})), closed:d.closed, extra:d.extra};
     if (d.rep === "2w" || tenD) obj.start = d.start; if (d.rep === "m") obj.nth = Number(d.nth) || 1;
@@ -4234,21 +4251,21 @@ function schedCard(){
           "لحد", h("input",{type:"time", id:"scT"+wd, value:x.to, onchange:e=>{ x.to = e.target.value; }})) : null); })),
     h("h4",null, vis ? "أيام مش هتزور فيها (سفر، عيد، خلوة)" : "أيام مش هتعرّف فيها (سفر، عيد، خلوة)"),
     h("div",{class:"row"}, h("input",{type:"date", id:"scClosed", min:TODAY_S, style:"max-width:190px"}),
-      h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ const v = $("#scClosed").value; if (!v) return; if (!d.closed.includes(v)) d.closed.push(v); d.closed.sort(); render(); }},"+ ضيف")),
-    d.closed.length ? h("div",{class:"chips"}, d.closed.map(c => h("button",{class:"chip-btn", type:"button", title:"شيل", onclick:()=>{ d.closed = d.closed.filter(x=>x!==c); render(); }}, WDAYS[parseYmd(c).getDay()]+" "+fmtShort(c)+" ✕"))) : null,
-    h("h4",null,"يوم زيادة (مرة واحدة)"),
+      h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ const v = $("#scClosed").value; if (!v) return; if (!d.closed.includes(v)) d.closed.push(v); d.closed.sort(); render(); }},"+ إضافة")),
+    d.closed.length ? h("div",{class:"chips"}, d.closed.map(c => h("button",{class:"chip-btn", type:"button", title:"إزالة", onclick:()=>{ d.closed = d.closed.filter(x=>x!==c); render(); }}, WDAYS[parseYmd(c).getDay()]+" "+fmtShort(c)+" ✕"))) : null,
+    h("h4",null,"يوم إضافي (مرة واحدة)"),
     h("div",{class:"row"}, h("input",{type:"date", id:"scXd", min:TODAY_S, style:"max-width:170px"}),
       h("input",{type:"time", id:"scXf", value:"18:00", style:"max-width:120px"}), h("input",{type:"time", id:"scXt", value:"20:00", style:"max-width:120px"}),
       h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ const date = $("#scXd").value, from = $("#scXf").value, to = $("#scXt").value; if (!date || !from || !to) return;
-        d.extra = d.extra.filter(x=>x.date!==date).concat([{date, from, to}]).sort((a,b)=>a.date.localeCompare(b.date)); render(); }},"+ ضيف")),
-    d.extra.length ? h("div",{class:"chips"}, d.extra.map(x => h("button",{class:"chip-btn", type:"button", title:"شيل", onclick:()=>{ d.extra = d.extra.filter(y=>y!==x); render(); }},
+        d.extra = d.extra.filter(x=>x.date!==date).concat([{date, from, to}]).sort((a,b)=>a.date.localeCompare(b.date)); render(); }},"+ إضافة")),
+    d.extra.length ? h("div",{class:"chips"}, d.extra.map(x => h("button",{class:"chip-btn", type:"button", title:"إزالة", onclick:()=>{ d.extra = d.extra.filter(y=>y!==x); render(); }},
       WDAYS[parseYmd(x.date).getDay()]+" "+fmtShort(x.date)+" · "+timeAr(x.from)+" – "+timeAr(x.to)+" ✕"))) : null,
-    h("div",{class:"row"}, h("button",{class:"btn", type:"button", onclick:save},"احفظ المواعيد")),
-    h("h4",null,"الحجوزات الجاية"),
+    h("div",{class:"row"}, h("button",{class:"btn", type:"button", onclick:save},"حفظ المواعيد")),
+    h("h4",null,"الحجوزات القادمة"),
     up.length ? h("ul",{class:"list"}, up.map(b => { const [ds, t] = b.id.split("_"); const tm = t.slice(0,2)+":"+t.slice(2);
       return h("li",null, h("div",{class:"who"}, h("strong",null, b.name||"؟"), h("span",{class:"small muted num"}, WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)+" · "+timeAr(tm))),
-        h("button",{class:"btn sm quiet", "data-keep":"", onclick:async()=>{ if (S.draft.bkAsk !== b.id){ S.draft.bkAsk = b.id; toast("دوس تاني للتأكيد: الميعاد هيفضى والطلب هيتشال"); return; }
-          if (await cancelBooking("book/"+id+"/"+seg+"/"+b.id)){ S.draft.bkAsk = null; toast("الميعاد فضي"); } }},"فضّي الميعاد")); }))
+        h("button",{class:"btn sm quiet", "data-keep":"", onclick:async()=>{ if (S.draft.bkAsk !== b.id){ S.draft.bkAsk = b.id; toast("اضغط مرة أخرى للتأكيد: سيُخلى الموعد ويُزال الطلب"); return; }
+          if (await cancelBooking("book/"+id+"/"+seg+"/"+b.id)){ S.draft.bkAsk = null; toast("تم إخلاء الموعد"); } }},"إخلاء الموعد")); }))
       : h("p",{class:"small muted", style:"margin:0"},"مفيش حجوزات لسه."));
 }
 const slotOf = k => SLOTS.find(x=>x[0]===k);
@@ -4293,8 +4310,8 @@ function priestRequests(all){
   const wa = S.draft.waAfter;
   if (wa) wrap.append(h("div",{class:"card wa-after"},
     h("p",{style:"margin:0"}, "✅ الميعاد وصل لـ "+wa.name+" في البرنامج. تحب تبعتهوله واتساب كمان؟"),
-    h("div",{class:"row"}, h("a",{class:"btn wa", href:waLink(wa.phone, wa.text), target:"_blank", rel:"noopener", onclick:()=>{ S.draft.waAfter = null; setTimeout(render, 300); }},"💬 ابعته واتساب"),
-      h("button",{class:"btn quiet", onclick:()=>{ S.draft.waAfter = null; render(); }},"مش لازم"))));
+    h("div",{class:"row"}, h("a",{class:"btn wa", href:waLink(wa.phone, wa.text), target:"_blank", rel:"noopener", onclick:()=>{ S.draft.waAfter = null; setTimeout(render, 300); }},"💬 إرسال عبر واتساب"),
+      h("button",{class:"btn quiet", onclick:()=>{ S.draft.waAfter = null; render(); }},"غير ضروري"))));
   if (!items.length) wrap.append(h("div",{class:"empty"},"مفيش طلبات مستنية. لما حد يطلب ميعاد اعتراف أو افتقاد هيظهر هنا."));
   for (const {p, r, k} of items){
     const K = REQ_KINDS[k], idT = "t_"+k+p.id, idN = "n_"+k+p.id, sl = slotOf(r.slot);
@@ -4318,25 +4335,25 @@ function priestRequests(all){
         h("label",null,"رسالة معاه (اختياري)", h("input",{id:idN, placeholder: k==="visit" ? "مثلاً: هعدّي عليك أنا والشماس" : "مثلاً: في مكتب أبونا بعد عشية"}))),
       h("div",{class:"row"},
         r.booking ? h("button",{class:"btn", onclick:async()=>{
-          await done(def, document.getElementById(idN).value.trim()); toast("الميعاد اتأكد لـ "+p.name); }},"✅ أكّد الحجز") : null,
+          await done(def, document.getElementById(idN).value.trim()); toast("تم تأكيد الموعد لـ "+p.name); }},"✅ تأكيد الحجز") : null,
         h("button",{class:"btn"+(r.booking?" ghost":""), onclick:async()=>{
-          const when = document.getElementById(idT).value; if(!when){ toast("اختار الميعاد الأول"); return; }
+          const when = document.getElementById(idT).value; if(!when){ toast("اختر الموعد أولًا"); return; }
           await done(when, document.getElementById(idN).value.trim());
           // another time than the booked one: the booked time is free again
           if (r.booking && when !== def) await cancelBooking(r.booking);
-          toast("الميعاد اتبعت لـ "+p.name); }}, r.booking ? "ابعت ميعاد تاني" : "ابعت الميعاد"),
-        h("button",{class:"btn quiet", onclick:async()=>{ await done(null); if (r.booking) await cancelBooking(r.booking); toast("اتشال من الطلبات"); }},"تم من غير ميعاد"))));
+          toast("تم إرسال الموعد إلى "+p.name); }}, r.booking ? "ابعت ميعاد تاني" : "ابعت الميعاد"),
+        h("button",{class:"btn quiet", onclick:async()=>{ await done(null); if (r.booking) await cancelBooking(r.booking); toast("تمت إزالته من الطلبات"); }},"تم بدون موعد"))));
   }
   const up = all.flatMap(p => [p.pr && p.pr.nextConfession && new Date(p.pr.nextConfession) >= TODAY ? {p, when:p.pr.nextConfession, k:"confession"} : null,
     p.pr && p.pr.nextVisit && new Date(p.pr.nextVisit) >= TODAY ? {p, when:p.pr.nextVisit, k:"visit"} : null]).filter(Boolean).sort((a,b)=>a.when.localeCompare(b.when));
-  if (up.length) wrap.append(h("section",null, sectionHead("مواعيد جاية"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
+  if (up.length) wrap.append(h("section",null, sectionHead("مواعيد قادمة"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
     h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when))),
     contactBtns(p, "🔔 تذكير\n"+apptText(p, k, when)),
     icsBtn({id:"p"+p.id.replace(/[^A-Za-z0-9-]/g,"")+k[0]+String(when).replace(/\D/g,""), when, len: k === "visit" ? 45 : 20, title: REQ_KINDS[k].emo+" "+REQ_KINDS[k].label+": "+p.name,
       where: k === "visit" ? [p.address, p.area].filter(Boolean).join("، ") : "", note: k === "visit" && mapUrl(p) ? mapUrl(p) : ""}, "📅"),
     k==="confession"
-      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(cur.confessions||[]), TODAY_S])].sort()})); toast("اتسجل الاعتراف"); }},"اعترف")
-      : h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastVisit:TODAY_S, nextVisit:"", visits:[...(cur.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]})); toast("الافتقاد اتسجل"); }},"افتقدته"))))));
+      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(cur.confessions||[]), TODAY_S])].sort()})); toast("تم تسجيل الاعتراف"); }},"اعترف")
+      : h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastVisit:TODAY_S, nextVisit:"", visits:[...(cur.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]})); toast("تم تسجيل الافتقاد"); }},"تم الافتقاد"))))));
   return wrap;
 }
 // «📅 ضيفه لتقويمي» (2026-11-05): an .ics file the phone's calendar opens, with a reminder at 8 in the morning and one an hour before
@@ -4359,7 +4376,7 @@ function icsText(evs){
 }
 function icsBtn(ev, label){
   return h("a",{class:"btn sm ghost ics-btn", href:"data:text/calendar;charset=utf-8,"+encodeURIComponent(icsText([ev])), download:"menrit-"+String(ev.when).slice(0,10)+".ics",
-    onclick:e => { e.stopPropagation(); setTimeout(() => toast("افتح الملف وهيتضاف لتقويم الموبايل"), 200); }}, label || "📅 ضيفه لتقويمي"); }
+    onclick:e => { e.stopPropagation(); setTimeout(() => toast("افتح الملف ليُضاف إلى تقويم الموبايل"), 200); }}, label || "📅 ضيفه لتقويمي"); }
 function fmtWhen(s){ if(!s) return ""; const d = new Date(s); return WDAYS[d.getDay()]+" "+fmtG(d)+" · "+arDigits(pad(d.getHours()))+":"+arDigits(pad(d.getMinutes())); }
 
 function priestMeditations(all){
@@ -4367,7 +4384,7 @@ function priestMeditations(all){
   const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("التأملات الروحية"));
   const send = async () => {
     const title = $("#mTitle").value.trim(), text = $("#mText").value.trim(), to = $("#mTo").value;
-    if (!text){ toast("اكتب التأمل الأول"); return; }
+    if (!text){ toast("اكتب التأمل أولًا"); return; }
     const doc = {title, text, at:new Date().toISOString(), date:TODAY_S};
     if (to === "all") await Store.set("meditations/"+newId(), doc);
     else await Store.set("members/"+to+"/inbox/"+newId(), Object.assign({type:"meditation"}, doc));
@@ -4380,14 +4397,14 @@ function priestMeditations(all){
       onApp.map(p=>h("option",{value:p.id, selected:S.draft.medTo===p.id},p.name)))),
     h("label",null,"العنوان (اختياري)", h("input",{id:"mTitle", value:S.draft.mTitle||"", oninput:e=>S.draft.mTitle=e.target.value})),
     h("label",null,"التأمل", h("textarea",{id:"mText", rows:"6", oninput:e=>S.draft.mText=e.target.value}, S.draft.mText||"")),
-    h("div",{class:"row"}, h("button",{class:"btn", onclick:send},"ابعت التأمل"),
+    h("div",{class:"row"}, h("button",{class:"btn", onclick:send},"إرسال التأمل"),
       h("span",{class:"small muted"},"التأمل الخاص بيوصل للشخص لوحده ومحدش تاني بيشوفه."))));
   // on the server every meditation carries its author (by): a father sees and removes only his own
   const mine = m => Store.mode !== "cloud" || Store.preview || accRole() === "admin" || m.by === (S.account && S.account.id);
   const sent = S.meditations.filter(m => Store.mode !== "cloud" || Store.preview || !m.by || mine(m));
-  wrap.append(h("section",null, h("h3",null,"اللي اتبعت للكل"),
+  wrap.append(h("section",null, h("h3",null,"ما تم إرساله للجميع"),
     sent.length ? h("div",{style:"display:grid;gap:14px"}, sent.slice(0,10).map(m => h("div",{class:"card"}, meditationBlock(m),
-      mine(m) ? h("div",null, h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("اتمسح"); }},"امسح")) : null))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
+      mine(m) ? h("div",null, h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("تم الحذف"); }},"حذف")) : null))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
   return wrap;
 }
 
@@ -4401,14 +4418,14 @@ function kidsEditor(store, prefix){
   const box = h("div",{class:"form kids-box"}, h("span",{class:"kids-title"},"👧👦 الأبناء", h("span",{class:"small muted"}," (أعياد ميلادهم بتظهر لأبونا في أعياد الأسبوع)")));
   kids.forEach((k,i) => box.append(h("div",{class:"kid-card"},
     h("div",{class:"kid-head"}, h("b",null, (k.name||"").trim() || "ابن/بنت "+arDigits(i+1)),
-      h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ kids.splice(i,1); render(); }},"شيل")),
+      h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ kids.splice(i,1); render(); }},"إزالة")),
     h("div",{class:"two"},
       h("label",null,"الاسم", h("input",{id:prefix+"N"+i, value:k.name||"", oninput:e=>k.name=e.target.value})),
       h("label",null,"تاريخ الميلاد", h("input",{id:prefix+"B"+i, type:"date", value:k.birthday||"", oninput:e=>k.birthday=e.target.value})),
       h("label",null,"السنة الدراسية", h("select",{id:prefix+"G"+i, onchange:e=>k.grade=e.target.value},
         h("option",{value:""},"اختار"), GRADES.map(g => h("option",{value:g, selected:k.grade===g}, g)))),
       h("label",null,"التليفون (لو ليه)", h("input",{id:prefix+"P"+i, value:k.phone||"", inputmode:"tel", oninput:e=>k.phone=e.target.value}))))));
-  box.append(h("div",null, h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ kids.push({name:"",birthday:"",grade:"",phone:""}); render(); }},"+ ضيف ابن أو بنت")));
+  box.append(h("div",null, h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ kids.push({name:"",birthday:"",grade:"",phone:""}); render(); }},"+ إضافة ابن أو ابنة")));
   return box;
 }
 const cleanKids = kids => (kids||[]).filter(k => (k.name||"").trim()).map(k => clean({name:k.name.trim(), birthday:k.birthday||"", grade:k.grade||"", phone:(k.phone||"").trim()}));
@@ -4426,8 +4443,8 @@ function historyBlock(p, pr){
       await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[]), {date, type, note}];
         return Object.assign(cur, {onApp:!!p.onApp, visits:vs, lastVisit:vs.map(v=>v.date).sort().pop()}); });
       if ($("#vNote")) $("#vNote").value = "";
-      toast("الافتقاد اتسجل");
-    } catch(x){ toast("مقدرناش نسجّل الافتقاد. جرّب تاني."); }
+      toast("تم تسجيل الافتقاد");
+    } catch(x){ toast("تعذّر تسجيل الافتقاد. حاول مرة أخرى."); }
     finally { addVisit.busy = false; if (btn && btn.isConnected){ btn.disabled = false; btn.removeAttribute("aria-busy"); } }
   };
   const dropVisit = async v => {
@@ -4436,8 +4453,8 @@ function historyBlock(p, pr){
       await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[])], i = vs.findIndex(x => x.date === v.date && x.type === v.type && (x.note||"") === (v.note||""));
         if (i >= 0) vs.splice(i, 1);
         return Object.assign(cur, {visits:vs, lastVisit:vs.map(x=>x.date).sort().pop() || ""}); });
-      toast("اتمسح");
-    } catch(x){ toast("مقدرناش نمسحه. جرّب تاني."); }
+      toast("تم الحذف");
+    } catch(x){ toast("تعذّر الحذف. حاول مرة أخرى."); }
   };
   return h("div",{class:"form"},
     h("h3",null,"سجل الافتقاد"),
@@ -4445,7 +4462,7 @@ function historyBlock(p, pr){
       h("label",null,"التاريخ", h("input",{id:"vDate", type:"date", value:TODAY_S, max:TODAY_S})),
       h("label",null,"نوع الافتقاد", h("select",{id:"vType"}, VISIT_TYPES.map(t=>h("option",{value:t},t)))),
       h("label",null,"ملاحظة", h("input",{id:"vNote", placeholder:"اختياري"}))),
-    h("div",null, h("button",{class:"btn sm", type:"button", onclick:addVisit},"سجّل الافتقاد")),
+    h("div",null, h("button",{class:"btn sm", type:"button", onclick:addVisit},"تسجيل الافتقاد")),
     visits.length ? h("ul",{class:"list"}, visits.slice(0,6).map(v => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(v.date)), v.note ? h("span",{class:"small muted"}, v.note) : null), h("div",{class:"row", style:"gap:6px;align-items:center"}, h("span",{class:"pill"}, v.type),
         h("button",{class:"btn sm quiet visit-del", type:"button", title:"امسح الافتقاد ده", "aria-label":"امسح "+v.type+" يوم "+fmtShort(v.date), onclick:()=>dropVisit(v)},"✕"))))) : h("p",{class:"small muted"},"لسه مفيش افتقاد متسجل."),
     h("h3",null,"سجل الاعتراف"),
@@ -4596,19 +4613,19 @@ async function saveFile(filename, data, mime){
     if (dl){ try { await dl.save({filename, data: data instanceof ArrayBuffer ? data : new Blob([data],{type:mime})}); return true; } catch(e){ if (e && e.code === "declined") return false; } }
   }
   try { const url = URL.createObjectURL(new Blob([data],{type:mime})); const a = h("a",{href:url, download:filename}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000); return true; }
-  catch(e){ toast("مقدرناش ننزل الملف"); return false; }
+  catch(e){ toast("تعذّر تنزيل الملف"); return false; }
 }
 async function exportExcel(){
-  if (!window.XLSX && Store.mode === "cloud"){ toast("بجهّز ملف Excel…");
+  if (!window.XLSX && Store.mode === "cloud"){ toast("جارٍ تجهيز ملف Excel…");
     await new Promise(res => { const sc = document.createElement("script"); sc.src = "xlsx.full.min.js"; sc.onload = sc.onerror = res; document.head.append(sc); }); }
-  if (!window.XLSX){ toast("مكتبة Excel لسه ما اتحملتش، جرب تاني"); return; }
-  const rows = merged().map(p => ({"الاسم":p.name, "التليفون":p.phone, "العيلة":p.familyName, "المنطقة":p.area, "العنوان":p.address, "الخريطة":mapUrl(p), "الشغل":p.job,
-    "عيد الميلاد":p.birthday, "عيد الجواز":p.wedding, "شريك الحياة":p.spouse, "الأبناء":(p.children||[]).map(c=>c.name+(c.birthday?" ("+c.birthday+")":"")).join("، "),
+  if (!window.XLSX){ toast("مكتبة Excel لم تُحمَّل بعد، حاول مرة أخرى"); return; }
+  const rows = merged().map(p => ({"الاسم":p.name, "التليفون":p.phone, "المنطقة":p.area, "العنوان":p.address, "الخريطة":mapUrl(p), "الشغل":p.job,
+    "عيد الميلاد":p.birthday,
     "آخر اعتراف":p.lastConfession, "مرات الاعتراف":(p.confessions||[]).length, "آخر افتقاد":p.lastVisit, "على البرنامج":p.onApp?"أيوه":"لأ"}));
   const ws = XLSX.utils.json_to_sheet(rows); ws["!cols"] = Object.keys(rows[0]||{"الاسم":1}).map(()=>({wch:18}));
-  const wb = XLSX.utils.book_new(); wb.Workbook = {Views:[{RTL:true}]}; XLSX.utils.book_append_sheet(wb, ws, "أولادي");
+  const wb = XLSX.utils.book_new(); wb.Workbook = {Views:[{RTL:true}]}; XLSX.utils.book_append_sheet(wb, ws, "أبنائي");
   const buf = XLSX.write(wb, {type:"array", bookType:"xlsx"});
-  if (await saveFile("أولادي-في-الاعتراف-"+TODAY_S+".xlsx", buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) toast("الملف اتنزل");
+  if (await saveFile("أولادي-في-الاعتراف-"+TODAY_S+".xlsx", buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) toast("تم تنزيل الملف");
 }
 async function collectBackup(){
   const docs = {};
@@ -4645,14 +4662,14 @@ function backupCard(){
     h("p",{class:"small "+(lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "muted" : ""), style: lb && daysBetween(parseYmd(lb),TODAY)<=7 ? "" : "color:var(--warn-ink);font-weight:600"}, lb ? "آخر نسخة احتياطية: "+fmtShort(lb)+" ("+agoText(lb)+")" : "لسه ماعملتش أي نسخة احتياطية."),
     h("div",{class:"row"},
       h("button",{class:"btn sm", onclick:async()=>{ const b = await collectBackup();
-        if (await saveFile("نسخة-احتياطية-المتابعة-الروحية-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("النسخة اتنزلت"); } }},"نزّل نسخة احتياطية كاملة"),
+        if (await saveFile("نسخة-احتياطية-المتابعة-الروحية-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("تم تنزيل النسخة"); } }},"تنزيل نسخة احتياطية كاملة"),
       h("label",{class:"btn sm ghost", for:"stRestore", style:"cursor:pointer"},"رجّع من نسخة احتياطية"),
       h("input",{id:"stRestore", type:"file", accept:".json,application/json", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
-        r.onload=()=>{ let b; try { b = JSON.parse(r.result); } catch(_){ toast("الملف ده مش نسخة احتياطية سليمة"); return; }
-          if (!b || b.app!=="ruhiya" || !b.docs){ toast("الملف ده مش نسخة احتياطية من البرنامج ده"); return; }
+        r.onload=()=>{ let b; try { b = JSON.parse(r.result); } catch(_){ toast("هذا الملف ليس نسخة احتياطية سليمة"); return; }
+          if (!b || b.app!=="ruhiya" || !b.docs){ toast("هذا الملف ليس نسخة احتياطية من هذا البرنامج"); return; }
           const n = Object.keys(b.docs).length;
           restoreBox.replaceChildren(h("div",{class:"warnbox"}, h("span",null,"هيترجع "+arDigits(n)+" سجل من نسخة "+fmtShort(b.created.slice(0,10))+" فوق البيانات الحالية. متأكد؟"),
-            h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ const n = await restoreDocs(b.docs); restoreBox.replaceChildren(); toast("رجع "+arDigits(n)+" سجل"); }},"أيوه رجّعها"),
+            h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ const n = await restoreDocs(b.docs); restoreBox.replaceChildren(); toast("رجع "+arDigits(n)+" سجل"); }},"نعم، استرجاع"),
               h("button",{class:"btn sm quiet", onclick:()=>restoreBox.replaceChildren()},"إلغاء")))); };
         r.readAsText(f); e.target.value=""; }})),
     restoreBox);
@@ -4662,21 +4679,21 @@ function resetCard(){
   const ask = () => box.replaceChildren(h("div",{class:"reset-warn"},
     h("p",null,h("strong",null,"⚠️ ده هيمسح كل حاجة: "),"أولاد الاعتراف، الطلبات، التأملات، النوتة، الرسائل، القراءات، الإعدادات، السجل، وكل الحسابات ما عدا حسابك إنت. مفيش رجوع غير من نسخة احتياطية."),
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{ const b = await collectBackup();
-      if (await saveFile("نسخة-قبل-التصفير-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("النسخة اتنزلت"); } }},"💾 نزّل نسخة احتياطية الأول")),
+      if (await saveFile("نسخة-قبل-التصفير-"+TODAY_S+".json", JSON.stringify(b), "application/json")){ await Store.set("priest/meta", clean(Object.assign({}, S.meta, {lastBackup:TODAY_S}))); toast("تم تنزيل النسخة"); } }},"💾 تنزيل نسخة احتياطية أولًا")),
     h("label",null,"اكتب كلمة «تصفير» للتأكيد", h("input",{id:"rsWord", autocomplete:"off"})),
     h("label",null,"كلمة السر بتاعتك", pwInput("rsPw","كلمة السر","current-password")),
     h("div",{class:"row"},
       h("button",{class:"btn sm danger", onclick:async()=>{
-        if ($("#rsWord").value.trim() !== "تصفير"){ toast("اكتب كلمة «تصفير» بالظبط"); return; }
+        if ($("#rsWord").value.trim() !== "تصفير"){ toast("اكتب كلمة «تصفير» كما هي"); return; }
         const me = await Store.get("accounts/"+S.account.id);
-        if (!me || !(await checkPw(me, $("#rsPw").value))){ toast("كلمة السر مش صح"); return; }
+        if (!me || !(await checkPw(me, $("#rsPw").value))){ toast("كلمة السر غير صحيحة"); return; }
         const keep = "accounts/"+S.account.id;
         for (const k of [...Mem.data.keys()]) if (k !== keep) Mem.data.delete(k);
         Mem.set(keep, Object.assign({}, me, {logins:me.logins||0}));
         await Store.set("log/"+newId(), {at:new Date().toISOString(), who:S.account.name, role:"admin", action:"صفّر البرنامج"});
         try { Object.keys(localStorage).filter(k=>k.startsWith("ruhiya_v2_")).forEach(k=>localStorage.removeItem(k)); } catch(e){}
-        toast("البرنامج اتصفّر"); if (Mem.flush) await Mem.flush(); setTimeout(()=>location.reload(), 300);
-      }},"🧹 صفّر البرنامج نهائي"),
+        toast("تم تصفير البرنامج"); if (Mem.flush) await Mem.flush(); setTimeout(()=>location.reload(), 300);
+      }},"🧹 تصفير البرنامج نهائيًا"),
       h("button",{class:"btn sm quiet", onclick:()=>box.replaceChildren()},"إلغاء"))));
   return h("div",{class:"card form danger-card"}, h("h3",null,"🧹 تصفير البرنامج"),
     h("p",{class:"small muted"},"يرجّع البرنامج جديد ويمسح كل البيانات اللي على الجهاز، ويسيب حسابك إنت بس عشان تقدر تدخل."),
@@ -4694,17 +4711,22 @@ function pushCard(compact){
   if (!P.checked){ P.checked = true; pushApi.status().then(r => { P.on = !!(r && r.on); P.ready = true; scheduleRender(); }).catch(() => { P.ready = true; scheduleRender(); }); }
   const hideKey = "ruhiya_pushhint_"+S.account.id;
   if (compact && (!P.ready || P.on || lsGet(hideKey) || !pushApi.supported() || Notification.permission === "denied")) return null;
-  const busy = async (btn, fn) => { btn.disabled = true; try { await fn(); } catch(e){ console.warn("push", e && e.message); toast(e && e.ui ? e.message : "معرفناش نشغّل التنبيهات، جرّب تاني."); } finally { btn.disabled = false; render(); } };
-  const on = h("button",{class:"btn sm", id:"pushOn", onclick:e => busy(e.currentTarget, async () => { await pushApi.enable(); P.on = true; toast("✅ التنبيهات اشتغلت على الموبايل ده"); })},"🔔 شغّل التنبيهات");
+  const busy = async (btn, fn) => { btn.disabled = true; try { await fn(); } catch(e){ console.warn("push", e && e.message); toast(e && e.ui ? e.message : /too fast/.test(e && e.message || "") ? cloudMsg(e) : "تعذّر تنفيذ العملية، حاول مرة أخرى."); } finally { btn.disabled = false; render(); } };
+  const on = h("button",{class:"btn sm", id:"pushOn", onclick:e => busy(e.currentTarget, async () => { await pushApi.enable(); P.on = true; toast("✅ تم تشغيل التنبيهات على هذا الموبايل"); })},"🔔 تشغيل التنبيهات");
   let body;
   if (!pushApi.supported()) body = pushApi.ios() && !pushApi.standalone()
     ? [h("p",{class:"small"},"على الآيفون: افتح البرنامج من Safari، ودوس على زرار المشاركة، واختار «Add to Home Screen» (إضافة إلى الشاشة الرئيسية). بعد كده افتح البرنامج من الأيقونة اللي على الشاشة وشغّل التنبيهات من هنا.")]
     : [h("p",{class:"small muted"},"الموبايل أو المتصفح ده مش بيدعم الإشعارات. جرّب من Chrome على أندرويد، أو من البرنامج بعد ما تضيفه للشاشة الرئيسية على الآيفون.")];
   else if (Notification.permission === "denied") body = [h("p",{class:"small"},"الإشعارات مقفولة للبرنامج ده. افتحها من إعدادات الموبايل (الإشعارات ← المتصفح أو ⲙⲉⲛⲣⲓⲧ) وبعدين ارجع هنا.")];
   else if (P.on) body = [h("p",{class:"small", style:"font-weight:700;color:var(--ok-ink)"}, pushFather() ? "✅ التنبيهات شغّالة على الموبايل ده. أي طلب اعتراف أو افتقاد جديد هيوصلك إشعار حتى لو البرنامج مقفول." : "✅ التنبيهات شغّالة على الموبايل ده. يوم ميعاد اعترافك أو افتقادك هيوصلك تنبيه الصبح وقبل الميعاد بساعة."),
-    h("div",{class:"row"}, h("button",{class:"btn sm ghost", id:"pushOff", onclick:e => busy(e.currentTarget, async () => { await pushApi.disable(); P.on = false; toast("التنبيهات اتقفلت على الموبايل ده"); })},"وقّف التنبيهات"))];
+    h("div",{class:"row"},
+      pushApi.test ? h("button",{class:"btn sm", id:"pushTest", onclick:e => busy(e.currentTarget, async () => { const r = await pushApi.test();
+        toast(!r.server ? "إعداد التنبيهات على السيرفر غير مكتمل (رابط دالة menrit-push غير موجود). راجع خطوات التنبيهات."
+          : !r.sent ? "هذا الموبايل غير مسجّل للتنبيهات. اضغط «إيقاف التنبيهات» ثم «تشغيل التنبيهات»."
+          : "📨 تم إرسال تنبيه تجريبي. إذا لم يصل خلال دقيقة، فالمشكلة في دالة menrit-push على Supabase."); })},"📨 تجربة التنبيه") : null,
+      h("button",{class:"btn sm ghost", id:"pushOff", onclick:e => busy(e.currentTarget, async () => { await pushApi.disable(); P.on = false; toast("تم إيقاف التنبيهات على هذا الموبايل"); })},"إيقاف التنبيهات"))];
   else body = [h("p",{class:"small"}, pushFather() ? "أول ما حد من أولادك يطلب اعتراف أو افتقاد، هيوصلك إشعار على الموبايل حتى لو البرنامج مقفول." : "يوم ميعاد اعترافك أو افتقادك هيوصلك تنبيه على الموبايل الصبح، وتاني قبل الميعاد بساعة، حتى لو البرنامج مقفول."),
-    h("div",{class:"row"}, on, compact ? h("button",{class:"btn sm ghost", onclick:()=>{ lsSet(hideKey, "1"); render(); }},"مش دلوقتي") : null)];
+    h("div",{class:"row"}, on, compact ? h("button",{class:"btn sm ghost", onclick:()=>{ lsSet(hideKey, "1"); render(); }},"ليس الآن") : null)];
   if (pushAdmin()) body.unshift(h("p",{class:"small muted", style:"margin:0"},"للأدمن: أي حساب جديد كمّل بياناته، أو طلب تغيير أب اعتراف، هيوصلك عليه إشعار حتى لو البرنامج مقفول."));
   return h("section",{class:"card push-card"}, h("h3",null, pushAdmin() ? "🔔 تنبيهات الحسابات الجديدة على الموبايل" : pushFather() ? "🔔 تنبيهات الطلبات على الموبايل" : "🔔 تنبيه بميعادك على الموبايل"), ...body);
 }
@@ -4718,23 +4740,23 @@ let childApi = null;
 function childEdit(uid, m){
   if (!(childApi && Store.mode === "cloud" && !Store.preview && uid && (accRole() === "admin" || accRole() === "priest"))) return null;
   m = m || {};
-  if (S.draft.chEdit !== uid) return h("button",{class:"btn sm ghost ch-edit", type:"button", onclick:e => { e.stopPropagation(); S.draft.chEdit = uid; render(); }},"✏️ عدّل البيانات");
+  if (S.draft.chEdit !== uid) return h("button",{class:"btn sm ghost ch-edit", type:"button", onclick:e => { e.stopPropagation(); S.draft.chEdit = uid; render(); }},"✏️ تعديل البيانات");
   const inp = (id, val, extra) => h("input", Object.assign({id, value:val||""}, extra||{}));
   const v = id => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
   const save = async e => {
     const btn = e.currentTarget;
     const d = {name:v("ceName").replace(/\s+/g, " "), job:v("ceJob"), phone:v("cePhone"), birthday:v("ceBirth"), sex:v("ceSex"), address:v("ceAddr"), loc:v("ceLoc")};
     if (!m.passport) d.nid = nidDigits(v("ceNid"));
-    if (d.name.split(" ").length < 3){ toast("اكتب الاسم ثلاثي"); return; }
+    if (d.name.split(" ").length < 3){ toast("اكتب الاسم ثلاثيًا"); return; }
     d.phone = m.passport && !phoneOk(d.phone) ? nidDigits(d.phone) : phoneDigits(d.phone);
-    if (!(phoneOk(d.phone) || (m.passport && /^\d{8,15}$/.test(d.phone)))){ toast("رقم الموبايل لازم يكون ١١ رقم ويبدأ بـ 01"); return; }
+    if (!(phoneOk(d.phone) || (m.passport && /^\d{8,15}$/.test(d.phone)))){ toast("رقم الموبايل يجب أن يكون ١١ رقمًا ويبدأ بـ 01"); return; }
     if (d.nid){ const x = parseNid(d.nid); if (x.error){ toast(x.error); return; } d.nid = x.nid; } else delete d.nid;
-    if (d.loc && !locOk(d.loc)){ toast("لوكيشن البيت لازم يكون رابط https من جوجل ماب أو واتساب"); return; }
+    if (d.loc && !locOk(d.loc)){ toast("موقع البيت يجب أن يكون رابط https من خرائط جوجل أو واتساب"); return; }
     if (!d.birthday) delete d.birthday; if (!d.sex) delete d.sex;
     const patch = {}; for (const k in d) if (String(m[k] || "") !== d[k]) patch[k] = d[k];
-    if (!Object.keys(patch).length){ S.draft.chEdit = null; render(); toast("مفيش حاجة اتغيّرت"); return; }
+    if (!Object.keys(patch).length){ S.draft.chEdit = null; render(); toast("لم يتغير شيء"); return; }
     btn.disabled = true;
-    try { await childApi.set(uid, patch); S.draft.chEdit = null; toast("✅ البيانات اتعدّلت، واتسجّلت في «النشاط»، وصاحبها هيوصله إشعار."); render(); }
+    try { await childApi.set(uid, patch); S.draft.chEdit = null; toast("✅ تم تعديل البيانات وتسجيلها في «النشاط»، وسيصل إشعار لصاحبها."); render(); }
     catch(err){ btn.disabled = false; toast(cloudMsg(err)); }
   };
   return h("div",{class:"card form ch-form", onclick:e => e.stopPropagation()},
@@ -4750,7 +4772,7 @@ function childEdit(uid, m){
       m.passport ? h("label",{class:"pp-have"},"🛂 رقم الباسبور", h("input",{value:m.passport, dir:"ltr", readonly:true}))
         : h("label",null,"الرقم القومي", inp("ceNid", m.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off"}))),
     h("p",{class:"small muted"},"الصورة والكراسة وكلمة السر صاحبها بس اللي يغيّرهم. التعديل بيتسجّل في «النشاط» باسمك."),
-    h("div",{class:"row"}, h("button",{class:"btn sm ch-save", type:"button", onclick:save},"احفظ التعديل"),
+    h("div",{class:"row"}, h("button",{class:"btn sm ch-save", type:"button", onclick:save},"حفظ التعديل"),
       h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ S.draft.chEdit = null; render(); }},"إلغاء")));
 }
 // «✏️ صلّح الرقم القومي»: the person's own father or the admin (2026-11-05)
@@ -4759,38 +4781,38 @@ function nidFixBtn(uid, cur){
   return h("button",{class:"btn sm ghost nid-fix", type:"button", onclick:async e => { e.stopPropagation();
     const raw = prompt("اكتب الرقم القومي الصح (١٤ رقم):", cur || ""); if (raw === null) return;
     const x = parseNid(raw); if (x.error){ toast(x.error); return; }
-    try { await nidApi.set(uid, x.nid); toast("الرقم القومي اتصلّح ✅ مولود "+fmtShort(x.birthday)+" · "+SEX_AR[x.sex]); } catch(err){ toast(cloudMsg(err)); } }}, "✏️ صلّح الرقم القومي"); }
+    try { await nidApi.set(uid, x.nid); toast("تم تصحيح الرقم القومي ✅ تاريخ الميلاد "+fmtShort(x.birthday)+" · "+SEX_AR[x.sex]); } catch(err){ toast(cloudMsg(err)); } }}, "✏️ تصحيح الرقم القومي"); }
 function calCard(){
   if (!(Store.mode === "cloud" && accRole() === "priest" && !Store.preview && calApi)) return null;
   const C = S.cal || (S.cal = {});
-  const busy = async (btn, fn) => { btn.disabled = true; try { await fn(); } catch(e){ toast("معرفناش نعمل الرابط، جرّب تاني."); } finally { btn.disabled = false; render(); } };
-  const make = h("button",{class:"btn sm", id:"calMake", onclick:e => busy(e.currentTarget, async () => { C.url = await calApi.link(); })},"📅 اربط بتقويم الموبايل");
+  const busy = async (btn, fn) => { btn.disabled = true; try { await fn(); } catch(e){ toast("تعذّر إنشاء الرابط، حاول مرة أخرى."); } finally { btn.disabled = false; render(); } };
+  const make = h("button",{class:"btn sm", id:"calMake", onclick:e => busy(e.currentTarget, async () => { C.url = await calApi.link(); })},"📅 الربط بتقويم الموبايل");
   const body = !C.url ? [h("p",{class:"small"},"كل ميعاد اعتراف أو افتقاد تبعته لحد من أولادك هيظهر لوحده في تقويم موبايلك (Google Calendar أو تقويم الآيفون)، ومعاه الاسم والعنوان بس، من غير أي ملاحظات."), h("div",{class:"row"}, make)]
     : [h("p",{class:"small"},"اختار موبايلك:"),
        h("div",{class:"row"},
          h("a",{class:"btn sm", id:"calIos", href:C.url.replace(/^https?:/, "webcal:")},"🍎 آيفون"),
          h("a",{class:"btn sm", id:"calGoogle", href:"https://calendar.google.com/calendar/r?cid="+encodeURIComponent(C.url.replace(/^https?:/, "webcal:")), target:"_blank", rel:"noopener"},"🤖 أندرويد (Google)"),
-         h("button",{class:"btn sm ghost", id:"calCopy", onclick:async()=>{ try { await navigator.clipboard.writeText(C.url); toast("الرابط اتنسخ"); } catch(e){ prompt("انسخ الرابط:", C.url); } }},"انسخ الرابط")),
+         h("button",{class:"btn sm ghost", id:"calCopy", onclick:async()=>{ try { await navigator.clipboard.writeText(C.url); toast("تم نسخ الرابط"); } catch(e){ prompt("انسخ الرابط:", C.url); } }},"نسخ الرابط")),
        h("p",{class:"small muted", style:"margin:0"},"الرابط ده سرّي، متبعتهوش لحد. تقويم جوجل بيحدّث كل كام ساعة، فالميعاد الجديد ممكن ياخد وقت لحد ما يظهر. ولو حد عرف الرابط، اعمل واحد جديد والقديم هيبطل."),
-       h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"calReset", onclick:e => { if (!confirm("القديم هيبطل، وهتحتاج تربط التقويم تاني. أكمّل؟")) return; busy(e.currentTarget, async () => { C.url = await calApi.reset(); toast("اتعمل رابط جديد"); }); }},"اعمل رابط جديد"))];
+       h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"calReset", onclick:e => { if (!confirm("القديم هيبطل، وهتحتاج تربط التقويم تاني. أكمّل؟")) return; busy(e.currentTarget, async () => { C.url = await calApi.reset(); toast("تم إنشاء رابط جديد"); }); }},"إنشاء رابط جديد"))];
   return h("section",{class:"card cal-card"}, h("h3",null,"📅 مواعيدك في تقويم الموبايل"), ...body);
 }
 function priestSettings(){
   const st = S.settings || {};
   const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), newsRow(), pushCard(false), calCard());
   const manyFathers = Store.mode === "cloud";
-  const saveSt = async (patch, msg) => { await editDoc("settings/app", cur => Object.assign(cur, patch)); toast(msg||"اتحفظ"); };
+  const saveSt = async (patch, msg) => { await editDoc("settings/app", cur => Object.assign(cur, patch)); toast(msg||"تم الحفظ"); };
   // on the server the church's name, logo and verses belong to the admin; a father keeps his own password and export
   const churchWide = !(Store.mode === "cloud" && accRole() === "priest" && !Store.preview);
   if (churchWide) wrap.append(h("div",{class:"card form"}, h("h3",null,"اسم البرنامج والشعار"),
     h("label",null,"اسم البرنامج (بيظهر فوق وفي شاشة الدخول)", h("input",{id:"stTitle", value:st.title||"", placeholder:"المتابعة الروحية"})),
     // on the server each father's name and photo come from his own account, so there is no single أبونا to set
     manyFathers ? null : h("label",null,"اسم أبونا (بيظهر تحت شعار الكنيسة في شاشة الدخول)", h("input",{id:"stPriest", value:st.priestName||"", placeholder:"مثلاً: القمص فلان الفلاني"})),
-    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt(manyFathers ? {title:$("#stTitle").value.trim()} : {title:$("#stTitle").value.trim(), priestName:$("#stPriest").value.trim()})},"احفظ")),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt(manyFathers ? {title:$("#stTitle").value.trim()} : {title:$("#stTitle").value.trim(), priestName:$("#stPriest").value.trim()})},"حفظ")),
     h("div",{class:"row"}, st.logo ? h("img",{src:st.logo, alt:"الشعار الحالي", class:"hero-logo"}) : h("span",{class:"small muted"},"مفيش شعار للكنيسة لسه."),
       h("label",{class:"btn sm ghost", for:"stLogo", style:"cursor:pointer"},"ارفع شعار الكنيسة"),
       h("input",{id:"stLogo", type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 256, url=>saveSt({logo:url},"الشعار اتحفظ")); }}),
-      st.logo ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({logo:""},"الشعار اتشال")},"شيل الشعار") : null)));
+      st.logo ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({logo:""},"تمت إزالة الشعار")},"شيل الشعار") : null)));
   if (churchWide){ const cur = st.palette || "teal";
     wrap.append(h("div",{class:"card form"}, h("h3",null,"🎨 لون البرنامج والخلفية"),
       h("p",{class:"small muted", style:"margin:0"}, manyFathers ? "الألوان دي بتتغيّر عند كل الناس في الكنيسة. الإطارات الدهبي زي ماهي." : "الألوان دي بتتغيّر في البرنامج كله. الإطارات الدهبي زي ماهي."),
@@ -4806,11 +4828,11 @@ function priestSettings(){
   if (!manyFathers) wrap.append(h("div",{class:"card form"}, h("h3",null,"🖼️ صورة أبونا"),
     h("div",{class:"row"}, avatar({name:st.priestName||"أبونا", photo:st.priestPhoto}),
       photoPicker("stPriestPhoto", st.priestPhoto ? "غيّر صورة أبونا" : "ارفع صورة أبونا", url=>saveSt({priestPhoto:url},"صورة أبونا اتحفظت")),
-      st.priestPhoto ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({priestPhoto:""},"الصورة اتشالت")},"شيل") : null)));
-  if (churchWide) wrap.append(h("div",{class:"card form"}, h("h3",null,"الآيات اللي بتلف فوق"),
+      st.priestPhoto ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({priestPhoto:""},"تمت إزالة الصورة")},"إزالة") : null)));
+  if (churchWide) wrap.append(h("div",{class:"card form"}, h("h3",null,"الآيات المتحركة أعلى الشاشة"),
     h("label",null,"كل آية في سطر", h("textarea",{id:"stVerses", rows:"8"}, ((st.verses&&st.verses.length)?st.verses:DEFAULT_VERSES).join("\n"))),
-    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({verses:$("#stVerses").value.split("\n").map(x=>x.trim()).filter(Boolean)},"الآيات اتحفظت")},"احفظ الآيات"),
-      h("button",{class:"btn sm quiet", onclick:()=>saveSt({verses:[]},"رجعت الآيات الأصلية")},"رجّع الآيات الأصلية"))));
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>saveSt({verses:$("#stVerses").value.split("\n").map(x=>x.trim()).filter(Boolean)},"تم حفظ الآيات")},"احفظ الآيات"),
+      h("button",{class:"btn sm quiet", onclick:()=>saveSt({verses:[]},"تمت استعادة الآيات الأصلية")},"رجّع الآيات الأصلية"))));
   if (churchWide || ownAlertOn()) wrap.append(alertDaysCard(churchWide));
   if (isFatherView()){ const sc = schedCard(); if (sc) wrap.append(sc); }
   if (S.account && !Store.preview) wrap.append(myPasswordCard());
@@ -4829,11 +4851,11 @@ function alertDaysCard(church){
   const inp = (id, val, ph) => h("input",{id, type:"number", inputmode:"numeric", min:"7", max:"365", dir:"ltr", value: val || "", placeholder: ph ? String(ph) : ""});
   const read = id => { const raw = $("#"+id).value.trim(); if (!raw) return 0; const n = dayCount(raw); if (!n) throw 0; return n; };
   const save = async () => {
-    let c, v; try { c = read("alC"); v = read("alV"); } catch(e){ toast("اكتب عدد أيام من ٧ لحد ٣٦٥"); return; }
+    let c, v; try { c = read("alC"); v = read("alV"); } catch(e){ toast("اكتب عدد أيام من ٧ إلى ٣٦٥"); return; }
     if (church) await editDoc("settings/app", cur => Object.assign(cur, {confessDays:c, visitDays:v}));
     else await editDoc("sched/"+S.account.id, cur => Object.assign(cur, {alert:{conf:c, visit:v}}));
-    toast("مواعيد التنبيه اتحفظت"); };
-  const reset = async () => { await editDoc("sched/"+S.account.id, cur => { delete cur.alert; return cur; }); toast("رجعت لأيام الكنيسة"); };
+    toast("تم حفظ مواعيد التنبيه"); };
+  const reset = async () => { await editDoc("sched/"+S.account.id, cur => { delete cur.alert; return cur; }); toast("تمت العودة إلى أيام الكنيسة"); };
   const custom = !church && (dayCount(own.conf) || dayCount(own.visit));
   return h("div",{class:"card form"}, h("h3",null,"🔔 مواعيد التنبيه"),
     h("p",{class:"small muted", style:"margin:0"}, church
@@ -4841,15 +4863,15 @@ function alertDaysCard(church){
       : "بعد كام يوم تتنبّه إن حد من أولادك ما اعترفش أو محدش افتقده. لو سبت الخانة فاضية هتمشي على رقم الكنيسة ("+arDigits(cc)+" يوم للاعتراف و"+arDigits(cv)+" للافتقاد)."),
     h("label",null,"أيام من آخر اعتراف", church ? inp("alC", dayCount((S.settings||{}).confessDays) || CONFESS_DAYS) : inp("alC", dayCount(own.conf), cc)),
     h("label",null,"أيام من آخر افتقاد", church ? inp("alV", dayCount((S.settings||{}).visitDays) || VISIT_DAYS) : inp("alV", dayCount(own.visit), cv)),
-    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:save},"احفظ"),
-      custom ? h("button",{class:"btn sm quiet", onclick:reset},"رجّع لأيام الكنيسة") : null));
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:save},"حفظ"),
+      custom ? h("button",{class:"btn sm quiet", onclick:reset},"العودة إلى أيام الكنيسة") : null));
 }
 function resizeImage(file, max, cb){
   const img = new Image(), url = URL.createObjectURL(file);
   img.onload = () => { const sc = Math.min(1, max/Math.max(img.width, img.height)); const c = document.createElement("canvas");
     c.width = Math.round(img.width*sc); c.height = Math.round(img.height*sc); c.getContext("2d").drawImage(img,0,0,c.width,c.height);
     URL.revokeObjectURL(url); cb(c.toDataURL("image/jpeg", .85)); };
-  img.onerror = () => toast("الصورة دي مش هتنفع");
+  img.onerror = () => toast("هذه الصورة غير مناسبة");
   img.src = url;
 }
 
@@ -4857,15 +4879,15 @@ function resizeImage(file, max, cb){
 function memberTabs(){
   const seen = S.draft.seen || lsGet("ruhiya_seen_"+S.uid);
   const unread = S.inbox.filter(m => !seen || m.at > seen).length;
-  return [["today","النهارده"],["notebook","النوتة"],["confession","المواعيد"],["inbox","الرسائل", S.tab==="inbox"?0:unread],["me","بياناتي"]];
+  return [["today","اليوم"],["notebook","النوتة"],["confession","المواعيد"],["inbox","الرسائل", S.tab==="inbox"?0:unread],["me","بياناتي"]];
 }
 function memberToday(){
   const wrap = h("div",{class:"dash"});
   const name = S.profile && S.profile.name ? S.profile.name.split(" ")[0] : "";
   wrap.append(h("section",null, h("div",{class:"person-line"}, S.profile ? avatar(S.profile) : null, h("h2",null, (name ? "سلام ونعمة يا "+name : "سلام ونعمة"))),
     h("p",{class:"muted"},"إحنا في "+SEASONS[SEASON].name+". "+(feastsOf(TODAY).length ? "النهارده "+feastsOf(TODAY).join(" و")+"." : ""))));
-  if (S.profileLoaded && !profileFilled()) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلاً بيك في البرنامج"),
-    h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. بيشوفها أب اعترافك وأدمن البرنامج بس."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"اكتب بياناتي"))));
+  if (S.profileLoaded && !profileFilled()) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلًا بك في البرنامج"),
+    h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. بيشوفها أب اعترافك وأدمن البرنامج بس."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"كتابة بياناتي"))));
   for (const [type, title] of [["appointment","🙏 ميعاد اعترافك"],["visit","🏡 ميعاد الافتقاد"]]){
     const appt = S.inbox.find(m => m.type===type && m.when && new Date(m.when) >= TODAY);
     if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,title), h("p",{class:"num"}, fmtWhen(appt.when)), appt.text ? h("p",{class:"muted"},appt.text) : null,
@@ -4879,6 +4901,38 @@ function memberToday(){
   wrap.append(h("section",{class:"half"}, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), notebookGrid(S.notebook)));
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(false)));
   return wrap;
+}
+// «النوتة الروحية» as a month (2026-11-06): ‹ › go back through the months; a day opens what was written that day
+const NB_WD = ["السبت","الحد","الاتنين","التلات","الأربع","الخميس","الجمعة"];
+function notebookMonth(uid, rows, onPick, picked){
+  const now = TODAY_S.slice(0, 7), M = S.draft.nbMonth || (S.draft.nbMonth = {}), mon = M[uid] || now;
+  const [y, m] = mon.split("-").map(Number), first = new Date(y, m-1, 1), days = new Date(y, m, 0).getDate();
+  const from = mon+"-01", to = mon+"-"+P2(days), C = S.nbMonths || (S.nbMonths = {}), key = uid+"|"+mon;
+  const by = new Map((rows||[]).map(r => [r.date || r.id, r]));
+  const oldestLoaded = (rows||[]).length ? (rows[rows.length-1].date || rows[rows.length-1].id) : "9999";
+  if (from < oldestLoaded && (rows||[]).length && !C[key]){
+    C[key] = {loading:true, rows:[]};
+    Store.range("members/"+uid+"/notebook", from, to).then(r => { C[key] = {rows:r||[]}; scheduleRender(); }).catch(() => { delete C[key]; toast("تعذّر تحميل هذا الشهر، حاول مرة أخرى"); });
+  }
+  if (C[key]) for (const r of C[key].rows) by.set(r.date || r.id, r);
+  const go = k => { const d = new Date(y, m-1+k, 1), v = d.getFullYear()+"-"+P2(d.getMonth()+1); if (v > now) return; M[uid] = v; scheduleRender(); };
+  const lead = (first.getDay() + 1) % 7, cells = [];
+  for (let i = 0; i < lead; i++) cells.push(h("span",{class:"nbm-pad", "aria-hidden":"true"}));
+  let done = 0;
+  for (let d = 1; d <= days; d++){
+    const ds = mon+"-"+P2(d), r = by.get(ds), n = r && r.items ? Object.values(r.items).filter(Boolean).length : 0, fut = ds > TODAY_S;
+    if (r) done++;
+    cells.push(h("button",{type:"button", class:"nbm-day num "+(n>=5?"l3":n>=3?"l2":n>=1?"l1":"")+(ds===TODAY_S?" today":"")+(picked===ds?" on":""), "data-day":ds, disabled:fut || (!r && !onPick.any),
+      title:fmtShort(ds)+": "+arDigits(n)+" من "+arDigits(NOTE_ITEMS.length), onclick:()=>onPick(ds, r)}, arDigits(d)));
+  }
+  const mName = first.toLocaleDateString(timeLoc(), {month:"long", year:"numeric"});
+  return h("div",{class:"nbm", "data-month":mon},
+    h("div",{class:"nbm-head"},
+      h("button",{type:"button", class:"btn sm quiet nbm-prev", "aria-label":"الشهر السابق", onclick:()=>go(-1)},"›"),
+      h("strong",{class:"nbm-title"}, arDigits(mName)),
+      h("button",{type:"button", class:"btn sm quiet nbm-next", "aria-label":"الشهر التالي", disabled:mon >= now, onclick:()=>go(1)},"‹")),
+    h("div",{class:"nbm-grid"}, NB_WD.map(w => h("span",{class:"nbm-wd"}, w)), cells),
+    h("span",{class:"small muted"}, C[key] && C[key].loading ? "جارٍ تحميل الشهر…" : "التسجيل في "+arDigits(done)+" يوم من هذا الشهر. اللون الأغمق يعني ممارسات أكثر."));
 }
 function notebookGrid(rows){
   const by = new Map(rows.map(r=>[r.date,r]));
@@ -4894,7 +4948,7 @@ function memberNotebook(){
   const older = S.notebookLoaded && S.notebook.length >= 60 && date < oldest && !S.notebook.some(n=>n.date===date);
   const got = S.draft.nbOld && S.draft.nbOld.date === date ? S.draft.nbOld : null;
   if (older && !got && S.draft.nbAsk !== date){ S.draft.nbAsk = date;
-    Store.get("members/"+S.uid+"/notebook/"+date).then(d => { S.draft.nbOld = {date, d:d||{}}; S.draft.nb = null; scheduleRender(); }).catch(() => { S.draft.nbAsk = null; toast("مقدرناش نحمّل اليوم ده، جرّب تاني"); }); }
+    Store.get("members/"+S.uid+"/notebook/"+date).then(d => { S.draft.nbOld = {date, d:d||{}}; S.draft.nb = null; scheduleRender(); }).catch(() => { S.draft.nbAsk = null; toast("تعذّر تحميل هذا اليوم، حاول مرة أخرى"); }); }
   const ready = S.notebookLoaded && (!older || got);
   const ex = (older ? got && got.d : S.notebook.find(n=>n.date===date)) || {};
   if (!S.draft.nb || S.draft.nb.date !== date || (!S.draft.nb.loaded && ready))
@@ -4911,11 +4965,13 @@ function memberNotebook(){
       h("label",null,"قريت إيه في الكتاب المقدس", h("input",{id:"nbPor", value:nb.portion, placeholder:"مثلاً: يوحنا ١٥", oninput:e=>nb.portion=e.target.value}))),
     h("label",null,"محاسبة النفس / آية لمستني", h("textarea",{id:"nbRef", oninput:e=>nb.reflection=e.target.value}, nb.reflection)),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-      if (!nb.loaded){ toast("استنى ثانية، النوتة لسه بتحمّل"); return; }
+      if (!nb.loaded){ toast("انتظر لحظة، النوتة قيد التحميل"); return; }
       await Store.set("members/"+S.uid+"/notebook/"+date, {date, items:nb.items, metanias:Number(nb.metanias)||0, portion:nb.portion.trim(), reflection:nb.reflection.trim()});
-      toast("النوتة اتحفظت. ربنا يقويك");
-    }},"احفظ النوتة"))));
-  wrap.append(h("section",null, h("h3",null,"متابعتك"), notebookGrid(S.notebook)));
+      toast("تم حفظ النوتة. الرب يقويك");
+    }},"حفظ النوتة"))));
+  const pick = ds => { S.draft.nbDate = ds; S.draft.nb = null; render(); const t = $("#nbDate"); if (t) t.scrollIntoView({block:"center", behavior:"smooth"}); };
+  pick.any = true;
+  wrap.append(h("section",null, h("h3",null,"متابعتك"), notebookMonth(S.uid, S.notebook, pick, date)));
   return wrap;
 }
 const PREP_GUIDE = [
@@ -4964,12 +5020,12 @@ function prepBlock(){
 }
 function memberConfession(){
   const kind = S.draft.reqKind || "confession", K = REQ_KINDS[kind], p = S.profile;
-  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("اطلب ميعاد"));
+  const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("طلب موعد"));
   if (!profileFilled()){ wrap.append(h("div",{class:"empty"},"اكتب بياناتك الأول من «بياناتي» عشان أبونا يعرفك."), prepBlock()); return wrap; }
   if (Store.mode === "cloud" && S.account && !S.account.father){
     if (!memberConfession.checked){ memberConfession.checked = true; refreshFather().then(() => { if (S.account && S.account.father) scheduleRender(); }); }
     const fl = S.fathers || [];
-    wrap.append(h("div",{class:"card form"}, h("h3",null,"⛪ اختار أب اعترافك الأول"),
+    wrap.append(h("div",{class:"card form"}, h("h3",null,"⛪ اختر أب اعترافك أولًا"),
       h("p",{class:"small muted", style:"margin:0"}, fl.length ? "طلبات الاعتراف والافتقاد بتروح لأب اعترافك، فلازم تختاره الأول." : "لسه مفيش آباء اعتراف على البرنامج. كلّم الأدمن."),
       fl.length ? h("div",{class:"father-pick"}, fl.map(f => h("button",{type:"button", class:"father-opt", onclick:async()=>{
         if (await pickMyFather(f.uid)){ toast("اخترت "+f.name+" أب اعتراف ليك"); subscribe(); render(); } }},
@@ -4981,16 +5037,16 @@ function memberConfession(){
     const ans = S.inbox.find(m => m.reqId === r.id);
     // the day he asked for went by without an answer from أبونا: say so, and the form below lets him ask again
     if (!ans && r.date && r.date < TODAY_S){
-      wrap.append(h("div",{class:"card detail past-req"}, h("h3",null,"📅 "+(r.booking ? "ميعاد ال"+REQ_KINDS[k].label+" اللي حجزته عدّى" : "اليوم اللي طلبته لل"+REQ_KINDS[k].label+" عدّى")),
+      wrap.append(h("div",{class:"card detail past-req"}, h("h3",null,"📅 "+(r.booking ? "ميعاد ال"+REQ_KINDS[k].label+" الذي حجزته قد مضى" : "اليوم الذي طلبته لل"+REQ_KINDS[k].label+" عدّى")),
         h("p",{class:"muted"}, reqWhen(r)+" عدّى من غير تأكيد من أبونا. تقدر "+(r.booking ? "تحجز ميعاد تاني" : "تبعت طلب تاني")+" من تحت.")));
       continue;
     }
     wrap.append(h("div",{class:"card detail"}, ans
       ? (ans.when ? [h("h3",null, REQ_KINDS[k].emo+" "+REQ_KINDS[k].title), h("p",{class:"num"}, h("strong",null, fmtWhen(ans.when))), ans.text ? h("p",{class:"muted"}, ans.text) : null]
         : [h("h3",null, REQ_KINDS[k].emo+" "+(ans.title||"أبونا شاف طلبك")), ans.text ? h("p",{class:"muted"}, ans.text) : null])
-      : r.booking ? [h("h3",null,"⏳ حجزت ميعاد "+REQ_KINDS[k].label), h("p",{class:"num"}, h("strong",null, reqWhen(r))), h("p",{class:"muted"},"مستني تأكيد أبونا. أول ما يأكده هيوصلك هنا وفي الرسائل."),
-          h("div",{class:"row"}, h("button",{class:"btn sm quiet", onclick:async()=>{ if (S.draft.bkCancel !== r.booking){ S.draft.bkCancel = r.booking; toast("دوس تاني للتأكيد"); return; }
-            if (await cancelBooking(r.booking)){ S.draft.bkCancel = null; toast("الحجز اتلغى"); } }},"الغي الحجز"))]
+      : r.booking ? [h("h3",null,"⏳ تم حجز موعد "+REQ_KINDS[k].label), h("p",{class:"num"}, h("strong",null, reqWhen(r))), h("p",{class:"muted"},"في انتظار تأكيد أبونا. عند التأكيد يصلك الموعد هنا وفي الرسائل."),
+          h("div",{class:"row"}, h("button",{class:"btn sm quiet", onclick:async()=>{ if (S.draft.bkCancel !== r.booking){ S.draft.bkCancel = r.booking; toast("اضغط مرة أخرى للتأكيد"); return; }
+            if (await cancelBooking(r.booking)){ S.draft.bkCancel = null; toast("تم إلغاء الحجز"); } }},"إلغاء الحجز"))]
       : [h("h3",null, REQ_KINDS[k].emo+" طلب ال"+REQ_KINDS[k].label+" وصل لأبونا"), h("p",{class:"muted"}, "يناسبك: "+reqWhen(r)+". أبونا هيحدد الميعاد ويبعتهولك هنا وفي الرسائل.")]));
   }
   const d = S.draft;
@@ -5003,7 +5059,7 @@ function memberConfession(){
     const ds = d.reqDate && schedTimes(sc, d.reqDate).length ? d.reqDate : "", tk = kind+ds;
     if (ds && (!d.taken || d.taken.key !== tk)){ d.taken = {key:tk, list:null};
       takenSlots(f, ds, ds, kind).then(l => { if (S.draft.taken && S.draft.taken.key === tk){ S.draft.taken.list = (l||[]).map(k => k.split("_")[1]); scheduleRender(); } })
-        .catch(() => { if (S.draft.taken && S.draft.taken.key === tk) S.draft.taken = null; toast("مقدرناش نجيب المواعيد. جرّب تاني"); }); }
+        .catch(() => { if (S.draft.taken && S.draft.taken.key === tk) S.draft.taken = null; toast("تعذّر تحميل المواعيد. حاول مرة أخرى"); }); }
     const taken = ds && d.taken && d.taken.key === tk ? d.taken.list : null;
     const times = ds && taken ? schedTimes(sc, ds).filter(t => !taken.includes(t.replace(":",""))) : [];
     const book = h("div",{class:"card form req-form "+kind+" book-form"},
@@ -5018,14 +5074,14 @@ function memberConfession(){
       vis ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
       h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: vis ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
       h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-        if (!ds || !d.reqTime){ toast("اختار اليوم والميعاد الأول"); return; }
+        if (!ds || !d.reqTime){ toast("اختر اليوم والموعد أولًا"); return; }
         const addr = vis ? ($("#rAddr").value||"").trim() : "";
-        if (vis && !addr){ toast("اكتب العنوان عشان أبونا يعرف ييجي فين"); return; }
-        if (Store.mode === "cloud"){ await refreshFather(); if (!S.account.father){ toast("اختار أب اعترافك الأول"); render(); return; } }
+        if (vis && !addr){ toast("اكتب العنوان ليعرف أبونا مكان الزيارة"); return; }
+        if (Store.mode === "cloud"){ await refreshFather(); if (!S.account.father){ toast("اختر أب اعترافك أولًا"); render(); return; } }
         const okk = await bookSlot(ds, d.reqTime, ($("#rNote").value||"").trim(), kind, addr);
         S.draft.taken = null;
-        if (okk){ Object.assign(S.draft, {reqDate:"", reqTime:"", reqNote:"", reqAddr:null, calMonth:null}); toast("الحجز وصل لأبونا 🙏 مستني تأكيده"); }
-        render(); }}, "احجز الميعاد")));
+        if (okk){ Object.assign(S.draft, {reqDate:"", reqTime:"", reqNote:"", reqAddr:null, calMonth:null}); toast("تم إرسال الحجز إلى أبونا 🙏 في انتظار تأكيده"); }
+        render(); }}, "حجز الموعد")));
     wrap.append(seg, book); if (!vis) wrap.append(prepBlock());
     return wrap;
   }
@@ -5040,8 +5096,8 @@ function memberConfession(){
     kind === "visit" ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
     h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: kind==="visit" ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-      if (!S.draft.reqDate){ toast("اختار يوم من النتيجة الأول"); return; }
-      if (Store.mode === "cloud"){ await refreshFather(); if (!S.account.father){ toast("اختار أب اعترافك الأول"); render(); return; } }
+      if (!S.draft.reqDate){ toast("اختر يومًا من التقويم أولًا"); return; }
+      if (Store.mode === "cloud"){ await refreshFather(); if (!S.account.father){ toast("اختر أب اعترافك أولًا"); render(); return; } }
       const r = {id:newId(), kind, date:S.draft.reqDate, slot:S.draft.reqSlot||"", time:($("#rTime")||{}).value||"", note:($("#rNote").value||"").trim(), at:TODAY_S};
       if (kind === "visit") r.address = ($("#rAddr").value||"").trim();
       r.preferred = reqWhen(r);
@@ -5071,8 +5127,8 @@ function memberMe(){
   wrap.append(h("div",{class:"card photo-box"}, avatar(shown,"lg"), h("div",{class:"form", style:"gap:6px"}, h("strong",null,"صورتك"),
     h("span",{class:"small muted"},"بتظهر جنب اسمك لأب اعترافك وللآباء والخدام المسؤولين عن البرنامج."),
     h("div",{class:"row"}, photoPicker("pPhoto", shown.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
-      if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); toast("صورتك اتحفظت"); } else { S.draft.photo = url; render(); toast("هتتحفظ لما تدوس احفظ"); } }),
-      shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); toast("الصورة اتشالت"); }},"شيل الصورة") : null))));
+      if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); toast("تم حفظ صورتك"); } else { S.draft.photo = url; render(); toast("سيتم الحفظ عند الضغط على «حفظ»"); } }),
+      shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); toast("تمت إزالة الصورة"); }},"إزالة الصورة") : null))));
   if (S.profileLoaded && S.draft.myKidsFor !== S.uid){ S.draft.myKidsFor = S.uid; S.draft.myKids = (p.children||[]).map(k => Object.assign({}, k)); }
   if (!S.draft.myKids) S.draft.myKids = [];
   const acc = S.account || {};
@@ -5111,17 +5167,10 @@ function memberMe(){
         : h("label",null, nidNeeded ? "الرقم القومي (مطلوب)" : "الرقم القومي", inp("pNid", p.nid, {inputmode:"numeric", dir:"ltr", maxlength:"20", autocomplete:"off", placeholder:"١٤ رقم زي اللي في البطاقة", oninput:e => { md.pNid = e.target.value; nidLive(); }}))),
     p.passport ? h("p",{class:"small muted"},"✅ رقم الباسبور اتسجّل بموافقة الأدمن. لو محتاج تغيّره كلّم الأدمن.") : nidHint,
     passportBox(p),
-    h("h3",{style:"margin-top:6px"},"💍 الزوجة / الزوج (لو متجوز)"),
-    h("div",{class:"two"},
-      h("label",null,"الاسم", inp("pSpouse", p.spouse)),
-      h("label",null,"التليفون", inp("pSpPhone", p.spousePhone, {inputmode:"tel"})),
-      h("label",null,"تاريخ الميلاد", inp("pSpBirth", p.spouseBirthday, {type:"date"})),
-      h("label",null,"عيد الجواز", inp("pWed", p.wedding, {type:"date"}))),
-    kidsEditor(S.draft.myKids, "my"),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
-      if (!S.profileLoaded){ toast("استنى ثانية، بياناتك لسه بتحمّل"); return; }
-      const data = Object.assign({}, p, {name:v("pName"), job:v("pJob"), phone:v("pPhone"), birthday:v("pBirth"), address:v("pAddr"), loc:locOk(v("pLoc")),
-        spouse:v("pSpouse"), spousePhone:v("pSpPhone"), spouseBirthday:v("pSpBirth"), wedding:v("pWed"), children:cleanKids(S.draft.myKids)});
+      if (!S.profileLoaded){ toast("انتظر لحظة، بياناتك قيد التحميل"); return; }
+      const data = Object.assign({}, p, {name:v("pName"), job:v("pJob"), phone:v("pPhone"), birthday:v("pBirth"), address:v("pAddr"), loc:locOk(v("pLoc"))});
+      for (const k of FAM_KEYS) delete data[k];
       delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
       const nidRaw = v("pNid"), nx = nidRaw ? parseNid(nidRaw) : null;
       if (nx && nx.error){ toast(nx.error); $("#pNid") && $("#pNid").focus(); return; }
@@ -5131,13 +5180,12 @@ function memberMe(){
       if (S.draft.photo && !data.photo) data.photo = S.draft.photo;
       if (nidNeeded){ data.phone = phoneOk(data.phone) || !p.passport ? phoneDigits(data.phone) : nidDigits(data.phone); data.name = data.name.replace(/\s+/g, " ");
         const miss = profileMissing(data, S.account && S.account.photo);
-        if (miss.length){ toast("لسه ناقص: "+miss.join("، ")); return; } }
+        if (miss.length){ toast("ما زال ناقصًا: "+miss.join("، ")); return; } }
       if (!data.joined) data.joined = TODAY_S;
-      try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("بياناتك اتحفظت"); if (!S.profile){ S.tab="today"; } }
-      catch(e){ toast("مقدرناش نحفظ. اتأكد إن أبونا ضافك على البرنامج."); }
-    }},"احفظ"))));
+      try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("تم حفظ بياناتك"); if (!S.profile){ S.tab="today"; } }
+      catch(e){ toast("تعذّر الحفظ. تأكد أن أبونا أضافك إلى البرنامج."); }
+    }},"حفظ"))));
   const fq = freqCard(); if (fq) wrap.append(fq);
-  const pf = pfamMemberCard(); if (pf) wrap.append(pf);
   const pc = pushCard(false); if (pc) wrap.append(pc);
   const nr = newsRow(); if (nr) wrap.append(nr);
   if (S.account && S.account.role === "user") wrap.append(myPasswordCard());
@@ -5154,7 +5202,7 @@ const phoneOk = s => /^01[0125]\d{8}$/.test(phoneDigits(s));
 function passportBox(p){
   if (!passportApi || p.passport || nidCheck(p||{})) return null;
   const open = !!S.draft.ppOpen;
-  if (!open) return h("button",{type:"button", class:"btn sm quiet pp-open", id:"ppOpen", onclick:()=>{ S.draft.ppOpen = true; render(); }},"🛂 معاك باسبور مش رقم قومي؟");
+  if (!open) return h("button",{type:"button", class:"btn sm quiet pp-open", id:"ppOpen", onclick:()=>{ S.draft.ppOpen = true; render(); }},"🛂 لديك جواز سفر بدلًا من الرقم القومي؟");
   return h("div",{class:"card pp-box", style:"display:grid;gap:8px;padding:12px"},
     h("strong",null,"🛂 التسجيل برقم الباسبور"),
     h("p",{class:"small muted", style:"margin:0"},"ده لغير المصريين أو اللي معاهوش رقم قومي. اطلب من أدمن الكنيسة «كود باسبور» (٦ أرقام)، واكتبه هنا مع رقم الباسبور. الكود بيشتغل مرة واحدة بس."),
@@ -5164,10 +5212,10 @@ function passportBox(p){
     h("div",{class:"row"},
       h("button",{class:"btn sm", id:"ppSend", onclick:async()=>{
         const no = ($("#ppNo")||{}).value || "", code = ($("#ppCode")||{}).value || "";
-        if (!/^[A-Za-z0-9]{6,20}$/.test(no.replace(/[\s-]/g, ""))){ toast("رقم الباسبور لازم يكون من ٦ لـ ٢٠ حرف إنجليزي أو رقم."); return; }
-        if (nidDigits(code).length !== 6){ toast("اكتب كود الباسبور (٦ أرقام) اللي أخدته من الأدمن."); return; }
-        try { await passportApi.use(code, no); S.draft.ppOpen = false; toast("✅ رقم الباسبور اتسجّل. كمّل باقي بياناتك ودوس «احفظ»."); }
-        catch(e){ toast(cloudMsg(e)); } }},"سجّل الباسبور"),
+        if (!/^[A-Za-z0-9]{6,20}$/.test(no.replace(/[\s-]/g, ""))){ toast("رقم جواز السفر يجب أن يكون من ٦ إلى ٢٠ حرفًا إنجليزيًا أو رقمًا."); return; }
+        if (nidDigits(code).length !== 6){ toast("اكتب كود جواز السفر (٦ أرقام) الذي حصلت عليه من الأدمن."); return; }
+        try { await passportApi.use(code, no); S.draft.ppOpen = false; toast("✅ تم تسجيل رقم جواز السفر. أكمل باقي بياناتك واضغط «حفظ»."); }
+        catch(e){ toast(cloudMsg(e)); } }},"تسجيل جواز السفر"),
       h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ S.draft.ppOpen = false; render(); }},"إلغاء")));
 }
 function passportCard(){
@@ -5175,15 +5223,15 @@ function passportCard(){
   if (!S.ppCodes && !passportCard.busy){ passportCard.busy = true; passportApi.list().then(r => { S.ppCodes = r || []; scheduleRender(); }).catch(() => { S.ppCodes = []; }).finally(() => { passportCard.busy = false; }); }
   const list = S.ppCodes || [], live = list.filter(x => x.live), used = list.filter(x => x.usedAt);
   const msg = c => "أهلاً بيك 🌿\nكود الباسبور بتاعك في برنامج "+((S.church && S.church.name) || "الكنيسة")+": "+c.code+"\nافتح «بياناتي»، ودوس «معاك باسبور مش رقم قومي؟»، واكتب رقم الباسبور والكود ده. الكود بيشتغل مرة واحدة بس، ولمدة ٧ أيام.";
-  return h("div",{class:"card form pp-admin"}, h("h3",null,"🛂 أكواد الباسبور"),
+  return h("div",{class:"card form pp-admin"}, h("h3",null,"🛂 أكواد جواز السفر"),
     h("p",{class:"small muted", style:"margin:0"},"للي مش مصري أو معاهوش رقم قومي. اعمل كود لكل شخص لوحده وابعتهوله. الكود بيشتغل مرة واحدة بس، ولمدة ٧ أيام."),
     h("div",{class:"row", style:"align-items:end"},
       h("label",{style:"flex:1"},"لمين؟ (اختياري)", h("input",{id:"ppNote", maxlength:"60", placeholder:"اسم الشخص عشان تفتكر"})),
-      h("button",{class:"btn sm", id:"ppMake", onclick:async()=>{ try { const r = await passportApi.make(($("#ppNote")||{}).value || ""); S.ppCodes = null; S.ppLast = r.code; toast("الكود: "+r.code); scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"➕ اعمل كود")),
+      h("button",{class:"btn sm", id:"ppMake", onclick:async()=>{ try { const r = await passportApi.make(($("#ppNote")||{}).value || ""); S.ppCodes = null; S.ppLast = r.code; toast("الكود: "+r.code); scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"➕ إنشاء كود")),
     live.length ? h("ul",{class:"list pp-list"}, live.map(c => h("li",{class:"pp-row"+(S.ppLast === c.code ? " new" : "")},
       h("div",{class:"who"}, h("strong",{dir:"ltr", class:"num pp-code"}, c.code), h("span",{class:"small muted"}, (c.note ? c.note+" · " : "")+"بيخلص "+fmtShort(ymd(new Date(c.expires))))),
       h("div",{class:"row"},
-        h("a",{class:"btn sm wa-btn", href:"https://wa.me/?text="+encodeURIComponent(msg(c)), target:"_blank", rel:"noopener"},"💬 ابعته واتساب"),
+        h("a",{class:"btn sm wa-btn", href:"https://wa.me/?text="+encodeURIComponent(msg(c)), target:"_blank", rel:"noopener"},"💬 إرسال عبر واتساب"),
         h("button",{class:"btn sm quiet pp-drop", onclick:async()=>{ try { await passportApi.drop(c.code); S.ppCodes = null; scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"✕"))))) : h("p",{class:"small muted", style:"margin:0"},"مفيش أكواد شغالة دلوقتي."),
     used.length ? h("details",null, h("summary",{class:"small"},"اتستخدموا ("+arDigits(used.length)+")"),
       h("ul",{class:"list"}, used.map(c => h("li",null, h("span",{dir:"ltr", class:"num"}, c.code), h("span",{class:"small muted"}, "استخدمه "+c.usedName+" · "+fmtShort(ymd(new Date(c.usedAt)))))))) : null);
@@ -5205,7 +5253,7 @@ function pendingView(){
       h("div",null, h("h3",null, done ? "بياناتك وصلت، ومستنية موافقة أبونا" : "أهلاً بيك في البرنامج 🌿"),
         h("p",{class:"small muted", style:"margin:4px 0 0"}, done
           ? "أول ما أب اعترافك يوافق على حسابك، البرنامج كله هيفتحلك لوحده. تقدر تقفل الصفحة وترجع بعدين."
-          : "كمّل بياناتك كلها تحت ودوس «احفظ». طلبك مش هيوصل لأب اعترافك غير لما تكمّلها، وبعد ما يوافق البرنامج كله هيفتحلك."),
+          : "كمّل بياناتك كلها تحت ودوس «حفظ». طلبك مش هيوصل لأب اعترافك غير لما تكمّلها، وبعد ما يوافق البرنامج كله هيفتحلك."),
         !done && S.profileLoaded ? h("p",{class:"small", style:"margin:6px 0 0;font-weight:700"}, "ناقص: "+miss.join("، ")) : null)),
     memberMe());
 }
@@ -5219,7 +5267,7 @@ function freqCard(){
   if (r && r.status === "wait") return h("section",{class:"card freq-card"}, head,
     h("p",{class:"small"}, "⏳ طلبك تنتقل لـ ", h("b",null, r.toName), " مستني رد الأدمن. اتبعت "+fmtShort(ymd(new Date(r.at)))+"."),
     h("p",{class:"small muted", style:"margin:0"}, "السبب: "+r.reason),
-    h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"freqCancel", onclick:async()=>{ if (!confirm("تلغي الطلب؟")) return; try { await freqApi.cancel(); toast("الطلب اتلغى"); } catch(e){ toast(cloudMsg(e)); } }},"الغي الطلب")));
+    h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"freqCancel", onclick:async()=>{ if (!confirm("تلغي الطلب؟")) return; try { await freqApi.cancel(); toast("تم إلغاء الطلب"); } catch(e){ toast(cloudMsg(e)); } }},"إلغاء الطلب")));
   const last = r && (r.status === "ok" || r.status === "no") ? h("p",{class:"small "+(r.status === "ok" ? "" : "muted"), style:"margin:0"},
     r.status === "ok" ? "✅ طلبك تنتقل لـ "+r.toName+" اتوافق عليه." : "❌ طلبك تنتقل لـ "+r.toName+" اترفض"+(r.reply ? ": «"+r.reply+"»" : "."), " ") : null;
   if (!fathers.length) return last ? h("section",{class:"card freq-card"}, head, last) : null;
@@ -5231,9 +5279,9 @@ function freqCard(){
     h("label",null,"سبب التغيير (الأدمن بس اللي هيشوفه)", h("textarea",{id:"freqWhy", rows:"3", maxlength:"500", placeholder:"مثلاً: المواعيد أنسب لي، أو نقلت سكن قريب من كنيسة أبونا", oninput:e => { d.why = e.target.value; }}, d.why || "")),
     h("div",{class:"row"},
       h("button",{class:"btn sm", id:"freqSend", onclick:async e => { const to = $("#freqTo").value, why = $("#freqWhy").value.trim();
-        if (!to){ toast("اختار أب الاعتراف اللي عايز تنتقل له"); return; } if (why.length < 5){ toast("اكتب سبب الطلب"); return; }
+        if (!to){ toast("اختر أب الاعتراف الذي تريد الانتقال إليه"); return; } if (why.length < 5){ toast("اكتب سبب الطلب"); return; }
         e.currentTarget.disabled = true;
-        try { await freqApi.create(to, why); S.draft.freq = {}; toast("الطلب وصل للأدمن 👍"); } catch(x){ toast(cloudMsg(x)); } finally { render(); } }},"📨 ابعت الطلب"),
+        try { await freqApi.create(to, why); S.draft.freq = {}; toast("تم إرسال الطلب إلى الأدمن 👍"); } catch(x){ toast(cloudMsg(x)); } finally { render(); } }},"📨 إرسال الطلب"),
       h("button",{class:"btn sm quiet", onclick:()=>{ S.draft.freq = {}; render(); }},"رجوع")));
 }
 // the admin's list: who wants to move, from whom, to whom, and why
@@ -5252,7 +5300,7 @@ function freqAdminCard(){
       h("div",{class:"person-line"}, avatar({name:x.name, photo:x.photo}), h("div",{class:"who"}, h("strong",null, x.name),
         h("span",{class:"small"}, (x.fromName || "من غير أب")+" ← ", h("b",null, x.toName)),
         h("span",{class:"small muted"}, "السبب: "+x.reason), h("span",{class:"small muted"}, "اتبعت "+agoText(ymd(new Date(x.at)))))),
-      h("div",{class:"row"}, h("button",{class:"btn sm freq-ok", onclick:()=>answer(x, true)},"✅ وافق وانقله"), h("button",{class:"btn sm quiet freq-no", onclick:()=>answer(x, false)},"❌ ارفض"))))) : h("p",{class:"small muted", style:"margin:0"},"مفيش طلبات مستنية دلوقتي."),
+      h("div",{class:"row"}, h("button",{class:"btn sm freq-ok", onclick:()=>answer(x, true)},"✅ موافقة ونقل"), h("button",{class:"btn sm quiet freq-no", onclick:()=>answer(x, false)},"❌ رفض"))))) : h("p",{class:"small muted", style:"margin:0"},"مفيش طلبات مستنية دلوقتي."),
     done.length ? h("details",null, h("summary",{class:"small"},"آخر الردود ("+arDigits(done.length)+")"),
       h("ul",{class:"list"}, done.map(x => h("li",null, h("div",{class:"who"}, h("strong",null, x.name), h("span",{class:"small muted"}, (x.status === "ok" ? "✅ اتنقل لـ " : "❌ اترفض نقله لـ ")+x.toName+" · "+(x.decidedBy||"")+" · "+fmtShort(ymd(new Date(x.decidedAt)))+(x.reply ? " · «"+x.reply+"»" : ""))))))) : null);
 }
@@ -5301,11 +5349,11 @@ function accOrigin(a){
 }
 function waTplCard(){
   if (accRole() !== "admin" || Store.preview) return null;
-  return h("div",{class:"card form"}, h("h3",null,"💬 رسايل الواتساب الجاهزة"),
+  return h("div",{class:"card form"}, h("h3",null,"💬 رسائل الواتساب الجاهزة"),
     h("p",{class:"small muted", style:"margin:0"},"بتظهر لما تدوس «💬 واتساب» جنب أي حد في «الأدمن». {الاسم} بيتكتب مكانه اسم الشخص، و{الكنيسة} اسم الكنيسة، و{الناقص} الحاجات اللي ناقصة من بياناته."),
     ...Object.keys(WA_TPL).map(k => h("label",null, WA_TPL[k][0], h("textarea",{id:"waT_"+k, rows:"3"}, waTpl(k)))),
-    h("div",{class:"row"}, h("button",{class:"btn sm", id:"waTplSave", onclick:async()=>{ const t = {}; for (const k of Object.keys(WA_TPL)) t[k] = $("#waT_"+k).value; await editDoc("settings/app", cur => Object.assign(cur, {waTpl:t})); toast("الرسايل اتحفظت"); }},"احفظ الرسايل"),
-      h("button",{class:"btn sm quiet", onclick:async()=>{ await editDoc("settings/app", cur => Object.assign(cur, {waTpl:{}})); toast("رجعت الرسايل الأصلية"); render(); }},"رجّع الأصلية")));
+    h("div",{class:"row"}, h("button",{class:"btn sm", id:"waTplSave", onclick:async()=>{ const t = {}; for (const k of Object.keys(WA_TPL)) t[k] = $("#waT_"+k).value; await editDoc("settings/app", cur => Object.assign(cur, {waTpl:t})); toast("تم حفظ الرسائل"); }},"حفظ الرسائل"),
+      h("button",{class:"btn sm quiet", onclick:async()=>{ await editDoc("settings/app", cur => Object.assign(cur, {waTpl:{}})); toast("تمت استعادة الرسائل الأصلية"); render(); }},"استرجاع الأصلية")));
 }
 
 /* the church's sign-in link, ready to copy or send */
@@ -5337,7 +5385,7 @@ function inviteCard(){
   const church = (S.church && S.church.name) || "الكنيسة";
   const sc = S.signup && S.signup.open && S.signup.code;
   const msg = "سلام ونعمة 🌿\nادخل على برنامج ⲙⲉⲛⲣⲓⲧ للمتابعة الروحية في "+church+" من اللينك ده:\n"+url+"\n\n"+(S.signup && !S.signup.open ? "لو عندك حساب، ادخل باسمك وكلمة السر." : "لو أول مرة تدخل، دوس «أول مرة؟ اعمل حساب جديد» واكتب اسمك وكلمة سر"+(sc ? " وكود التسجيل "+sc : "")+"، وبعدها كمّل بياناتك، وأبونا هيوافق على حسابك.");
-  const copy = async (t, done) => { try { await navigator.clipboard.writeText(t); toast(done); } catch(e){ const ta = h("textarea",{style:"position:fixed;opacity:0"}, t); document.body.append(ta); ta.select(); try { document.execCommand("copy"); toast(done); } catch(x){ toast("انسخه بإيدك من المربع"); } ta.remove(); } };
+  const copy = async (t, done) => { try { await navigator.clipboard.writeText(t); toast(done); } catch(e){ const ta = h("textarea",{style:"position:fixed;opacity:0"}, t); document.body.append(ta); ta.select(); try { document.execCommand("copy"); toast(done); } catch(x){ toast("انسخه يدويًا من المربع"); } ta.remove(); } };
   const qrBox = h("div",{class:"qr-box", hidden:true});
   const showQr = () => {
     qrBox.hidden = !qrBox.hidden; if (qrBox.hidden || qrBox.childElementCount) return;
@@ -5347,15 +5395,15 @@ function inviteCard(){
     qrBox.append(el, h("p",{class:"small muted", style:"margin:0"},"صوّر الكود ده بكاميرا الموبايل يفتح البرنامج. تقدر تطبعه وتعلّقه في الكنيسة."));
   };
   return h("div",{class:"card invite-card"},
-    h("div",{class:"row between"}, h("h3",null,"🔗 لينك دخول الكنيسة"), h("span",{class:"pill"}, "كود "+S.church.slug)),
+    h("div",{class:"row between"}, h("h3",null,"🔗 رابط دخول الكنيسة"), h("span",{class:"pill"}, "كود "+S.church.slug)),
     h("p",{class:"small muted", style:"margin:0"},"ابعت اللينك ده لأي حد عايز يدخل البرنامج. هيفتح على كنيستك على طول."),
     signupBox(),
     h("div",{class:"invite-url", dir:"ltr"}, url),
     h("div",{class:"row invite-btns"},
-      h("button",{class:"btn", onclick:()=>copy(url, "اللينك اتنسخ 👍")},"📋 انسخ اللينك"),
-      h("a",{class:"btn wa", href:"https://wa.me/?text="+encodeURIComponent(msg), target:"_blank", rel:"noopener"},"💬 ابعته واتساب"),
+      h("button",{class:"btn", onclick:()=>copy(url, "اللينك اتنسخ 👍")},"📋 نسخ الرابط"),
+      h("a",{class:"btn wa", href:"https://wa.me/?text="+encodeURIComponent(msg), target:"_blank", rel:"noopener"},"💬 إرسال عبر واتساب"),
       navigator.share ? h("button",{class:"btn ghost", onclick:()=>navigator.share({title:"ⲙⲉⲛⲣⲓⲧ · "+church, text:msg}).catch(()=>{})},"📤 مشاركة") : null,
-      h("button",{class:"btn ghost", onclick:()=>copy(msg, "الرسالة كاملة اتنسخت")},"📝 انسخ رسالة الدعوة"),
+      h("button",{class:"btn ghost", onclick:()=>copy(msg, "الرسالة كاملة اتنسخت")},"📝 نسخ رسالة الدعوة"),
       h("button",{class:"btn ghost", onclick:showQr},"🔳 كود QR")),
     qrBox);
 }
@@ -5369,15 +5417,23 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null;
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-05c", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-06b", title:"الجديد في آخر تحديث", items:{
   admin:[
-    ["📖","دليل الأسماء","شاشة «الأدمن» بقت قايمة أسماء بالأبجدية، تحت كل حرف اللي بيبدأوا بيه، وعلى الجنب شريط حروف تدوس على أي حرف يوديك عنده. دوس على أي اسم يظهر كارته: على الكمبيوتر جنب القايمة، وعلى الموبايل من تحت."],
-    ["🔎","البحث والفلاتر","البحث بالاسم وزرار «📝 ناقص بيانات» وكروت الآباء والأقسام فوق لسه شغالين مع القايمة الجديدة."],
-    ["🛂","كود الباسبور","لو حد معهوش رقم قومي مصري، من «الأدمن ← 🛂 أكواد الباسبور» اعمله كود من ٦ أرقام وابعته له على واتساب. يكتبه في «بياناتي» مع رقم الباسبور، والكود بيشتغل مرة واحدة بس ولمدة ٧ أيام."]],
+    ["💬","إرسال كلمة السر عبر واتساب","بعد إنشاء حساب جديد أو كلمة سر جديدة يظهر زر «💬 إرسال عبر واتساب»، فيُرسل الاسم وكلمة السر ورابط البرنامج لصاحب الحساب مباشرة. إذا كان رقمه مسجّلًا تفتح محادثته، وإلا يطلب منك واتساب اختيار الشخص."],
+    ["🔔","تجربة التنبيهات","في «الإعدادات» زر «📨 تجربة التنبيه» يرسل لك تنبيهًا تجريبيًا ويوضح سبب المشكلة إن وُجدت. وإذا نسي السيرفر تسجيل موبايلك، يسجّله البرنامج من جديد تلقائيًا عند فتحه."],
+    ["🙋","بيانات المعترف شخصية فقط","أُزيلت بيانات الزوج أو الزوجة والأبناء وروابط «أسرة الأب الكاهن» من جميع الشاشات ومن ملف Excel، وحُذفت البيانات التي سُجّلت منها سابقًا."],
+    ["📝","طلبات التسجيل","يصل طلب التسجيل إلى أب الاعتراف الذي اختاره صاحب الطلب فقط، أما الطلب الذي لم يُختر فيه أب اعتراف فيصل إلى الأدمن وحده."],
+    ["📖","القراءات","من الساعة ٦ مساءً تظهر قراءات اليوم التالي، وفقًا لنظام الكنيسة."]],
   priest:[
-    ["🛂","الباسبور","اللي معهوش رقم قومي مصري يقدر يسجّل برقم الباسبور بكود من الأدمن، وهتلاقي جنب اسمه «🛂 باسبور»."]],
+    ["🔔","تجربة التنبيهات","في «الإعدادات» زر «📨 تجربة التنبيه» يرسل لك تنبيهًا تجريبيًا، ويُعاد تسجيل موبايلك تلقائيًا إذا توقفت التنبيهات."],
+    ["📔","النوتة الروحية بالشهر","في كارت أي من أبنائك تظهر النوتة الروحية في تقويم للشهر كاملًا، ويمكنك الرجوع إلى الشهور السابقة. اضغط على أي يوم لعرض ما سجّله."],
+    ["🙋","بيانات المعترف فقط","أُلغي تبويب «الأسر»، ولم تعد بيانات الزوج أو الزوجة والأبناء تظهر أو تُسجَّل. تبقى تذكيرات أعياد ميلاد أبنائك في الاعتراف أنفسهم."],
+    ["📝","طلبات التسجيل","تصلك طلبات التسجيل من الذين اختاروك أب اعتراف فقط."],
+    ["📖","القراءات","من الساعة ٦ مساءً تظهر قراءات اليوم التالي، وفقًا لنظام الكنيسة."]],
   user:[
-    ["🛂","معاك باسبور؟","لو معكش رقم قومي مصري، اطلب من أدمن الكنيسة كود الباسبور، وفي «بياناتي» دوس «🛂 معاك باسبور مش رقم قومي؟» واكتب الكود ورقم الباسبور."]]}};
+    ["📔","النوتة الروحية بالشهر","تظهر نوتتك الروحية في تقويم للشهر كاملًا مع الشهور السابقة. اضغط على أي يوم لتسجيله أو تعديله."],
+    ["📖","القراءات","من الساعة ٦ مساءً تظهر قراءات اليوم التالي، وفقًا لنظام الكنيسة."],
+    ["🙋","بياناتي","أصبحت «بياناتي» لبياناتك الشخصية فقط."]]}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -5396,22 +5452,22 @@ function newsBox(again){
     : h("button",{class:"btn sm", id: key === "newsFathers" ? "newsToFathers" : "newsToMembers", onclick:async e => { e.currentTarget.disabled = true;
         await editDoc("settings/app", cur => Object.assign(cur, {[key]: NEWS.id})); S.settings = Object.assign({}, S.settings, {[key]: NEWS.id}); toast("✅ "+done); newsBox(again); }}, label);
   const body = aud === "admin"
-    ? [h("h4",null,"🛠️ ليك إنت"), newsList(I.admin), h("h4",null,"🙏 للآباء الكهنة"), newsList(I.priest), h("h4",null,"👥 للمعترفين"), newsList(I.user),
-       h("div",{class:"news-adm"}, h("p",{class:"small", style:"margin:0"},"الآباء والمعترفين مش هيشوفوا الشاشة دي غير لما تدوس:"),
-         share("newsFathers","📣 اعرضها للآباء الكهنة","الآباء هيشوفوها أول ما يفتحوا البرنامج"),
-         share("newsMembers","📣 اعرضها للمعترفين","المعترفين هيشوفوها أول ما يفتحوا البرنامج"))]
+    ? [h("h4",null,"🛠️ لك أنت"), newsList(I.admin), h("h4",null,"🙏 للآباء الكهنة"), newsList(I.priest), h("h4",null,"👥 للمعترفين"), newsList(I.user),
+       h("div",{class:"news-adm"}, h("p",{class:"small", style:"margin:0"},"لن يرى الآباء والمعترفون هذه الشاشة إلا بعد الضغط على:"),
+         share("newsFathers","📣 اعرضها للآباء الكهنة","ستظهر للآباء عند فتح البرنامج"),
+         share("newsMembers","📣 اعرضها للمعترفين","ستظهر للمعترفين عند فتح البرنامج"))]
     : [newsList(I[aud])];
   const box = h("div",{class:"news-wrap", id:"newsBox", role:"dialog", "aria-modal":"true", "aria-label":"الجديد في البرنامج"},
     h("div",{class:"news-box"}, h("h2",null,"🆕 "+NEWS.title), ...body,
-      h("div",{class:"row"}, h("button",{class:"btn", id:"newsOk", onclick:close}, aud === "admin" ? "تمام" : "تمام، فهمت"))));
+      h("div",{class:"row"}, h("button",{class:"btn", id:"newsOk", onclick:close}, "حسنًا"))));
   document.body.append(box);
 }
 function newsCheck(){ if (!$("#newsBox") && newsDue()) newsBox(false); }
 function newsRow(){ return newsAud() && newsApi ? h("div",{class:"card"}, h("div",{class:"row between", style:"align-items:center"}, h("strong",null,"🆕 الجديد في آخر تحديث"),
-  h("button",{class:"btn sm ghost", id:"newsAgain", onclick:()=>newsBox(true)},"اعرض"))) : null; }
+  h("button",{class:"btn sm ghost", id:"newsAgain", onclick:()=>newsBox(true)},"عرض"))) : null; }
 function showPhoto(src){
   if (!src) return;
-  const box = h("div",{class:"photo-zoom", role:"dialog", "aria-label":"الصورة", onclick:()=>box.remove()}, h("img",{src, alt:""}), h("button",{class:"btn sm", type:"button"},"✕ قفل"));
+  const box = h("div",{class:"photo-zoom", role:"dialog", "aria-label":"الصورة", onclick:()=>box.remove()}, h("img",{src, alt:""}), h("button",{class:"btn sm", type:"button"},"✕ إغلاق"));
   document.body.append(box);
 }
 // the national ID goes only to the admin and the person's own confession father (the server leaves it out for everyone else)
@@ -5421,20 +5477,19 @@ function pendingDetail(x){
   const facts = [["📞 التليفون", p.phone], ["🎂 الميلاد", p.birthday ? fmtShort(p.birthday)+" ("+ageOf(p.birthday)+")" : ""], ["👤 النوع", SEX_AR[p.sex]], ["💼 الوظيفة", p.job], ["📍 العنوان", p.address],
     ["⛪ أب الاعتراف", x.fatherName || "لسه ما اختارش"], ["🕒 سجّل", fmtShort(ymd(new Date(x.at)))]].filter(f => f[1]);
   return h("div",{class:"pend-detail"},
-    nidSees(x) ? nidBadge(p, x.id, true) : null, nidSees(x) ? h("div",{class:"row"}, nidFixBtn(x.id, p.nid)) : null, famHint(x),
+    nidSees(x) ? nidBadge(p, x.id, true) : null, nidSees(x) ? h("div",{class:"row"}, nidFixBtn(x.id, p.nid)) : null,
     h("div",{class:"row", style:"align-items:flex-start;gap:14px"},
-      photo ? h("button",{type:"button", class:"pend-photo", title:"كبّر الصورة", onclick:()=>showPhoto(photo)}, h("img",{src:photo, alt:"صورة "+p.name})) : h("div",{class:"pend-photo none"}, "مفيش صورة"),
+      photo ? h("button",{type:"button", class:"pend-photo", title:"كبّر الصورة", onclick:()=>showPhoto(photo)}, h("img",{src:photo, alt:"صورة "+p.name})) : h("div",{class:"pend-photo none"}, "لا توجد صورة"),
       h("dl",{class:"pend-facts"}, facts.map(([k,v]) => [h("dt",null,k), h("dd",null,v)]))),
     mapBtn(p) ? h("div",{class:"row"}, mapBtn(p)) : null,
-    p.phone ? h("div",{class:"row"}, h("a",{class:"btn sm ghost", href:"tel:"+String(p.phone).replace(/\s/g,"")},"📞 اتصل"), h("a",{class:"btn sm wa", href:"https://wa.me/"+waNum(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب")) : null,
-    p.spouse || (p.children||[]).length || p.wedding ? familyCard(p, true) : h("p",{class:"small muted", style:"margin:0"},"مكتبش بيانات الأسرة."));
+    p.phone ? h("div",{class:"row"}, h("a",{class:"btn sm ghost", href:"tel:"+String(p.phone).replace(/\s/g,"")},"📞 اتصل"), h("a",{class:"btn sm wa", href:"https://wa.me/"+waNum(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب")) : null);
 }
 function pendingCard(){
   const list = S.pending || [];
   if (!list.length || !["admin","priest","supervisor"].includes(accRole())) return null;
-  return h("section",{class:"card pending-card"}, h("h3",null,"🆕 حسابات جديدة مستنية موافقتك ("+arDigits(list.length)+")"),
+  return h("section",{class:"card pending-card"}, h("h3",null,"🆕 حسابات جديدة في انتظار موافقتك ("+arDigits(list.length)+")"),
     h("p",{class:"small muted", style:"margin:0"},"الناس دول سجّلوا بنفسهم. دوس على أي حد عشان تشوف صورته وكل بياناته قبل ما توافق."),
-    h("ul",{class:"list"}, list.map(x => { const p = x.profile || {}, open = S.draft.pendOpen === x.id, info = [p.phone, p.birthday ? "🎂 "+fmtShort(p.birthday) : "", p.spouse ? "💍 "+p.spouse : ""].filter(Boolean).join(" · ");
+    h("ul",{class:"list"}, list.map(x => { const p = x.profile || {}, open = S.draft.pendOpen === x.id, info = [p.phone, p.birthday ? "🎂 "+fmtShort(p.birthday) : ""].filter(Boolean).join(" · ");
       return h("li",{class:"pending-row"+(open ? " open" : "")},
         h("button",{type:"button", class:"person-line pend-toggle", "aria-expanded": open ? "true" : "false", onclick:()=>{ S.draft.pendOpen = open ? null : x.id; render(); }},
           avatar({name:p.name||x.name, photo:p.photo||x.photo||""}),
@@ -5447,9 +5502,9 @@ function pendingCard(){
         h("div",{class:"row"},
           h("button",{class:"btn sm", onclick:async e=>{ e.target.disabled = true; if (await reviewAccount(x.id, true)){ toast("✅ "+x.name+" يقدر يستخدم البرنامج دلوقتي"); } e.target.disabled = false; }},"✅ موافقة"),
           h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:async e=>{
-            if (S.draft.rejAsk !== x.id){ S.draft.rejAsk = x.id; toast("دوس تاني على «رفض» للتأكيد"); return; }
+            if (S.draft.rejAsk !== x.id){ S.draft.rejAsk = x.id; toast("اضغط «رفض» مرة أخرى للتأكيد"); return; }
             S.draft.rejAsk = null; e.target.disabled = true;
-            if (await reviewAccount(x.id, false)){ toast("الحساب اتشال"); } }},"❌ رفض"))); })));
+            if (await reviewAccount(x.id, false)){ toast("تمت إزالة الحساب"); } }},"❌ رفض"))); })));
 }
 
 /* ---------- render ---------- */
@@ -5601,11 +5656,11 @@ function render(){
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
   else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : adminView(all);
-  else if (priest) view = ({today:priestToday, people:priestPeople, families:priestFamilies, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
+  else if (priest) view = ({today:priestToday, people:priestPeople, families:priestToday, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = ({admin:adminView, meditations:priestMeditations}[S.tab])([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
   // whatever the person typed and hasn't saved survives a redraw (the server is polled every few seconds)
-  const app = $("#app"), scope = S.role+"|"+S.tab+"|"+(S.sel||""), keep = [];
+  const app = $("#app"), scope = S.role+"|"+S.tab+"|"+(S.sel||"")+(S.tab === "notebook" ? "|"+(S.draft.nbDate || TODAY_S) : ""), keep = [];  // another notebook day never inherits the ticks on screen (2026-11-06)
   if (!render.hooked){ render.hooked = true; const mark = e => { if (e.target && e.target.id) e.target.dataset.dirty = "1"; };
     app.addEventListener("input", mark, true); app.addEventListener("change", mark, true); }
   if (render.scope === scope) for (const el of app.querySelectorAll("[data-dirty][id]"))
@@ -5635,10 +5690,10 @@ function renderNotice(){
     if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? admSwitch() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
-      h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"ارجع للبيانات الحقيقية") : null)));
+      h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"العودة إلى البيانات الحقيقية") : null)));
   } else if (S.isOwner){
     slot.append(h("div",{class:"notice"}, h("span",null, S.role==="priest" ? "إنت شايف شاشة أبونا." : "دي معاينة لشاشة المعترف ببياناتك إنت."),
-      h("div",{class:"row"}, roleBtns(), h("button",{class:"btn sm quiet", onclick:()=>goDemo()},"جرّب بأمثلة"))));
+      h("div",{class:"row"}, roleBtns(), h("button",{class:"btn sm quiet", onclick:()=>goDemo()},"تجربة بأمثلة"))));
   }
 }
 // the admin is not a confession father: show him شاشة أبونا filled with sample data, kept in memory only
@@ -5695,7 +5750,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.05-5";
+const APP_VERSION = "2026.11.06-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5763,8 +5818,8 @@ async function showGate(){
       Store.mode==="demo" ? h("p",{class:"small", style:"background:var(--surface-2);border-radius:10px;padding:6px 10px"},"وضع التجربة: اكتب أي اسم وكلمة سر.") : null,
       form,
       mode==="login" ? h("button",{class:"linkish", type:"button", onclick:async()=>{
-        await Store.del(authPath()); saved=null; mode="create"; draw(); toast("اختار كلمة سر جديدة");
-      }},"نسيت كلمة السر؟ اعمل واحدة جديدة") : null,
+        await Store.del(authPath()); saved=null; mode="create"; draw(); toast("اختر كلمة سر جديدة");
+      }},"نسيت كلمة السر؟ إنشاء كلمة جديدة") : null,
       devBlock()]));
     const n = $("#gName"); if (n) n.focus();
   };
@@ -5778,8 +5833,8 @@ function idleWarn(){
   const typed = !!document.querySelector("#app [data-dirty]");
   $("#toastSlot").replaceChildren(h("div",{class:"toast idle-warn", id:"idleWarn", role:"alert"},
     h("span",null, typed ? "هتخرج تلقائياً بعد ٣٠ ثانية، واللي كتبته ومحفظتهوش هيضيع. احفظ الأول." : "هتخرج تلقائياً بعد ٣٠ ثانية من غير استخدام."),
-    h("button",{class:"btn sm", onclick:()=>bumpIdle()},"أنا لسه هنا")));
-  idleTimer = setTimeout(()=>{ logout(); toast("خرجت تلقائياً بعد ٣ دقايق من غير استخدام"); }, 30000);
+    h("button",{class:"btn sm", onclick:()=>bumpIdle()},"ما زلت هنا")));
+  idleTimer = setTimeout(()=>{ logout(); toast("تم الخروج تلقائيًا بعد ٣ دقائق من عدم الاستخدام"); }, 30000);
 }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
 function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
@@ -5818,7 +5873,7 @@ const timeAgo = iso => { const t = new Date(iso), min = Math.round((Date.now() -
   if (min < 180) return "من "+arDigits(Math.round(min/60))+" ساعة";
   return t.toLocaleTimeString(timeLoc(),{hour:"numeric",minute:"2-digit"}); };
 // a table: one row per person, a count per kind of activity in the chosen period; a tap opens that person's own timeline
-const ACT_PERIODS = [["day","النهارده",1],["week","الأسبوع ده",7],["month","الشهر ده",30],["all","من الأول",0]];
+const ACT_PERIODS = [["day","اليوم",1],["week","هذا الأسبوع",7],["month","هذا الشهر",30],["all","منذ البداية",0]];
 const ACT_COLS = [["in","دخول","🟢"],["acc","حسابات","👥"],["pw","كلمة سر","🔑"],["more","غيره","📝"]];
 const actTimes = n => n === 2 ? "مرتين" : arDigits(n)+(n <= 10 ? " مرات" : " مرة");
 function actMerge(rows){ // per person per day: sign-ins become one line
@@ -5833,7 +5888,7 @@ function actMerge(rows){ // per person per day: sign-ins become one line
   }
   return items;
 }
-const actGroup = day => { const n = daysBetween(parseYmd(day), TODAY); return n <= 0 ? "النهارده" : n === 1 ? "امبارح" : n < 7 ? "الأسبوع ده" : "أقدم"; };
+const actGroup = day => { const n = daysBetween(parseYmd(day), TODAY); return n <= 0 ? "اليوم" : n === 1 ? "أمس" : n < 7 ? "هذا الأسبوع" : "أقدم"; };
 function actLines(items, shown, seen, me){
   const groups = []; let last = null;
   for (const it of items.slice(0, shown)){ const g = actGroup(it.day); if (g !== last){ groups.push({g, list:[]}); last = g; } groups[groups.length-1].list.push(it); }
@@ -5843,7 +5898,7 @@ function actLines(items, shown, seen, me){
       h("span",{class:"act-ic", "aria-hidden":"true"}, it.login ? "🟢" : actIcon(l.action)),
       h("div",{class:"who"}, h("span",null, text)),
       h("span",{class:"small muted num act-time"}, fresh ? h("span",{class:"pill acc"},"جديد") : null,
-        g === "أقدم" || g === "الأسبوع ده" ? fmtShort(it.day)+" · " : "", (it.login && it.n > 1 ? "آخرها " : "")+timeAgo(l.at))); };
+        g === "أقدم" || g === "هذا الأسبوع" ? fmtShort(it.day)+" · " : "", (it.login && it.n > 1 ? "آخرها " : "")+timeAgo(l.at))); };
   return groups.map(g => h("div",{class:"act-group"}, h("h4",{class:"act-day"}, g.g), h("ul",{class:"list"}, g.list.map(line))));
 }
 function activityCard(logs, accs){
@@ -5865,12 +5920,12 @@ function activityCard(logs, accs){
     const count = k => mine.filter(l => actKind(l.action) === k).reduce((n, l) => n + (k === "in" && /^خرج/.test(l.action) ? 0 : 1), 0);
     const ld = dayOf(sel.last);
     return card(
-      h("button",{class:"linkish act-back", type:"button", onclick:()=>{ d.actWho = null; d.actShow = 40; render(); }},"→ رجوع للجدول"),
+      h("button",{class:"linkish act-back", type:"button", onclick:()=>{ d.actWho = null; d.actShow = 40; render(); }},"→ العودة إلى الجدول"),
       h("div",{class:"act-head"}, h("div",{class:"act-av", "aria-hidden":"true"}, (sel.name||"؟").trim().charAt(0)),
         h("div",null, h("strong",null, sel.name), h("span",{class:"small muted"}, ((ROLES[sel.role]||{}).label || "")+(father ? " · أب اعترافه: "+father : "")))),
       h("div",{class:"act-facts"},
         h("div",null, h("small",null,"آخر دخول"), sel.last ? (ld === 0 ? "النهارده " : ld === 1 ? "امبارح " : fmtShort(ymd(new Date(sel.last)))+" ")+new Date(sel.last).toLocaleTimeString(timeLoc(),{hour:"numeric",minute:"2-digit"}) : "لسه ما دخلش"),
-        h("div",null, h("small",null,"الحساب"), !a ? "اتمسح" : a.active === false ? "موقوف" : "شغّال"+(a.createdAt ? " · من "+agoText(ymd(new Date(a.createdAt))).replace(/^من /,"") : ""))),
+        h("div",null, h("small",null,"الحساب"), !a ? "تم الحذف" : a.active === false ? "موقوف" : "شغّال"+(a.createdAt ? " · من "+agoText(ymd(new Date(a.createdAt))).replace(/^من /,"") : ""))),
       h("div",{class:"act-sums4"}, ACT_COLS.map(([k, label, emo]) => h("div",{class:"act-sum"}, h("span",{"aria-hidden":"true"}, emo), h("b",{class:"num"}, arDigits(count(k))), h("span",{class:"small"}, label)))),
       items.length ? actLines(items, shown, d.logSeen, me) : h("div",{class:"empty"},"مفيش له نشاط متسجل."),
       items.length > shown ? h("div",{class:"row"}, h("button",{class:"btn sm ghost", onclick:()=>{ d.actShow = shown + 40; render(); }},"اعرض أقدم ("+arDigits(items.length - shown)+")")) : null);
@@ -5894,7 +5949,7 @@ function activityCard(logs, accs){
   const th = (k, kids, cls) => h("th",{class:(cls||"")+(srt === k ? " on" : ""), scope:"col", "aria-sort": srt === k ? "descending" : "none"},
     h("button",{type:"button", "data-sort":k, onclick:()=>{ d.actSort = k; render(); }}, ...kids));
   const lastTxt = p => { const n = dayOf(p.last);
-    return !p.last ? "ما دخلش خالص" : n === 0 ? timeAgo(p.last) : n === 1 ? "امبارح" : "من "+arDigits(n)+" يوم"; };
+    return !p.last ? "ما دخلش خالص" : n === 0 ? timeAgo(p.last) : n === 1 ? "أمس" : "من "+arDigits(n)+" يوم"; };
   const search = h("input",{id:"actQ", type:"search", placeholder:"دوّر باسم حد", value:d.actQ||"",
     oninput:e=>{ d.actQ = e.target.value; render(); const s = $("#actQ"); if (s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }});
   const chips = h("div",{class:"chips filters act-chips", role:"group", "aria-label":"الفترة"}, ACT_PERIODS.map(([k, label]) =>
@@ -5904,7 +5959,7 @@ function activityCard(logs, accs){
     h("tbody",null, rows.map(p => { const n = dayOf(p.last), old = !p.last || n >= 30;
       return h("tr",{class:"act-person", tabindex:"0", "data-who":p.name, onclick:()=>{ d.actWho = p.name; d.actShow = 40; render(); window.scrollTo && $(".act-card") && $(".act-card").scrollIntoView({block:"start"}); },
         onkeydown:e=>{ if (e.key === "Enter"){ d.actWho = p.name; render(); } }},
-        h("td",{class:"nm"}, h("b",null, p.name, fresh.has(p.name) ? h("span",{class:"act-dot", title:"فيه جديد"}) : null), h("span",null, (ROLES[p.role]||{}).label || (p.acc ? "" : "اتمسح"))),
+        h("td",{class:"nm"}, h("b",null, p.name, fresh.has(p.name) ? h("span",{class:"act-dot", title:"فيه جديد"}) : null), h("span",null, (ROLES[p.role]||{}).label || (p.acc ? "" : "تم الحذف"))),
         ...ACT_COLS.map(([k]) => h("td",{class:"num"+(p.c[k] ? "" : " z")}, arDigits(p.c[k]))),
         h("td",{class:"last"+(old ? " old" : "")}, lastTxt(p))); }))));
   return card(h("div",{class:"act-sums"}, pill(inToday,"دخلوا النهارده","ok"), pill(inWeek,"دخلوا الأسبوع ده",""), pill(asleep,"مدخلوش من شهر", asleep ? "warn" : "")),
@@ -5963,7 +6018,7 @@ async function showLocalGate(){
         h("label",null,"كلمة السر", pwInput("gPw","كلمة السر","new-password")),
         h("label",null,"اكتب كلمة السر تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
         h("label",null,"مفتاح التفعيل", h("input",{id:"gKey", autocomplete:"off", placeholder:"المفتاح اللي أخدته من المطوّر"})),
-        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"إنشاء حساب الأدمن ودخول"));
+        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"إنشاء حساب الأدمن والدخول"));
     } else if (mode === "login"){
       sub = "أهلاً بيك. ادخل باسمك وكلمة السر.";
       form = h("form",{class:"form", onsubmit:async e=>{ e.preventDefault(); err.textContent = "";
@@ -5991,11 +6046,11 @@ async function showLocalGate(){
         if (pw !== v("gPw2")){ err.textContent = "كلمتين السر مش زي بعض."; return; }
         const acc = await Store.get("accounts/"+S.account.id);
         await Store.set("accounts/"+S.account.id, clean(Object.assign({}, acc, await makeHash(pw), {mustChange:false})));
-        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false;
-        ssSet(okKey(), S.account.id); unlock(); toast("كلمة السر اتغيّرت"); }},
+        await logAct("اختر كلمة سر جديدة"); S.account.mustChange = false;
+        ssSet(okKey(), S.account.id); unlock(); toast("تم تغيير كلمة السر"); }},
         h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
         h("label",null,"اكتبها تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
-        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"احفظ وادخل"));
+        err, h("button",{class:"btn", type:"submit", style:"width:100%;padding-block:12px"},"حفظ ودخول"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ S.account = null; S.uid = "local-me"; mode = "login"; draw(); }},"رجوع")];
     } else {
       sub = "ابعت طلب للأدمن يعملك كلمة سر جديدة، أو لو معاك مفتاح التفعيل غيّرها بنفسك.";
@@ -6007,7 +6062,7 @@ async function showLocalGate(){
           if (acc.active === false){ err.textContent = "الحساب ده متوقف. كلّم الأدمن."; return; }
           await Store.set("pwreq/"+acc.id, {name:acc.name, accId:acc.id, at:new Date().toISOString()});
           await logAct("طلب كلمة سر جديدة", acc.name);
-          mode = "login"; draw(); toast("الطلب وصل للأدمن، هيبلّغك بكلمة السر الجديدة"); }},"📨 ابعت طلب للأدمن"),
+          mode = "login"; draw(); toast("تم إرسال الطلب إلى الأدمن، وسيبلغك بكلمة السر الجديدة"); }},"📨 إرسال طلب إلى الأدمن"),
         h("div",{class:"or"},"أو"),
         h("label",null,"مفتاح التفعيل", h("input",{id:"gKey", autocomplete:"off"})),
         h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
@@ -6020,9 +6075,9 @@ async function showLocalGate(){
           await Store.set("accounts/"+acc.id, clean(Object.assign({}, acc, await hashed(pw), {mustChange:false})));
           await Store.del("pwreq/"+acc.id).catch(()=>{});
           await logAct("غيّر كلمة السر بمفتاح التفعيل", acc.name);
-          mode = "login"; draw(); toast("كلمة السر اتغيّرت، ادخل بيها"); }},"🔑 غيّر كلمة السر بالمفتاح"),
+          mode = "login"; draw(); toast("تم تغيير كلمة السر، ادخل بها"); }},"🔑 تغيير كلمة السر بالمفتاح"),
         err);
-      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"رجوع للدخول")];
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "login"; draw(); }},"العودة إلى الدخول")];
     }
     gate.replaceChildren(gateCard(head(sub), [form, ...extra, devBlock()]));
     const n = $("#gName"); if (n) n.focus();
@@ -6037,8 +6092,16 @@ async function restoreLocalSession(){
 }
 
 /* ---------- admin / supervisor screen ---------- */
+// (2026-11-06) a new password or a new account goes to its owner on WhatsApp in one tap: to their number when we have it, otherwise WhatsApp asks whom to send it to
+function pwWaBtn(sp){
+  const m = sp.id ? memberOf(sp.id) : null, ph = m && m.phone;
+  const church = (S.church && S.church.name) || "الكنيسة";
+  const link = (typeof inviteLink === "function" && inviteLink() || location.href.split("#")[0]).replace(/([?&])k=[^&]*&?/, "$1").replace(/[?&]$/, "");
+  const text = "سلام ونعمة 🌿\nبيانات دخولك على برنامج ⲙⲉⲛⲣⲓⲧ في "+church+":\n\nالرابط: "+link+"\nالاسم: "+sp.name+"\nكلمة السر: "+sp.pw+"\n\nبعد الدخول سيطلب منك البرنامج اختيار كلمة سر جديدة خاصة بك.";
+  return h("a",{class:"btn sm wa pw-wa", href: ph ? waLink(ph, text) : "https://wa.me/?text="+encodeURIComponent(text), target:"_blank", rel:"noopener"}, "💬 إرسال عبر واتساب");
+}
 function newPwDialog(acc, pw){
-  S.draft.shownPw = {name:acc.name, pw}; render();
+  S.draft.shownPw = {id:acc.id || "", name:acc.name, pw}; render();
 }
 async function setPassword(acc, pw, why){
   await Store.set("accounts/"+acc.id, clean(Object.assign({}, acc, await hashed(pw), {pwSetAt:new Date().toISOString(), mustChange: acc.id !== S.account.id})));
@@ -6047,7 +6110,7 @@ async function setPassword(acc, pw, why){
 }
 /* account operations: the standalone file keeps hashes on the device; the server version replaces these */
 async function createAccount(name, role, pw){
-  if (findAcc(await listAccounts(), name)){ toast("فيه حساب بالاسم ده"); return false; }
+  if (findAcc(await listAccounts(), name)){ toast("يوجد حساب بهذا الاسم"); return false; }
   await Store.set("accounts/u"+newId(), Object.assign({name, role, active:true, mustChange:true, createdAt:new Date().toISOString(), logins:0, by:S.account.name}, await hashed(pw)));
   return true;
 }
@@ -6079,17 +6142,17 @@ function myPasswordCard(){
     h("strong",null,"صورتك"), h("span",{class:"small muted"},"بتظهر فوق جنب زرار الخروج."),
     h("div",{class:"row"}, photoPicker("accPhoto", m.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
       await saveAccount(S.account, {photo:url});
-      S.account.photo = url; toast("صورتك اتحفظت"); render(); }),
-      S.account.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await saveAccount(S.account, {photo:""}); S.account.photo = ""; toast("الصورة اتشالت"); render(); }},"شيل الصورة") : null)));
-  return h("div",{class:"card form"}, h("h3",null,"👤 حسابي"), photoRow, h("h3",null,"🔐 كلمة السر بتاعتي"),
+      S.account.photo = url; toast("تم حفظ صورتك"); render(); }),
+      S.account.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await saveAccount(S.account, {photo:""}); S.account.photo = ""; toast("تمت إزالة الصورة"); render(); }},"إزالة الصورة") : null)));
+  return h("div",{class:"card form"}, h("h3",null,"👤 حسابي"), photoRow, h("h3",null,"🔐 كلمة السر الخاصة بي"),
     h("label",null,"كلمة السر الحالية", pwInput("myOld","الحالية","current-password")),
     h("label",null,"كلمة السر الجديدة", pwInput("myNew","الجديدة","new-password")),
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{
       const oldPw = $("#myOld").value, pw = $("#myNew").value;
       if (pw.length < PW_MIN){ toast(pwShort()); return; }
-      if (!(await changeOwnPassword(oldPw, pw))){ toast("كلمة السر الحالية مش صح"); return; }
-      await logAct("غيّر كلمة السر بتاعته"); toast("كلمة السر اتغيّرت"); render();
-    }},"غيّر كلمة السر")));
+      if (!(await changeOwnPassword(oldPw, pw))){ toast("كلمة السر الحالية غير صحيحة"); return; }
+      await logAct("غيّر كلمة السر بتاعته"); toast("تم تغيير كلمة السر"); render();
+    }},"تغيير كلمة السر")));
 }
 const isFatherAcc = a => a.active !== false && !a.pending && a.role === "priest";
 function activityView(){
@@ -6103,8 +6166,8 @@ function adminView(all){
   const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead(isAdmin ? "الأدمن" : "المتابعة"));
   if (S.draft.shownPw){ const sp = S.draft.shownPw;
     wrap.append(h("div",{class:"card pw-shown"}, h("h3",null,"🔑 كلمة السر الجديدة لـ "+sp.name),
-      h("div",{class:"pw-big", dir:"ltr"}, sp.pw), h("p",{class:"small muted"},"بلّغها لصاحبها. مش هتظهر تاني بعد ما تقفل الرسالة دي."),
-      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ S.draft.shownPw = null; render(); }},"تمام")))); }
+      h("div",{class:"pw-big", dir:"ltr"}, sp.pw), h("p",{class:"small muted"},"أرسلها لصاحبها، فلن تظهر مرة أخرى بعد إغلاق هذه الرسالة."),
+      h("div",{class:"row"}, pwWaBtn(sp), h("button",{class:"btn sm quiet", onclick:()=>{ S.draft.shownPw = null; render(); }},"حسنًا")))); }
   const today = TODAY_S, logs = S.log || [];
   const byRole = r => accs.filter(a=>a.role===r).length;
   const stat = (emo, n, label, alert) => h("div",{class:"stat"+(alert?" alert":"")}, h("span",{class:"prep-emo"},emo), h("b",{class:"num"}, arDigits(n)), h("span",null,label));
@@ -6125,9 +6188,9 @@ function adminView(all){
       acc && Store.mode === "cloud" && acc.role === "priest" ? h("div",{class:"row"}, h("span",{class:"small muted"},"أبونا: المطوّر بس يعمله كلمة سر ("+DEV.phone+")"),
         h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
       : acc && canManage(acc) ? h("div",{class:"row"},
-        h("button",{class:"btn sm", onclick:async()=>{ const pw = genPassword(); await setPassword(acc, pw, "عمل كلمة سر جديدة بطلب"); newPwDialog(acc, pw); }},"اعمل كلمة سر"),
+        h("button",{class:"btn sm", onclick:async()=>{ const pw = genPassword(); await setPassword(acc, pw, "عمل كلمة سر جديدة بطلب"); newPwDialog(acc, pw); }},"إنشاء كلمة سر"),
         h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
-      : !acc ? h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل (الحساب اتحذف)") : h("span",{class:"small muted"},"الأدمن بس")); }))));
+      : !acc ? h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل (الحساب محذوف)") : h("span",{class:"small muted"},"الأدمن بس")); }))));
   // accounts
   const cloudAdm = isAdmin && Store.mode === "cloud";
   const accCard = a => {
@@ -6151,7 +6214,7 @@ function adminView(all){
       li.append(ce && S.draft.chEdit === a.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(a.id, mm.nid))); }
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
-      const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("الصلاحية اتغيّرت"); }},
+      const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("تم تغيير الصلاحية"); }},
         Object.entries(ROLES).filter(([k]) => !(Store.mode === "cloud" && a.role === "priest" && k === "admin")).map(([k,r]) => h("option",{value:k, selected:a.role===k}, r.emo+" "+r.label))) : null;
       li.append(h("div",{class:"acc-tools"},
         // on the server a supervisor makes a new password only for a new account or when its owner asked for one
@@ -6163,11 +6226,11 @@ function adminView(all){
         !self ? h("div",{class:"row"}, roleSel,
           h("button",{class:"btn sm quiet", onclick:async()=>{ const on = a.active===false; await saveAccount(a, {active:on}); await logAct((on?"شغّل حساب ":"وقّف حساب ")+a.name); toast(on?"الحساب اشتغل":"الحساب اتوقف"); }}, a.active===false ? "▶️ شغّل الحساب" : "⏸️ وقّف الحساب"),
           h("button",{class:"btn sm quiet", style:"color:var(--bad)", onclick:async()=>{
-            if (a.role==="admin" && accs.filter(x=>x.role==="admin").length < 2){ toast("لازم يفضل أدمن واحد على الأقل"); return; }
+            if (a.role==="admin" && accs.filter(x=>x.role==="admin").length < 2){ toast("يجب أن يبقى أدمن واحد على الأقل"); return; }
             if (S.draft.delAsk !== a.id){ S.draft.delAsk = a.id; toast(Store.mode === "cloud" && a.role === "priest" ? "دوس تاني على «احذف» للتأكيد. ملاحظات أبونا عن أولاده هتتمسح معاه، وأولاده هيختاروا أب تاني." : "دوس تاني على «احذف» للتأكيد"); return; }
-            await deleteAccount(a); await logAct("حذف حساب "+a.name); S.draft.accOpen = null; S.draft.delAsk = null; toast("الحساب اتحذف"); }},"🗑️ احذف")) : null,
+            await deleteAccount(a); await logAct("حذف حساب "+a.name); S.draft.accOpen = null; S.draft.delAsk = null; toast("تم حذف الحساب"); }},"🗑️ حذف")) : null,
         isAdmin && Store.mode==="cloud" && (a.role==="user" || a.role==="admin") ? h("label",{class:"row small", style:"gap:8px;align-items:center"}, "⛪ أب الاعتراف:",
-          h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); if (a.id === S.account.id) await refreshFather(); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("اتنقل"); }},
+          h("select",{style:"max-width:200px", onchange:async e=>{ const v = e.target.value; await saveAccount(a, {father:v}); if (a.id === S.account.id) await refreshFather(); await logAct("نقل "+a.name+" لأب اعتراف "+((accs.find(x=>x.id===v)||{}).name||"")); toast("تم النقل"); }},
             h("option",{value:"", selected:!a.father},"من غير"), accs.filter(isFatherAcc).map(f => h("option",{value:f.id, selected:a.father===f.id}, f.name)))) : null,
         accOrigin(a),
         h("p",{class:"small muted"}, (ROLES[a.role]||ROLES.user).note+(a.createdAt ? " · اتعمل "+fmtShort(ymd(new Date(a.createdAt))) : ""))));
@@ -6182,7 +6245,7 @@ function adminView(all){
   const ff = fathers.some(f => f.id === S.draft.accFather) || S.draft.accFather === "none" ? S.draft.accFather : "";
   const ofF = id => a => a.id !== id && a.role !== "priest" && (id === "none" ? !a.father && a.role === "user" : a.father === id);
   if (ff){ const k = ofF(ff); GROUPS.forEach(g => { const f0 = g[2]; g[2] = a => f0(a) && k(a); }); }
-  const fStrip = fathers.length ? h("section",{class:"fathers-strip"}, h("div",{class:"sec-head"}, h("h3",null,"⛪ أولاد كل أب"), h("span",{class:"small muted"},"دوس على أي أب عشان تشوف أولاده بس")),
+  const fStrip = fathers.length ? h("section",{class:"fathers-strip"}, h("div",{class:"sec-head"}, h("h3",null,"⛪ أبناء كل أب"), h("span",{class:"small muted"},"دوس على أي أب عشان تشوف أولاده بس")),
     h("ul",{class:"list father-grid"}, [...fathers.map(f => [f.id, f.name, f.photo || (memberOf(f.id)||{}).photo, ofF(f.id)]), ["none","من غير أب", "", ofF("none")]].map(([id, name, photo, k]) => {
       const n = accs.filter(a => k(a) && !a.pending).length, w = accs.filter(a => k(a) && a.pending).length;
       if (id === "none" && !n && !w) return null;
@@ -6253,7 +6316,7 @@ function adminView(all){
         h("button",{type:"button", role:"tab", class:"chip-btn acc-tab", "aria-selected":grp === k ? "true" : "false", "aria-pressed":grp === k ? "true" : "false", "data-group":k, onclick:()=>{ S.draft.accGroup = k; render(); }}, l+" · "+arDigits(n))),
       missN ? h("button",{type:"button", class:"chip-btn acc-miss-btn", "aria-pressed":onlyMiss ? "true" : "false", onclick:()=>{ S.draft.accMiss = !onlyMiss; render(); }},"📝 بياناته ناقصة · "+arDigits(missN)) : null),
     ff ? h("div",{class:"row father-on", style:"margin-top:8px;align-items:center"}, h("span",{class:"pill ok"}, ff === "none" ? "اللي من غير أب بس" : "أولاد "+((fathers.find(f => f.id === ff)||{}).name||"")+" بس"),
-      h("button",{type:"button", class:"btn sm quiet father-clear", onclick:()=>{ S.draft.accFather = ""; S.draft.accGroup = "all"; render(); }},"✕ اعرض الكل")) : null,
+      h("button",{type:"button", class:"btn sm quiet father-clear", onclick:()=>{ S.draft.accFather = ""; S.draft.accGroup = "all"; render(); }},"✕ عرض الكل")) : null,
     h("input",{id:"accSearch", type:"search", placeholder:"🔍 دوّر بالاسم", style:"margin:10px 0", oninput:sift}),
     lists));
   if (onlyMiss) setTimeout(sift);
@@ -6271,7 +6334,7 @@ function adminView(all){
       if (!(await createAccount(name, role, pw))) return;
       await logAct("عمل حساب "+ROLES[role].label+": "+name);
       newPwDialog({name}, pw);
-    }},"اعمل الحساب"))));
+    }},"إنشاء الحساب"))));
   // activity: the admin has its own «النشاط» screen; elsewhere (supervisor, local priest) it stays here
   if (!(isAdmin && S.role === "admin")) wrap.append(activityCard(logs, accs));
   wrap.append(myPasswordCard());
@@ -6347,6 +6410,7 @@ function cloudMsg(e){
   if (/Invalid login credentials/i.test(m)) return "الاسم أو كلمة السر مش صح.";
   if (/slot taken/.test(m) || (/duplicate key/.test(m) && /book\//.test(m))) return "الميعاد ده لسه اتحجز. اختار ميعاد تاني.";
   if (/already booked/.test(m)) return "عندك حجز لسه. لو عاوز تغيّره الغيه الأول.";
+  if (/too fast/.test(m)) return "انتظر قليلًا ثم جرّب مرة أخرى.";
   if (/bad time|day closed/.test(m)) return "الميعاد ده مش متاح. اختار ميعاد تاني.";
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
@@ -6482,6 +6546,9 @@ const Cloud = {
   startPoll(){ if (this.timer) return; this.timer = setInterval(() => { if (document.hidden || !this.sess) return; for (const s of this.subs) this.run(s); }, 20000); },
   stopPoll(){ clearInterval(this.timer); this.timer = null; },
   async list(path){ return this.fetch(path, null); },
+  // one month (or any span) of a collection whose ids are dates, e.g. the notebook (2026-11-06)
+  async range(path, from, to){ const c = this.q(this.church());
+    return (await this.req("/rest/v1/docs?select=path,data&church_id=eq."+c+"&parent=eq."+this.q(path)+"&path=gte."+this.q(path+"/"+from)+"&path=lte."+this.q(path+"/"+to)) || []).map(r => Object.assign({id:r.path.split("/").pop()}, r.data)); },
   async get(path){ const v = await this.fetch(path, null); if (!v) return null; const {id, ...rest} = v; return rest; },
   async set(path, data){
     if (path.startsWith("accounts/") || path.startsWith("pwreq/")) throw new Error("use account functions");
@@ -6850,7 +6917,9 @@ pushApi = {
   async current(){ if (!this.supported()) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? await reg.pushManager.getSubscription() : null; },
   keyOf(k){ return Uint8Array.from(atob(k.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((k.length + 3) % 4)), c => c.charCodeAt(0)); },
   async status(){ const s = await this.current(); if (!s) return {on:false};
-    const st = await Cloud.rpc("push_status", {p_endpoint:s.endpoint}).catch(() => ({on:false})) || {on:false};
+    let st = await Cloud.rpc("push_status", {p_endpoint:s.endpoint}).catch(() => ({on:false})) || {on:false};
+    // (2026-11-06) the server forgot this phone (an expired or renewed registration) while it still has permission: register it again quietly
+    try { if (!st.on && Notification.permission === "granted" && localStorage.getItem("menrit_push_on") === "1"){ await this.enable(); return {on:true, renewed:true}; } if (st.on) localStorage.setItem("menrit_push_on", "1"); } catch(e){}
     // the notification key changed on the server: subscribe again quietly, or the phone would stop getting them
     try { if (st.on && Notification.permission === "granted" && s.options && s.options.applicationServerKey){
       const r = await fetch(this.fn).then(x => x.ok ? x.json() : null).catch(() => null);
@@ -6868,8 +6937,14 @@ pushApi = {
     if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:key});
     const j = sub.toJSON();
     await Cloud.rpc("save_push", {p_endpoint:j.endpoint, p_p256dh:j.keys.p256dh, p_auth:j.keys.auth});
+    try { localStorage.setItem("menrit_push_on", "1"); } catch(e){}
   },
-  async disable(){ const s = await this.current(); if (s){ await Cloud.rpc("drop_push", {p_endpoint:s.endpoint}).catch(()=>{}); await s.unsubscribe().catch(()=>{}); } }
+  // «📨 تجربة التنبيه»: registers this phone again when needed, then asks the server to send a test notification
+  async test(){
+    let s = await this.current(), r = await Cloud.rpc("push_test", {p_endpoint:s ? s.endpoint : ""});
+    if (r && r.server && !r.here && Notification.permission === "granted"){ await this.enable(); s = await this.current(); r = await Cloud.rpc("push_test", {p_endpoint:s ? s.endpoint : ""}); }
+    return r || {}; },
+  async disable(){ try { localStorage.removeItem("menrit_push_on"); } catch(e){} const s = await this.current(); if (s){ await Cloud.rpc("drop_push", {p_endpoint:s.endpoint}).catch(()=>{}); await s.unsubscribe().catch(()=>{}); } }
 };
 // أسرة الأب الكاهن: the person asks, that أبونا answers; the server keeps it (priest_family)
 pfamApi = {
