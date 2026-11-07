@@ -472,7 +472,24 @@ ul.father-grid li.father-card.on{border-color:var(--gold);box-shadow:0 0 0 2px v
 .skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:skel 1.2s infinite}
 li.father-card.skel{min-height:150px}
 @keyframes skel{to{transform:translateX(100%)}}
-.db-card{border-color:#f59e0b!important;background:color-mix(in srgb,#f59e0b 10%,var(--surface))}
+.db-card.warn{border-color:#f59e0b!important;background:color-mix(in srgb,#f59e0b 10%,var(--surface))}
+.db-card.ok{padding-block:12px}
+.db-card.ok .db-bar i{background:linear-gradient(90deg,#0f766e,#2563eb)}
+.online-card h3{display:flex;align-items:center;gap:6px}
+.on-dot{width:10px;height:10px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.6);animation:onpulse 1.8s infinite}
+@keyframes onpulse{70%{box-shadow:0 0 0 8px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+.on-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.on-item{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border:1px solid var(--gold-line);border-radius:999px;background:var(--surface);cursor:pointer}
+.on-item:active{transform:scale(.97)}
+.on-ph{position:relative;display:inline-flex}
+.on-ph .avatar{width:34px!important;height:34px!important;min-width:34px}
+.on-badge{position:absolute;bottom:0;inset-inline-end:0;width:11px;height:11px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 2px var(--surface)}
+.on-who{display:flex;flex-direction:column;line-height:1.2}
+.on-who strong{font-size:.92rem}
+li.dir-row .seen{display:block;font-size:.75rem;color:var(--ink-3,#64748b)}
+li.dir-row .seen.on{color:#16a34a;font-weight:700}
+li.dir-row .seen.on::before{content:"● "}
+@media (prefers-reduced-motion:reduce){.on-dot{animation:none}}
 .db-card.full{border-color:#dc2626!important;background:color-mix(in srgb,#dc2626 10%,var(--surface))}
 .db-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:6px 0}
 .db-bar i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#dc2626)}
@@ -985,6 +1002,20 @@ body.one-tab{--nav-h:0px}
 .route-stop.cur{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.25)}
 .route-sum{margin:0 0 6px;font-weight:600}
 .route-sum.late{color:var(--bad)}
+
+/* «ضبط الصورة» (2026-11-07) */
+body.crop-open{overflow:hidden}
+.crop-ov{position:fixed;inset:0;z-index:60;background:rgba(15,23,42,.62);display:grid;place-items:center;padding:16px}
+.crop-box{background:var(--surface);border-radius:20px;padding:16px;display:grid;gap:10px;justify-items:center;max-width:min(380px,100%);box-shadow:var(--shadow);border:2px solid #d4a630}
+.crop-box h3{margin:0}
+.crop-box p{margin:0;text-align:center}
+.crop-stage{position:relative;overflow:hidden;border-radius:16px;touch-action:none;cursor:grab;background:#e5e7eb;user-select:none;-webkit-user-select:none}
+.crop-stage:active{cursor:grabbing}
+.crop-cv{display:block}
+.crop-ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 999px rgba(15,23,42,.55);outline:3px solid #f2d06b;outline-offset:-3px;pointer-events:none}
+.crop-zoom{display:flex;align-items:center;gap:8px;width:100%}
+.crop-zoom input{flex:1;min-width:0}
+.crop-btns{justify-content:center;flex-wrap:wrap}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3552,23 +3583,35 @@ const Mem = {
 function seedDemo(){
   Mem.data.clear();
   const ago = n => { const d=new Date(TODAY); d.setDate(d.getDate()-n); return ymd(d); };
+  const fwd = n => { const d=new Date(TODAY); d.setDate(d.getDate()+n); return ymd(d); };
   const soon = (n, yearsAgo) => { const d=new Date(TODAY); d.setDate(d.getDate()+n); d.setFullYear(d.getFullYear()-yearsAgo); return ymd(d); };
-  const P = "priest/main/people/";
-  Mem.set("members/demo-me", {name:"مينا عادل (مثال)", phone:"0100 000 0001", birthday:soon(0,29), wedding:soon(5,3), spouse:"مارينا", joined:ago(40),
-    request:{id:"r1", preferred:"الخميس بعد القداس", note:"محتاج أقعد مع حضرتك شوية", at:ago(1)}});
-  Mem.set(P+"demo-me", {onApp:true, familyName:"عائلة مينا ومارينا", lastConfession:ago(52), lastVisit:ago(120), notes:"بيمر بضغط في الشغل", area:"شبرا", job:"محاسب", children:[{name:"يوسف",birthday:soon(2,6)}], confessions:[ago(140),ago(95),ago(52)], visits:[{date:ago(120),type:"زيارة منزلية",note:"اتكلمنا عن الشغل"}]});
-  Mem.set("members/demo-2", {name:"مارينا سمير (مثال)", birthday:soon(3,27), wedding:soon(5,3), spouse:"مينا"});
-  Mem.set(P+"demo-2", {onApp:true, familyName:"عائلة مينا ومارينا", lastConfession:ago(20), lastVisit:ago(120), area:"شبرا", confessions:[ago(80),ago(20)]});
-  Mem.set(P+"p_demo3", {name:"عم جرجس فهمي (مثال)", phone:"0122 000 0003", birthday:soon(12,70), familyName:"", lastConfession:ago(95), lastVisit:ago(30), notes:"مش بيستخدم موبايل، بنتصل بيه", area:"روض الفرج", confessions:[ago(160),ago(95)], visits:[{date:ago(30),type:"مكالمة تليفون",note:""}]});
-  Mem.set("members/demo-4", {name:"كيرلس ناجي (مثال)", birthday:soon(40,19), phone:"0111 000 0004", job:"طالب في هندسة", address:"شبرا، شارع الترعة",
-    visitReq:{id:"v1", kind:"visit", date:soon(4,0), slot:"night", preferred:"بالليل", address:"شبرا، شارع الترعة", note:"جدتي تعبانة وعايزين حضرتك تصلّي لها", at:ago(0)}});
-  Mem.set("members/demo-5", {name:"بيتر وديع (مثال)", birthday:soon(2,41), phone:"0100 000 0005", job:"محاسب", spouse:"نيفين", spouseBirthday:soon(25,38), wedding:soon(60,12),
-    children:[{name:"يوستينا", birthday:soon(90,10), grade:"خامسة ابتدائي"},{name:"مارك", birthday:soon(150,6), grade:"أولى ابتدائي"}]});
-  Mem.set(P+"demo-5", {onApp:true, familyName:"عائلة بيتر ونيفين", lastConfession:ago(10), lastVisit:ago(200), area:"روض الفرج", confessions:[ago(70),ago(10)]});
+  const P = "priest/main/people/", wd = TODAY.getDay(), map = (lat, lng) => "https://www.google.com/maps?q="+lat+","+lng;
+  const bk = (seg, ds, t) => "book/main/"+seg+"/"+ds+"_"+t.replace(":","");
+  Mem.set("members/demo-me", {name:"مينا عادل (مثال)", phone:"0100 000 0001", birthday:soon(0,29), joined:ago(40), job:"محاسب",
+    address:"شبرا، شارع خلوصي", area:"شبرا", loc:map(30.0905, 31.2446),
+    request:{id:"r1", kind:"confession", preferred:"الخميس بعد القداس", note:"أحتاج أن أجلس مع قدسك قليلًا", at:ago(1)}});
+  Mem.set(P+"demo-me", {onApp:true, lastConfession:ago(52), lastVisit:ago(120), notes:"يمر بضغط في العمل", confessions:[ago(140),ago(95),ago(52)], visits:[{date:ago(120),type:"زيارة منزلية",note:"تحدثنا عن العمل"}]});
+  Mem.set("members/demo-2", {name:"مارينا سمير (مثال)", phone:"0100 000 0002", birthday:soon(3,27), address:"شبرا، شارع الترعة البولاقية", area:"شبرا", loc:map(30.0861, 31.2412)});
+  Mem.set(P+"demo-2", {onApp:true, lastConfession:ago(20), lastVisit:ago(100), confessions:[ago(80),ago(20)]});
+  Mem.set(P+"p_demo3", {name:"عم جرجس فهمي (مثال)", phone:"0122 000 0003", birthday:soon(12,70), lastConfession:ago(95), lastVisit:ago(130), notes:"لا يستخدم الموبايل، نتصل به", area:"روض الفرج", address:"روض الفرج، شارع شبرا", confessions:[ago(160),ago(95)], visits:[{date:ago(130),type:"مكالمة تليفون",note:""}]});
+  const vt = fwd(0), ct = fwd(1);
+  Mem.set("members/demo-4", {name:"كيرلس ناجي (مثال)", birthday:soon(40,19), phone:"0111 000 0004", job:"طالب في كلية الهندسة", address:"شبرا، شارع أحمد حلمي", area:"شبرا", loc:map(30.0832, 31.2467),
+    visitReq:{id:"v1", kind:"visit", date:vt, time:"19:00", slot:"", note:"جدتي متعبة ونرجو أن تصلي لها", address:"شبرا، شارع أحمد حلمي", booking:bk("v", vt, "19:00"), at:TODAY_S}});
+  Mem.set(bk("v", vt, "19:00"), {uid:"demo-4", name:"كيرلس ناجي (مثال)", at:new Date().toISOString()});
+  Mem.set("members/demo-5", {name:"بيتر وديع (مثال)", birthday:soon(2,41), phone:"0100 000 0005", job:"مهندس", address:"روض الفرج، شارع الساحل", area:"روض الفرج", loc:map(30.0975, 31.2389),
+    request:{id:"r2", kind:"confession", date:ct, time:"18:30", slot:"", note:"", booking:bk("s", ct, "18:30"), at:TODAY_S}});
+  Mem.set(bk("s", ct, "18:30"), {uid:"demo-5", name:"بيتر وديع (مثال)", at:new Date().toISOString()});
+  Mem.set(P+"demo-5", {onApp:true, lastConfession:ago(10), lastVisit:ago(200), confessions:[ago(70),ago(10)]});
+  Mem.set(P+"p_demo6", {name:"أم مريم (مثال)", phone:"0122 000 0006", lastConfession:ago(60), lastVisit:ago(160), area:"شبرا", address:"شبرا، شارع جزيرة بدران", visits:[{date:ago(160),type:"زيارة منزلية",note:""}]});
+  // a weekly schedule with morning and evening periods that ends in two days (the father is asked to repeat or change it)
+  const days = [{wd:5, from:"10:00", to:"13:00", p:"am"}, {wd:5, from:"18:00", to:"21:00", p:"pm"}, {wd:2, from:"18:00", to:"21:00", p:"pm"}];
+  if (![2,5].includes((wd+1)%7)) days.push({wd:(wd+1)%7, from:"18:00", to:"21:00", p:"pm"});
+  Mem.set("sched/main", {rep:"w", len:15, days, closed:[], extra:[], vFrom:ago(87), vTo:fwd(2),
+    visit:{rep:"w", len:45, days:[{wd, from:"17:00", to:"21:00", p:"pm"}, {wd:6, from:"10:00", to:"13:00", p:"am"}], closed:[], extra:[], vFrom:ago(87), vTo:fwd(2)}});
   for (let i=1;i<=12;i++){ if (i%3===0) continue;
     Mem.set("members/demo-me/notebook/"+ago(i), {date:ago(i), items:{bakr:true, noum:i%2===0, bible:true, khloa:i%4!==0, liturgy:i===2||i===9}, metanias:i%2?12:0, portion:"يوحنا "+arDigits(i), reflection:""}); }
-  Mem.set("members/demo-me/inbox/w1", {type:"greeting", title:"كل سنة وانت طيب", text:"ربنا يفرّح قلبك في عيد ميلادك ويديك سنة مليانة بركة.", at:new Date().toISOString()});
-  Mem.set("meditations/m1", {title:"تأمل اليوم (مثال)", text:"«تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم» (مت ١١: ٢٨).\nمش محتاج تشيل الحِمل لوحدك. قدّمه النهارده في صلاة باكر وسيبه بين إيدين ربنا.", at:new Date().toISOString(), date:TODAY_S});
+  Mem.set("members/demo-me/inbox/w1", {type:"greeting", title:"كل عام وأنت بخير", text:"ربنا يفرّح قلبك في عيد ميلادك ويعطيك سنة مليئة بالبركة.", at:new Date().toISOString()});
+  Mem.set("meditations/m1", {title:"تأمل اليوم (مثال)", text:"«تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم» (مت ١١: ٢٨).\nلا تحمل الحِمل وحدك. قدّمه اليوم في صلاة باكر واتركه بين يدي الله.", at:new Date().toISOString(), date:TODAY_S});
 }
 
 /* ---------- app state ---------- */
@@ -3822,7 +3865,7 @@ function meditationBlock(m){
   return h("div",{class:"medit"}, m.title ? h("h3",null,m.title) : null, h("div",{class:"text"}, m.text||""),
     h("span",{class:"small muted"}, m.date ? fmtShort(m.date) : ""));
 }
-const HEAD_ICONS = [["الأدمن","admin"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أبنائي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
+const HEAD_ICONS = [["الأدمن","admin"],["الملخص","admin"],["الآباء","afathers"],["الناس","apeople"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أبنائي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
 function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.includes(w)); return h("div",{class:"sec-head"}, h("h2",null, m ? icon(m[1]) : null, title), extra||null); }
 
 /* ---------- PRIEST ---------- */
@@ -4007,7 +4050,7 @@ async function routeNotify(stops, r, etas){
   const app = stops.filter(p => p.onApp && etas[p.id]), items = app.map(p => ({uid:p.id, date:r.date, time:hmStr(etas[p.id].at), text:visitMsg(p, r, etas[p.id].at)}));
   if (!items.length){ toast("لا يوجد في المشوار أحد على البرنامج. استخدم رسائل واتساب بالأسفل."); return; }
   try {
-    if (visitApi) await visitApi.notify(items);
+    if (visitApi && !Store.preview) await visitApi.notify(items);
     else for (const it of items) await Store.set("members/"+it.uid+"/inbox/"+newId(), {type:"visit", title:"🏡 زيارة أبونا", text:it.text, at:new Date().toISOString()});
     routeUpd({sent:Object.assign({}, r.sent, Object.fromEntries(items.map(it => [it.uid, it.time])))});
     toast("تم إبلاغ "+arDigits(items.length)+" بمواعيدهم في البرنامج.");
@@ -4774,11 +4817,11 @@ function priestMeditations(all){
     if (to === "all") await Store.set("meditations/"+newId(), doc);
     else await Store.set("members/"+to+"/inbox/"+newId(), Object.assign({type:"meditation"}, doc));
     S.draft.mTitle=""; S.draft.mText=""; S.draft.medTo="all";
-    toast(to==="all" ? (Store.mode === "cloud" && accRole() === "priest" ? "التأمل وصل لكل أولادك" : "التأمل وصل لكل الناس") : "التأمل وصل"); render();
+    toast(to==="all" ? (Store.mode === "cloud" ? "وصل التأمل إلى كل أبنائك على البرنامج" : "التأمل وصل لكل الناس") : "وصل التأمل"); render();
   };
   wrap.append(h("div",{class:"card form"},
     h("label",null,"يوصل لمين", h("select",{id:"mTo", onchange:e=>S.draft.medTo=e.target.value},
-      h("option",{value:"all"}, Store.mode === "cloud" && accRole() === "priest" ? "كل أولادي على البرنامج" : "كل الناس على البرنامج"),
+      h("option",{value:"all"}, Store.mode === "cloud" ? "كل أبنائي على البرنامج" : "كل الناس على البرنامج"),
       onApp.map(p=>h("option",{value:p.id, selected:S.draft.medTo===p.id},p.name)))),
     h("label",null,"العنوان (اختياري)", h("input",{id:"mTitle", value:S.draft.mTitle||"", oninput:e=>S.draft.mTitle=e.target.value})),
     h("label",null,"التأمل", h("textarea",{id:"mText", rows:"6", oninput:e=>S.draft.mText=e.target.value}, S.draft.mText||"")),
@@ -5037,6 +5080,7 @@ async function restoreDocs(docs){
   for (const [k, v] of Object.entries(docs || {})){
     if (!RESTORE_OK.test(k) || !v || typeof v !== "object") continue;
     if (Store.mode === "cloud" && /^priest\/[^/]+\/people\//.test(k) && !k.startsWith(PP()+"/")) continue;  // a father's private notes stay his
+    if (Store.mode === "cloud" && /^meditations\//.test(k)) continue;  // so do his meditations (2026-11-07)
     if (Store.mode === "cloud" && /^members\/[^/]+\/(inbox|notebook)\//.test(k) && !(S.account && k.startsWith("members/"+S.account.id+"/"))) continue;  // so do notebooks and messages
     if (k.startsWith("accounts/") && (Store.mode === "cloud" || accRole() !== "admin" || k === "accounts/"+S.account.id)) continue;
     await Store.set(k, v); n++;
@@ -5128,6 +5172,34 @@ let nidApi = null;
 let childApi = null;
 let releaseApi = null;
 let dbApi = null;       // how full the server database is (2026-11-07)
+let onlineApi = null;   // who has the app open now, for the admin (2026-11-07)
+const ONLINE_MS = 150000; // seen in the last two and a half minutes = «متصل الآن»
+function onlineGet(){
+  if (!onlineApi || accRole() !== "admin" || Store.preview) return null;
+  if (!onlineGet.at || Date.now() - onlineGet.at > 30000){ onlineGet.at = Date.now();
+    onlineApi.list().then(r => { const m = {}; (r || []).forEach(x => { m[x.uid] = new Date(x.seen).getTime(); });
+      const was = JSON.stringify(S.online || {}); S.online = m; if (JSON.stringify(m) !== was) scheduleRender(); }).catch(() => {}); }
+  if (!onlineGet.timer) onlineGet.timer = setInterval(() => { if (!document.hidden && S.tab !== "settings" && S.tab !== "activity" && accRole() === "admin") onlineGet(); }, 30000);
+  return S.online || null;
+}
+const isOnline = id => { const t = (S.online || {})[id]; return !!t && Date.now() - t < ONLINE_MS; };
+function seenText(id){ const t = (S.online || {})[id]; if (!t) return "";
+  if (Date.now() - t < ONLINE_MS) return "متصل الآن";
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 60) return "آخر ظهور: منذ "+arDigits(m)+" دقيقة";
+  const hr = Math.round(m / 60); if (hr < 24) return "آخر ظهور: منذ "+arDigits(hr)+(hr <= 10 ? " ساعات" : " ساعة");
+  return "آخر ظهور: "+agoText(ymd(new Date(t))); }
+function onlineCard(accs){
+  const on = onlineGet(); if (!on) return null;
+  const list = accs.filter(a => a.id !== S.account.id && isOnline(a.id));
+  const roleOf = a => a.role === "priest" ? "أب اعتراف" : a.role === "supervisor" ? "مشرف" : a.role === "admin" ? "أدمن" : "معترف";
+  return h("div",{class:"card online-card"}, h("h3",null, h("span",{class:"on-dot", "aria-hidden":"true"}), " متصل الآن ("+arDigits(list.length)+")"),
+    list.length ? h("ul",{class:"on-list"}, list.map(a => h("li",{class:"on-item", "data-id":a.id, role:"button", tabindex:"0",
+        onclick:()=>{ S.draft.accOpen = a.id; S.draft.accFather = ""; S.draft.accGroup = "all"; if (S.tab === "admin" && S.role === "admin" && accRole() === "admin") S.tab = "apeople"; render(); setTimeout(() => { const t = document.querySelector('#accLists li.dir-row[data-id="'+a.id+'"]'); if (t) t.scrollIntoView({behavior:"smooth", block:"center"}); }, 60); }},
+        h("span",{class:"on-ph"}, avatar({name:a.name, photo:a.photo || (memberOf(a.id)||{}).photo}, "sm"), h("i",{class:"on-badge", "aria-hidden":"true"})),
+        h("span",{class:"on-who"}, h("strong",null, a.name), h("span",{class:"small muted"}, roleOf(a))))))
+      : h("p",{class:"small muted", style:"margin:0"},"لا يوجد أحد غيرك يستخدم البرنامج الآن."));
+}
 // «إزالة من أولادي» (2026-11-07), always after a confirmation: a person who is not on the app leaves the list;
 // a person on the app keeps his account but has no confession father any more, and أبونا's notes about him are deleted
 function releaseBtn(p){
@@ -5207,10 +5279,12 @@ function calCard(){
 function priestSettings(){
   const st = S.settings || {};
   const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), newsRow(), pushCard(false), calCard());
+  const admScreen = S.role === "admin" && accRole() === "admin";
+  if (admScreen){ const inv = inviteCard(), ppc = passportCard(); if (inv) wrap.append(inv); if (ppc) wrap.append(ppc); }
   const manyFathers = Store.mode === "cloud";
   const saveSt = async (patch, msg) => { await editDoc("settings/app", cur => Object.assign(cur, patch)); toast(msg||"تم الحفظ"); };
   // on the server the church's name, logo and verses belong to the admin; a father keeps his own password and export
-  const churchWide = !(Store.mode === "cloud" && accRole() === "priest" && !Store.preview);
+  const churchWide = !(Store.mode === "cloud" && (accRole() === "priest" || Store.preview));
   if (churchWide) wrap.append(h("div",{class:"card form"}, h("h3",null,"اسم البرنامج والشعار"),
     h("label",null,"اسم البرنامج (بيظهر فوق وفي شاشة الدخول)", h("input",{id:"stTitle", value:st.title||"", placeholder:"المتابعة الروحية"})),
     // on the server each father's name and photo come from his own account, so there is no single أبونا to set
@@ -5243,7 +5317,8 @@ function priestSettings(){
   if (churchWide || ownAlertOn()) wrap.append(alertDaysCard(churchWide));
   if (isFatherView()){ const sc = schedCard(); if (sc) wrap.append(sc); }
   if (S.account && !Store.preview) wrap.append(myPasswordCard());
-  if (!S.account) wrap.append(backupCard());
+  if (!S.account || admScreen) wrap.append(backupCard());
+  if (admScreen && Store.mode === "local") wrap.append(resetCard());
   wrap.append(h("div",{class:"card form"}, h("h3",null,"تصدير"),
     h("p",{class:"small muted"},"نزّل قايمة أولادك ببياناتهم وتواريخ الاعتراف والافتقاد في ملف Excel."),
     h("div",null, h("button",{class:"btn sm", onclick:exportExcel},"تصدير Excel"))));
@@ -5273,13 +5348,64 @@ function alertDaysCard(church){
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:save},"حفظ"),
       custom ? h("button",{class:"btn sm quiet", onclick:reset},"العودة إلى أيام الكنيسة") : null));
 }
+// «ضبط الصورة» (2026-11-07, user): every chosen photo opens inside a circle exactly as it will show; drag to move it,
+// pinch, the slider, the − / + buttons or the mouse wheel to zoom, a button to turn it. «حفظ» keeps a square picture of
+// what is inside the circle (white behind a transparent logo); «إلغاء» or Esc keeps the old one.
 function resizeImage(file, max, cb){
   const img = new Image(), url = URL.createObjectURL(file);
-  img.onload = () => { const sc = Math.min(1, max/Math.max(img.width, img.height)); const c = document.createElement("canvas");
-    c.width = Math.round(img.width*sc); c.height = Math.round(img.height*sc); c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-    URL.revokeObjectURL(url); cb(c.toDataURL("image/jpeg", .85)); };
-  img.onerror = () => toast("هذه الصورة غير مناسبة");
+  img.onload = () => { URL.revokeObjectURL(url); cropDialog(img, max, cb); };
+  img.onerror = () => { URL.revokeObjectURL(url); toast("هذه الصورة غير مناسبة"); };
   img.src = url;
+}
+function cropDialog(img, max, cb){
+  const prev = document.querySelector(".crop-ov"); if (prev) prev.remove();
+  const ZMAX = 5, st = {z:1, x:0, y:0, r:0};   // zoom (1 = the photo just covers the circle), offset in screen pixels, quarter turns
+  const side = () => Math.max(160, Math.min(320, window.innerWidth - 48, window.innerHeight - 260));
+  const dims = () => st.r % 2 ? [img.height, img.width] : [img.width, img.height];
+  const clamp = () => { const S0 = side(), [w, hh] = dims(), k = S0 / Math.min(w, hh) * st.z;
+    const mx = Math.max(0, (w*k - S0) / 2), my = Math.max(0, (hh*k - S0) / 2);
+    st.x = Math.max(-mx, Math.min(mx, st.x)); st.y = Math.max(-my, Math.min(my, st.y)); };
+  const paint = (ctx, size) => { const S0 = side(), [w, hh] = dims(), u = size / S0, k = size / Math.min(w, hh) * st.z;
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size, size);
+    ctx.save(); ctx.translate(size/2 + st.x*u, size/2 + st.y*u); ctx.rotate(st.r * Math.PI / 2);
+    ctx.imageSmoothingQuality = "high"; ctx.drawImage(img, -img.width*k/2, -img.height*k/2, img.width*k, img.height*k); ctx.restore(); };
+  const cv = h("canvas",{class:"crop-cv", "aria-hidden":"true"});
+  const draw = () => { clamp(); const S0 = side(), dpr = Math.min(3, window.devicePixelRatio || 1);
+    cv.style.width = cv.style.height = S0 + "px"; stage.style.width = stage.style.height = S0 + "px";
+    if (cv.width !== Math.round(S0*dpr)){ cv.width = cv.height = Math.round(S0*dpr); }
+    paint(cv.getContext("2d"), cv.width); zr.value = String(st.z); };
+  const zoomBy = f => { st.z = Math.max(1, Math.min(ZMAX, st.z * f)); draw(); };
+  const stage = h("div",{class:"crop-stage"}, cv, h("div",{class:"crop-ring", "aria-hidden":"true"}));
+  const pts = new Map(); let pinch = null;
+  const two = () => { const [a, b] = [...pts.values()]; return {d:Math.hypot(a.x-b.x, a.y-b.y) || 1, mx:(a.x+b.x)/2, my:(a.y+b.y)/2}; };
+  stage.addEventListener("pointerdown", e => { e.preventDefault(); try { stage.setPointerCapture(e.pointerId); } catch(x){} pts.set(e.pointerId, {x:e.clientX, y:e.clientY}); pinch = pts.size === 2 ? two() : null; });
+  stage.addEventListener("pointermove", e => { const q = pts.get(e.pointerId); if (!q) return;
+    if (pts.size === 1){ st.x += e.clientX - q.x; st.y += e.clientY - q.y; q.x = e.clientX; q.y = e.clientY; draw(); return; }
+    q.x = e.clientX; q.y = e.clientY; const n = two();
+    if (pinch){ st.z = Math.max(1, Math.min(ZMAX, st.z * n.d / pinch.d)); st.x += n.mx - pinch.mx; st.y += n.my - pinch.my; }
+    pinch = n; draw(); });
+  const up = e => { pts.delete(e.pointerId); pinch = pts.size === 2 ? two() : null; };
+  stage.addEventListener("pointerup", up); stage.addEventListener("pointercancel", up);
+  stage.addEventListener("wheel", e => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.1 : 1/1.1); }, {passive:false});
+  const zr = h("input",{type:"range", id:"cropZoom", min:"1", max:String(ZMAX), step:"0.01", value:"1", "aria-label":"تكبير الصورة",
+    oninput:e => { st.z = Number(e.target.value) || 1; draw(); }});
+  const close = () => { document.removeEventListener("keydown", key); window.removeEventListener("resize", draw); document.body.classList.remove("crop-open"); ov.remove(); };
+  const key = e => { if (e.key === "Escape"){ e.preventDefault(); close(); } };
+  const ov = h("div",{class:"crop-ov", role:"dialog", "aria-modal":"true", "aria-label":"ضبط الصورة"},
+    h("div",{class:"crop-box"},
+      h("h3",null,"ضبط الصورة"),
+      h("p",{class:"small muted"},"حرّك الصورة بإصبعك، وكبّرها أو صغّرها حتى يظهر الوجه في منتصف الدائرة."),
+      stage,
+      h("div",{class:"crop-zoom"}, h("button",{type:"button", class:"btn sm quiet", "aria-label":"تصغير", onclick:() => zoomBy(1/1.2)},"−"), zr,
+        h("button",{type:"button", class:"btn sm quiet", "aria-label":"تكبير", onclick:() => zoomBy(1.2)},"+")),
+      h("div",{class:"row crop-btns"},
+        h("button",{type:"button", class:"btn", id:"cropSave", onclick:() => { const c = document.createElement("canvas"); c.width = c.height = max;
+          paint(c.getContext("2d"), max); close(); cb(c.toDataURL("image/jpeg", .85)); }},"حفظ"),
+        h("button",{type:"button", class:"btn sm quiet", id:"cropTurn", onclick:() => { st.r = (st.r + 1) % 4; st.x = st.y = 0; draw(); }},"↻ تدوير"),
+        h("button",{type:"button", class:"btn sm quiet", id:"cropCancel", onclick:close},"إلغاء"))));
+  document.body.append(ov); document.body.classList.add("crop-open");
+  document.addEventListener("keydown", key); window.addEventListener("resize", draw);
+  draw(); setTimeout(() => { const b = document.getElementById("cropSave"); if (b) b.focus(); }, 0);
 }
 
 /* ---------- MEMBER ---------- */
@@ -5835,13 +5961,18 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["⚡","فتح أسرع","يحتفظ البرنامج بنسخة من آخر بيانات ظهرت على الجهاز، فتظهر فور الفتح ثم يُحدّث ما تغيّر فقط. وتُحذف هذه النسخة عند «خروج»."],
     ["⏱️","سرعة التحميل","في شاشة «الأدمن» كارت جديد يعرض متوسط وقت ظهور البيانات خلال الأسبوع وأبطأ الأجهزة، مع تنبيه إذا تجاوز المتوسط ٥ ثوانٍ."],
     ["📝","التسجيل الجديد","لا يُنشأ حساب جديد إلا بعد كتابة كل البيانات المطلوبة بشكل صحيح: الاسم الثلاثي والموبايل والرقم القومي والعنوان والصورة. ويُرفض الرقم القومي غير الصحيح أو المسجّل لشخص آخر."],
-    ["📱","شاشة الأدمن على الموبايل","مربعات للآباء بالصورة وعدد الأبناء، وشريط ثابت أعلى الشاشة للانتقال بين الملخص والأدوات والآباء والناس، وكارت أكواد جواز السفر أصبح مختصرًا."],
+    ["📱","شاشة الأدمن في خمس شاشات","أصبحت شاشة الأدمن خمس شاشات أسفل الشاشة: «الملخص» للأرقام وكل ما ينتظر ردك، و«الآباء» بمربعات تعرض صورة كل أب وعدد أبنائه، و«الناس» لكل الحسابات والبحث، و«النشاط»، و«الإعدادات» وفيها رابط التسجيل وأكواد جواز السفر والنسخة الاحتياطية."],
     ["🖼️","صورة أب الاعتراف","عند التسجيل الجديد تظهر صورة كل أب اعتراف بجانب اسمه."],
     ["🌡️","درجة الحرارة","تظهر درجة الحرارة بالأرقام التي اخترتها في الإعدادات دائمًا."],
     ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
     ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
     ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
-    ["💾","تنبيه مساحة قاعدة البيانات","يظهر في شاشة «الأدمن» تنبيه إذا تجاوزت البيانات ٧٠٪ من المساحة المتاحة."]],
+    ["💾","مساحة قاعدة البيانات","في شاشة «الأدمن» سطر يعرض المساحة المستخدمة من ٥٠٠ ميجابايت، ويتحوّل إلى تنبيه إذا تجاوزت ٧٠٪."],
+    ["🟢","متصل الآن","في شاشة «الأدمن» كارت يعرض عدد من يفتحون البرنامج الآن وأسماءهم، وبجانب كل اسم في قائمة الناس «متصل الآن» أو «آخر ظهور». يظهر للأدمن فقط."],
+    ["⛪","ترتيب الآباء","تظهر مربعات الآباء مرتبة حسب عدد المعترفين، من الأكثر إلى الأقل."],
+    ["👀","شاشة أب تجريبية","في أعلى شاشة الأدمن زر «شاشة أب تجريبية» يعرض شاشة أب الاعتراف ببيانات وهمية للتعرف على ما يراه الآباء. لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية."],
+    ["🕊️","التأملات","تصل التأملات من أب الاعتراف إلى أبنائه فقط. لم يعد المشرف يرسل تأملات، ولا يرى الأدمن تأملات الآباء."],
+    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."]],
   priest:[
     ["⚡","فتح أسرع","تظهر البيانات فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط. وتُحذف النسخة المحفوظة على جهازك عند «خروج»."],
     ["🗺️","يوم افتقاد ذكي","في شاشة «اليوم» اضغط «ابدأ يوم افتقاد» وحدّد الساعات، فيقترح البرنامج البيوت: المحجوزة بمواعيدها، ثم طلبات الافتقاد، ثم الأطول انتظارًا والأقرب لبعضها، بترتيب أقصر مشوار وموعد وصول لكل بيت يتعدّل مع سير اليوم. ويمكنك إبلاغ الكل بمواعيدهم بضغطة، ومتابعة «البيت التالي»، ومن لم تتم زيارته يظهر أولًا في المرة القادمة."],
@@ -5851,12 +5982,16 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["🪪","الرقم القومي","في «شخص جديد» وبيانات من ليس على البرنامج خانة للرقم القومي، يُملأ منها تاريخ الميلاد تلقائيًا، ويُنبَّه إذا كان الرقم غير صحيح أو مسجَّلًا لشخص آخر."],
     ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
     ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
-    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."]],
+    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
+    ["🕊️","التأملات","يصل التأمل الذي ترسله «لكل أبنائي» إلى أبنائك على البرنامج فقط."],
+    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."]],
   user:[
     ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."],
     ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
     ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
-    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."]]}};
+    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
+    ["🕊️","التأملات","تظهر لك التأملات التي يرسلها أب اعترافك فقط."],
+    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."]]}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -6057,18 +6192,26 @@ function startIcons(){ iconize(document.body);
   new MutationObserver(ms => { for (const m of ms){ if (m.type === "characterData") iconizeText(m.target); else m.addedNodes.forEach(iconize); } })
     .observe(document.body, {childList:true, subtree:true, characterData:true}); }
 if (document.body) startIcons(); else document.addEventListener("DOMContentLoaded", startIcons);
-const ICON_COLORS = {activity:"#0ea5e9", families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b"};
-const EMOJI = {activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️"};
+const ICON_COLORS = {activity:"#0ea5e9", families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b", afathers:"#0f766e", apeople:"#3b82f6"};
+const EMOJI = {activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️", afathers:"⛪", apeople:"👥"};
 function icon(k, size){
   const e = emoKey(EMOJI[k]||"✝️") || ["cross","#0f766e"], s = h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||e[1]), "aria-hidden":"true"});
   s.innerHTML = icSvg(e[0]); return s; }
 
+// the admin's screen in five parts at the bottom, like the father's and the confessee's (2026-11-07, user):
+// الملخص (numbers and whatever waits for an answer) · الآباء · الناس · النشاط · الإعدادات (invite link, passport codes, backup)
+function admTabs(){
+  const t = [["admin","الملخص", (S.pwreqs||[]).length + (S.pending||[]).length]];
+  if (Store.mode === "cloud") t.push(["afathers","الآباء"]);
+  t.push(["apeople","الناس"],["activity","النشاط"],["settings","الإعدادات"]);
+  return t;
+}
 function render(){
   if (!S.ready) return;
   const priest = S.role === "priest", sup = S.role === "supervisor", adm = S.role === "admin" && accRole() === "admin";
   const all = priest || adm ? merged() : [];
   const waiting = accRole() === "pending";
-  const tabs = waiting ? [["me","بياناتي"]] : adm ? [["admin","الأدمن", (S.pwreqs||[]).length + (S.pending||[]).length],["activity","النشاط"],["settings","الإعدادات"]] : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length],["meditations","التأملات"]] : memberTabs();
+  const tabs = waiting ? [["me","بياناتي"]] : adm ? admTabs() : priest ? priestTabs(all) : sup ? [["admin","المتابعة", (S.pwreqs||[]).length + (S.pending||[]).length]] : memberTabs();
   if (deepTab && S.account && tabs.some(t=>t[0]===deepTab)){ S.tab = deepTab; deepTab = null; }
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   document.body.classList.toggle("one-tab", tabs.length < 2);
@@ -6078,9 +6221,9 @@ function render(){
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
-  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : adminView(all);
+  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : adminView(all, {afathers:"fathers", apeople:"people"}[S.tab] || "sum");
   else if (priest) view = ({today:priestToday, people:priestPeople, families:priestToday, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
-  else if (sup) view = ({admin:adminView, meditations:priestMeditations}[S.tab])([]);
+  else if (sup) view = adminView([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
   // whatever the person typed and hasn't saved survives a redraw (the server is polled every few seconds)
   const app = $("#app"), scope = S.role+"|"+S.tab+"|"+(S.sel||"")+(S.tab === "notebook" ? "|"+(S.draft.nbDate || TODAY_S) : ""), keep = [];  // another notebook day never inherits the ticks on screen (2026-11-06)
@@ -6101,16 +6244,19 @@ function renderNotice(){
     h("button",{class:"btn sm "+(S.role==="member"?"on":""), onclick:()=>switchRole("member")},"شاشة المعترف"),
     accRole() === "admin" ? h("button",{class:"btn sm "+(S.role==="admin"?"on":""), onclick:()=>switchRole("admin")},"شاشة الأدمن") : null,
     Store.mode === "cloud" && accRole() === "admin" ? h("button",{class:"btn sm "+(Store.preview?"on":""), onclick:()=>startPreview()},"👀 معاينة شاشة أبونا") : null);
-  // server: the admin is also a confessee, so one real switch between his admin screen and his own screen as a confessee (no sample-data previews)
-  const admSwitch = () => { const me = S.role === "member";
-    return h("div",{class:"row adm-switch"}, h("span",{class:"small", style:"font-weight:700"}, me ? "دي شاشتك إنت كمعترف" : "شاشة الأدمن"),
-      h("button",{class:"btn sm", onclick:()=>switchRole(me ? "admin" : "member")}, me ? "🛠️ رجوع لشاشة الأدمن" : "🙏 شاشتي كمعترف")); };
+  // server: the admin is also a confessee, so one real switch between his admin screen and his own screen as a confessee;
+  // since 2026-11-07 (user) also «شاشة أب تجريبية»: the father's screen filled with sample data, kept in memory only
+  const admSwitch = () => { const me = S.role === "member", pv = !!Store.preview;
+    return h("div",{class:"row adm-switch"}, h("span",{class:"small", style:"font-weight:700"}, pv ? "شاشة أب تجريبية" : me ? "دي شاشتك إنت كمعترف" : "شاشة الأدمن"),
+      pv || me ? h("button",{class:"btn sm", id:"admBack", onclick:()=>switchRole("admin")},"🛠️ رجوع لشاشة الأدمن")
+        : [h("button",{class:"btn sm", onclick:()=>switchRole("member")},"🙏 شاشتي كمعترف"),
+           h("button",{class:"btn sm", id:"pvFather", onclick:()=>startPreview()},"👀 شاشة أب تجريبية")]); };
   if (Store.mode === "cloud"){
     const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
       : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn-ink);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
     const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 دي معاينة لشاشة أبونا ببيانات تجربة، ومفيش حاجة بتتحفظ.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? admSwitch() : null));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 شاشة أب تجريبية ببيانات وهمية: لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? admSwitch() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"العودة إلى البيانات الحقيقية") : null)));
@@ -6637,9 +6783,12 @@ function dbCard(){
   if (!dbApi || accRole() !== "admin" || Store.preview) return null;
   if (!dbCard.at || Date.now() - dbCard.at > 6*36e5){ dbCard.at = Date.now(); dbApi.usage().then(r => { S.dbUse = r; scheduleRender(); }).catch(() => {}); }
   const u = S.dbUse; if (!u || !u.limit) return null;
-  const f = u.used / u.limit; if (f < DB_WARN) return null;
-  const mb = n => arDigits(Math.round(n / 1048576));
-  return h("div",{class:"card db-card"+(f >= 0.9 ? " full" : ""), role:"alert"}, h("h3",null,"💾 مساحة قاعدة البيانات"),
+  const f = u.used / u.limit, mb = n => arDigits(Math.round(n / 1048576));
+  // under 70% a quiet line, over it the warning (2026-11-07, user: always show it)
+  if (f < DB_WARN) return h("div",{class:"card db-card ok"}, h("div",{class:"row between", style:"align-items:center"},
+      h("strong",null,"💾 مساحة قاعدة البيانات"), h("span",{class:"small"}, mb(u.used)+" من "+mb(u.limit)+" ميجابايت ("+arDigits(Math.max(1, Math.round(f*100)))+"٪)")),
+    h("div",{class:"db-bar"}, h("i",{style:"width:"+Math.max(1, Math.round(f*100))+"%"})));
+  return h("div",{class:"card db-card warn"+(f >= 0.9 ? " full" : ""), role:"alert"}, h("h3",null,"💾 مساحة قاعدة البيانات"),
     h("div",{class:"db-bar"}, h("i",{style:"width:"+Math.min(100, Math.round(f*100))+"%"})),
     h("p",{class:"small", style:"margin:0"},"المستخدم "+mb(u.used)+" من "+mb(u.limit)+" ميجابايت ("+arDigits(Math.round(f*100))+"٪). "+
       (f >= 0.9 ? "المساحة أوشكت على الانتهاء، وعند امتلائها يتوقف الحفظ. برجاء التواصل مع المطوّر فورًا على "+DEV.phone+"."
@@ -6673,11 +6822,12 @@ function admNav(){
     ADM_NAV.forEach(([id]) => { const t = document.getElementById(id); if (t) admNav.io.observe(t); }); }, 0);
   return nav;
 }
-function adminView(all){
-  const me = accRole(), isAdmin = me === "admin";
+function adminView(all, part){
+  // part: "sum" | "fathers" | "people" on the admin's own screen; none = everything on one page (supervisor, local build)
+  const me = accRole(), isAdmin = me === "admin", only = k => !part || part === k;
   const accs = (S.accounts||[]).slice().sort((a,b)=>Object.keys(ROLES).indexOf(a.role)-Object.keys(ROLES).indexOf(b.role) || String(a.name).localeCompare(String(b.name),"ar"));
   const reqs = S.pwreqs || [];
-  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead(isAdmin ? "الأدمن" : "المتابعة"));
+  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead(part === "fathers" ? "الآباء" : part === "people" ? "الناس" : part ? "الملخص" : isAdmin ? "الأدمن" : "المتابعة"));
   if (S.draft.shownPw){ const sp = S.draft.shownPw;
     wrap.append(h("div",{class:"card pw-shown"}, h("h3",null,"🔑 كلمة السر الجديدة لـ "+sp.name),
       h("div",{class:"pw-big", dir:"ltr"}, sp.pw), h("p",{class:"small muted"},"أرسلها لصاحبها، فلن تظهر مرة أخرى بعد إغلاق هذه الرسالة."),
@@ -6691,14 +6841,34 @@ function adminView(all){
   const st = [stat("👥", accs.length, "كل الحسابات"), stat("👑", byRole("admin"), "أدمن"), stat("⛪", byRole("priest"), "أبونا"), stat("🛡️", byRole("supervisor"), "مشرفين"),
     stat("🙋", byRole("user"), "مستخدمين"), stat("🟢", accs.filter(a=>a.lastLogin && ymd(new Date(a.lastLogin))===today).length, "دخلوا النهارده"),
     stat("📨", reqs.length, "طلبات كلمة سر", reqs.length>0)];
-  if (isAdmin){ st.push(stat("🙏", kids, "أولاد في الاعتراف"), stat("📅", all.filter(p=>p.request||p.visitReq).length, "طلبات اعتراف وافتقاد"), stat("🕊️", (S.meditations||[]).length, "تأملات اتبعتت"));
+  if (isAdmin){ st.push(stat("🙏", kids, "أولاد في الاعتراف"), stat("📅", all.filter(p=>p.request||p.visitReq).length, "طلبات اعتراف وافتقاد"));
     const lb = S.meta && S.meta.lastBackup; st.push(stat("💾", lb ? daysBetween(parseYmd(lb.slice(0,10)), TODAY) : 0, lb ? "يوم من آخر نسخة احتياطية" : "مفيش نسخة احتياطية", !lb || daysBetween(parseYmd(lb.slice(0,10)), TODAY) > 7)); }
   // a bar that stays at the top while scrolling (2026-11-07): one tap goes to each part of the screen
   const loading = Store.mode === "cloud" && !accs.length;
-  if (isAdmin) wrap.append(admNav());
-  wrap.append(loading ? h("div",{class:"stats", id:"admSum"}, [1,2,3,4].map(() => h("div",{class:"stat skel"}))) : h("div",{class:"stats", id:"admSum"}, st));
+  if (isAdmin && !part) wrap.append(admNav());
+  const reqsEl = reqs.length ? h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
+    h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
+      h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "طلب "+agoText(ymd(new Date(r.at))))),
+      acc && Store.mode === "cloud" && acc.role === "priest" ? h("div",{class:"row"}, h("span",{class:"small muted"},"أبونا: المطوّر بس يعمله كلمة سر ("+DEV.phone+")"),
+        h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
+      : acc && canManage(acc) ? h("div",{class:"row"},
+        h("button",{class:"btn sm", onclick:async()=>{ const pw = genPassword(); await setPassword(acc, pw, "عمل كلمة سر جديدة بطلب"); newPwDialog(acc, pw); }},"إنشاء كلمة سر"),
+        h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
+      : !acc ? h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل (الحساب محذوف)") : h("span",{class:"small muted"},"الأدمن بس")); }))) : null;
+  const statsEl = loading ? h("div",{class:"stats", id:"admSum"}, [1,2,3,4].map(() => h("div",{class:"stat skel"}))) : h("div",{class:"stats", id:"admSum"}, st);
+  if (part === "sum"){
+    // whatever waits for the admin's answer comes first (2026-11-07), then the numbers, then who is online, the space and the speed
+    // (the father-change card goes to the end while nothing in it waits)
+    const fa = freqAdminCard(), faWait = (S.freqs || []).some(x => x.wait);
+    [pendingCard(), faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
+    wrap.append(statsEl);
+    const tools = h("div",{class:"adm-tools", id:"admTools"}); [onlineCard(accs), dbCard(), speedCard(), pushCard(true), faWait ? null : fa].forEach(x => { if (x) tools.append(x); });
+    if (tools.childNodes.length) wrap.append(tools);
+  } else if (!part){
+  wrap.append(statsEl);
   const tools = h("div",{class:"adm-tools", id:"admTools"});
   if (isAdmin){ const ph = pushCard(true); if (ph) tools.append(ph); }
+  if (isAdmin){ const oc = onlineCard(accs); if (oc) tools.append(oc); }
   if (isAdmin){ const dc = dbCard(); if (dc) tools.append(dc); }
   if (isAdmin){ const sc = speedCard(); if (sc) tools.append(sc); }
   const pc = pendingCard(); if (pc) tools.append(pc);
@@ -6707,15 +6877,10 @@ function adminView(all){
   const ppc = passportCard(); if (ppc) tools.append(ppc);
   if (tools.childNodes.length) wrap.append(tools);
   if (loading) wrap.append(h("ul",{class:"list father-grid"}, [1,2,3,4].map(() => h("li",{class:"father-card skel"}))));
-  if (reqs.length) wrap.append(h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
-    h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
-      h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "طلب "+agoText(ymd(new Date(r.at))))),
-      acc && Store.mode === "cloud" && acc.role === "priest" ? h("div",{class:"row"}, h("span",{class:"small muted"},"أبونا: المطوّر بس يعمله كلمة سر ("+DEV.phone+")"),
-        h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
-      : acc && canManage(acc) ? h("div",{class:"row"},
-        h("button",{class:"btn sm", onclick:async()=>{ const pw = genPassword(); await setPassword(acc, pw, "عمل كلمة سر جديدة بطلب"); newPwDialog(acc, pw); }},"إنشاء كلمة سر"),
-        h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل"))
-      : !acc ? h("button",{class:"btn sm quiet", onclick:async()=>{ await dismissPwreq(r.id); }},"تجاهل (الحساب محذوف)") : h("span",{class:"small muted"},"الأدمن بس")); }))));
+  if (reqsEl) wrap.append(reqsEl);
+  }
+  // (on the admin's own screen the invite link and the passport codes live in «الإعدادات»)
+  if (loading && part === "fathers") wrap.append(h("ul",{class:"list father-grid"}, [1,2,3,4].map(() => h("li",{class:"father-card skel"}))));
   // accounts
   const cloudAdm = isAdmin && Store.mode === "cloud";
   const accCard = a => {
@@ -6772,12 +6937,16 @@ function adminView(all){
   if (ff){ const k = ofF(ff); GROUPS.forEach(g => { const f0 = g[2]; g[2] = a => f0(a) && k(a); }); }
   // a tile per father (2026-11-07): his photo in a gold ring, his name, his count and his share of the church's confessees
   const allKids = Math.max(1, accs.filter(a => !a.pending && a.role !== "priest" && (a.father || a.role === "user")).length);
-  const fStrip = fathers.length ? h("section",{class:"fathers-strip", id:"admFathers"}, h("div",{class:"sec-head"}, h("h3",null,"⛪ أبناء كل أب"), h("span",{class:"small muted"},"اضغط على أي أب لعرض أبنائه فقط")),
-    h("ul",{class:"list father-grid"}, [...fathers.map(f => [f.id, f.name, f.photo || (memberOf(f.id)||{}).photo, ofF(f.id)]), ["none","بدون أب اعتراف", "", ofF("none")]].map(([id, name, photo, k]) => {
+  const fStrip = fathers.length ? h("section",{class:"fathers-strip", id:"admFathers"}, h("div",{class:"sec-head"}, part ? null : h("h3",null,"⛪ أبناء كل أب"), h("span",{class:"small muted"}, part ? "اضغط على أي أب لعرض أبنائه في شاشة «الناس»" : "اضغط على أي أب لعرض أبنائه فقط")),
+    // the father with the most confessees first (2026-11-07, user); «بدون أب اعتراف» stays last
+    h("ul",{class:"list father-grid"}, [...fathers.map(f => [f.id, f.name, f.photo || (memberOf(f.id)||{}).photo, ofF(f.id)])
+        .map(x => [x, accs.filter(a => x[3](a) && !a.pending).length]).sort((p, q) => q[1] - p[1] || arKey(p[0][1]).localeCompare(arKey(q[0][1]), "ar")).map(x => x[0]),
+      ["none","بدون أب اعتراف", "", ofF("none")]].map(([id, name, photo, k]) => {
       const n = accs.filter(a => k(a) && !a.pending).length, w = accs.filter(a => k(a) && a.pending).length;
       if (id === "none" && !n && !w) return null;
       return h("li",{class:"father-card"+(ff === id ? " on" : ""), "data-father":id, role:"button", tabindex:"0", "aria-pressed":ff === id ? "true" : "false",
-        onclick:()=>{ S.draft.accFather = ff === id ? "" : id; S.draft.accGroup = "all"; render(); setTimeout(() => { const t = document.getElementById("admPeople"); if (t && ff !== id) t.scrollIntoView({behavior:"smooth", block:"start"}); }, 60); },
+        onclick:()=>{ if (part){ S.draft.accFather = id; S.draft.accGroup = "all"; S.draft.accOpen = null; S.tab = "apeople"; render(); window.scrollTo({top:0}); return; }
+          S.draft.accFather = ff === id ? "" : id; S.draft.accGroup = "all"; render(); setTimeout(() => { const t = document.getElementById("admPeople"); if (t && ff !== id) t.scrollIntoView({behavior:"smooth", block:"start"}); }, 60); },
         onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
         h("span",{class:"ft-ph"}, id === "none" ? h("span",{class:"avatar ft-none", "aria-hidden":"true"},"❔") : avatar({name, photo}),
           w ? h("span",{class:"ft-wait", title:arDigits(w)+" في انتظار الموافقة"}, "⏳ "+arDigits(w)) : null),
@@ -6785,7 +6954,9 @@ function adminView(all){
         h("span",{class:"father-n"}, arDigits(n)+" معترف"),
         id === "none" ? null : h("span",{class:"ft-bar", title:Math.round(n*100/allKids)+"%"}, h("i",{style:"width:"+Math.min(100, Math.round(n*100/allKids))+"%"})));
     }))) : null;
-  if (fStrip) wrap.append(fStrip);
+  if (only("fathers")){ if (fStrip) wrap.append(fStrip);
+    else if (part && !loading) wrap.append(h("p",{class:"small muted"},"لا يوجد آباء اعتراف بعد.")); }
+  if (!only("people")) return wrap;
   const grp = GROUPS.some(g => g[0] === S.draft.accGroup) ? S.draft.accGroup : "all";
   const onlyMiss = !!S.draft.accMiss;
   const sift = () => { const q = arKey(($("#accSearch")||{}).value || ""); let first = null;
@@ -6805,7 +6976,8 @@ function adminView(all){
         onclick:()=>{ S.draft.accOpen = on ? null : a.id; S.draft.delAsk = null; render(); },
         onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
       avatar({name:a.name, photo:a.photo || m.photo}, "sm"),
-      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), h("span",{class:"small muted"}, sub)),
+      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), h("span",{class:"small muted"}, sub),
+        cloudAdm && a.id !== S.account.id && seenText(a.id) ? h("span",{class:"seen"+(isOnline(a.id) ? " on" : "")}, seenText(a.id)) : null),
       h("span",{class:"dir-marks"},
         a.pending ? h("span",{class:"dir-mark warn", title:"مستني موافقة"},"⏳") : null,
         miss.length ? h("span",{class:"dir-mark miss", title:"ناقص: "+miss.join("، ")},"📝") : null,
@@ -6840,7 +7012,7 @@ function adminView(all){
       rows.length ? h("ul",{class:"list acc-grid"}, rows.map(accCard)) : h("p",{class:"small muted"},"مفيش حد هنا."));
   }));
   const missN = cloudAdm ? accs.filter(a => ["user","pending"].includes(a.role) && profileMissing(memberOf(a.id), a.photo).length).length : 0;
-  wrap.append(h("section",{id:"admPeople"}, h("div",{class:"sec-head"}, h("h3",null,"👥 الناس"), h("span",{class:"small muted"}, cloudAdm ? "مرتبة أبجديًا · اضغط على أي اسم لعرض بياناته" : "اضغط على أي كارت لتغيير كلمة السر أو الصلاحية")),
+  wrap.append(h("section",{id:"admPeople"}, h("div",{class:"sec-head"}, part ? null : h("h3",null,"👥 الناس"), h("span",{class:"small muted"}, cloudAdm ? "مرتبة أبجديًا · اضغط على أي اسم لعرض بياناته" : "اضغط على أي كارت لتغيير كلمة السر أو الصلاحية")),
     h("div",{class:"acc-filter row", role:"tablist", "aria-label":"الأقسام"},
       [["all","الكل", accs.length], ...GROUPS.map(([k, l, f]) => [k, l, accs.filter(f).length])].map(([k, l, n]) =>
         h("button",{type:"button", role:"tab", class:"chip-btn acc-tab", "aria-selected":grp === k ? "true" : "false", "aria-pressed":grp === k ? "true" : "false", "data-group":k, onclick:()=>{ S.draft.accGroup = k; render(); }}, l+" · "+arDigits(n))),
@@ -6865,7 +7037,8 @@ function adminView(all){
       await logAct("عمل حساب "+ROLES[role].label+": "+name);
       newPwDialog({name}, pw);
     }},"إنشاء الحساب"))));
-  // activity: the admin has its own «النشاط» screen; elsewhere (supervisor, local priest) it stays here
+  // the admin's own screen keeps its activity, password and backup in «النشاط» and «الإعدادات»; elsewhere (supervisor, local priest) they stay here
+  if (part) return wrap;
   if (!(isAdmin && S.role === "admin")) wrap.append(activityCard(logs, accs));
   wrap.append(myPasswordCard());
   if (isAdmin){ wrap.append(backupCard()); if (Store.mode === "local") wrap.append(resetCard()); }
@@ -7158,7 +7331,11 @@ function watchApproval(){
   if (!S.account) return;
   // a signed-in account whose role the admin changes (e.g. a confessee made أبونا) is signed out and signs in again into its new screen
   if (S.account.role !== "pending"){ const role = S.account.role;
+    // «متصل الآن» (2026-11-07): an open app tells the server once a minute
+    const ping = () => { if (!document.hidden && Cloud.sess && S.account && !Store.preview) Cloud.rpc("ping").catch(() => {}); };
+    ping(); watchApproval.n = 0;
     watchApproval.t = setInterval(async () => {
+      if (++watchApproval.n % 3 === 0) ping();
       if (document.hidden || !Cloud.sess || !S.account || Store.preview) return;
       try { const me = await Cloud.rpc("me"); if (!me || !S.account) return;
         if (me.role !== role || !me.active){ clearInterval(watchApproval.t); S.gateNote = me.active ? "برجاء الدخول بالاسم وكلمة السر." : ""; logout(); }
@@ -7507,6 +7684,7 @@ childApi = { async set(uid, data){ const r = await Cloud.rpc("child_profile_set"
 visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_items:items}); return n; } };
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
 dbApi = { usage: () => Cloud.rpc("db_usage") };
+onlineApi = { list: () => Cloud.rpc("online_list") };
 releaseApi = { async child(uid){ await Cloud.rpc("release_child", {p_uid:uid}); Cloud.refresh("members/x"); Cloud.refresh("accounts/x"); Cloud.refresh(PP()+"/x"); } };
 nidApi = { async set(uid, nid){ await Cloud.rpc("set_nid", {p_uid:uid, p_nid:nid}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); } };
 // asking to move to another confession father (2026-11-05): the confessee asks, only the admin answers
