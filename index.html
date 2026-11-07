@@ -200,6 +200,14 @@ ul.list li.click:hover{background:var(--surface-2)}
 .sched-day{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
 .sched-day.on{border-color:var(--gold)}
 .sched-day .check{min-width:96px;font-weight:700}
+.sched-dname{min-width:96px}
+.sched-periods{display:flex;flex-wrap:wrap;gap:8px;flex:1}
+.sched-per{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:4px 8px;border-radius:10px;border:1px dashed var(--line)}
+.sched-per.on{border-style:solid;border-color:var(--gold-line);background:var(--surface)}
+.sched-per .check{min-width:84px;font-weight:600}
+.sched-range{display:grid;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.sched-range.on{border-color:var(--gold)}
+.renew-card{border-color:var(--gold)!important;background:linear-gradient(180deg,var(--surface),var(--surface-2))}
 .sched-hours{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .sched-hours input{max-width:120px}
 .sched-card h4{margin:6px 0 0;font-size:.92rem}
@@ -317,7 +325,9 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .father-pick{display:grid;gap:8px}
 .father-opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-family:var(--f-head);font-weight:700;font-size:1rem;color:var(--ink);cursor:pointer;text-align:start}
 .father-opt[aria-checked="true"]{border-color:var(--gold);background:var(--brand-grad);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3)}
-.father-ic{font-size:1.3rem}
+.father-ic{font-size:1.3rem;width:44px;height:44px;flex:none;display:grid;place-items:center}
+.father-ic.ph{border-radius:50%;overflow:hidden;border:2px solid var(--gold);background:var(--surface-2)}
+.father-ic.ph img{width:100%;height:100%;object-fit:cover;display:block}
 .fam-card{gap:10px}
 .fam-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .fam-person{display:flex;align-items:center;gap:10px}
@@ -432,6 +442,41 @@ ul.acc-grid li.acc-row .acc-contact{display:flex;gap:8px;flex-wrap:wrap}
 ul.father-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;border:0!important;background:none!important;box-shadow:none!important;padding:0!important}
 ul.father-grid li.father-card{display:flex;gap:10px;align-items:center;border:1px solid var(--gold-line);border-radius:16px;background:var(--surface);padding:10px 12px;cursor:pointer}
 ul.father-grid li.father-card.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-line) inset}
+/* admin screen (2026-11-07): father tiles, a sticky bar of its parts, a compact codes card, titles over their hint, loading shimmer */
+.fathers-strip ul.father-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+@media (max-width:560px){.fathers-strip ul.father-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fathers-strip ul.father-grid li.father-card{flex-direction:column!important;align-items:center;text-align:center;gap:6px;padding:14px 10px 12px;border-radius:20px;
+  background:linear-gradient(180deg,var(--surface),var(--surface-2));box-shadow:0 2px 10px rgba(15,23,42,.06);transition:transform .15s ease,box-shadow .15s ease,border-color .15s}
+.fathers-strip ul.father-grid li.father-card:hover{box-shadow:0 6px 18px rgba(15,23,42,.1)}
+.fathers-strip ul.father-grid li.father-card:active{transform:scale(.97)}
+.fathers-strip ul.father-grid li.father-card.on{background:linear-gradient(160deg,rgba(15,118,110,.12),rgba(37,99,235,.12));border-color:var(--gold)}
+.ft-ph{position:relative;display:inline-block}
+.ft-ph .avatar{width:68px!important;height:68px!important;border-radius:50%;object-fit:cover;box-shadow:0 0 0 3px var(--surface),0 0 0 5px #d4a630;font-size:1.6rem}
+.ft-none{display:grid;place-items:center;background:var(--surface-2)!important}
+.ft-wait{position:absolute;bottom:-4px;inset-inline-start:-8px;background:#f59e0b;color:#fff;border-radius:999px;padding:1px 7px;font-size:.72rem;font-weight:800;box-shadow:0 0 0 2px var(--surface)}
+.ft-name{font-family:var(--f-head);font-size:.98rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fathers-strip .father-n{display:inline-block;padding:2px 10px;border-radius:999px;background:linear-gradient(180deg,#f2d06b,#d4a630);color:#3b2a05;font-weight:800;font-size:.82rem}
+.ft-bar{display:block;width:80%;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.ft-bar i{display:block;height:100%;background:linear-gradient(90deg,#0f766e,#2563eb);border-radius:4px}
+.adm-nav{position:sticky;top:0;z-index:30;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 6px;margin:0 -6px;border-radius:16px;
+  background:color-mix(in srgb,var(--surface) 82%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(15,23,42,.08)}
+.adm-nav::-webkit-scrollbar{display:none}
+.adm-nav-b{flex:1 1 0;min-width:max-content;border:1px solid var(--gold-line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 12px;font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;transition:background .15s,color .15s,transform .12s}
+.adm-nav-b:active{transform:scale(.95)}
+.adm-nav-b[aria-current="true"]{background:var(--brand-grad);color:#fff;border-color:var(--gold)}
+.adm-tools{display:grid;gap:18px}
+.pp-admin:not(.open) .pp-head{align-items:center}
+.pp-head .who{gap:2px}
+#app .fathers-strip .sec-head,#admPeople .sec-head{flex-direction:column;align-items:flex-start;gap:2px}
+.skel{position:relative;overflow:hidden;min-height:84px;background:var(--surface-2)!important;border-color:var(--line)!important}
+.skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:skel 1.2s infinite}
+li.father-card.skel{min-height:150px}
+@keyframes skel{to{transform:translateX(100%)}}
+.db-card{border-color:#f59e0b!important;background:color-mix(in srgb,#f59e0b 10%,var(--surface))}
+.db-card.full{border-color:#dc2626!important;background:color-mix(in srgb,#dc2626 10%,var(--surface))}
+.db-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:6px 0}
+.db-bar i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#dc2626)}
+@media (prefers-reduced-motion:reduce){.skel::after{animation:none}.fathers-strip ul.father-grid li.father-card{transition:none}}
 .father-n{font-weight:700;color:var(--brand)}
 .father-w{color:var(--warn,#d97706);font-weight:600}
 ul.acc-grid li.acc-row[hidden]{display:none!important}
@@ -931,6 +976,15 @@ body.one-tab{--nav-h:0px}
 .route-g{display:grid;gap:6px;margin:8px 0}
 .route-area{font-weight:700;font-size:.92rem}
 .route-picks{display:flex;flex-wrap:wrap;gap:6px}
+.route-set{gap:10px;align-items:flex-end}
+.route-next{display:grid;gap:6px;margin:10px 0;padding:12px 14px;border-radius:16px;border:2px solid var(--gold);background:linear-gradient(135deg,rgba(15,118,110,.08),rgba(37,99,235,.08))}
+.route-next-name{font-size:1.25rem;font-family:var(--f-head)}
+.route-next .row{flex-wrap:wrap;gap:6px}
+.route-eta{color:var(--ink-2);font-weight:600}
+.route-eta.fixed{color:var(--brand,#0f766e)}
+.route-stop.cur{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.25)}
+.route-sum{margin:0 0 6px;font-weight:600}
+.route-sum.late{color:var(--bad)}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3797,6 +3851,7 @@ function priestToday(all){
       stat(reqs.length,"طلبات اعتراف وافتقاد","requests",true,"confession"),
       stat(overdueC.length,"عدّى "+arDigits(confDays())+" يوم من آخر اعتراف","people",true,"bell"),
       stat(overdueV.length,"محتاجين افتقاد","people",true,"visit"))));
+  for (const k of ["confession","visit"]){ const c = schedRenewCard(k); if (c) wrap.append(c); }
   wrap.append(routeCard(all, overdueV));
   if (fresh.length) wrap.append(h("section",{class:"half"}, sectionHead("أشخاص جدد انضموا إلى البرنامج"),
     h("ul",{class:"list"}, fresh.map(p => h("li",null, h("div",{class:"who"}, h("strong",null,p.name), h("span",{class:"small muted"}, p.phone||"")),
@@ -3816,77 +3871,247 @@ function priestToday(all){
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(true)));
   return wrap;
 }
-/* ---------- «🗺️ يوم افتقاد» (2026-11-07): أبونا picks the houses of one day, puts them in order and opens the whole trip on Google Maps ---------- */
+// near the end of the dates of أبونا's schedule (3 days before, and after it): repeat the same days for as long again, or change them
+function schedRenewCard(kind){
+  if (!isFatherView()) return null;
+  const sc = schedOf(S.sched, kind); if (!sc || !sc.vTo || !(sc.days||[]).length) return null;
+  const left = daysBetween(TODAY, parseYmd(sc.vTo)); if (left > 3) return null;
+  const vis = kind === "visit", what = vis ? "مواعيد الافتقاد" : "مواعيد الاعتراف";
+  const span = sc.vFrom ? Math.max(1, daysBetween(parseYmd(sc.vFrom), parseYmd(sc.vTo)) + 1) : 30;
+  const from = addDaysS(sc.vTo, 1) > TODAY_S ? addDaysS(sc.vTo, 1) : TODAY_S, to = addDaysS(from, span - 1);
+  const msg = left > 0 ? "تنتهي "+what+" بعد "+arDigits(left)+(left === 1 ? " يوم" : left === 2 ? " يومين" : " أيام")+" ("+fmtShort(sc.vTo)+")."
+    : left === 0 ? "اليوم هو آخر يوم في "+what+"." : "انتهت "+what+" في "+fmtShort(sc.vTo)+"، ولا يمكن لأولادك الحجز في هذه الأيام الآن.";
+  return h("div",{class:"card renew-card", "data-kind":kind},
+    h("h3",{style:"margin:0"}, (vis ? "🏡 " : "🙏 ")+what),
+    h("p",{style:"margin:4px 0"}, msg+" هل تريد تكرار نفس المواعيد لمدة مماثلة أم تعديلها؟"),
+    h("div",{class:"row"},
+      h("button",{class:"btn sm renew-same", onclick:async()=>{
+        await editDoc("sched/"+schedId(), cur => { const t = vis ? cur.visit : cur; if (t){ t.vFrom = from; t.vTo = to; } return cur; });
+        toast("تم تكرار "+what+" من "+fmtShort(from)+" إلى "+fmtShort(to)+"."); }}, "🔁 تكرار نفس المواعيد"),
+      h("button",{class:"btn sm ghost renew-edit", onclick:()=>{ S.tab = "settings"; S.draft.scKind = kind; S.draft.sc = null; render();
+        setTimeout(() => { const c = $(".sched-card"); if (c) c.scrollIntoView({behavior:"smooth", block:"start"}); }, 50); }}, "✏️ تعديل المواعيد")),
+    h("p",{class:"small muted", style:"margin:0"}, "التكرار: من "+fmtShort(from)+" إلى "+fmtShort(to)+"، بنفس الأيام والساعات."));
+}
+/* ---------- «🗺️ يوم افتقاد» (2026-11-07, smart since -2): أبونا gives the hours and where he starts; the app plans the day
+   (booked visits at their times, then visit requests, then whoever waited longest, close to each other), orders it by the
+   shortest trip, gives each house an arrival time that follows the real day, tells everyone, and keeps who was missed for next time ---------- */
 const ROUTE_MAX = 10;
 const routeKey = () => "menrit_route_"+((S.account && S.account.id) || "main");
+const carryKey = () => "menrit_route_carry_"+((S.account && S.account.id) || "main");
 function routeGet(){ try { const r = JSON.parse(lsGet(routeKey()) || "null"); if (r && /^\d{4}-\d{2}-\d{2}$/.test(r.date) && Array.isArray(r.ids)) return r; } catch(e){} return null; }
 function routeSet(r){ if (r) lsSet(routeKey(), JSON.stringify(r)); else try { localStorage.removeItem(routeKey()); } catch(e){} }
-// a point Google Maps can use: the coordinates inside a pasted location link, otherwise the written address
+const routeUpd = patch => { const r = routeGet(); if (r){ routeSet(Object.assign(r, patch)); render(); } };
+function carryGet(){ try { const c = JSON.parse(lsGet(carryKey()) || "[]"); return Array.isArray(c) ? c : []; } catch(e){ return []; } }
+// the coordinates inside a pasted location link (short maps.app.goo.gl links carry none)
+function routeLL(p){
+  const l = locOk(p && p.loc), m = l && (l.match(/@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/) || l.match(/[?&](?:q|query|ll|destination)=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/));
+  return m ? {lat:+m[1], lng:+m[2]} : null;
+}
+// a point Google Maps can use: the coordinates, otherwise the written address
 function routePoint(p){
-  const l = locOk(p.loc), m = l && (l.match(/@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/) || l.match(/[?&](?:q|query|ll|destination)=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/));
-  if (m) return m[1]+","+m[2];
+  const ll = routeLL(p); if (ll) return ll.lat+","+ll.lng;
   const a = [p.address, p.area].map(x => String(x||"").trim()).filter(Boolean).join("، ");
   return a ? a+"، مصر" : "";
 }
-function routeUrl(stops){
+function routeUrl(stops, from){
   const pts = stops.map(routePoint).filter(Boolean).slice(0, ROUTE_MAX); if (!pts.length) return "";
   const dest = pts.pop();
-  return "https://www.google.com/maps/dir/?api=1&travelmode=driving&destination="+encodeURIComponent(dest)+(pts.length ? "&waypoints="+encodeURIComponent(pts.join("|")) : "");
+  return "https://www.google.com/maps/dir/?api=1&travelmode=driving"+(from ? "&origin="+from.lat+","+from.lng : "")+"&destination="+encodeURIComponent(dest)+(pts.length ? "&waypoints="+encodeURIComponent(pts.join("|")) : "");
+}
+const kmOf = (a, b) => { const R = 6371, r = x => x*Math.PI/180, dl = r(b.lat-a.lat), dn = r(b.lng-a.lng);
+  const q = Math.sin(dl/2)**2 + Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dn/2)**2; return 2*R*Math.asin(Math.sqrt(q)); };
+const areaOf = p => arKey(String((p && p.area) || "").trim());
+// minutes on the road between two places: by the distance when both have coordinates (city driving), otherwise by the area
+function travelMin(a, b){
+  if (!a) return 0;
+  const x = a.lat !== undefined ? a : routeLL(a), y = routeLL(b);
+  if (x && y) return Math.max(5, Math.round(kmOf(x, y) * 1.3 / 22 * 60));
+  return a.lat === undefined && areaOf(a) && areaOf(a) === areaOf(b) ? 10 : 20;
 }
 const visitedOn = (p, d) => (p.visits||[]).some(v => v.date === d);
+// a visit already fixed for that day: a booking of أبونا's visit times, or a time he gave (nextVisit)
+function fixedTimeOf(p, date){
+  const b = (S.vbookings||[]).find(x => x.uid === p.id && String(x.id).startsWith(date+"_"));
+  if (b){ const t = String(b.id).split("_")[1] || ""; return t.slice(0,2)+":"+t.slice(2,4); }
+  const nv = (p.pr && p.pr.nextVisit) || "";
+  return nv.slice(0,10) === date && /T\d\d:\d\d/.test(nv) ? nv.slice(11,16) : "";
+}
+const routeLen = r => Number(r.len) || Number(S.sched && S.sched.visit && S.sched.visit.len) || 45;
+// the order of the trip: nearest next house from the start; houses without coordinates go next to the same area; fixed times are kept
+function routeOrder(stops, r){
+  const fixed = stops.filter(p => fixedTimeOf(p, r.date)).sort((a,b) => fixedTimeOf(a, r.date).localeCompare(fixedTimeOf(b, r.date)));
+  const free = stops.filter(p => !fixedTimeOf(p, r.date)), withLL = free.filter(p => routeLL(p)), noLL = free.filter(p => !routeLL(p));
+  const seq = []; let cur = r.start || (withLL[0] && routeLL(withLL[0])) || null; const left = withLL.slice();
+  while (left.length){ let bi = 0; if (cur) left.forEach((p, i) => { if (kmOf(cur, routeLL(p)) < kmOf(cur, routeLL(left[bi]))) bi = i; });
+    const p = left.splice(bi, 1)[0]; seq.push(p); cur = routeLL(p); }
+  for (const p of noLL){ let at = -1; seq.forEach((q, i) => { if (areaOf(q) && areaOf(q) === areaOf(p)) at = i; });
+    if (at < 0) seq.push(p); else seq.splice(at+1, 0, p); }
+  // fixed visits are put where the clock reaches them
+  const out = [], len = routeLen(r); let t = hmOf(r.from || "17:00"), prev = r.start || null;
+  const q = seq.slice(), fq = fixed.slice();
+  while (q.length || fq.length){
+    const nf = fq[0], np = q[0];
+    if (nf && (!np || t + travelMin(prev, np) + len + travelMin(np, nf) > hmOf(fixedTimeOf(nf, r.date)))){ fq.shift(); out.push(nf); t = Math.max(t + travelMin(prev, nf), hmOf(fixedTimeOf(nf, r.date))) + len; prev = nf; }
+    else { q.shift(); out.push(np); t = t + travelMin(prev, np) + len; prev = np; }
+  }
+  return out;
+}
+// the plan: fixed visits, then whoever was missed last time, visit requests, the longest waiting; houses near the chosen ones first, as many as the hours allow
+function routePlan(all, overdueV, r){
+  const len = routeLen(r), span = Math.max(0, hmOf(r.to || "21:00") - hmOf(r.from || "17:00"));
+  const fixed = all.filter(p => fixedTimeOf(p, r.date) && !visitedOn(p, r.date));
+  const cap = Math.min(ROUTE_MAX, Math.max(fixed.length, Math.floor(span / (len + 15))));
+  const carry = carryGet(), waitOf = p => p.lastVisit ? daysBetween(parseYmd(p.lastVisit), TODAY) : 99999;
+  const pri = [...new Set([...carry.map(id => all.find(p => p.id === id)).filter(Boolean), ...all.filter(p => p.visitReq),
+    ...overdueV.slice().sort((a,b) => waitOf(b) - waitOf(a))])].filter(p => !fixed.includes(p) && !visitedOn(p, r.date));
+  // visit requests and whoever was missed last time come first, then the houses close to them
+  const sel = fixed.slice();
+  for (const p of pri) if (sel.length < cap && (p.visitReq || carry.includes(p.id))) sel.push(p);
+  // closeness to the houses already chosen (or to the start): within 3 km by coordinates first, then the same area
+  const close = p => { const ll = routeLL(p), pts = [...sel.map(routeLL), sel.length ? null : r.start].filter(Boolean);
+    if (ll && pts.some(x => kmOf(x, ll) < 3)) return 2;
+    return sel.some(q => areaOf(q) && areaOf(q) === areaOf(p)) ? 1 : 0; };
+  while (sel.length < cap){
+    const left = pri.filter(p => !sel.includes(p)); if (!left.length) break;
+    const best = Math.max(...left.map(close));
+    sel.push(left.find(p => close(p) === best));
+  }
+  return routeOrder(sel, r).map(p => p.id);
+}
+// arrival times: from the start hour, each house after the road and the visit before it; a visit done early or late moves the rest
+function routeEtas(stops, r){
+  const len = routeLen(r), today = r.date === TODAY_S, now = new Date().getHours()*60 + new Date().getMinutes(), out = {};
+  let t = hmOf(r.from || "17:00"), prev = r.start || null, first = true;
+  for (const p of stops){
+    const done = visitedOn(p, r.date), at = r.doneAt && r.doneAt[p.id];
+    if (done){ if (at){ const d = new Date(at); t = d.getHours()*60 + d.getMinutes(); } else t += travelMin(prev, p) + len; prev = p; continue; }
+    let a = t + travelMin(prev, p); const fx = fixedTimeOf(p, r.date);
+    if (fx) a = Math.max(a, hmOf(fx));
+    if (today && first) a = Math.max(a, now);
+    out[p.id] = {at:a, fixed:!!fx}; t = a + len; prev = p; first = false;
+  }
+  out.end = t;
+  return out;
+}
 async function routeDone(p, date){
   await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[]), {date, type:"زيارة منزلية", note:"يوم افتقاد"}];
     const o = Object.assign(cur, {onApp:!!p.onApp, visits:vs, lastVisit:vs.map(v=>v.date).sort().pop(), nextVisit:""});
     if (p.visitReq && p.visitReq.id) o.handledVisit = p.visitReq.id;
     return o; });
-  toast("تم تسجيل زيارة "+p.name);
+  const r = routeGet(); if (r) routeSet(Object.assign(r, {doneAt:Object.assign({}, r.doneAt, {[p.id]:Date.now()})}));
+  toast("تم تسجيل زيارة "+p.name+".");
+}
+const visitMsg = (p, r, at) => "سلام ونعمة، سيزوركم "+(fatherSign() || "أبونا").replace(/^\s*[-–—]\s*/, "")+" "+(r.date === TODAY_S ? "اليوم" : WDAYS[parseYmd(r.date).getDay()]+" "+fmtShort(r.date))+" حوالي الساعة "+timeAr(hmStr(at))+" للافتقاد 🙏";
+// everyone on the app gets a message and a phone notification with his time; the others get a ready WhatsApp message
+async function routeNotify(stops, r, etas){
+  const app = stops.filter(p => p.onApp && etas[p.id]), items = app.map(p => ({uid:p.id, date:r.date, time:hmStr(etas[p.id].at), text:visitMsg(p, r, etas[p.id].at)}));
+  if (!items.length){ toast("لا يوجد في المشوار أحد على البرنامج. استخدم رسائل واتساب بالأسفل."); return; }
+  try {
+    if (visitApi) await visitApi.notify(items);
+    else for (const it of items) await Store.set("members/"+it.uid+"/inbox/"+newId(), {type:"visit", title:"🏡 زيارة أبونا", text:it.text, at:new Date().toISOString()});
+    routeUpd({sent:Object.assign({}, r.sent, Object.fromEntries(items.map(it => [it.uid, it.time])))});
+    toast("تم إبلاغ "+arDigits(items.length)+" بمواعيدهم في البرنامج.");
+  } catch(e){ toast(typeof cloudMsg === "function" ? cloudMsg(e) : "تعذّر الإبلاغ، برجاء المحاولة مرة أخرى."); }
+}
+let visitApi = null;
+// who was not visited goes first next time; whoever was visited leaves that list
+function routeCarry(stops, r){
+  const missed = stops.filter(p => !visitedOn(p, r.date)).map(p => p.id), inTrip = new Set(stops.map(p => p.id));
+  lsSet(carryKey(), JSON.stringify([...new Set([...missed, ...carryGet().filter(id => !inTrip.has(id))])].slice(0, 20)));
+}
+function routeEnd(stops, r){
+  const missed = stops.filter(p => !visitedOn(p, r.date)), done = stops.length - missed.length;
+  if (missed.length && !confirm("إنهاء يوم الافتقاد؟\n\nتمت زيارة "+arDigits(done)+" من "+arDigits(stops.length)+". سيظهر من لم تتم زيارتهم أولًا في يوم الافتقاد القادم.")) return;
+  routeCarry(stops, r); routeSet(null); toast("انتهى يوم الافتقاد: تمت زيارة "+arDigits(done)+" من "+arDigits(stops.length)+"."); render();
 }
 function routeCard(all, overdueV){
   if (S.role !== "priest" && S.role !== "admin") return null;
   const r = routeGet();
   if (!r) return h("div",{class:"card route-card"}, h("div",{class:"row between"},
-    h("div",null, h("h3",{style:"margin:0"},"🗺️ يوم افتقاد"), h("p",{class:"small muted", style:"margin:4px 0 0"},"اختر البيوت التي ستزورها في يوم واحد، ورتّبها، ثم افتح المشوار كاملًا على الخريطة.")),
-    h("button",{class:"btn sm", id:"routeStart", onclick:()=>{ routeSet({date:TODAY_S, ids:[]}); S.draft.routeQ = ""; render(); }},"ابدأ يوم افتقاد")));
+    h("div",null, h("h3",{style:"margin:0"},"🗺️ يوم افتقاد"), h("p",{class:"small muted", style:"margin:4px 0 0"},"حدّد الساعات ونقطة البداية، ويقترح البرنامج البيوت الأقرب لبعضها والأحوج للافتقاد، بترتيب أقصر مشوار وموعد وصول لكل بيت.")),
+    h("button",{class:"btn sm", id:"routeStart", onclick:()=>{ const nr = {date:TODAY_S, ids:[], from:"17:00", to:"21:00", len:routeLen({}), start:null, doneAt:{}, sent:{}};
+      nr.ids = routePlan(all, overdueV, nr); routeSet(nr); S.draft.routeQ = ""; render(); }},"✨ ابدأ يوم افتقاد")));
   const byId = new Map(all.map(p => [p.id, p])), stops = r.ids.map(id => byId.get(id)).filter(Boolean);
-  const save = ids => { routeSet({date:r.date, ids}); render(); };
-  const toggle = id => save(r.ids.includes(id) ? r.ids.filter(x => x !== id) : r.ids.length >= ROUTE_MAX ? (toast("الحد الأقصى "+arDigits(ROUTE_MAX)+" بيوت في المشوار الواحد"), r.ids) : [...r.ids, id]);
+  // a day that has passed: its summary, and the houses missed go to the next time
+  if (r.date < TODAY_S){
+    const missed = stops.filter(p => !visitedOn(p, r.date));
+    return h("div",{class:"card route-card open"}, h("h3",{style:"margin:0"},"🗺️ ملخص يوم الافتقاد · "+WDAYS[parseYmd(r.date).getDay()]+" "+fmtShort(r.date)),
+      h("p",{class:"route-sum"}, "تمت زيارة "+arDigits(stops.length - missed.length)+" من "+arDigits(stops.length)+"."),
+      missed.length ? h("p",{class:"small muted"}, "لم تتم زيارة: "+missed.map(p => p.name).join("، ")+". سيظهرون أولًا في يوم الافتقاد القادم.") : null,
+      h("div",{class:"row"}, h("button",{class:"btn sm", id:"routeClose", onclick:()=>{ routeCarry(stops, r); routeSet(null); render(); }},"تم")));
+  }
+  const save = ids => routeUpd({ids});
+  const toggle = id => save(r.ids.includes(id) ? r.ids.filter(x => x !== id) : r.ids.length >= ROUTE_MAX ? (toast("الحد الأقصى "+arDigits(ROUTE_MAX)+" بيوت في المشوار الواحد."), r.ids) : routeOrder([...stops, byId.get(id)], r).map(p => p.id));
   const move = (i, d) => { const ids = r.ids.slice(), j = i + d; if (j < 0 || j >= ids.length) return; [ids[i], ids[j]] = [ids[j], ids[i]]; save(ids); };
-  // who may need a visit: a visit request first, then the longest since the last visit; a search adds anyone
+  const etas = routeEtas(stops, r), len = routeLen(r), next = r.date === TODAY_S ? stops.find(p => !visitedOn(p, r.date)) : null;
+  const late = etas.end > hmOf(r.to || "21:00");
+  // candidates to add by hand: a visit request first, then the longest since the last visit; a search adds anyone
   const q = String(S.draft.routeQ || "").trim();
-  const want = new Map(); for (const p of all) if (p.visitReq) want.set(p.id, "🏡 طلب افتقاد");
+  const want = new Map(); for (const id of carryGet()) if (byId.has(id)) want.set(id, "⏳ لم تتم زيارته المرة السابقة");
+  for (const p of all) if (p.visitReq && !want.has(p.id)) want.set(p.id, "🏡 طلب افتقاد");
   for (const p of overdueV) if (!want.has(p.id)) want.set(p.id, p.lastVisit ? "آخر افتقاد منذ "+arDigits(daysBetween(parseYmd(p.lastVisit), TODAY))+" يومًا" : "لم يُفتقد من قبل");
   let cand = q ? all.filter(p => arKey(p.name).includes(arKey(q)) || arKey(p.area||"").includes(arKey(q))) : all.filter(p => want.has(p.id));
   cand = cand.filter(p => !r.ids.includes(p.id));
   const groups = new Map(); for (const p of cand){ const a = String(p.area||"").trim() || "منطقة غير محددة"; if (!groups.has(a)) groups.set(a, []); groups.get(a).push(p); }
-  const url = routeUrl(stops.filter(p => !visitedOn(p, r.date)));
-  const noPlace = stops.filter(p => !routePoint(p));
+  const url = routeUrl(stops.filter(p => !visitedOn(p, r.date)), r.start);
+  const noPlace = stops.filter(p => !routePoint(p)), unsent = stops.filter(p => !p.onApp && p.phone && etas[p.id]);
+  const timeIn = (id, val, key) => h("input",{type:"time", id, value:val, style:"max-width:120px", onchange:e => { if (e.target.value) routeUpd({[key]:e.target.value}); }});
   return h("div",{class:"card route-card open"},
     h("div",{class:"row between"}, h("h3",{style:"margin:0"},"🗺️ يوم افتقاد"),
-      h("button",{class:"btn sm quiet", id:"routeEnd", onclick:()=>{ if (stops.some(p => !visitedOn(p, r.date)) && !confirm("إنهاء يوم الافتقاد؟ سيُحذف ترتيب المشوار، أما الزيارات المسجّلة فتبقى.")) return; routeSet(null); render(); }},"إنهاء")),
-    h("label",{class:"small"},"اليوم", h("input",{type:"date", id:"routeDate", value:r.date, style:"max-width:200px", onchange:e => { routeSet({date:/^\d{4}-\d{2}-\d{2}$/.test(e.target.value) ? e.target.value : r.date, ids:r.ids}); render(); }})),
+      h("button",{class:"btn sm quiet", id:"routeEnd", onclick:()=>routeEnd(stops, r)},"إنهاء اليوم")),
+    h("div",{class:"row route-set"},
+      h("label",{class:"small"},"اليوم", h("input",{type:"date", id:"routeDate", value:r.date, min:TODAY_S, style:"max-width:170px", onchange:e => { if (/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) routeUpd({date:e.target.value}); }})),
+      h("label",{class:"small"},"من", timeIn("routeFrom", r.from || "17:00", "from")),
+      h("label",{class:"small"},"إلى", timeIn("routeTo", r.to || "21:00", "to")),
+      h("label",{class:"small"},"مدة الزيارة", h("select",{id:"routeLen", style:"max-width:130px", onchange:e => routeUpd({len:Number(e.target.value)})},
+        [20,30,45,60,90].map(n => h("option",{value:n, selected:len === n}, arDigits(n)+" دقيقة"))))),
+    h("div",{class:"row"},
+      h("button",{class:"btn sm ghost", id:"routeHere", onclick:()=>{ if (!navigator.geolocation){ toast("تحديد المكان غير متاح على هذا الجهاز."); return; }
+        navigator.geolocation.getCurrentPosition(pos => { const st = {lat:+pos.coords.latitude.toFixed(5), lng:+pos.coords.longitude.toFixed(5)}; const rr = routeGet(); if (!rr) return;
+          rr.start = st; rr.ids = routeOrder(rr.ids.map(id => byId.get(id)).filter(Boolean), rr).map(p => p.id); routeSet(rr); toast("سيبدأ المشوار من مكانك الحالي."); render(); },
+          () => toast("لم يتم السماح بتحديد المكان."), {timeout:10000, maximumAge:300000}); }}, r.start ? "📍 البداية: مكانك ✓" : "📍 البداية من مكاني الحالي"),
+      h("button",{class:"btn sm", id:"routePlan", onclick:()=>{ if (stops.length && !confirm("استبدال المشوار الحالي بخطة مقترحة جديدة؟")) return; routeUpd({ids:routePlan(all, overdueV, r)}); }},"✨ اقترح خطة اليوم"),
+      stops.length > 1 ? h("button",{class:"btn sm ghost", id:"routeSort", onclick:()=>save(routeOrder(stops, r).map(p => p.id))},"🔀 رتّب بأقصر مشوار") : null),
+    // the house whose turn it is
+    next ? h("div",{class:"route-next"},
+      h("span",{class:"small"},"البيت التالي"),
+      h("strong",{class:"route-next-name"}, next.name),
+      h("span",{class:"small muted"}, [next.area, next.address].filter(Boolean).join(" · ") || "لا يوجد عنوان"),
+      etas[next.id] ? h("span",{class:"pill"}, "الوصول حوالي "+timeAr(hmStr(etas[next.id].at))) : null,
+      h("div",{class:"row"},
+        routePoint(next) ? h("a",{class:"btn sm", href:routeUrl([next], r.start), target:"_blank", rel:"noopener"},"🧭 الطريق") : null,
+        next.phone ? h("a",{class:"btn sm ghost", href:"tel:"+telOf(next.phone)},"📞 اتصال") : null,
+        next.phone ? h("a",{class:"btn sm wa", href:waLink(next.phone, "سلام ونعمة، أبونا في الطريق إليكم الآن للزيارة 🙏"), target:"_blank", rel:"noopener"},"💬 في الطريق") : null,
+        h("button",{class:"btn sm route-done", onclick:()=>routeDone(next, r.date)},"✅ تمت الزيارة"),
+        stops.length > 1 ? h("button",{class:"btn sm quiet", id:"routeLater", onclick:()=>save([...r.ids.filter(x => x !== next.id), next.id])},"⏭️ تأجيل لآخر المشوار") : null)) : null,
     h("h4",{class:"route-h"},"المشوار"+(stops.length ? " ("+arDigits(stops.length)+")" : "")),
-    stops.length ? h("ol",{class:"route-list"}, stops.map((p, i) => { const done = visitedOn(p, r.date);
-      return h("li",{class:"route-stop"+(done ? " done" : "")},
+    stops.length ? h("p",{class:"small route-sum"+(late ? " late" : "")}, "من "+timeAr(r.from || "17:00")+" · النهاية المتوقعة "+timeAr(hmStr(Math.min(etas.end, 24*60-1)))+(late ? " · ⚠️ بعد الوقت المحدد، احذف بيتًا أو زِد الوقت" : "")) : null,
+    stops.length ? h("ol",{class:"route-list"}, stops.map((p, i) => { const done = visitedOn(p, r.date), e = etas[p.id];
+      return h("li",{class:"route-stop"+(done ? " done" : "")+(next === p ? " cur" : "")},
         h("span",{class:"route-n"}, done ? "✓" : arDigits(i+1)),
-        h("div",{class:"who"}, h("strong",null, p.name), h("span",{class:"small muted"}, [p.area, p.address].filter(Boolean).join(" · ") || "لا يوجد عنوان")),
+        h("div",{class:"who"}, h("strong",null, p.name), h("span",{class:"small muted"}, [p.area, p.address].filter(Boolean).join(" · ") || "لا يوجد عنوان"),
+          e ? h("span",{class:"small route-eta"+(e.fixed ? " fixed" : "")}, (e.fixed ? "🕒 موعد محجوز " : "الوصول حوالي ")+timeAr(hmStr(e.at))+(r.sent && r.sent[p.id] ? " · تم إبلاغه" : "")) : null),
         h("div",{class:"row route-act"},
           done ? h("span",{class:"pill acc"},"تمت الزيارة") : h("button",{class:"btn sm route-done", onclick:()=>routeDone(p, r.date)},"✅ تمت الزيارة"),
-          !done && p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone, "سلام ونعمة، أبونا في الطريق إليكم الآن للزيارة 🙏"), target:"_blank", rel:"noopener"},"💬 إبلاغه") : null,
+          !done && p.phone && e ? h("a",{class:"btn sm wa route-wa", href:waLink(p.phone, visitMsg(p, r, e.at)), target:"_blank", rel:"noopener", onclick:()=>{ const rr = routeGet(); if (rr){ rr.sent = Object.assign({}, rr.sent, {[p.id]:hmStr(e.at)}); routeSet(rr); } }},"💬 إبلاغه") : null,
           mapBtn(p, "📍"),
           h("button",{class:"btn sm quiet", "aria-label":"تقديم "+p.name, disabled:i === 0, onclick:()=>move(i, -1)},"↑"),
           h("button",{class:"btn sm quiet", "aria-label":"تأخير "+p.name, disabled:i === stops.length-1, onclick:()=>move(i, 1)},"↓"),
           h("button",{class:"btn sm quiet", "aria-label":"إزالة "+p.name+" من المشوار", onclick:()=>toggle(p.id)},"✕"))); }))
-      : h("p",{class:"small muted"},"لم تُضِف أحدًا بعد. اضغط على الاسم في القائمة التالية لإضافته إلى المشوار."),
+      : h("p",{class:"small muted"},"لا يوجد من يحتاج إلى افتقاد الآن. ابحث بالاسم بالأسفل لإضافة أي شخص."),
     stops.length ? h("div",{class:"row"},
-      url ? h("a",{class:"btn", id:"routeOpen", href:url, target:"_blank", rel:"noopener"},"🧭 افتح المشوار على الخريطة") : h("span",{class:"small muted"},"تمت كل الزيارات المختارة 🙏"),
-      noPlace.length ? h("span",{class:"small muted"},"بدون عنوان (لن يظهر في الخريطة): "+noPlace.map(p => p.name).join("، ")) : null) : null,
+      url ? h("a",{class:"btn", id:"routeOpen", href:url, target:"_blank", rel:"noopener"},"🧭 افتح المشوار كله على الخريطة") : h("span",{class:"small muted"},"تمت كل الزيارات المختارة 🙏"),
+      stops.some(p => p.onApp && etas[p.id]) ? h("button",{class:"btn ghost", id:"routeNotify", onclick:()=>routeNotify(stops, r, etas)},"📣 إبلاغ الكل بمواعيدهم") : null) : null,
+    unsent.length ? h("p",{class:"small muted", style:"margin:0"}, "غير المسجلين على البرنامج يُبلَّغون برسالة واتساب جاهزة بموعدهم من زر «💬 إبلاغه» بجانب كل اسم.") : null,
+    noPlace.length ? h("p",{class:"small muted", style:"margin:0"},"بدون عنوان (لن يظهر في الخريطة): "+noPlace.map(p => p.name).join("، ")) : null,
+    stops.some(p => routePoint(p) && !routeLL(p)) ? h("p",{class:"small muted", style:"margin:0"},"💡 الترتيب بالمسافة يحتاج لوكيشن بالإحداثيات. البيوت التي لها عنوان فقط أو رابط مختصر تُرتَّب حسب المنطقة.") : null,
     h("h4",{class:"route-h"}, q ? "نتائج البحث" : "يحتاجون إلى افتقاد"),
     h("input",{id:"routeQ", placeholder:"ابحث بالاسم أو المنطقة لإضافة أي شخص", value:q, oninput:e => { S.draft.routeQ = e.target.value; clearTimeout(routeCard.t); routeCard.t = setTimeout(() => { render(); const i = $("#routeQ"); if (i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 300); }}),
     groups.size ? h("div",{class:"route-groups"}, [...groups].sort((a,b) => a[0].localeCompare(b[0], "ar")).map(([a, ps]) => h("div",{class:"route-g"},
       h("span",{class:"route-area"}, "📍 "+a+" ("+arDigits(ps.length)+")"),
       h("div",{class:"route-picks"}, ps.map(p => h("button",{class:"chip-btn route-pick", type:"button", onclick:()=>toggle(p.id)},
         h("span",null, "＋ "+p.name), want.has(p.id) ? h("small",{class:"muted"}, " · "+want.get(p.id)) : null))))))
-      : h("p",{class:"small muted"}, q ? "لا توجد نتائج." : "لا يوجد أحد يحتاج إلى افتقاد الآن. ابحث بالاسم لإضافة أي شخص."));
+      : h("p",{class:"small muted"}, q ? "لا توجد نتائج." : "لا يوجد غيرهم يحتاج إلى افتقاد الآن. ابحث بالاسم لإضافة أي شخص."));
 }
 function greetText(o){
   return o.kind==="birthday" ? "كل سنة وانت طيب. ربنا يفرّح قلبك في عيد ميلادك ويديك سنة جديدة مليانة نعمة وبركة." :
@@ -4271,7 +4496,8 @@ const isFatherView = () => S.role === "priest" && (Store.mode !== "cloud" || Sto
 const schedId = () => Store.mode === "cloud" && !Store.preview ? (accRole() === "priest" ? S.account.id : (S.account && S.account.father) || "") : "main";
 const hmOf = t => { const [a,b] = String(t||"").split(":").map(Number); return a*60 + (b||0); };
 const hmStr = n => pad(Math.floor(n/60))+":"+pad(n%60);
-const schedOn = sc => !!sc && ((sc.days||[]).length > 0 || (sc.extra||[]).length > 0);
+// a schedule whose dates are over (and no one-off day ahead) is off: the confessee then sends a request as before
+const schedOn = sc => !!sc && (((sc.days||[]).length > 0 && (!sc.vTo || sc.vTo >= TODAY_S)) || (sc.extra||[]).some(x => x.date >= TODAY_S));
 const schedOf = (sc, kind) => kind === "visit" ? (sc && sc.visit) || null : sc;
 const bookSeg = kind => kind === "visit" ? "v" : "s";
 const kindOfKey = key => String(key).split("/")[2] === "v" ? "visit" : "confession";
@@ -4289,9 +4515,23 @@ function schedDayOn(sc, w, ds){
     return nth === -1 ? day + 7 > dim : Math.ceil(day/7) === nth; }
   return true;
 }
+// the weekly days count only inside the dates أبونا chose for them (2026-11-07: «تُطبَّق من … إلى …»); one-off days always count
+const schedIn = (sc, ds) => !!sc && (!sc.vFrom || ds >= sc.vFrom) && (!sc.vTo || ds <= sc.vTo);
 function schedWindows(sc, ds){
   if (!sc || (sc.closed||[]).includes(ds)) return [];
-  return [...(sc.days||[]).filter(d => schedDayOn(sc, d, ds)), ...(sc.extra||[]).filter(x => x.date === ds)];
+  return [...(schedIn(sc, ds) ? (sc.days||[]).filter(d => schedDayOn(sc, d, ds)) : []), ...(sc.extra||[]).filter(x => x.date === ds)];
+}
+const addDaysS = (ds, n) => { const d = parseYmd(ds); d.setDate(d.getDate() + n); return ymd(d); };
+// each day has a morning and an evening period (2026-11-07); older schedules kept one period, read by its hour
+const PERIODS = [["am","☀️ صباحي","10:00","13:00"],["pm","🌙 مسائي","18:00","21:00"]];
+function periodsOf(list){
+  const o = {}; for (const [k,,f,t] of PERIODS) o[k] = {on:false, from:f, to:t};
+  for (const w of [...list].sort((a,b) => hmOf(a.from) - hmOf(b.from))){
+    let k = w.p === "am" || w.p === "pm" ? w.p : hmOf(w.from) < 14*60 ? "am" : "pm";
+    if (o[k].on) k = k === "am" ? "pm" : "am"; if (o[k].on) continue;
+    o[k] = {on:true, from:w.from, to:w.to};
+  }
+  return o;
 }
 function schedTimes(sc, ds){
   const len = Math.max(5, Math.min(120, Number(sc && sc.len) || 15)), out = [];
@@ -4327,6 +4567,14 @@ async function takenSlots(father, from, to, kind){ return takenLocal(father, fro
 async function bookSlot(date, time, note, kind, address){ return bookLocal(date, time, note, kind, address); }
 async function cancelBooking(key){ return cancelLocal(key); }
 
+// the morning and evening periods of one day: each can be on or off, with its own hours
+function periodRows(o, key){
+  return h("div",{class:"sched-periods"}, PERIODS.map(([k,l]) => { const x = o[k];
+    return h("div",{class:"sched-per"+(x.on ? " on" : "")},
+      h("label",{class:"check"}, h("input",{type:"checkbox", id:"sc"+k+key, checked:x.on, onchange:e=>{ x.on = e.target.checked; render(); }}), l),
+      x.on ? h("span",{class:"sched-hours"}, "من", h("input",{type:"time", id:"sc"+k+"F"+key, value:x.from, onchange:e=>{ x.from = e.target.value; }}),
+        "إلى", h("input",{type:"time", id:"sc"+k+"T"+key, value:x.to, onchange:e=>{ x.to = e.target.value; }})) : null); }));
+}
 // the father's own card in الإعدادات: days, hours, length, closed days, extra days, and the bookings coming up
 function schedCard(){
   const id = schedId(); if (!id) return null;
@@ -4334,19 +4582,28 @@ function schedCard(){
   if (!S.draft.sc || S.draft.scFor !== kind+JSON.stringify(S.sched||null)){
     S.draft.scFor = kind+JSON.stringify(S.sched||null);
     const sc = schedOf(S.sched, kind) || {};
-    const ten = repOf(sc) === "10d" && (sc.days||[])[0] || {};
-    S.draft.sc = {rep:repOf(sc), start:sc.start||TODAY_S, nth:Number(sc.nth)||1, tenFrom:ten.from||"18:00", tenTo:ten.to||"21:00", len:sc.len||(vis?45:15), days:[0,1,2,3,4,5,6].map(wd => { const d = (sc.days||[]).find(x=>x.wd===wd); return {wd, on:!!d, from:d?d.from:"18:00", to:d?d.to:"21:00"}; }),
+    const ten = periodsOf(repOf(sc) === "10d" ? (sc.days||[]) : []);
+    if (repOf(sc) !== "10d") ten.pm.on = true;
+    S.draft.sc = {rep:repOf(sc), start:sc.start||TODAY_S, nth:Number(sc.nth)||1, ten, len:sc.len||(vis?45:15),
+      days:[0,1,2,3,4,5,6].map(wd => Object.assign({wd}, periodsOf((sc.days||[]).filter(x=>x.wd===wd)))),
+      ranged:!!(sc.vFrom || sc.vTo), vFrom:sc.vFrom||TODAY_S, vTo:sc.vTo||addDaysS(sc.vFrom||TODAY_S, 89),
       closed:[...(sc.closed||[])].filter(x => x >= TODAY_S).sort(), extra:[...(sc.extra||[])].filter(x => x.date >= TODAY_S)};
   }
   const d = S.draft.sc;
   const save = async () => {
-    const tenD = d.rep === "10d", wins = tenD ? [{from:d.tenFrom, to:d.tenTo}] : d.days.filter(x=>x.on);
-    if ((d.rep === "10d" || d.rep === "2w") && !d.start){ toast("اختر تاريخ أول يوم"); return; }
-    for (const x of [...wins, ...d.extra]) if (!x.from || !x.to || hmOf(x.to) - hmOf(x.from) < Number(d.len)){ toast("راجع الساعات: «لحد» لازم تبقى بعد «من» بوقت "+(vis?"زيارة":"اعتراف")+" واحد على الأقل"); return; }
-    const obj = {rep:d.rep, len:Number(d.len)||(vis?45:15), days: tenD ? [{from:d.tenFrom, to:d.tenTo}] : d.days.filter(x=>x.on).map(({wd,from,to})=>({wd,from,to})), closed:d.closed, extra:d.extra};
+    const tenD = d.rep === "10d";
+    const pick = (o, wd) => PERIODS.map(([k]) => k).filter(k => o[k].on).map(k => Object.assign(wd === undefined ? {} : {wd}, {from:o[k].from, to:o[k].to, p:k}));
+    const wins = tenD ? pick(d.ten) : d.days.flatMap(x => pick(x, x.wd));
+    if ((d.rep === "10d" || d.rep === "2w") && !d.start){ toast("برجاء اختيار تاريخ أول يوم."); return; }
+    for (const x of [...wins, ...d.extra]) if (!x.from || !x.to || hmOf(x.to) - hmOf(x.from) < Number(d.len)){ toast("برجاء مراجعة الساعات: يجب أن يكون «إلى» بعد «من» بمدة "+(vis?"زيارة":"اعتراف")+" واحدة على الأقل."); return; }
+    for (const o of tenD ? [d.ten] : d.days) if (o.am.on && o.pm.on && hmOf(o.pm.from) < hmOf(o.am.to)){ toast("برجاء مراجعة الساعات: الفترة المسائية يجب أن تبدأ بعد نهاية الفترة الصباحية."); return; }
+    if (d.ranged && (!d.vFrom || !d.vTo || d.vTo < d.vFrom)){ toast("برجاء مراجعة مدة المواعيد: تاريخ النهاية يجب أن يكون بعد تاريخ البداية."); return; }
+    const obj = {rep:d.rep, len:Number(d.len)||(vis?45:15), days:wins, closed:d.closed, extra:d.extra};
     if (d.rep === "2w" || tenD) obj.start = d.start; if (d.rep === "m") obj.nth = Number(d.nth) || 1;
-    await editDoc("sched/"+id, cur => vis ? Object.assign(cur, {visit:obj}) : Object.assign(cur, obj));
-    toast(wins.length || d.extra.length ? (vis ? "مواعيد الافتقاد" : "مواعيد الاعتراف")+" اتحفظت، وأولادك يقدروا يحجزوا" : "اتحفظ. أولادك هيطلبوا زي الأول لحد ما تحدد أيام");
+    if (d.ranged){ obj.vFrom = d.vFrom; obj.vTo = d.vTo; }
+    await editDoc("sched/"+id, cur => { const t = vis ? (cur.visit = Object.assign({}, cur.visit||{}, obj)) : Object.assign(cur, obj);
+      if (!d.ranged){ delete t.vFrom; delete t.vTo; } if (t.rep !== "m") delete t.nth; return cur; });
+    toast(wins.length || d.extra.length ? "تم حفظ "+(vis ? "مواعيد الافتقاد" : "مواعيد الاعتراف")+"، ويمكن لأولادك الحجز فيها." : "تم الحفظ. سيرسل أولادك طلباتهم كالمعتاد حتى تحدد أيامًا.");
   };
   const order = [6,0,1,2,3,4,5], seg = bookSeg(kind);
   const up = ((vis ? S.vbookings : S.bookings)||[]).filter(b => b.id >= TODAY_S).sort((a,b)=>a.id.localeCompare(b.id));
@@ -4364,13 +4621,19 @@ function schedCard(){
       d.rep === "2w" || d.rep === "10d" ? h("label",null,"أول يوم", h("input",{type:"date", id:"scStart", value:d.start, style:"max-width:170px", onchange:e=>{ d.start = e.target.value; render(); }})) : null,
       d.rep === "m" ? h("label",null,"أنهي أسبوع في الشهر", h("select",{id:"scNth", style:"max-width:150px", onchange:e=>{ d.nth = Number(e.target.value); render(); }},
         NTHS.map(([k,l]) => h("option",{value:k, selected:Number(d.nth)===k}, l)))) : null),
-    d.rep === "10d" ? h("div",{class:"sched-day on"}, h("strong",null,"كل ١٠ أيام من "+fmtShort(d.start||TODAY_S)), h("span",{class:"sched-hours"}, "من", h("input",{type:"time", id:"scTF", value:d.tenFrom, onchange:e=>{ d.tenFrom = e.target.value; }}),
-      "لحد", h("input",{type:"time", id:"scTT", value:d.tenTo, onchange:e=>{ d.tenTo = e.target.value; }}))) :
-    h("div",{class:"sched-days"}, order.map(wd => { const x = d.days[wd];
-      return h("div",{class:"sched-day"+(x.on?" on":"")},
-        h("label",{class:"check"}, h("input",{type:"checkbox", id:"scOn"+wd, checked:x.on, onchange:e=>{ x.on = e.target.checked; render(); }}), d.rep === "m" ? NTHS.find(n => n[0] === Number(d.nth))[1]+" "+WDAYS[wd].replace(/^ال/,"")+" في الشهر" : WDAYS[wd]),
-        x.on ? h("span",{class:"sched-hours"}, "من", h("input",{type:"time", id:"scF"+wd, value:x.from, onchange:e=>{ x.from = e.target.value; }}),
-          "لحد", h("input",{type:"time", id:"scT"+wd, value:x.to, onchange:e=>{ x.to = e.target.value; }})) : null); })),
+    d.rep === "10d" ? h("div",{class:"sched-day on"}, h("strong",{class:"sched-dname"},"كل ١٠ أيام من "+fmtShort(d.start||TODAY_S)), periodRows(d.ten, "T")) :
+    h("div",{class:"sched-days"}, order.map(wd => { const x = d.days[wd], on = x.am.on || x.pm.on;
+      return h("div",{class:"sched-day"+(on?" on":"")},
+        h("strong",{class:"sched-dname"}, d.rep === "m" ? NTHS.find(n => n[0] === Number(d.nth))[1]+" "+WDAYS[wd].replace(/^ال/,"")+" في الشهر" : WDAYS[wd]),
+        periodRows(x, String(wd))); })),
+    // the dates these days apply to; near the end أبونا is asked to repeat them or change them
+    h("div",{class:"sched-range"+(d.ranged ? " on" : "")},
+      h("label",{class:"check"}, h("input",{type:"checkbox", id:"scRanged", checked:d.ranged, onchange:e=>{ d.ranged = e.target.checked; render(); }}), "تحديد مدة لهذه المواعيد"),
+      d.ranged ? h("div",{class:"row", style:"align-items:flex-end;gap:10px"},
+        h("label",null,"تُطبَّق من", h("input",{type:"date", id:"scVFrom", value:d.vFrom, style:"max-width:170px", onchange:e=>{ d.vFrom = e.target.value; render(); }})),
+        h("label",null,"إلى", h("input",{type:"date", id:"scVTo", value:d.vTo, min:d.vFrom, style:"max-width:170px", onchange:e=>{ d.vTo = e.target.value; render(); }})),
+        h("div",{class:"row", style:"gap:6px"}, [[30,"شهر"],[90,"٣ أشهر"],[180,"٦ أشهر"]].map(([n,l]) => h("button",{type:"button", class:"chip-btn", onclick:()=>{ d.vTo = addDaysS(d.vFrom||TODAY_S, n-1); render(); }}, l)))) : null,
+      h("p",{class:"small muted", style:"margin:0"}, d.ranged ? "قبل نهاية المدة بثلاثة أيام يظهر لك سؤال في شاشة «اليوم»: تكرار نفس المواعيد أو تعديلها. وبعد آخر يوم لا يمكن الحجز في هذه الأيام حتى تختار." : "بدون مدة: تبقى المواعيد كما هي حتى تغيّرها.")),
     h("h4",null, vis ? "أيام مش هتزور فيها (سفر، عيد، خلوة)" : "أيام مش هتعرّف فيها (سفر، عيد، خلوة)"),
     h("div",{class:"row"}, h("input",{type:"date", id:"scClosed", min:TODAY_S, style:"max-width:190px"}),
       h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ const v = $("#scClosed").value; if (!v) return; if (!d.closed.includes(v)) d.closed.push(v); d.closed.sort(); render(); }},"+ إضافة")),
@@ -4710,8 +4973,10 @@ function startWeather(){
     const lat = p.coords.latitude.toFixed(2), lon = p.coords.longitude.toFixed(2);
     if (!(saved && Date.now() - saved.at < 30*60e3)) load(lat, lon);
     setInterval(() => load(lat, lon), 30*60e3);
-  }, () => { if (!saved) el.hidden = true; }, {enableHighAccuracy:false, maximumAge:3600e3, timeout:20000});
-  const ask = () => { if (saved) return;  // nothing asked until the person wants the weather
+  }, () => { if (saved && Date.now() - saved.at < 12*3600e3) show(saved); else if (!startWeather.last) el.hidden = true; }, {enableHighAccuracy:false, maximumAge:3600e3, timeout:20000});
+  // the person already agreed once (a saved reading exists): read the place again without asking for a tap (2026-11-07).
+  // Before, an iPhone that never reports the permission as "granted" kept the chip hidden once the saved reading was 3 hours old
+  const ask = () => { if (saved){ go(); return; }  // nothing asked until the person wants the weather
     el.replaceChildren("🌤️ ", h("span",{class:"wx-t"},"الطقس؟")); el.title = "اضغط عشان تشوف الطقس (هيسأل عن مكانك)"; el.style.cursor = "pointer"; el.hidden = false;
     el.addEventListener("click", () => { el.style.cursor = ""; el.title = ""; go(); }, {once:true}); };
   try { navigator.permissions.query({name:"geolocation"}).then(r => r.state === "granted" ? go() : ask(), ask); } catch(e){ ask(); }
@@ -4862,6 +5127,7 @@ let passportApi = null;  // passport instead of the national ID with a one-time 
 let nidApi = null;
 let childApi = null;
 let releaseApi = null;
+let dbApi = null;       // how full the server database is (2026-11-07)
 // «إزالة من أولادي» (2026-11-07), always after a confirmation: a person who is not on the app leaves the list;
 // a person on the app keeps his account but has no confession father any more, and أبونا's notes about him are deleted
 function releaseBtn(p){
@@ -5364,17 +5630,23 @@ function passportCard(){
   if (!S.ppCodes && !passportCard.busy){ passportCard.busy = true; passportApi.list().then(r => { S.ppCodes = r || []; scheduleRender(); }).catch(() => { S.ppCodes = []; }).finally(() => { passportCard.busy = false; }); }
   const list = S.ppCodes || [], live = list.filter(x => x.live), used = list.filter(x => x.usedAt);
   const msg = c => "أهلاً بيك 🌿\nكود الباسبور بتاعك في برنامج "+((S.church && S.church.name) || "الكنيسة")+": "+c.code+"\nافتح «بياناتي»، ودوس «معاك باسبور مش رقم قومي؟»، واكتب رقم الباسبور والكود ده. الكود بيشتغل مرة واحدة بس، ولمدة ٧ أيام.";
-  return h("div",{class:"card form pp-admin"}, h("h3",null,"🛂 أكواد جواز السفر"),
-    h("p",{class:"small muted", style:"margin:0"},"للي مش مصري أو معاهوش رقم قومي. اعمل كود لكل شخص لوحده وابعتهوله. الكود بيشتغل مرة واحدة بس، ولمدة ٧ أيام."),
-    h("div",{class:"row", style:"align-items:end"},
-      h("label",{style:"flex:1"},"لمين؟ (اختياري)", h("input",{id:"ppNote", maxlength:"60", placeholder:"اسم الشخص عشان تفتكر"})),
-      h("button",{class:"btn sm", id:"ppMake", onclick:async()=>{ try { const r = await passportApi.make(($("#ppNote")||{}).value || ""); S.ppCodes = null; S.ppLast = r.code; toast("الكود: "+r.code); scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"➕ إنشاء كود")),
+  // closed until «إنشاء كود» (2026-11-07): the live codes stay in sight, the form and the used ones open on demand
+  const open = !!S.draft.ppNew;
+  return h("div",{class:"card form pp-admin"+(open ? " open" : "")},
+    h("div",{class:"row between pp-head"}, h("div",{class:"who"}, h("h3",{style:"margin:0"},"🛂 أكواد جواز السفر"),
+        h("span",{class:"small muted"}, live.length ? arDigits(live.length)+" كود ساري" : "لمن ليس لديه رقم قومي")),
+      open ? null : h("button",{class:"btn sm", id:"ppNew", onclick:()=>{ S.draft.ppNew = true; render(); setTimeout(() => { const i = $("#ppNote"); if (i) i.focus(); }, 30); }},"➕ إنشاء كود")),
+    open ? h("p",{class:"small muted", style:"margin:0"},"لمن ليس مصريًا أو ليس لديه رقم قومي. أنشئ كودًا لكل شخص وأرسله له؛ يعمل الكود مرة واحدة فقط ولمدة ٧ أيام.") : null,
+    open ? h("div",{class:"row", style:"align-items:end"},
+      h("label",{style:"flex:1"},"لمن؟ (اختياري)", h("input",{id:"ppNote", maxlength:"60", placeholder:"اسم الشخص للتذكير"})),
+      h("button",{class:"btn sm", id:"ppMake", onclick:async()=>{ try { const r = await passportApi.make(($("#ppNote")||{}).value || ""); S.ppCodes = null; S.ppLast = r.code; S.draft.ppNew = false; toast("الكود: "+r.code); scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"إنشاء"),
+      h("button",{class:"btn sm quiet", type:"button", onclick:()=>{ S.draft.ppNew = false; render(); }},"إلغاء")) : null,
     live.length ? h("ul",{class:"list pp-list"}, live.map(c => h("li",{class:"pp-row"+(S.ppLast === c.code ? " new" : "")},
-      h("div",{class:"who"}, h("strong",{dir:"ltr", class:"num pp-code"}, c.code), h("span",{class:"small muted"}, (c.note ? c.note+" · " : "")+"بيخلص "+fmtShort(ymd(new Date(c.expires))))),
+      h("div",{class:"who"}, h("strong",{dir:"ltr", class:"num pp-code"}, c.code), h("span",{class:"small muted"}, (c.note ? c.note+" · " : "")+"ينتهي "+fmtShort(ymd(new Date(c.expires))))),
       h("div",{class:"row"},
         h("a",{class:"btn sm wa-btn", href:"https://wa.me/?text="+encodeURIComponent(msg(c)), target:"_blank", rel:"noopener"},"💬 إرسال عبر واتساب"),
-        h("button",{class:"btn sm quiet pp-drop", onclick:async()=>{ try { await passportApi.drop(c.code); S.ppCodes = null; scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"✕"))))) : h("p",{class:"small muted", style:"margin:0"},"مفيش أكواد شغالة دلوقتي."),
-    used.length ? h("details",null, h("summary",{class:"small"},"اتستخدموا ("+arDigits(used.length)+")"),
+        h("button",{class:"btn sm quiet pp-drop", onclick:async()=>{ try { await passportApi.drop(c.code); S.ppCodes = null; scheduleRender(); } catch(e){ toast(cloudMsg(e)); } }},"✕"))))) : null,
+    used.length ? h("details",null, h("summary",{class:"small"},"أكواد مستخدمة ("+arDigits(used.length)+")"),
       h("ul",{class:"list"}, used.map(c => h("li",null, h("span",{dir:"ltr", class:"num"}, c.code), h("span",{class:"small muted"}, "استخدمه "+c.usedName+" · "+fmtShort(ymd(new Date(c.usedAt)))))))) : null);
 }
 function profileMissing(p, photo){ p = p || {}; const m = [];
@@ -5563,15 +5835,28 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["⚡","فتح أسرع","يحتفظ البرنامج بنسخة من آخر بيانات ظهرت على الجهاز، فتظهر فور الفتح ثم يُحدّث ما تغيّر فقط. وتُحذف هذه النسخة عند «خروج»."],
     ["⏱️","سرعة التحميل","في شاشة «الأدمن» كارت جديد يعرض متوسط وقت ظهور البيانات خلال الأسبوع وأبطأ الأجهزة، مع تنبيه إذا تجاوز المتوسط ٥ ثوانٍ."],
     ["📝","التسجيل الجديد","لا يُنشأ حساب جديد إلا بعد كتابة كل البيانات المطلوبة بشكل صحيح: الاسم الثلاثي والموبايل والرقم القومي والعنوان والصورة. ويُرفض الرقم القومي غير الصحيح أو المسجّل لشخص آخر."],
-    ["🌡️","درجة الحرارة","تظهر درجة الحرارة بالأرقام التي اخترتها في الإعدادات دائمًا."]],
+    ["📱","شاشة الأدمن على الموبايل","مربعات للآباء بالصورة وعدد الأبناء، وشريط ثابت أعلى الشاشة للانتقال بين الملخص والأدوات والآباء والناس، وكارت أكواد جواز السفر أصبح مختصرًا."],
+    ["🖼️","صورة أب الاعتراف","عند التسجيل الجديد تظهر صورة كل أب اعتراف بجانب اسمه."],
+    ["🌡️","درجة الحرارة","تظهر درجة الحرارة بالأرقام التي اخترتها في الإعدادات دائمًا."],
+    ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
+    ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
+    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
+    ["💾","تنبيه مساحة قاعدة البيانات","يظهر في شاشة «الأدمن» تنبيه إذا تجاوزت البيانات ٧٠٪ من المساحة المتاحة."]],
   priest:[
     ["⚡","فتح أسرع","تظهر البيانات فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط. وتُحذف النسخة المحفوظة على جهازك عند «خروج»."],
-    ["🗺️","يوم افتقاد","في شاشة «اليوم» اضغط «ابدأ يوم افتقاد»، واختر البيوت ورتّبها، ثم افتح المشوار كاملًا على الخريطة، وسجّل كل زيارة بضغطة «✅ تمت الزيارة»."],
+    ["🗺️","يوم افتقاد ذكي","في شاشة «اليوم» اضغط «ابدأ يوم افتقاد» وحدّد الساعات، فيقترح البرنامج البيوت: المحجوزة بمواعيدها، ثم طلبات الافتقاد، ثم الأطول انتظارًا والأقرب لبعضها، بترتيب أقصر مشوار وموعد وصول لكل بيت يتعدّل مع سير اليوم. ويمكنك إبلاغ الكل بمواعيدهم بضغطة، ومتابعة «البيت التالي»، ومن لم تتم زيارته يظهر أولًا في المرة القادمة."],
+    ["🕘","فترتان ومدة للمواعيد","في «مواعيدي» لكل يوم فترة صباحية وفترة مسائية، ويمكنك تحديد مدة تُطبَّق فيها المواعيد. قبل نهايتها بثلاثة أيام يصلك سؤال: تكرار نفس المواعيد أو تعديلها."],
     ["📝","طلبات التسجيل","لا يصلك طلب تسجيل إلا وبياناته كاملة وصحيحة، والرقم القومي مطابق لتاريخ الميلاد والنوع."],
     ["🗑️","إزالة من أولادي","في بيانات أي شخص زر «إزالة من أولادي» يسأل للتأكيد أولًا. يبقى حساب الشخص على البرنامج بدون أب اعتراف، وتُحذف ملاحظاتك عنه نهائيًا، ولا يرى الأدمن أي ملاحظات."],
-    ["🪪","الرقم القومي","في «شخص جديد» وبيانات من ليس على البرنامج خانة للرقم القومي، يُملأ منها تاريخ الميلاد تلقائيًا، ويُنبَّه إذا كان الرقم غير صحيح أو مسجَّلًا لشخص آخر."]],
+    ["🪪","الرقم القومي","في «شخص جديد» وبيانات من ليس على البرنامج خانة للرقم القومي، يُملأ منها تاريخ الميلاد تلقائيًا، ويُنبَّه إذا كان الرقم غير صحيح أو مسجَّلًا لشخص آخر."],
+    ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
+    ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
+    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."]],
   user:[
-    ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."]]}};
+    ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."],
+    ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
+    ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
+    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."]]}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -5888,7 +6173,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.07-1";
+const APP_VERSION = "2026.11.07-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -5927,7 +6212,7 @@ async function showGate(){
       const name = $("#gName").value.trim(), pw = $("#gPw").value;
       if (!name || !pw){ err.textContent = "اكتب الاسم وكلمة السر."; return; }
       if (mode === "create"){
-        if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+        { const pe = pwProblem(pw, {name}); if (pe){ err.textContent = pe+"."; return; } }
         if (pw !== $("#gPw2").value){ err.textContent = "كلمتين السر مش زي بعض."; return; }
         if (Store.mode === "local" && !(await keyOk($("#gKey").value))){ err.textContent = "مفتاح التفعيل غلط. اطلبه من المطوّر على 01507261628."; return; }
         try { await Store.set(authPath(), Object.assign({name, at:new Date().toISOString()}, await makeHash(pw))); }
@@ -5965,7 +6250,13 @@ async function showGate(){
 }
 function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); document.body.classList.remove("locked"); S.ready = true; subscribe(); render(); startWelcome(); bumpIdle(); }
 const IDLE_MS = 3*60*1000; let idleTimer = null;
-function bumpIdle(){ if (document.body.classList.contains("locked")) return; clearTimeout(idleTimer); const w = $("#idleWarn"); if (w) w.remove();
+// coming back to the app after more than 3 minutes away signs out at once, before anything shows (2026-11-07):
+// a phone pauses timers while the app is in the background, so the 3-minute timer alone could leave the screen open
+let idleLast = Date.now();
+function idleBack(){ if (document.visibilityState === "hidden" || document.body.classList.contains("locked") || !S.account) return;
+  if (Date.now() - idleLast > IDLE_MS){ logout(); toast("تم الخروج تلقائيًا بعد ٣ دقائق من عدم الاستخدام"); } else bumpIdle(); }
+document.addEventListener("visibilitychange", idleBack); window.addEventListener("pageshow", idleBack); window.addEventListener("focus", idleBack);
+function bumpIdle(){ if (document.body.classList.contains("locked")) return; idleLast = Date.now(); clearTimeout(idleTimer); const w = $("#idleWarn"); if (w) w.remove();
   idleTimer = setTimeout(idleWarn, IDLE_MS - 30000); }
 function idleWarn(){
   const typed = !!document.querySelector("#app [data-dirty]");
@@ -5975,6 +6266,17 @@ function idleWarn(){
   idleTimer = setTimeout(()=>{ logout(); toast("تم الخروج تلقائيًا بعد ٣ دقائق من عدم الاستخدام"); }, 30000);
 }
 ["click","keydown","touchstart","scroll","mousemove"].forEach(ev => document.addEventListener(ev, bumpIdle, {passive:true}));
+// the bottom tab bar after turning the phone (2026-11-07): some phones (iPhone above all) keep the old screen height after a
+// rotation, so a bar fixed to the bottom shows in the middle of the screen. It is put back on the real bottom edge.
+function navFix(){ const n = document.querySelector("nav.tabs"); if (!n) return;
+  n.style.transform = ""; if (getComputedStyle(n).position !== "fixed") return;
+  if (window.visualViewport && Math.abs(visualViewport.scale - 1) > 0.01) return; // zoomed in with two fingers: leave it
+  const vv = window.visualViewport, real = vv ? vv.height + vv.offsetTop : innerHeight, r = n.getBoundingClientRect();
+  const gap = Math.round(real - r.bottom); if (Math.abs(gap) > 2 && Math.abs(gap) < real) n.style.transform = "translateY("+gap+"px)"; }
+function navFixSoon(){ [0, 120, 400, 900].forEach(t => setTimeout(navFix, t)); }
+window.addEventListener("orientationchange", navFixSoon); window.addEventListener("resize", navFixSoon); window.addEventListener("pageshow", navFixSoon);
+if (window.visualViewport){ visualViewport.addEventListener("resize", navFixSoon); visualViewport.addEventListener("scroll", navFix); }
+{ const r0 = render; render = function(){ const r = r0.apply(this, arguments); navFix(); return r; }; }
 function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
@@ -5989,8 +6291,28 @@ const viewFor = role => (role==="admin"||role==="priest") ? "priest" : role==="s
 const accRole = () => S.account ? S.account.role : null;
 const PW_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
 let PW_MIN = 4;
-const pwShort = () => "كلمة السر لازم تكون "+arDigits(PW_MIN)+" حروف أو أرقام على الأقل";
-function genPassword(){ const a = new Uint32Array(6); crypto.getRandomValues(a); return [...a].map(n=>PW_CHARS[n % PW_CHARS.length]).join(""); }
+const pwShort = () => "يجب ألا تقل كلمة السر عن "+arDigits(PW_MIN)+" حروف أو أرقام";
+// a made-up password: 8 characters with at least one letter and one digit (2026-11-07)
+function genPassword(){ for (;;){ const a = new Uint32Array(8); crypto.getRandomValues(a); const p = [...a].map(n=>PW_CHARS[n % PW_CHARS.length]).join("");
+  if (/[a-z]/.test(p) && /\d/.test(p)) return p; } }
+// weak passwords are refused wherever a password is chosen (2026-11-07). Signing in with an old one still works.
+let PW_MIX = false; // the server copy also asks for English letters and digits together (the same rule as in Supabase)
+const PW_COMMON = ["password","passw0rd","qwerty","qwertyui","asdfgh","asdfghjk","zxcvbn","iloveyou","abc123","abcd1234","a1b2c3d4","aa123456","menrit","ruhiya","church","jesus","christ","yasoo3","yasou3","maria","mariam","abouna","abona","123qwe","1q2w3e4r","qwe123","pass1234","love123"];
+function pwProblem(pw, who){
+  pw = String(pw || ""); const lo = pw.toLowerCase(), dg = pw.replace(/\D/g, "");
+  if (pw.length < PW_MIN) return pwShort();
+  if (PW_MIX && !(/[a-zA-Z]/.test(pw) && /[0-9]/.test(pw))) return "يجب أن تحتوي كلمة السر على حروف إنجليزية وأرقام معًا";
+  const seq = "01234567890 abcdefghijklmnopqrstuvwxyz qwertyuiopasdfghjklzxcvbnm", rev = [...seq].reverse().join("");
+  if (/^(.)\1+$/.test(pw) || /^(.{1,4})\1+$/.test(lo) || seq.includes(lo) || rev.includes(lo) || /^(\d)\1*(\d)\2*$/.test(pw)
+      || PW_COMMON.some(c => lo === c || (lo.startsWith(c) && /^[0-9!@#.]{1,4}$/.test(lo.slice(c.length)))))
+    return "كلمة السر هذه سهلة التخمين؛ اختر كلمة سر أخرى";
+  who = who || {}; const ph = String(who.phone || "").replace(/\D/g, "").slice(-8), bd = String(who.birthday || "").replace(/\D/g, "");
+  if ((ph.length === 8 && dg.includes(ph)) || (bd.length === 8 && (dg.includes(bd) || dg.includes(bd.slice(6)+bd.slice(4,6)+bd.slice(0,4)))) || (who.nid && dg.length >= 6 && String(who.nid).includes(dg)))
+    return "لا تستخدم رقم الموبايل أو تاريخ الميلاد أو الرقم القومي ككلمة سر";
+  const nk = String(who.name || "").trim().split(/\s+/).filter(w => w.length >= 3);
+  if (nk.some(w => lo.includes(w.toLowerCase()))) return "لا تستخدم اسمك ككلمة سر";
+  return "";
+}
 const hashed = makeHash;
 async function listAccounts(){ try { return await Store.list("accounts"); } catch(e){ return []; } }
 const findAcc = (list, name) => list.find(a => String(a.name||"").trim().toLowerCase() === String(name||"").trim().toLowerCase());
@@ -6145,7 +6467,7 @@ async function showLocalGate(){
       form = h("form",{class:"form", onsubmit:async e=>{ e.preventDefault(); err.textContent = "";
         const name = v("gName").trim(), pw = v("gPw");
         if (!name || !pw){ err.textContent = "اكتب الاسم وكلمة السر."; return; }
-        if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+        { const pe = pwProblem(pw, {name}); if (pe){ err.textContent = pe+"."; return; } }
         if (pw !== v("gPw2")){ err.textContent = "كلمتين السر مش زي بعض."; return; }
         if (!(await keyOk(v("gKey")))){ err.textContent = "مفتاح التفعيل غلط. اطلبه من المطوّر على "+DEV.phone+"."; return; }
         const acc = Object.assign({name, role:"admin", active:true, createdAt:new Date().toISOString(), logins:1, lastLogin:new Date().toISOString()}, await hashed(pw));
@@ -6180,7 +6502,7 @@ async function showLocalGate(){
       sub = "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
       form = h("form",{class:"form", onsubmit:async e=>{ e.preventDefault(); err.textContent = "";
         const pw = v("gPw");
-        if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+        { const pe = pwProblem(pw, S.account); if (pe){ err.textContent = pe+"."; return; } }
         if (pw !== v("gPw2")){ err.textContent = "كلمتين السر مش زي بعض."; return; }
         const acc = await Store.get("accounts/"+S.account.id);
         await Store.set("accounts/"+S.account.id, clean(Object.assign({}, acc, await makeHash(pw), {mustChange:false})));
@@ -6209,7 +6531,7 @@ async function showLocalGate(){
           if (!acc){ err.textContent = "مفيش حساب بالاسم ده."; return; }
           const w = lockWait(); if (w){ err.textContent = waitMsg(w); return; }
           if (!(await keyOk(v("gKey")))){ lockFail(); err.textContent = "مفتاح التفعيل غلط."; return; }
-          if (pw.length < PW_MIN){ err.textContent = pwShort()+"."; return; }
+          { const pe = pwProblem(pw, acc); if (pe){ err.textContent = pe+"."; return; } }
           await Store.set("accounts/"+acc.id, clean(Object.assign({}, acc, await hashed(pw), {mustChange:false})));
           await Store.del("pwreq/"+acc.id).catch(()=>{});
           await logAct("غيّر كلمة السر بمفتاح التفعيل", acc.name);
@@ -6287,7 +6609,7 @@ function myPasswordCard(){
     h("label",null,"كلمة السر الجديدة", pwInput("myNew","الجديدة","new-password")),
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{
       const oldPw = $("#myOld").value, pw = $("#myNew").value;
-      if (pw.length < PW_MIN){ toast(pwShort()); return; }
+      { const pe = pwProblem(pw, S.account); if (pe){ toast(pe); return; } }
       if (!(await changeOwnPassword(oldPw, pw))){ toast("كلمة السر الحالية غير صحيحة"); return; }
       await logAct("غيّر كلمة السر بتاعته"); toast("تم تغيير كلمة السر"); render();
     }},"تغيير كلمة السر")));
@@ -6309,6 +6631,20 @@ function speedStats(){
   const avg = all.length ? all.reduce((a,b) => a+b, 0) / all.length : 0;
   return {rows:rows.sort((a,b) => b.med - a.med), avg, n:all.length};
 }
+// a warning for the admin when the database passes 70% of the free plan's space (2026-11-07): when it is full, nothing saves
+const DB_WARN = 0.7;
+function dbCard(){
+  if (!dbApi || accRole() !== "admin" || Store.preview) return null;
+  if (!dbCard.at || Date.now() - dbCard.at > 6*36e5){ dbCard.at = Date.now(); dbApi.usage().then(r => { S.dbUse = r; scheduleRender(); }).catch(() => {}); }
+  const u = S.dbUse; if (!u || !u.limit) return null;
+  const f = u.used / u.limit; if (f < DB_WARN) return null;
+  const mb = n => arDigits(Math.round(n / 1048576));
+  return h("div",{class:"card db-card"+(f >= 0.9 ? " full" : ""), role:"alert"}, h("h3",null,"💾 مساحة قاعدة البيانات"),
+    h("div",{class:"db-bar"}, h("i",{style:"width:"+Math.min(100, Math.round(f*100))+"%"})),
+    h("p",{class:"small", style:"margin:0"},"المستخدم "+mb(u.used)+" من "+mb(u.limit)+" ميجابايت ("+arDigits(Math.round(f*100))+"٪). "+
+      (f >= 0.9 ? "المساحة أوشكت على الانتهاء، وعند امتلائها يتوقف الحفظ. برجاء التواصل مع المطوّر فورًا على "+DEV.phone+"."
+                : "برجاء التواصل مع المطوّر على "+DEV.phone+" لترتيب مساحة إضافية أو تنظيف البيانات القديمة.")));
+}
 function speedCard(){
   if (Store.mode !== "cloud" || Store.preview || !S.speed) return null;
   const st = speedStats(); if (!st.n) return h("div",{class:"card speed-card"}, h("h3",null,"⏱️ سرعة التحميل"),
@@ -6321,6 +6657,21 @@ function speedCard(){
     h("ul",{class:"list speed-list"}, st.rows.slice(0, 5).map(r => h("li",null,
       h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "آخر مرة "+secs(r.last.ms)+" ث"+(r.last.net ? " · "+r.last.net : ""))),
       h("span",{class:"pill"+(r.med > SLOW_MS ? " warn" : "")}, secs(r.med)+" ث")))));
+}
+const ADM_NAV = [["admSum","الملخص"],["admTools","الأدوات"],["admFathers","الآباء"],["admPeople","الناس"]];
+function admNav(){
+  const nav = h("nav",{class:"adm-nav", "aria-label":"أجزاء الشاشة"}, ADM_NAV.map(([id, l]) => h("button",{type:"button", class:"adm-nav-b", "data-to":id,
+    "aria-current": S.draft.admAt === id ? "true" : "false",
+    onclick:()=>{ const t = document.getElementById(id); if (!t) return; S.draft.admAt = id; nav.querySelectorAll(".adm-nav-b").forEach(b => b.setAttribute("aria-current", b.dataset.to === id ? "true" : "false"));
+      window.scrollTo({top: t.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 10, behavior:"smooth"}); }}, l)));
+  // the part on screen lights up while scrolling
+  setTimeout(() => { if (!nav.isConnected || !("IntersectionObserver" in window)) return;
+    nav.querySelectorAll(".adm-nav-b").forEach(b => { if (!document.getElementById(b.dataset.to)) b.hidden = true; });
+    if (admNav.io) admNav.io.disconnect();
+    admNav.io = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting){ S.draft.admAt = e.target.id;
+      nav.querySelectorAll(".adm-nav-b").forEach(b => b.setAttribute("aria-current", b.dataset.to === e.target.id ? "true" : "false")); } }, {rootMargin:"-30% 0px -60% 0px"});
+    ADM_NAV.forEach(([id]) => { const t = document.getElementById(id); if (t) admNav.io.observe(t); }); }, 0);
+  return nav;
 }
 function adminView(all){
   const me = accRole(), isAdmin = me === "admin";
@@ -6342,13 +6693,20 @@ function adminView(all){
     stat("📨", reqs.length, "طلبات كلمة سر", reqs.length>0)];
   if (isAdmin){ st.push(stat("🙏", kids, "أولاد في الاعتراف"), stat("📅", all.filter(p=>p.request||p.visitReq).length, "طلبات اعتراف وافتقاد"), stat("🕊️", (S.meditations||[]).length, "تأملات اتبعتت"));
     const lb = S.meta && S.meta.lastBackup; st.push(stat("💾", lb ? daysBetween(parseYmd(lb.slice(0,10)), TODAY) : 0, lb ? "يوم من آخر نسخة احتياطية" : "مفيش نسخة احتياطية", !lb || daysBetween(parseYmd(lb.slice(0,10)), TODAY) > 7)); }
-  wrap.append(h("div",{class:"stats"}, st));
-  if (isAdmin){ const ph = pushCard(true); if (ph) wrap.append(ph); }
-  if (isAdmin){ const sc = speedCard(); if (sc) wrap.append(sc); }
-  const pc = pendingCard(); if (pc) wrap.append(pc);
-  const fa = freqAdminCard(); if (fa) wrap.append(fa);
-  const inv = inviteCard(); if (inv) wrap.append(inv);
-  const ppc = passportCard(); if (ppc) wrap.append(ppc);
+  // a bar that stays at the top while scrolling (2026-11-07): one tap goes to each part of the screen
+  const loading = Store.mode === "cloud" && !accs.length;
+  if (isAdmin) wrap.append(admNav());
+  wrap.append(loading ? h("div",{class:"stats", id:"admSum"}, [1,2,3,4].map(() => h("div",{class:"stat skel"}))) : h("div",{class:"stats", id:"admSum"}, st));
+  const tools = h("div",{class:"adm-tools", id:"admTools"});
+  if (isAdmin){ const ph = pushCard(true); if (ph) tools.append(ph); }
+  if (isAdmin){ const dc = dbCard(); if (dc) tools.append(dc); }
+  if (isAdmin){ const sc = speedCard(); if (sc) tools.append(sc); }
+  const pc = pendingCard(); if (pc) tools.append(pc);
+  const fa = freqAdminCard(); if (fa) tools.append(fa);
+  const inv = inviteCard(); if (inv) tools.append(inv);
+  const ppc = passportCard(); if (ppc) tools.append(ppc);
+  if (tools.childNodes.length) wrap.append(tools);
+  if (loading) wrap.append(h("ul",{class:"list father-grid"}, [1,2,3,4].map(() => h("li",{class:"father-card skel"}))));
   if (reqs.length) wrap.append(h("section",null, h("h3",null,"📨 طلبات كلمة سر جديدة"),
     h("ul",{class:"list"}, reqs.map(r => { const acc = accs.find(a=>a.id===r.accId); return h("li",null,
       h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "طلب "+agoText(ymd(new Date(r.at))))),
@@ -6388,7 +6746,7 @@ function adminView(all){
         // (otherwise he could sign in as the person and read their notebook)
         Store.mode === "cloud" && !self && a.role === "priest" ? h("p",{class:"small muted", style:"margin:0"},"🔒 كلمة سر أبونا محدش في الكنيسة يقدر يغيّرها، عشان ملاحظاته تفضل سر. لو نسيها يكلّم المطوّر على "+DEV.phone+".")
         : isAdmin || Store.mode !== "cloud" || a.mustChange || a.pending ? h("div",{class:"row"}, custom,
-          h("button",{class:"btn sm", onclick:async()=>{ const pw = (custom.value||"").trim() || genPassword(); if (pw.length < PW_MIN){ toast(pwShort()); return; } await setPassword(a, pw); newPwDialog(a, pw); }},"🔑 كلمة سر جديدة"))
+          h("button",{class:"btn sm", onclick:async()=>{ const pw = (custom.value||"").trim() || genPassword(); { const pe = pwProblem(pw, a); if (pe){ toast(pe); return; } } await setPassword(a, pw); newPwDialog(a, pw); }},"🔑 كلمة سر جديدة"))
           : h("p",{class:"small muted", style:"margin:0"}, Store.mode === "cloud" ? "طلبات «نسيت كلمة السر» بيرد عليها الأدمن." : "كلمة سر جديدة بتتعمل لما صاحب الحساب يطلبها من «نسيت كلمة السر»."),
         !self ? h("div",{class:"row"}, roleSel,
           h("button",{class:"btn sm quiet", onclick:async()=>{ const on = a.active===false; await saveAccount(a, {active:on}); await logAct((on?"شغّل حساب ":"وقّف حساب ")+a.name); toast(on?"الحساب اشتغل":"الحساب اتوقف"); }}, a.active===false ? "▶️ شغّل الحساب" : "⏸️ وقّف الحساب"),
@@ -6412,15 +6770,20 @@ function adminView(all){
   const ff = fathers.some(f => f.id === S.draft.accFather) || S.draft.accFather === "none" ? S.draft.accFather : "";
   const ofF = id => a => a.id !== id && a.role !== "priest" && (id === "none" ? !a.father && a.role === "user" : a.father === id);
   if (ff){ const k = ofF(ff); GROUPS.forEach(g => { const f0 = g[2]; g[2] = a => f0(a) && k(a); }); }
-  const fStrip = fathers.length ? h("section",{class:"fathers-strip"}, h("div",{class:"sec-head"}, h("h3",null,"⛪ أبناء كل أب"), h("span",{class:"small muted"},"دوس على أي أب عشان تشوف أولاده بس")),
-    h("ul",{class:"list father-grid"}, [...fathers.map(f => [f.id, f.name, f.photo || (memberOf(f.id)||{}).photo, ofF(f.id)]), ["none","من غير أب", "", ofF("none")]].map(([id, name, photo, k]) => {
+  // a tile per father (2026-11-07): his photo in a gold ring, his name, his count and his share of the church's confessees
+  const allKids = Math.max(1, accs.filter(a => !a.pending && a.role !== "priest" && (a.father || a.role === "user")).length);
+  const fStrip = fathers.length ? h("section",{class:"fathers-strip", id:"admFathers"}, h("div",{class:"sec-head"}, h("h3",null,"⛪ أبناء كل أب"), h("span",{class:"small muted"},"اضغط على أي أب لعرض أبنائه فقط")),
+    h("ul",{class:"list father-grid"}, [...fathers.map(f => [f.id, f.name, f.photo || (memberOf(f.id)||{}).photo, ofF(f.id)]), ["none","بدون أب اعتراف", "", ofF("none")]].map(([id, name, photo, k]) => {
       const n = accs.filter(a => k(a) && !a.pending).length, w = accs.filter(a => k(a) && a.pending).length;
       if (id === "none" && !n && !w) return null;
       return h("li",{class:"father-card"+(ff === id ? " on" : ""), "data-father":id, role:"button", tabindex:"0", "aria-pressed":ff === id ? "true" : "false",
-        onclick:()=>{ S.draft.accFather = ff === id ? "" : id; S.draft.accGroup = "all"; render(); }},
-        id === "none" ? h("span",{class:"prep-emo"},"❔") : avatar({name, photo}),
-        h("div",{class:"who"}, h("strong",null, name),
-          h("span",{class:"father-n"}, "👥 "+arDigits(n)+" معترف", w ? h("span",{class:"father-w"}, " · ⏳ "+arDigits(w)+" مستني") : null)));
+        onclick:()=>{ S.draft.accFather = ff === id ? "" : id; S.draft.accGroup = "all"; render(); setTimeout(() => { const t = document.getElementById("admPeople"); if (t && ff !== id) t.scrollIntoView({behavior:"smooth", block:"start"}); }, 60); },
+        onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
+        h("span",{class:"ft-ph"}, id === "none" ? h("span",{class:"avatar ft-none", "aria-hidden":"true"},"❔") : avatar({name, photo}),
+          w ? h("span",{class:"ft-wait", title:arDigits(w)+" في انتظار الموافقة"}, "⏳ "+arDigits(w)) : null),
+        h("strong",{class:"ft-name"}, name),
+        h("span",{class:"father-n"}, arDigits(n)+" معترف"),
+        id === "none" ? null : h("span",{class:"ft-bar", title:Math.round(n*100/allKids)+"%"}, h("i",{style:"width:"+Math.min(100, Math.round(n*100/allKids))+"%"})));
     }))) : null;
   if (fStrip) wrap.append(fStrip);
   const grp = GROUPS.some(g => g[0] === S.draft.accGroup) ? S.draft.accGroup : "all";
@@ -6477,7 +6840,7 @@ function adminView(all){
       rows.length ? h("ul",{class:"list acc-grid"}, rows.map(accCard)) : h("p",{class:"small muted"},"مفيش حد هنا."));
   }));
   const missN = cloudAdm ? accs.filter(a => ["user","pending"].includes(a.role) && profileMissing(memberOf(a.id), a.photo).length).length : 0;
-  wrap.append(h("section",null, h("div",{class:"sec-head"}, h("h3",null,"👥 الناس"), h("span",{class:"small muted"}, cloudAdm ? "بالأبجدية · دوس على أي اسم يظهر كارته" : "دوس على أي كارت عشان تغيّر كلمة السر أو الصلاحية")),
+  wrap.append(h("section",{id:"admPeople"}, h("div",{class:"sec-head"}, h("h3",null,"👥 الناس"), h("span",{class:"small muted"}, cloudAdm ? "مرتبة أبجديًا · اضغط على أي اسم لعرض بياناته" : "اضغط على أي كارت لتغيير كلمة السر أو الصلاحية")),
     h("div",{class:"acc-filter row", role:"tablist", "aria-label":"الأقسام"},
       [["all","الكل", accs.length], ...GROUPS.map(([k, l, f]) => [k, l, accs.filter(f).length])].map(([k, l, n]) =>
         h("button",{type:"button", role:"tab", class:"chip-btn acc-tab", "aria-selected":grp === k ? "true" : "false", "aria-pressed":grp === k ? "true" : "false", "data-group":k, onclick:()=>{ S.draft.accGroup = k; render(); }}, l+" · "+arDigits(n))),
@@ -6497,7 +6860,7 @@ function adminView(all){
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
       const name = $("#naName").value.trim(), role = $("#naRole").value, pw = $("#naPw").value.trim() || genPassword();
       if (!name){ toast("اكتب الاسم"); return; }
-      if (pw.length < PW_MIN){ toast(pwShort()); return; }
+      { const pe = pwProblem(pw, {name}); if (pe){ toast(pe); return; } }
       if (!(await createAccount(name, role, pw))) return;
       await logAct("عمل حساب "+ROLES[role].label+": "+name);
       newPwDialog({name}, pw);
@@ -6520,7 +6883,7 @@ async function boot(){
   S.isOwner = user ? await user.isOwner() : false;
   S.realUid = user ? await user.id() : null;
   if (!window.claude){
-    Store.mode = "cloud"; Store.ext = Cloud; PW_MIN = 6; S.role = "priest"; S.uid = S.realUid = null;
+    Store.mode = "cloud"; Store.ext = Cloud; PW_MIN = 8; PW_MIX = true; S.role = "priest"; S.uid = S.realUid = null;
   } else if (db && S.realUid){
     Store.db = db; Store.mode = "live"; S.liveAvailable = true; S.uid = S.realUid;
     S.role = S.isOwner ? "priest" : "member";
@@ -6554,8 +6917,10 @@ const Bio = {
       user:{id:new TextEncoder().encode(uid), name, displayName:name},
       pubKeyCredParams:[{type:"public-key", alg:-7},{type:"public-key", alg:-257}],
       authenticatorSelection:{authenticatorAttachment:"platform", userVerification:"required", residentKey:"discouraged"}, timeout:60000}});
-    this.put({credId:this.b64(c.rawId), slug, name, uid, refresh, at:Date.now()});
+    this.put({credId:this.b64(c.rawId), slug, name, uid, refresh, at:Date.now(), role:(S.account && S.account.role) || ""});
   },
+  // a confession father's or the admin's saved sign-in lasts 14 days, everyone else's 30 (2026-11-07)
+  days(rec){ return rec && ["admin","priest"].includes(rec.role) ? 14 : 30; },
   async check(rec){
     const a = await navigator.credentials.get({publicKey:{challenge: crypto.getRandomValues(new Uint8Array(32)),
       allowCredentials:[{type:"public-key", id:this.unb64(rec.credId)}], userVerification:"required", timeout:60000}});
@@ -6665,7 +7030,7 @@ const Cloud = {
   // with fingerprint unlock on, the device keeps its sign-in, so the server session is left open
   async signOut(){ const t = this.sess && this.sess.access_token, b = Bio.get(), keep = b && this.sess && b.uid === this.sess.uid;
     this.setSess(null); this.me = null; this.stopPoll(); LC.clear();
-    if (t && !keep) setTimeout(() => this.http("/auth/v1/logout", {method:"POST"}, t).catch(()=>{}), 2000); },  // after the «خروج» entry lands
+    if (t && !keep) setTimeout(() => this.http("/auth/v1/logout?scope=local", {method:"POST"}, t).catch(()=>{}), 2000); },  // after the «خروج» entry lands
   church(){ return this.me ? this.me.church_id : null; },
   q(v){ return encodeURIComponent(v); },
 
@@ -6877,10 +7242,20 @@ async function showCloudGate(){
   const urlCode = () => { try { return (new URLSearchParams(location.search).get("k") || "").replace(/\D/g, "").slice(0, 6); } catch(e){ return ""; } };
   rf.code = urlCode();
   // the list of confession fathers as big tappable cards
-  const fatherPicker = (list) => h("div",{class:"father-pick", role:"radiogroup", "aria-label":"أب الاعتراف"}, list.map(f =>
+  // each father's photo beside his name (2026-11-07): fetched once, only when the list is shown
+  let fPhotos = null, fPhotosFor = "";
+  const fPhotoOk = x => typeof x === "string" && /^data:image\/(jpeg|png|webp|gif);base64,/.test(x);
+  const fIcon = uid => { const ph = fPhotos && fPhotos[uid];
+    return fPhotoOk(ph) ? h("span",{class:"father-ic ph", "aria-hidden":"true"}, h("img",{src:ph, alt:""})) : h("span",{class:"father-ic", "aria-hidden":"true"},"⛪"); };
+  const loadFPhotos = () => { const sl = (Cloud.me && Cloud.me.slug) || slug; if (fPhotos && fPhotosFor === sl) return; fPhotos = {}; fPhotosFor = sl;
+    Cloud.rpc("father_photos", {p_slug:sl}).then(r => {
+      for (const x of r || []) if (x && x.uid) fPhotos[x.uid] = x.photo;
+      gate.querySelectorAll(".father-opt").forEach(b => { const ic = b.querySelector(".father-ic"); if (ic && fPhotoOk(fPhotos[b.dataset.uid])) ic.replaceWith(fIcon(b.dataset.uid)); });
+    }).catch(() => {}); };  // older databases lack it: the church icon stays
+  const fatherPicker = (list) => (loadFPhotos(), h("div",{class:"father-pick", role:"radiogroup", "aria-label":"أب الاعتراف"}, list.map(f =>
     h("button",{type:"button", role:"radio", class:"father-opt", "aria-checked": pickFather === f.uid ? "true" : "false", onclick:()=>{ pickFather = f.uid;
       gate.querySelectorAll(".father-opt").forEach(b => b.setAttribute("aria-checked", b.dataset.uid === f.uid ? "true" : "false")); }, "data-uid":f.uid},
-      h("span",{class:"father-ic", "aria-hidden":"true"},"⛪"), h("span",null, f.name))));
+      fIcon(f.uid), h("span",null, f.name)))));
   // after signing in: a new password if needed, then the person's photo, then the offer of fingerprint / face unlock
   const finish = async () => {
     const me = Cloud.me;
@@ -6925,6 +7300,8 @@ async function showCloudGate(){
         lockOk();
         let me; try { me = await Cloud.rpc("touch_login"); } catch(e){ await Cloud.signOut(); fail(/no account/.test(e.message) ? "الاسم ده مش متسجّل في الكنيسة دي. لو أول مرة تدخل، دوس «حساب جديد» تحت." : cloudMsg(e)); }
         if (!me.active){ await Cloud.signOut(); fail("الحساب ده متوقف. كلّم الأدمن."); }
+        // an old password that is easy to guess: in, then straight to choosing a new one (2026-11-07)
+        if (!me.must_change && pwProblem(pw, {name})){ try { await Cloud.rpc("weak_password"); me.must_change = true; S.weakPw = true; } catch(x){} }
         await enter(me); }); }},
         info && info.live === false ? h("p",{class:"gate-err"},"رخصة الكنيسة خلصت، والبرنامج للقراءة بس لحد ما تتجدد.") : null,
         h("label",null,"الاسم", h("input",{id:"gName", autocomplete:"username", placeholder:"اكتب اسمك"})),
@@ -6936,12 +7313,12 @@ async function showCloudGate(){
         const b = e.currentTarget; b.disabled = true; err.textContent = "";
         try {
           if (!bio.at){ bio.at = Date.now(); Bio.put(bio); }
-          if (Date.now() - bio.at > 30*864e5){ Bio.put(null); err.textContent = "عدّى ٣٠ يوم على تفعيل البصمة. ادخل بكلمة السر، وفعّلها تاني لو حابب."; return; }
-          let ok = false; try { ok = await Bio.check(bio); } catch(x){ if (x && x.name === "NotAllowedError") { err.textContent = "البصمة اتلغت أو مااتعرفتش. جرّب تاني، أو ادخل بكلمة السر."; return; } throw x; }
-          if (!ok) { err.textContent = "الموبايل ماأكدش البصمة. ادخل بكلمة السر."; return; }
+          if (Date.now() - bio.at > Bio.days(bio)*864e5){ Bio.put(null); err.textContent = "مرّ "+arDigits(Bio.days(bio))+" يومًا على تفعيل البصمة. برجاء الدخول بكلمة السر، ثم تفعيل البصمة مرة أخرى."; return; }
+          let ok = false; try { ok = await Bio.check(bio); } catch(x){ if (x && x.name === "NotAllowedError") { err.textContent = "لم يتم التعرف على البصمة. حاول مرة أخرى، أو ادخل بكلمة السر."; return; } throw x; }
+          if (!ok) { err.textContent = "لم يؤكد الجهاز البصمة. برجاء الدخول بكلمة السر."; return; }
           Cloud.sess = {access_token:"", refresh_token:bio.refresh, expires_at:0, uid:bio.uid};
-          try { await Cloud.token(); } catch(x){ if (x.offline) throw x; Bio.put(null); Cloud.setSess(null); err.textContent = "الدخول بالبصمة وقف (اتغيّرت كلمة السر أو بقالك كتير مادخلتش). ادخل بكلمة السر وفعّلها تاني."; return; }
-          if (!Cloud.sess){ Bio.put(null); err.textContent = "ادخل بكلمة السر وفعّل البصمة تاني."; return; }
+          try { await Cloud.token(); } catch(x){ if (x.offline) throw x; Bio.put(null); Cloud.setSess(null); err.textContent = "انتهت صلاحية الدخول بالبصمة على هذا الجهاز. برجاء الدخول بكلمة السر، وسيُعرض عليك تفعيل البصمة مرة أخرى."; return; }
+          if (!Cloud.sess){ Bio.put(null); err.textContent = "برجاء الدخول بكلمة السر، وسيُعرض عليك تفعيل البصمة مرة أخرى."; return; }
           const me = await Cloud.rpc("touch_login");
           if (!me.active){ await Cloud.signOut(); Bio.put(null); err.textContent = "الحساب ده متوقف. كلّم الأدمن."; return; }
           await enter(me);
@@ -6964,7 +7341,7 @@ async function showCloudGate(){
       // what is still missing or wrong, in the order of the form
       const missing = () => { const m = [];
         if (rf.name.trim().split(/\s+/).filter(Boolean).length < 3) m.push("الاسم ثلاثيًا");
-        if (rf.pw.length < PW_MIN) m.push("كلمة السر ("+arDigits(PW_MIN)+" حروف أو أرقام على الأقل)"); else if (rf.pw !== rf.pw2) m.push("تأكيد كلمة السر مطابقًا");
+        if (rf.pw.length < PW_MIN) m.push("كلمة السر ("+arDigits(PW_MIN)+" حروف أو أرقام على الأقل)"); else if (pwProblem(rf.pw, rf)) m.push("كلمة سر أقوى: "+pwProblem(rf.pw, rf)); else if (rf.pw !== rf.pw2) m.push("تأكيد كلمة السر مطابقًا");
         if (needCode() && nidDigits(rf.code).length !== 6) m.push("كود التسجيل (٦ أرقام)");
         if (fl.length && !pickFather) m.push("أب الاعتراف");
         if (rf.pp){ if (!/^[A-Z0-9]{6,20}$/.test(ppClean(rf.passport))) m.push("رقم الباسبور"); if (nidDigits(rf.ppCode).length !== 6) m.push("كود الباسبور من الأدمن");
@@ -7070,12 +7447,12 @@ async function showCloudGate(){
         err, btn("👆 فعّل البصمة"));
       extra = [h("button",{class:"linkish", type:"button", onclick:async()=>{ try { localStorage.setItem("ruhiya_bio_skip_"+Cloud.me.uid, "1"); } catch(x){} await finish(); }},"مش دلوقتي")];
     } else if (mode === "change"){
-      sub = "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
+      sub = S.weakPw ? "أهلاً "+S.account.name+". كلمة السر الحالية سهلة التخمين، وحفاظًا على خصوصيتك برجاء اختيار كلمة سر أقوى (٨ حروف إنجليزية وأرقام على الأقل)." : "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const pw = v("gPw"), strong = ["admin","priest"].includes(S.account.role);
-        if (strong && pw.length < 8) fail("كلمة سر أبونا والأدمن لازم تكون "+arDigits(8)+" حروف أو أرقام على الأقل."); if (pw.length < PW_MIN) fail(pwShort()+"."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
+        { const pe = pwProblem(pw, Object.assign({}, S.account, Cloud.me || {})); if (pe) fail(pe+"."); } if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
         await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed");
-        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false; Cloud.me.must_change = false;
+        await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false; Cloud.me.must_change = false; S.weakPw = false;
         toast("كلمة السر اتغيّرت"); await finish(); }); }},
         h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),
         h("label",null,"اكتبها تاني", pwInput("gPw2","تأكيد كلمة السر","new-password")),
@@ -7096,7 +7473,7 @@ async function showCloudGate(){
       sub = "الرخصة سليمة لـ «"+lic.name+"». اعمل حساب الأدمن، وبعد كده الأدمن يعمل حسابات أبونا والمشرفين والمستخدمين.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const name = v("gName").trim(), pw = v("gPw");
-        if (!name || !pw) fail("اكتب الاسم وكلمة السر."); if (pw.length < 8) fail("كلمة سر الأدمن لازم تكون "+arDigits(8)+" حروف أو أرقام على الأقل."); if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
+        if (!name || !pw) fail("اكتب الاسم وكلمة السر."); { const pe = pwProblem(pw, {name}); if (pe) fail(pe+"."); } if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
         const email = await mailFor(lic.slug, name);
         try { await Cloud.signUp(email, pw); } catch(e){ if (!/already|exists/i.test(e.message)) throw e; }
         await Cloud.signIn(email, pw);
@@ -7126,7 +7503,10 @@ newsApi = {
 // new sign-ups (2026-11-05): the admin's code and the open / closed switch
 // fixing someone's national ID (his own father or the admin)
 childApi = { async set(uid, data){ const r = await Cloud.rpc("child_profile_set", {p_uid:uid, p_data:data}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); return r; } };
+// «📣 إبلاغ الكل» on a visit day (2026-11-07): a message with his time to each confessee on the app, and a phone notification
+visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_items:items}); return n; } };
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
+dbApi = { usage: () => Cloud.rpc("db_usage") };
 releaseApi = { async child(uid){ await Cloud.rpc("release_child", {p_uid:uid}); Cloud.refresh("members/x"); Cloud.refresh("accounts/x"); Cloud.refresh(PP()+"/x"); } };
 nidApi = { async set(uid, nid){ await Cloud.rpc("set_nid", {p_uid:uid, p_nid:nid}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); } };
 // asking to move to another confession father (2026-11-05): the confessee asks, only the admin answers
