@@ -1018,6 +1018,10 @@ body.crop-open{overflow:hidden}
 .crop-btns{justify-content:center;flex-wrap:wrap}
 .here-row{align-items:center;gap:8px;margin-top:-4px}
 .here-row .small{flex:1 1 180px}
+.on-msg{margin:8px 0;gap:8px}
+.on-pick{display:flex;flex-wrap:wrap;gap:6px 14px}
+.on-pick .chk{display:inline-flex;align-items:center;gap:4px;font-weight:400}
+.adm-msg div+div{margin-top:8px}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3684,6 +3688,8 @@ function subscribe(){
   if (Store.mode === "cloud" && !Store.preview && accRole() === "admin") L("freq", null, r => { S.freqs=r||[]; scheduleRender(); });
   if (Store.mode === "cloud" && !Store.preview && accRole() && !["pending","priest"].includes(accRole())) L("freqmine", null, r => { S.freqMine=r||null; scheduleRender(); });
   S.nidDupes = []; if (Store.mode === "cloud" && !Store.preview && ["admin","priest"].includes(accRole())) L("nid_dupes", null, r => { S.nidDupes=r||[]; scheduleRender(); });
+  S.admMsgs = []; if (Store.mode === "cloud" && !Store.preview && S.account && ["priest","supervisor","admin"].includes(accRole()))
+    L("members/"+S.account.id+"/inbox", {orderBy:"at", dir:"desc", limit:10}, r => { S.admMsgs = (r||[]).filter(m => m.type === "admin"); scheduleRender(); });
   S.sched = null; S.bookings = []; S.vbookings = [];
   if (isFatherView()){ L("sched/"+schedId(), null, r => { S.sched=r; scheduleRender(); }); L("book/"+schedId()+"/s", null, r => { S.bookings=r||[]; scheduleRender(); });
     L("book/"+schedId()+"/v", null, r => { S.vbookings=r||[]; scheduleRender(); }); }
@@ -3884,7 +3890,7 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > visitDays());
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{class:"dash"}, pushCard(true), pendingCard());
+  const wrap = h("div",{class:"dash"}, pwDueCard(), admMsgCard(), pushCard(true), pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
   if (Store.mode !== "demo" && Store.mode !== "cloud" && (!S.account || accRole() === "admin") && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
@@ -5192,11 +5198,39 @@ function seenText(id){ const t = (S.online || {})[id]; if (!t) return "";
   if (m < 60) return "آخر ظهور: منذ "+arDigits(m)+" دقيقة";
   const hr = Math.round(m / 60); if (hr < 24) return "آخر ظهور: منذ "+arDigits(hr)+(hr <= 10 ? " ساعات" : " ساعة");
   return "آخر ظهور: "+agoText(ymd(new Date(t))); }
+// «✉️ رسالة» to the people online now (2026-11-08, user): one message, in «الرسائل» and as a phone notification
+function onlineMsgForm(list){
+  const d = S.draft.onMsg, picked = () => list.filter(a => !d.off[a.id]);
+  const count = h("span",{class:"small muted"}), send = h("button",{class:"btn sm", id:"onSend"},"إرسال");
+  const upd = () => { const n = picked().length; count.textContent = "سيصل إلى "+arDigits(n)+(n === 1 ? " شخص" : " أشخاص"); send.disabled = !n || d.text.trim().length < 2; };
+  send.onclick = async () => { const ids = picked().map(a => a.id); if (!ids.length || d.text.trim().length < 2) return; send.disabled = true;
+    try { const n = await adminMessage(ids, d.text.trim()); S.draft.onMsg = null; toast("تم إرسال الرسالة إلى "+arDigits(n||0)+(n === 1 ? " شخص" : " أشخاص")); render(); }
+    catch(e){ send.disabled = false; toast("تعذّر الإرسال. برجاء المحاولة مرة أخرى."); } };
+  const box = h("div",{class:"form on-msg"},
+    h("label",null,"نص الرسالة", h("textarea",{id:"onMsgText", rows:"3", maxlength:"500", placeholder:"اكتب الرسالة هنا", oninput:e => { d.text = e.target.value; upd(); }}, d.text)),
+    h("div",{class:"on-pick"}, list.map(a => h("label",{class:"chk"}, h("input",{type:"checkbox", "data-id":a.id, checked:!d.off[a.id], onchange:e => { d.off[a.id] = !e.target.checked; upd(); }}), " "+a.name))),
+    h("span",{class:"small muted"},"تصل الرسالة في «الرسائل» ومعها إشعار على الموبايل، بعنوان «رسالة من إدارة البرنامج»."),
+    h("div",{class:"row"}, send, h("button",{class:"btn sm quiet", onclick:()=>{ S.draft.onMsg = null; render(); }},"إلغاء"), count));
+  upd(); return box;
+}
+async function adminMessage(uids, text){ return 0; }  // the server version sends it
+// a message from the program's admin, on the first screen of a father / supervisor / admin (confessees read it in «الرسائل»)
+function admMsgCard(){
+  const key = "menrit_admseen_"+((S.account && S.account.id) || ""), seen = lsGet(key) || "", since = new Date(Date.now() - 14*864e5).toISOString();
+  const list = (S.admMsgs || []).filter(m => m.at && m.at > seen && m.at > since);
+  if (!list.length) return null;
+  return h("div",{class:"card detail adm-msg"}, h("h3",null,"📣 رسالة من إدارة البرنامج"),
+    list.map(m => h("div",null, h("p",{style:"white-space:pre-wrap;margin:0"}, m.text), h("span",{class:"small muted"}, fmtShort(ymd(new Date(m.at)))))),
+    h("div",null, h("button",{class:"btn sm", id:"admMsgSeen", onclick:()=>{ lsSet(key, list[0].at); render(); }},"تمت القراءة")));
+}
 function onlineCard(accs){
   const on = onlineGet(); if (!on) return null;
   const list = accs.filter(a => a.id !== S.account.id && isOnline(a.id));
   const roleOf = a => a.role === "priest" ? "أب اعتراف" : a.role === "supervisor" ? "مشرف" : a.role === "admin" ? "أدمن" : "معترف";
-  return h("div",{class:"card online-card"}, h("h3",null, h("span",{class:"on-dot", "aria-hidden":"true"}), " متصل الآن ("+arDigits(list.length)+")"),
+  const canMsg = Store.mode === "cloud" && !Store.preview && accRole() === "admin" && list.length;
+  return h("div",{class:"card online-card"}, h("div",{class:"row between"}, h("h3",null, h("span",{class:"on-dot", "aria-hidden":"true"}), " متصل الآن ("+arDigits(list.length)+")"),
+      canMsg && !S.draft.onMsg ? h("button",{class:"btn sm", id:"onMsgOpen", onclick:()=>{ S.draft.onMsg = {text:"", off:{}}; render(); }},"✉️ رسالة") : null),
+    canMsg && S.draft.onMsg ? onlineMsgForm(list) : null,
     list.length ? h("ul",{class:"on-list"}, list.map(a => h("li",{class:"on-item", "data-id":a.id, role:"button", tabindex:"0",
         onclick:()=>{ S.draft.accOpen = a.id; S.draft.accFather = ""; S.draft.accGroup = "all"; if (S.tab === "admin" && S.role === "admin" && accRole() === "admin") S.tab = "apeople"; render(); setTimeout(() => { const t = document.querySelector('#accLists li.dir-row[data-id="'+a.id+'"]'); if (t) t.scrollIntoView({behavior:"smooth", block:"center"}); }, 60); }},
         h("span",{class:"on-ph"}, avatar({name:a.name, photo:a.photo || (memberOf(a.id)||{}).photo}, "sm"), h("i",{class:"on-badge", "aria-hidden":"true"})),
@@ -5424,6 +5458,7 @@ function memberToday(){
     h("p",{class:"muted"},"إحنا في "+SEASONS[SEASON].name+". "+(feastsOf(TODAY).length ? "النهارده "+feastsOf(TODAY).join(" و")+"." : ""))));
   if (S.profileLoaded && !profileFilled()) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلًا بك في البرنامج"),
     h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. بيشوفها أب اعترافك وأدمن البرنامج بس."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"كتابة بياناتي"))));
+  { const pc = pwDueCard(); if (pc) wrap.append(pc); }
   { const lc = locCard(); if (lc) wrap.append(lc); }
   for (const [type, title] of [["appointment","🙏 ميعاد اعترافك"],["visit","🏡 ميعاد الافتقاد"]]){
     const appt = S.inbox.find(m => m.type===type && m.when && new Date(m.when) >= TODAY);
@@ -5648,13 +5683,19 @@ function memberConfession(){
   if (kind === "confession") wrap.append(prepBlock());
   return wrap;
 }
+// the photo chosen in «بياناتي» is shown outside too (top of the page, the admin's lists, «متصل الآن») (2026-11-08)
+async function syncAccPhoto(url){
+  if (Store.mode !== "cloud" || Store.preview || !S.account) return;
+  try { await saveAccount(S.account, {photo:url}); } catch(e){}
+  S.account.photo = url; render();
+}
 function memberInbox(){
   if (S.inbox[0]){ S.draft.seen = S.inbox[0].at; lsSet("ruhiya_seen_"+S.uid, S.inbox[0].at); }
-  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك"};
+  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك", admin:"من الإدارة"};
   return h("div",{style:"display:grid;gap:14px"}, sectionHead("رسائل أبونا"),
     S.inbox.length ? S.inbox.map(m => h("div",{class:"card"},
       h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(ymd(new Date(m.at))) : "")),
-      m.type==="seen" ? h("div",null, h("h3",null, m.title), m.text ? h("p",{class:"muted"}, m.text) : null) :
+      m.type==="seen" || m.type==="admin" ? h("div",null, h("h3",null, m.title), m.text ? h("p",{class:"muted", style:"white-space:pre-wrap"}, m.text) : null) :
       m.type==="appointment" || m.type==="visit" ? h("div",null, h("h3",null, m.title || "ميعاد الاعتراف"), h("p",{class:"num"}, fmtWhen(m.when)), m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
     : h("div",{class:"empty"},"مفيش رسائل لسه. أي تأمل أو ميعاد أو تهنئة من أبونا هيوصلك هنا."));
 }
@@ -5666,8 +5707,8 @@ function memberMe(){
   wrap.append(h("div",{class:"card photo-box"}, avatar(shown,"lg"), h("div",{class:"form", style:"gap:6px"}, h("strong",null,"صورتك"),
     h("span",{class:"small muted"},"بتظهر جنب اسمك لأب اعترافك وللآباء والخدام المسؤولين عن البرنامج."),
     h("div",{class:"row"}, photoPicker("pPhoto", shown.photo ? "غيّر الصورة" : "ارفع صورة", async url => {
-      if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); toast("تم حفظ صورتك"); } else { S.draft.photo = url; render(); toast("سيتم الحفظ عند الضغط على «حفظ»"); } }),
-      shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); toast("تمت إزالة الصورة"); }},"إزالة الصورة") : null))));
+      if (S.profile){ await Store.update("members/"+S.uid, {photo:url}); await syncAccPhoto(url); toast("تم حفظ صورتك"); } else { S.draft.photo = url; render(); toast("سيتم الحفظ عند الضغط على «حفظ»"); } }),
+      shown.photo && S.profile ? h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.update("members/"+S.uid, {photo:""}); await syncAccPhoto(""); toast("تمت إزالة الصورة"); }},"إزالة الصورة") : null))));
   if (S.profileLoaded && S.draft.myKidsFor !== S.uid){ S.draft.myKidsFor = S.uid; S.draft.myKids = (p.children||[]).map(k => Object.assign({}, k)); }
   if (!S.draft.myKids) S.draft.myKids = [];
   const acc = S.account || {};
@@ -5990,7 +6031,7 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null;
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-08a", title:"الجديد في آخر تحديث", items:{
   admin:[
     ["⚡","فتح أسرع","يحتفظ البرنامج بنسخة من آخر بيانات ظهرت على الجهاز، فتظهر فور الفتح ثم يُحدّث ما تغيّر فقط. وتُحذف هذه النسخة عند «خروج»."],
     ["⏱️","سرعة التحميل","في شاشة «الأدمن» كارت جديد يعرض متوسط وقت ظهور البيانات خلال الأسبوع وأبطأ الأجهزة، مع تنبيه إذا تجاوز المتوسط ٥ ثوانٍ."],
@@ -6006,7 +6047,11 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["⛪","ترتيب الآباء","تظهر مربعات الآباء مرتبة حسب عدد المعترفين، من الأكثر إلى الأقل."],
     ["👀","شاشة أب تجريبية","في أعلى شاشة الأدمن زر «شاشة أب تجريبية» يعرض شاشة أب الاعتراف ببيانات وهمية للتعرف على ما يراه الآباء. لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية."],
     ["🕊️","التأملات","تصل التأملات من أب الاعتراف إلى أبنائه فقط. لم يعد المشرف يرسل تأملات، ولا يرى الأدمن تأملات الآباء."],
-    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."]],
+    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
+    ["✉️","رسالة للمتصلين الآن","في كارت «متصل الآن» زر «✉️ رسالة»: اكتب الرسالة واختر من تصل إليه، فتصل في «الرسائل» ومعها إشعار على الموبايل."],
+    ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
+    ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
+    ["🖼️","الصورة في كل مكان","الصورة التي تُختار من «بياناتي» تظهر الآن أعلى الصفحة وفي كل القوائم، وليس داخل «بياناتي» فقط."]],
   priest:[
     ["⚡","فتح أسرع","تظهر البيانات فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط. وتُحذف النسخة المحفوظة على جهازك عند «خروج»."],
     ["🗺️","يوم افتقاد ذكي","في شاشة «اليوم» اضغط «ابدأ يوم افتقاد» وحدّد الساعات، فيقترح البرنامج البيوت: المحجوزة بمواعيدها، ثم طلبات الافتقاد، ثم الأطول انتظارًا والأقرب لبعضها، بترتيب أقصر مشوار وموعد وصول لكل بيت يتعدّل مع سير اليوم. ويمكنك إبلاغ الكل بمواعيدهم بضغطة، ومتابعة «البيت التالي»، ومن لم تتم زيارته يظهر أولًا في المرة القادمة."],
@@ -6019,7 +6064,10 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
     ["🕊️","التأملات","يصل التأمل الذي ترسله «لكل أبنائي» إلى أبنائك على البرنامج فقط."],
     ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
-    ["📍","موقع البيت بضغطة","في بيانات أي شخص زر «استخدام موقعي الحالي» يحفظ موقع البيت من الموبايل وأنت هناك، ويستخدمه «يوم افتقاد» في ترتيب المشوار."]],
+    ["📍","موقع البيت بضغطة","في بيانات أي شخص زر «استخدام موقعي الحالي» يحفظ موقع البيت من الموبايل وأنت هناك، ويستخدمه «يوم افتقاد» في ترتيب المشوار."],
+    ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
+    ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
+    ["📣","رسائل الإدارة","رسالة أدمن البرنامج تظهر في أول الشاشة حتى تضغط «تمت القراءة»."]],
   user:[
     ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."],
     ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
@@ -6027,7 +6075,10 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
     ["🕊️","التأملات","تظهر لك التأملات التي يرسلها أب اعترافك فقط."],
     ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
-    ["📍","موقع البيت بضغطة","في «بياناتي» وطلب الافتقاد زر «استخدام موقعي الحالي» يحفظ موقع بيتك من الموبايل مباشرة. اضغطه وأنت داخل البيت. ومن لم يحفظ موقعه بعد يظهر له تذكير في الشاشة الرئيسية."]]}};
+    ["📍","موقع البيت بضغطة","في «بياناتي» وطلب الافتقاد زر «استخدام موقعي الحالي» يحفظ موقع بيتك من الموبايل مباشرة. اضغطه وأنت داخل البيت. ومن لم يحفظ موقعه بعد يظهر له تذكير في الشاشة الرئيسية."],
+    ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
+    ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
+    ["🖼️","الصورة في كل مكان","الصورة التي تُختار من «بياناتي» تظهر الآن أعلى الصفحة وفي كل القوائم، وليس داخل «بياناتي» فقط."]]}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -6777,6 +6828,17 @@ function canManage(target){
   if (me === "supervisor") return target.role === "user" || (target.id === S.account.id && Store.mode !== "cloud");
   return target.id === (S.account && S.account.id);
 }
+// a password lasts 3 months (2026-11-08, user): a week before, a card on the first screen of every role
+const pwDaysLeft = () => { const d = S.account && S.account.pwDue; if (!d || Store.mode !== "cloud" || Store.preview) return null;
+  return Math.ceil((new Date(d) - Date.now()) / 864e5); };
+function pwDueCard(){
+  const n = pwDaysLeft(); if (n === null || n > 7) return null;
+  return h("div",{class:"card detail pwdue-card"}, h("h3",null,"🔑 تغيير كلمة السر"),
+    h("p",null, n > 0 ? "تنتهي صلاحية كلمة السر بعد "+arDigits(n)+" "+(n === 1 ? "يوم" : n === 2 ? "يومين" : n <= 10 ? "أيام" : "يومًا")+". تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر."
+      : "انتهت صلاحية كلمة السر، وسيُطلب منك اختيار كلمة سر جديدة عند الدخول القادم."),
+    h("div",null, h("button",{class:"btn", id:"pwDueGo", onclick:()=>{ S.tab = accRole() === "user" ? "me" : "settings"; render();
+      setTimeout(() => { const t = document.getElementById("myOld"); if (t){ t.scrollIntoView({behavior:"smooth", block:"center"}); t.focus(); } }, 80); }},"تغيير كلمة السر الآن")));
+}
 function myPasswordCard(){
   if (!S.account) return null;
   const m = meInfo();
@@ -6786,13 +6848,17 @@ function myPasswordCard(){
       await saveAccount(S.account, {photo:url});
       S.account.photo = url; toast("تم حفظ صورتك"); render(); }),
       S.account.photo ? h("button",{class:"btn sm quiet", onclick:async()=>{ await saveAccount(S.account, {photo:""}); S.account.photo = ""; toast("تمت إزالة الصورة"); render(); }},"إزالة الصورة") : null)));
+  const left = pwDaysLeft();
   return h("div",{class:"card form"}, h("h3",null,"👤 حسابي"), photoRow, h("h3",null,"🔐 كلمة السر الخاصة بي"),
+    left !== null ? h("p",{class:"small muted", style:"margin:0"}, "تتغير كلمة السر كل ثلاثة أشهر، ولا يمكن تكرار آخر خمس كلمات سر. "+(left > 0 ? "المتبقي: "+arDigits(left)+" يومًا." : "انتهت الصلاحية.")) : null,
     h("label",null,"كلمة السر الحالية", pwInput("myOld","الحالية","current-password")),
     h("label",null,"كلمة السر الجديدة", pwInput("myNew","الجديدة","new-password")),
     h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async()=>{
       const oldPw = $("#myOld").value, pw = $("#myNew").value;
       { const pe = pwProblem(pw, S.account); if (pe){ toast(pe); return; } }
-      if (!(await changeOwnPassword(oldPw, pw))){ toast("كلمة السر الحالية غير صحيحة"); return; }
+      const changed = await changeOwnPassword(oldPw, pw); if (changed === null) return;  // one of the last 5: already said
+      if (!changed){ toast("كلمة السر الحالية غير صحيحة"); return; }
+      if (S.account.pwDue) S.account.pwDue = new Date(Date.now() + 91*864e5).toISOString();
       await logAct("غيّر كلمة السر بتاعته"); toast("تم تغيير كلمة السر"); render();
     }},"تغيير كلمة السر")));
 }
@@ -6896,7 +6962,7 @@ function adminView(all, part){
     // whatever waits for the admin's answer comes first (2026-11-07), then the numbers, then who is online, the space and the speed
     // (the father-change card goes to the end while nothing in it waits)
     const fa = freqAdminCard(), faWait = (S.freqs || []).some(x => x.wait);
-    [pendingCard(), faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
+    [pwDueCard(), admMsgCard(), pendingCard(), faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
     wrap.append(statsEl);
     const tools = h("div",{class:"adm-tools", id:"admTools"}); [onlineCard(accs), dbCard(), speedCard(), pushCard(true), faWait ? null : fa].forEach(x => { if (x) tools.append(x); });
     if (tools.childNodes.length) wrap.append(tools);
@@ -7397,8 +7463,11 @@ setPassword = async (acc, pw, why) => {
 };
 changeOwnPassword = async (oldPw, pw) => {
   try { await Cloud.signIn(await mailFor(S.church.slug, S.account.name), oldPw); } catch(e){ if (e.offline) toast(cloudMsg(e)); return false; }
+  // none of the last 5 again (2026-11-08, user)
+  try { if (await Cloud.rpc("pw_reused", {p_pw:pw})){ toast("لا يمكن استخدام كلمة سر من آخر خمس كلمات سر. برجاء اختيار كلمة سر جديدة."); return null; } } catch(e){}
   try { await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed"); return true; } catch(e){ toast(cloudMsg(e)); throw e; }
 };
+adminMessage = async (uids, text) => Cloud.rpc("admin_message", {p_uids:uids, p_text:text});
 refreshFather = async () => { try { const me = await Cloud.rpc("me"); if (!me) return;
   Cloud.me = me; S.fathers = me.fathers || [];
   Object.assign(S.account, {father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||""}); } catch(e){} };
@@ -7422,7 +7491,7 @@ function cloudAccount(me){
   try { localStorage.setItem(CHURCH_KEY, me.slug); } catch(e){}
   S.fathers = me.fathers || [];
   return {id:me.uid, name:me.name, role:me.role, active:me.active, mustChange:me.must_change, photo:me.photo||"", lastLogin:me.last_login, logins:me.logins,
-    father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||"", confessor:!!me.confessor};
+    father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||"", confessor:!!me.confessor, pwDue:me.pw_due||""};
 }
 async function restoreCloudSession(){
   const s = Cloud.loadSess(); if (!s || !ssGet(okKey())) return false;
@@ -7661,11 +7730,14 @@ async function showCloudGate(){
         err, btn("👆 فعّل البصمة"));
       extra = [h("button",{class:"linkish", type:"button", onclick:async()=>{ try { localStorage.setItem("ruhiya_bio_skip_"+Cloud.me.uid, "1"); } catch(x){} await finish(); }},"مش دلوقتي")];
     } else if (mode === "change"){
-      sub = S.weakPw ? "أهلاً "+S.account.name+". كلمة السر الحالية سهلة التخمين، وحفاظًا على خصوصيتك برجاء اختيار كلمة سر أقوى (٨ حروف إنجليزية وأرقام على الأقل)." : "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
+      const expired = Cloud.me && Cloud.me.pw_due && new Date(Cloud.me.pw_due) < new Date();
+      sub = S.weakPw ? "أهلاً "+S.account.name+". كلمة السر الحالية سهلة التخمين، وحفاظًا على خصوصيتك برجاء اختيار كلمة سر أقوى (٨ حروف إنجليزية وأرقام على الأقل)."
+        : expired ? "أهلاً "+S.account.name+". انتهت مدة كلمة السر (ثلاثة أشهر). حفاظًا على الخصوصية برجاء اختيار كلمة سر جديدة لم تُستخدم في آخر خمس مرات." : "أهلاً "+S.account.name+". كلمة السر دي اتعملتلك من حد تاني، فاختار كلمة سر خاصة بيك محدش يعرفها.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const pw = v("gPw"), strong = ["admin","priest"].includes(S.account.role);
         { const pe = pwProblem(pw, Object.assign({}, S.account, Cloud.me || {})); if (pe) fail(pe+"."); } if (pw !== v("gPw2")) fail("كلمتين السر مش زي بعض.");
-        await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed");
+        if (await Cloud.rpc("pw_reused", {p_pw:pw})) fail("لا يمكن استخدام كلمة سر من آخر خمس كلمات سر. برجاء اختيار كلمة سر جديدة.");
+        await Cloud.setOwnPassword(pw); await Cloud.rpc("password_changed"); if (Cloud.me) Cloud.me.pw_due = new Date(Date.now() + 91*864e5).toISOString(); if (S.account) S.account.pwDue = Cloud.me && Cloud.me.pw_due;
         await logAct("اختار كلمة سر جديدة"); S.account.mustChange = false; Cloud.me.must_change = false; S.weakPw = false;
         toast("كلمة السر اتغيّرت"); await finish(); }); }},
         h("label",null,"كلمة السر الجديدة", pwInput("gPw","كلمة السر الجديدة","new-password")),

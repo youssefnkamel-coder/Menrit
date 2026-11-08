@@ -1,6 +1,6 @@
 // Lets phones install the app. Tries the network first so every update reaches people at once;
 // the saved copy is used when there is no internet, or when the internet takes more than 2.5 seconds. Data never goes through here (it lives on the server).
-const CACHE = "menrit-v3";
+const CACHE = "menrit-v4";
 self.addEventListener("install", e => { self.skipWaiting(); });
 // older copies (an earlier CACHE name) are removed, so the phone never fills up with old versions
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -26,7 +26,10 @@ self.addEventListener("fetch", e => {
 self.addEventListener("push", e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch(x){ d = {body: e.data ? e.data.text() : ""}; }
   e.waitUntil(self.registration.showNotification(d.title || "ⲙⲉⲛⲣⲓⲧ", {
-    body: d.body || "فيه طلب جديد", icon: "icon-192.png", badge: "icon-192.png", tag: d.tag || "menrit", renotify: true,
+    // an attention-getting notification of the app's own (2026-11-08, user): its own vibration, it stays until tapped,
+    // and the cross badge in the status bar. Phones do not let a web app choose the sound itself.
+    body: d.body || "فيه طلب جديد", icon: "icon-192.png", badge: "badge-96.png", tag: d.tag || "menrit", renotify: true,
+    vibrate: [400, 150, 400, 150, 800], requireInteraction: true, timestamp: Date.now(),
     dir: "rtl", lang: "ar", data: {url: d.url || "./"}
   }));
 });
