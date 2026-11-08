@@ -1016,6 +1016,8 @@ body.crop-open{overflow:hidden}
 .crop-zoom{display:flex;align-items:center;gap:8px;width:100%}
 .crop-zoom input{flex:1;min-width:0}
 .crop-btns{justify-content:center;flex-wrap:wrap}
+.here-row{align-items:center;gap:8px;margin-top:-4px}
+.here-row .small{flex:1 1 180px}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -4503,6 +4505,7 @@ function personDetail(all){
       h("label",null,"المنطقة", h("input",{id:"fArea", value:pr.area||"", list:"areaList", placeholder:"عشان تجمّع القريبين من بعض"}), h("datalist",{id:"areaList"}, [...new Set(all.map(x=>x.area).filter(Boolean))].map(x=>h("option",{value:x})))),
       h("label",null,"العنوان بالتفصيل", h("input",{id:"fAddr", value:pr.address||p.address||""})),
       h("label",null,"لوكيشن البيت (رابط من جوجل ماب أو واتساب)", h("input",{id:"fLoc", value:pr.loc||p.loc||"", dir:"ltr", inputmode:"url", placeholder:"https://maps.app.goo.gl/…"})),
+      hereRow("fHere", fillLoc("fLoc", "تم وضع الموقع الحالي. اضغط «حفظ» لحفظه.")),
       mapBtn({address:pr.address||p.address, area:pr.area||p.area, loc:pr.loc||p.loc}),
       h("label",null,"الشغل", h("input",{id:"fJob", value:pr.job||""}))),
     h("label",null,"ملاحظات أبونا (المعترفين مابيشوفوهاش)", h("textarea",{id:"fNotes"}, pr.notes||"")),
@@ -5421,6 +5424,7 @@ function memberToday(){
     h("p",{class:"muted"},"إحنا في "+SEASONS[SEASON].name+". "+(feastsOf(TODAY).length ? "النهارده "+feastsOf(TODAY).join(" و")+"." : ""))));
   if (S.profileLoaded && !profileFilled()) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلًا بك في البرنامج"),
     h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. بيشوفها أب اعترافك وأدمن البرنامج بس."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"كتابة بياناتي"))));
+  { const lc = locCard(); if (lc) wrap.append(lc); }
   for (const [type, title] of [["appointment","🙏 ميعاد اعترافك"],["visit","🏡 ميعاد الافتقاد"]]){
     const appt = S.inbox.find(m => m.type===type && m.when && new Date(m.when) >= TODAY);
     if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,title), h("p",{class:"num"}, fmtWhen(appt.when)), appt.text ? h("p",{class:"muted"},appt.text) : null,
@@ -5605,6 +5609,7 @@ function memberConfession(){
           : times.length ? h("div",{class:"row time-row"}, times.map(t => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqTime===t ? "true" : "false", onclick:()=>{ S.draft.reqTime = t; render(); }}, timeAr(t))))
           : h("p",{class:"small muted"},"اليوم ده اتحجز كله. اختار يوم تاني.")) : null,
       vis ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
+      vis ? hereRow("rHere", saveHomeLoc) : null,
       h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: vis ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
       h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
         if (!ds || !d.reqTime){ toast("اختر اليوم والموعد أولًا"); return; }
@@ -5627,6 +5632,7 @@ function memberConfession(){
       h("div",{class:"row slot-row"}, SLOTS.map(([k,l]) => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqSlot===k ? "true" : "false", onclick:()=>{ S.draft.reqSlot = d.reqSlot===k ? "" : k; S.draft.reqTime = ""; render(); }}, h("span",{class:"se", "aria-hidden":"true"}, l.split(" ")[0]), h("span",null, l.split(" ").slice(1).join(" "))))),
       h("label",{class:"small"},"أو حدد الساعة بالظبط (اختياري)", h("input",{type:"time", id:"rTime", value:d.reqTime||"", style:"max-width:180px", onchange:e=>{ S.draft.reqTime = e.target.value; }}))),
     kind === "visit" ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
+    kind === "visit" ? hereRow("rHere", saveHomeLoc) : null,
     h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: kind==="visit" ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
       if (!S.draft.reqDate){ toast("اختر يومًا من التقويم أولًا"); return; }
@@ -5694,6 +5700,7 @@ function memberMe(){
       h("label",null, nidNeeded ? "تاريخ الميلاد (مطلوب)" : "تاريخ الميلاد", inp("pBirth", p.birthday, {type:"date"})),
       h("label",null, nidNeeded ? "العنوان (مطلوب)" : "العنوان", inp("pAddr", p.address, {placeholder:"عشان أبونا يعرف يفتقدك"})),
       h("label",null,"لوكيشن البيت (اختياري)", inp("pLoc", p.loc, {dir:"ltr", inputmode:"url", placeholder:"الصق رابط موقعك من جوجل ماب أو واتساب"})),
+      hereRow("pHere", fillLoc("pLoc", "تم وضع موقعك. اضغط «حفظ» لحفظه.")),
       h("label",null, nidNeeded ? "النوع (مطلوب)" : "النوع", h("select",{id:"pSex", onchange:e => { md.pSex = e.target.value; }},
         [["","اختار"],["m","ذكر"],["f","أنثى"]].map(([k,t]) => h("option",{value:k, selected:(("pSex" in md) ? md.pSex : (p.sex||"")) === k}, t)))),
       p.passport ? h("label",{class:"pp-have"},"🛂 رقم الباسبور", h("input",{value:p.passport, dir:"ltr", readonly:true, "aria-readonly":"true"}))
@@ -5948,6 +5955,33 @@ function inviteCard(){
 }
 // Google Maps (2026-11-05): a pasted location link wins; otherwise search the written address
 function locOk(u){ u = String(u||"").trim(); return /^https:\/\/[^\s"<>]{6,500}$/.test(u) ? u : ""; }
+// «📍 استخدام موقعي الحالي» (2026-11-07, user): the phone's own location as a Google Maps link, instead of pasting one
+const HERE_NOTE = "اضغط الزر وأنت داخل البيت، لأنه يأخذ مكان الموبايل في هذه اللحظة.";
+function hereBtn(id, onLink){
+  return h("button",{type:"button", class:"btn sm ghost here-btn", id, onclick:e => { const b = e.currentTarget;
+    if (!navigator.geolocation){ toast("تحديد الموقع غير متاح على هذا الجهاز."); return; }
+    b.disabled = true; toast("جارٍ تحديد الموقع…");
+    navigator.geolocation.getCurrentPosition(pos => { b.disabled = false;
+        onLink("https://www.google.com/maps?q="+pos.coords.latitude.toFixed(6)+","+pos.coords.longitude.toFixed(6)); },
+      err => { b.disabled = false; toast(err && err.code === 1 ? "لم يُسمح بمعرفة الموقع. يمكن السماح به من إعدادات المتصفح ثم المحاولة مرة أخرى." : "تعذّر تحديد الموقع. برجاء المحاولة مرة أخرى."); },
+      {enableHighAccuracy:true, timeout:20000, maximumAge:0}); }}, "📍 استخدام موقعي الحالي");
+}
+// «📍 أضف موقع البيت» (2026-11-08, user): a reminder on the confessee's home screen until the house location is saved; «لاحقًا» hides it for a week
+const LOC_SNOOZE = () => "menrit_locsnooze_"+(S.uid||"");
+function locCard(){
+  if (!S.profileLoaded || !S.profile || !profileFilled() || locOk(S.profile.loc)) return null;
+  try { if (Number(localStorage.getItem(LOC_SNOOZE())||0) > Date.now()) return null; } catch(e){}
+  return h("div",{class:"card detail loc-card"}, h("h3",null,"📍 أضف موقع البيت"),
+    h("p",null,"حتى يصل أب الاعتراف إلى البيت بسهولة في الافتقاد. يظهر الموقع لأب اعترافك فقط."),
+    hereRow("locHere", async link => { await editDoc("members/"+S.uid, cur => Object.assign(cur || {}, {loc:link}));
+      S.profile = Object.assign({}, S.profile, {loc:link}); toast("تم حفظ موقع البيت، وسيظهر لأب الاعتراف."); render(); }),
+    h("div",{class:"row"}, h("button",{type:"button", class:"btn sm quiet", id:"locLater", onclick:()=>{
+      try { localStorage.setItem(LOC_SNOOZE(), String(Date.now() + 7*864e5)); } catch(e){} render(); }},"لاحقًا")));
+}
+const hereRow = (id, onLink) => h("div",{class:"row here-row"}, hereBtn(id, onLink), h("span",{class:"small muted"}, HERE_NOTE));
+const fillLoc = (inputId, msg) => link => { const el = document.getElementById(inputId); if (!el) return; el.value = link; el.dispatchEvent(new Event("input", {bubbles:true})); toast(msg); };
+// a visit request keeps the house location on the person's own profile, where the father reads it
+const saveHomeLoc = async link => { await editDoc("members/"+S.uid, cur => Object.assign(cur || {}, {loc:link})); toast("تم حفظ موقع البيت، وسيظهر لأب الاعتراف."); };
 function mapUrl(o){ o = o || {}; const l = locOk(o.loc); if (l) return l;
   const a = [o.address, o.area].map(x => String(x||"").trim()).filter(Boolean).join("، ");
   return a ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a+"، مصر") : ""; }
@@ -5984,14 +6018,16 @@ const NEWS = {id:"2026-11-07a", title:"الجديد في آخر تحديث", ite
     ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
     ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
     ["🕊️","التأملات","يصل التأمل الذي ترسله «لكل أبنائي» إلى أبنائك على البرنامج فقط."],
-    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."]],
+    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
+    ["📍","موقع البيت بضغطة","في بيانات أي شخص زر «استخدام موقعي الحالي» يحفظ موقع البيت من الموبايل وأنت هناك، ويستخدمه «يوم افتقاد» في ترتيب المشوار."]],
   user:[
     ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."],
     ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
     ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
     ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
     ["🕊️","التأملات","تظهر لك التأملات التي يرسلها أب اعترافك فقط."],
-    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."]]}};
+    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
+    ["📍","موقع البيت بضغطة","في «بياناتي» وطلب الافتقاد زر «استخدام موقعي الحالي» يحفظ موقع بيتك من الموبايل مباشرة. اضغطه وأنت داخل البيت. ومن لم يحفظ موقعه بعد يظهر له تذكير في الشاشة الرئيسية."]]}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -7575,6 +7611,7 @@ async function showCloudGate(){
         field("العنوان","gAddr","address",{autocomplete:"street-address", placeholder:"المنطقة والشارع ورقم العقار"}),
         field("الوظيفة (اختياري)","gJob","job",{placeholder:"مثلًا: مهندس، مدرّسة، طالب"}),
         field("موقع المنزل على الخريطة (اختياري)","gLoc","loc",{dir:"ltr", inputmode:"url", placeholder:"https://maps.app.goo.gl/..."}),
+        hereRow("gHere", fillLoc("gLoc", "تم وضع موقعك الحالي.")),
         h("div",{class:"form", style:"gap:6px"}, h("span",{style:"font-weight:700"},"صورتك"), prev,
           h("div",{class:"row", style:"justify-content:center"}, ...photoPickerSized("gPhoto", newPhoto ? "🔄 تغيير الصورة" : "📷 اختر صورة أو التقط صورة", 320, d => { newPhoto = d; draw(); }))),
         missBox, err, sendBtn);
