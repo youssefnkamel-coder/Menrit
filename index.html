@@ -242,6 +242,26 @@ ul.list li > .person-line{flex:1 1 240px}
 a.btn{text-decoration:none}
 .occ{position:relative;overflow:hidden;border-radius:22px;background:#14234f;box-shadow:0 10px 26px rgba(6,24,48,.3);color:#fff;isolation:isolate}
 .occ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* photo designs (2026-11-09): the photo moves very slowly (a gentle zoom), framed in gold like the others */
+.occ-photo{position:absolute;inset:0;background:center 38%/cover no-repeat;z-index:0;transform-origin:50% 40%}
+.occ[data-occ="church"] canvas{z-index:1}
+.occ[data-occ="church"] .occ-photo{background-position:center 56%;transform-origin:52% 58%;transform:scale(1.55);animation:occZoomK 38s ease-in-out infinite alternate}
+.occ-opt .occ[data-occ="church"] .occ-photo{transform:scale(1.35)}
+.occ[data-occ="passion"] canvas{z-index:0}
+.occ[data-occ="passion"] .occ-photo{z-index:1;inset:0 auto 0 50%;height:100%;width:auto;aspect-ratio:.92;max-width:70%;background-size:cover;background-position:50% 12%;transform:translateX(-50%);animation:occZoomC 30s ease-in-out infinite alternate;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 24%,#000 76%,transparent);mask-image:linear-gradient(90deg,transparent,#000 24%,#000 76%,transparent)}
+.occ-opt .occ-photo{animation:none!important}
+.occ-opt .occ[data-occ="passion"] .occ-photo{max-width:80%}
+.occ-layer[data-occ="passion"]::after{background:linear-gradient(180deg,rgba(10,2,4,.12),rgba(10,2,4,.38) 55%,rgba(10,2,4,.62)),radial-gradient(120% 110% at 50% 40%,rgba(6,0,2,0),rgba(6,0,2,.5))}
+.occ-layer[data-occ="church"]::after{background:linear-gradient(180deg,rgba(6,18,40,.22),rgba(6,18,40,.42) 55%,rgba(6,18,40,.66))}
+#gate.occ-on > .occ-layer[data-occ="passion"] .occ-photo{max-width:100%;animation:none}
+/* the painting stands in the middle; only the name ⲙⲉⲛⲣⲓⲧ gets a soft dark shade behind it (user: «اعملها في اسم منريت بس») */
+.occ-layer[data-occ="passion"] .occ-photo{filter:brightness(.82) saturate(1.05)}
+.band .hero:has(> .occ-layer[data-occ="passion"]) .hero-mn{background:rgba(14,3,5,.62);border-radius:50%;box-shadow:0 0 26px 20px rgba(14,3,5,.62)}
+@keyframes occZoomC{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.08)}}
+@keyframes occZoomK{from{transform:scale(1.55)}to{transform:scale(1.68) translate(-1%,.5%)}}
+@keyframes occZoom{from{transform:scale(1)}to{transform:scale(1.09) translate(-1.5%,1%)}}
+@media (prefers-reduced-motion: reduce){.occ-photo{animation:none!important}}
 .occ-frame{position:absolute;inset:0;pointer-events:none;color:#d9ad4c} .occ-frame svg{width:100%;height:100%;display:block}
 .occ-txt{position:absolute;inset:auto 0 0 0;padding:34px 22px 18px;background:linear-gradient(to top,rgba(0,0,0,.66),rgba(0,0,0,.3) 65%,rgba(0,0,0,0));display:grid;gap:3px;text-align:center}
 .occ-chip{justify-self:center;font-size:.72rem;padding:2px 10px;border-radius:999px;border:1px solid rgba(243,212,138,.7);color:#f8e3a8;background:rgba(0,0,0,.25)}
@@ -458,6 +478,39 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .invite-url{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;background:var(--surface-2);border:1px dashed var(--gold-line);border-radius:12px;padding:10px 12px;word-break:break-all;user-select:all;text-align:left}
 .invite-btns{flex-wrap:wrap;gap:8px}
 .btn.wa{background:linear-gradient(135deg,#16a34a,#15803d);text-decoration:none}
+#printArea{display:none}
+@media print{
+  @page{size:A4 landscape;margin:12mm 10mm 14mm;@bottom-left{content:counter(page) " / " counter(pages);font:9pt sans-serif;color:#6b7280}}
+  body.printing > *:not(#printArea){display:none!important}
+  body.printing{background:#fff!important;padding:0!important;margin:0!important}
+  body.printing #printArea{display:block;color:#0a1f3d;font-family:var(--f-body,system-ui),sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea .pr-head{display:flex;align-items:center;gap:14px;padding-bottom:8px;margin-bottom:10px;border-bottom:2.5px solid #c9a227}
+  #printArea .pr-logo{width:64px;height:64px;border-radius:50%;border:2px solid #c9a227;object-fit:cover}
+  #printArea .pr-title{font-size:19pt;font-weight:800;color:#0e7490}
+  #printArea .pr-church{font-size:12.5pt;font-weight:700}
+  #printArea .pr-sub{font-size:9.5pt;color:#8a6a1f}
+  #printArea .pr-table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  #printArea thead{display:table-header-group}
+  #printArea th{background:#0e7490;color:#fff;font-weight:700;padding:6px 5px;border:1px solid #c9a227;border-bottom:2px solid #c9a227}
+  #printArea td{padding:5px;border:1px solid #d9e2ec;vertical-align:middle}
+  #printArea tbody tr:nth-child(even) td{background:#eef7f8}
+  #printArea tr{break-inside:avoid}
+  #printArea td.c{text-align:center;white-space:nowrap}
+  #printArea td.nm{font-weight:700}
+  #printArea td.late{background:#fdf0c8!important}
+  #printArea .pr-note{font-size:8.5pt;color:#6b7280;margin:6px 0 0}
+  #printArea .pr-foot{position:fixed;bottom:0;right:0;left:0;text-align:right;font-size:8.5pt;font-style:italic;color:#6b7280;border-top:1px solid #c9a227;padding-top:3px}
+}
+.speed-row{display:block!important;padding:0!important}
+.speed-head{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;cursor:pointer;border-radius:12px}
+.speed-head .who{flex:1;min-width:0}
+.speed-head:focus-visible{outline:3px solid var(--gold-2)}
+.speed-row.open .speed-head{background:color-mix(in oklab,var(--gold) 12%,transparent)}
+.speed-detail{display:grid;gap:8px;padding:4px 12px 12px}
+.speed-samples{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.speed-samples li{display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.speed-samples li.slow{border-color:#fca5a5}
+.speed-hint{margin:0;padding:8px 10px;border-radius:10px;background:#fef9c3;color:#713f12}
 .mw{gap:10px}
 .mw-pick,.mw-q{max-height:420px;overflow:auto}
 .mw-chk{display:flex;align-items:center;gap:10px;cursor:pointer;width:100%}
@@ -749,11 +802,6 @@ li.dir-row .who{min-width:0;flex:1}
 li.dir-row .who strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 li.dir-row .who .small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dir-marks{display:flex;gap:4px;flex:none}
-.dir-father{position:relative;flex:none;margin-inline-start:auto;display:grid;place-items:center;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--gold-2),var(--gold-d));box-shadow:0 2px 6px rgba(0,0,0,.18);-webkit-touch-callout:none}
-.dir-father .avatar.xs{width:34px;height:34px;font-size:.85rem;border:2px solid var(--surface);margin:0}
-.dir-father::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:0;white-space:nowrap;background:var(--ink);color:var(--surface);font-size:.75rem;font-weight:700;padding:4px 8px;border-radius:8px;opacity:0;pointer-events:none;transform:translateY(4px);transition:.15s;z-index:3}
-.dir-father:hover::after,.dir-father.tip::after{opacity:1;transform:none}
-.dir-nofather{flex:none;margin-inline-start:auto;font-size:.72rem;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:99px;padding:3px 8px;white-space:nowrap}
 .dir-mark{font-size:.95rem}
 .dir-rail{position:sticky;top:70px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:999px;background:var(--surface);border:1px solid var(--gold-line);max-height:calc(100vh - 90px);overflow-y:auto}
 .dir-rail button{all:unset;cursor:pointer;width:26px;height:24px;display:grid;place-items:center;border-radius:50%;font-weight:800;font-size:.82rem;color:var(--brand)}
@@ -3824,12 +3872,32 @@ function stopAll(){ S.unsubs.forEach(u=>u()); S.unsubs=[]; S.selUnsubs.forEach(u
 // how long this phone took to show its data, once per opening (2026-11-07): from the page opening when the person was still
 // signed in, otherwise from the moment they signed in; saved for the admin's «سرعة التحميل» card
 const loadT = {done:false, need:null, got:new Set()};
+// 2026-11-09 (user: one confessee always slow): the time the screen was off or another app was in front is not counted,
+// and each opening keeps the details the admin needs to find the cause (device, network, page download, the server's wait)
+const hidT = {spans:[], since: document.hidden ? 0 : null};
+document.addEventListener("visibilitychange", () => { const t = performance.now();
+  if (document.hidden) hidT.since = t; else if (hidT.since !== null){ hidT.spans.push([hidT.since, t]); hidT.since = null; } });
+function hiddenBetween(a, b){ let n = 0; const sp = hidT.spans.concat(hidT.since !== null ? [[hidT.since, b]] : []);
+  for (const [x, y] of sp) n += Math.max(0, Math.min(b, y) - Math.max(a, x)); return n; }
+function loadDetails(t0, t1){
+  const ua = navigator.userAgent || "", d = {};
+  d.dev = /iPhone/.test(ua) ? "ios" : /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? "ipad" : /Android/.test(ua) ? "android" : "pc";
+  try { d.app = matchMedia("(display-mode: standalone)").matches || navigator.standalone ? 1 : 0; } catch(e){}
+  try { if (!t0){ const nv = performance.getEntriesByType("navigation")[0]; if (nv){ d.page = Math.round(nv.responseEnd); d.ready = Math.round(nv.domContentLoadedEventEnd); } } } catch(e){}
+  try { const host = typeof SB === "string" && SB ? new URL(SB).host : "";
+    const rs = performance.getEntriesByType("resource").filter(r => host && r.name.includes(host) && r.startTime >= t0 - 50 && r.responseEnd <= t1 + 50);
+    if (rs.length){ d.rq = rs.length; d.api = Math.round(Math.max(...rs.map(r => r.duration)));
+      const w = rs.map(r => r.responseStart && r.requestStart ? r.responseStart - r.requestStart : 0).filter(x => x > 0); if (w.length) d.wait = Math.round(Math.max(...w));
+      const kb = rs.reduce((a, r) => a + (r.encodedBodySize || 0), 0); if (kb) d.kb = Math.round(kb / 1024); } } catch(e){}
+  return d;
+}
 function loadSeen(p){
   if (loadT.done || !loadT.need || !loadT.need.includes(p)) return; loadT.got.add(p);
   if (!loadT.need.every(x => loadT.got.has(x))) return;
-  loadT.done = true; const ms = performance.now() - loadT.t0;
+  loadT.done = true; const t1 = performance.now(), hid = hiddenBetween(loadT.t0, t1), ms = Math.max(0, t1 - loadT.t0 - hid);
   const cached = typeof Cloud !== "undefined" && [...Cloud.subs].some(x => x.cached);
-  if (speedApi && Store.mode === "cloud" && !Store.preview) setTimeout(() => speedApi.save(ms, cached), 3000);
+  const det = Object.assign(loadDetails(loadT.t0, t1), hid > 300 ? {hid:Math.round(hid)} : {});
+  if (speedApi && Store.mode === "cloud" && !Store.preview) setTimeout(() => speedApi.save(ms, cached, det), 3000);
 }
 function subscribe(){
   stopAll();
@@ -4570,7 +4638,7 @@ function priestPeople(all){
     [["name","بالاسم"],["conf","الأقدم في الاعتراف"],["visit","الأقدم في الافتقاد"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(srt===k), onclick:()=>{ S.draft.sort=k; render(); }}, l))));
   wrap.append(h("div",{class:"chips"}, h("span",{class:"small muted"},"تجميع حسب:"),
     [["letter","الحروف"],["area","المنطقة"]].map(([k,l]) => h("button",{class:"chip-btn", "aria-pressed":String(by===k), onclick:()=>{ S.draft.groupBy=k; render(); }}, l)),
-    h("button",{class:"chip-btn", onclick:exportExcel},"تصدير Excel")));
+    h("button",{class:"chip-btn", onclick:exportExcel},"📊 تصدير Excel"), h("button",{class:"chip-btn", id:"printBtn", onclick:printList},"🖨️ طباعة / PDF")));
   if (S.sel) wrap.append(personDetail(all));
   if (!list.length && flt && base.length) wrap.append(h("div",{class:"empty"},"مفيش حد في الفلتر ده دلوقتي."));
   else if (!list.length) wrap.append(h("div",{class:"empty"}, q && Store.mode==="cloud" && accRole()==="priest" ? "مفيش حد من أولادك بالاسم ده." : all.length ? "مفيش نتايج." : "لسه مفيش حد. لما حد من أولادك يفتح البرنامج ويكتب بياناته هيظهر هنا، أو ضيف شخص بنفسك."));
@@ -5275,17 +5343,183 @@ async function saveFile(filename, data, mime){
   try { const url = URL.createObjectURL(new Blob([data],{type:mime})); const a = h("a",{href:url, download:filename}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000); return true; }
   catch(e){ toast("تعذّر تنزيل الملف"); return false; }
 }
+/* a formal Excel file (2026-11-09, user: «يبقى ليه فورمة وعلامة إنه مطبوع من برنامج محترم»): the program's mark and title on top,
+   a coloured header that stays in place, a filter, alternate rows, Arabic dates, short map links, a highlight for an overdue confession,
+   and «صُدِّر من برنامج ⲙⲉⲛⲣⲓⲧ» at the end and in the footer of every printed page. The library alone writes no colours, so the
+   file's parts are written here and packed with its zip writer. */
+const XLB = (() => {
+  const esc = v => String(v == null ? "" : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const col = i => { let s = ""; i++; while (i){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const hf = t => String(t || "").replace(/&/g, "&&");  // a plain & in a page header or footer is written twice
+  const serial = ymdS => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymdS || ""); return m ? (Date.UTC(+m[1], +m[2] - 1, +m[3]) - Date.UTC(1899, 11, 30)) / 864e5 : null; };
+  const STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="1"><numFmt numFmtId="164" formatCode="[$-0C01]d mmmm yyyy;@"/></numFmts>
+<fonts count="7"><font><sz val="11"/><name val="Calibri"/></font>
+<font><b/><sz val="20"/><color rgb="FF0E7490"/><name val="Calibri"/></font>
+<font><b/><sz val="13"/><color rgb="FF0A1F3D"/><name val="Calibri"/></font>
+<font><sz val="10"/><color rgb="FF8A6A1F"/><name val="Calibri"/></font>
+<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+<font><u/><sz val="11"/><color rgb="FF0563C1"/><name val="Calibri"/></font>
+<font><i/><sz val="9"/><color rgb="FF6B7280"/><name val="Calibri"/></font></fonts>
+<fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FF0E7490"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFEEF7F8"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFFDF0C8"/><bgColor indexed="64"/></patternFill></fill></fills>
+<borders count="4"><border><left/><right/><top/><bottom/><diagonal/></border>
+<border><left style="thin"><color rgb="FFC9A227"/></left><right style="thin"><color rgb="FFC9A227"/></right><top style="thin"><color rgb="FFC9A227"/></top><bottom style="medium"><color rgb="FFC9A227"/></bottom><diagonal/></border>
+<border><left style="thin"><color rgb="FFD9E2EC"/></left><right style="thin"><color rgb="FFD9E2EC"/></right><top style="thin"><color rgb="FFD9E2EC"/></top><bottom style="thin"><color rgb="FFD9E2EC"/></bottom><diagonal/></border>
+<border><left/><right/><top/><bottom style="medium"><color rgb="FFC9A227"/></bottom><diagonal/></border></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="16">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="3" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="4" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" wrapText="1" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="0" fillId="3" borderId="2" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center" wrapText="1" readingOrder="2"/></xf>
+<xf numFmtId="164" fontId="0" fillId="0" borderId="2" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="164" fontId="0" fillId="3" borderId="2" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="5" fillId="0" borderId="2" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="5" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="164" fontId="0" fillId="4" borderId="2" xfId="0" applyNumberFormat="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="2" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="0" fillId="3" borderId="2" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+<xf numFmtId="0" fontId="0" fillId="4" borderId="2" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" readingOrder="2"/></xf>
+</cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`;
+  const S_ = {title:1, church:2, sub:3, head:4, txt:[5, 6], date:[7, 8], link:[9, 10], late:11, foot:12, num:[13, 14], lateTxt:15};
+  // cols: [{h, w, kind:"txt"|"date"|"link"|"num"}]; rows: arrays of values; late: Set of row indexes whose «late» column is highlighted
+  function build({sheet, title, church, sub, cols, rows, late, lateCol, foot, pageHead, logo, author}){
+    const N = cols.length, last = col(N - 1), HR = 5, enc = new TextEncoder();
+    const cells = [], links = [];
+    const str = (r, c, v, s) => `<c r="${col(c)}${r}" t="inlineStr" s="${s}"><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
+    const row = (r, ht, inner) => `<row r="${r}"${ht ? ` ht="${ht}" customHeight="1"` : ""}>${inner}</row>`;
+    cells.push(row(1, 34, str(1, 1, title, S_.title)));
+    cells.push(row(2, 22, str(2, 1, church, S_.church)));
+    cells.push(row(3, 20, str(3, 1, sub, S_.sub) + Array.from({length:N - 2}, (_, i) => `<c r="${col(i + 2)}3" s="${S_.sub}"/>`).join("")));
+    cells.push(row(4, 8, ""));
+    cells.push(row(HR, 30, cols.map((c, i) => str(HR, i, c.h, S_.head)).join("")));
+    rows.forEach((vals, k) => { const r = HR + 1 + k, z = k % 2;
+      cells.push(row(r, 22, vals.map((v, i) => { const kd = cols[i].kind || "txt", ref = col(i) + r, hot = late && late.has(k) && i === lateCol;
+        if (kd === "date"){ const n = serial(v); if (n != null) return `<c r="${ref}" s="${hot ? S_.late : S_.date[z]}"><v>${n}</v></c>`; return v ? str(r, i, v, hot ? S_.lateTxt : S_.num[z]) : `<c r="${ref}" s="${hot ? S_.lateTxt : S_.num[z]}"/>`; }
+        if (kd === "num") return v === "" || v == null ? `<c r="${ref}" s="${S_.num[z]}"/>` : `<c r="${ref}" s="${S_.num[z]}"><v>${+v || 0}</v></c>`;
+        if (kd === "link"){ if (!v) return `<c r="${ref}" s="${S_.txt[z]}"/>`; links.push([ref, v]); return str(r, i, cols[i].label || "فتح", S_.link[z]); }
+        return str(r, i, v, S_.txt[z]); }).join("")));
+    });
+    const lastRow = HR + rows.length, fr = lastRow + 2;
+    cells.push(row(fr, 20, str(fr, 0, foot, S_.foot)));
+    const merges = [`B1:${last}1`, `B2:${last}2`, `B3:${last}3`, `A${fr}:${last}${fr}`, "A1:A3"];
+    const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:${last}${fr}"/>
+<sheetViews><sheetView rightToLeft="1" showGridLines="0" workbookViewId="0"><pane ySplit="${HR}" topLeftCell="A${HR + 1}" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A${HR + 1}" sqref="A${HR + 1}"/></sheetView></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/>
+<cols>${cols.map((c, i) => `<col min="${i + 1}" max="${i + 1}" width="${c.w}" customWidth="1"/>`).join("")}</cols>
+<sheetData>${cells.join("")}</sheetData>
+${rows.length ? `<autoFilter ref="A${HR}:${last}${lastRow}"/>` : ""}
+<mergeCells count="${merges.length}">${merges.map(m => `<mergeCell ref="${m}"/>`).join("")}</mergeCells>
+${links.length ? `<hyperlinks>${links.map(([ref], i) => `<hyperlink ref="${ref}" r:id="rId${i + 2}"/>`).join("")}</hyperlinks>` : ""}
+<printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.6" bottom="0.7" header="0.3" footer="0.3"/>
+<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
+<headerFooter><oddHeader>${esc("&C&\"Calibri,Bold\"&11" + hf(pageHead))}</oddHeader><oddFooter>${esc("&L&8&P / &N&R&8" + hf(foot))}</oddFooter></headerFooter>
+${logo ? `<drawing r:id="rId1"/>` : ""}
+</worksheet>`;
+    const sheetRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${logo ? `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/>` : ""}${links.map(([, u], i) => `<Relationship Id="rId${i + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${esc(u)}" TargetMode="External"/>`).join("")}</Relationships>`;
+    const emu = px => Math.round(px * 9525);
+    const drawing = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<xdr:oneCellAnchor><xdr:from><xdr:col>0</xdr:col><xdr:colOff>${emu(8)}</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>${emu(6)}</xdr:rowOff></xdr:from><xdr:ext cx="${emu(92)}" cy="${emu(92)}"/>
+<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="ⲙⲉⲛⲣⲓⲧ"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>
+<xdr:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
+<xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${emu(92)}" cy="${emu(92)}"/></a:xfrm><a:prstGeom prst="ellipse"><a:avLst/></a:prstGeom><a:ln w="19050"><a:solidFill><a:srgbClr val="C9A227"/></a:solidFill></a:ln></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>`;
+    const drawRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.${logo && logo.ext}"/></Relationships>`;
+    const sn = esc(sheet).replace(/'/g, "''");
+    const workbook = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<bookViews><workbookView activeTab="0"/></bookViews><sheets><sheet name="${esc(sheet)}" sheetId="1" r:id="rId1"/></sheets>
+<definedNames>${rows.length ? `<definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'${sn}'!$A$${HR}:$${last}$${lastRow}</definedName>` : ""}<definedName name="_xlnm.Print_Titles" localSheetId="0">'${sn}'!$${HR}:$${HR}</definedName></definedNames></workbook>`;
+    const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+    const files = {
+      "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${logo ? `<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>` : ""}<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`,
+      "_rels/.rels": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`,
+      "docProps/core.xml": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${esc(pageHead)}</dc:title><dc:creator>${esc(author)}</dc:creator><cp:lastModifiedBy>${esc(author)}</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`,
+      "docProps/app.xml": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية</Application><Company>Pinshti Solutions &amp; Software</Company></Properties>`,
+      "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+      "xl/workbook.xml": workbook, "xl/styles.xml": STYLES, "xl/worksheets/sheet1.xml": sheetXml, "xl/worksheets/_rels/sheet1.xml.rels": sheetRels
+    };
+    if (logo){ files["xl/drawings/drawing1.xml"] = drawing; files["xl/drawings/_rels/drawing1.xml.rels"] = drawRels; }
+    const CFB = XLSX.CFB, z = CFB.utils.cfb_new();
+    for (const [k, v] of Object.entries(files)) CFB.utils.cfb_add(z, k, enc.encode(v));
+    if (logo) CFB.utils.cfb_add(z, "xl/media/image1." + logo.ext, logo.bytes);
+    // the library's own empty entry is not part of the file
+    try { CFB.utils.cfb_del(z, "\u0001Sh33tJ5"); } catch(e){}
+    return CFB.write(z, {fileType:"zip", type:"array", compression:true});
+  }
+  function dataUrlBytes(u){ const m = /^data:image\/(png|jpe?g);base64,(.+)$/.exec(u || ""); if (!m) return null;
+    const bin = atob(m[2]), b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return {ext: m[1] === "png" ? "png" : "jpeg", bytes: b}; }
+  return {build, dataUrlBytes, serial};
+})();
+// the list a father exports, the same columns in Excel and in print
+function exportRows(){
+  const days = confDays();
+  const list = merged().slice().sort((a, b) => String(a.name||"").localeCompare(String(b.name||""), "ar"));
+  return {days, list, late: new Set(list.map((p, i) => !p.lastConfession || daysBetween(parseYmd(p.lastConfession), TODAY) > days ? i : -1).filter(i => i >= 0))};
+}
+const EXPORT_COLS = [{h:"م", w:5, kind:"num"}, {h:"الاسم", w:28}, {h:"التليفون", w:16}, {h:"المنطقة", w:14}, {h:"العنوان", w:34}, {h:"الخريطة", w:15, kind:"link", label:"📍 فتح الخريطة"},
+  {h:"الشغل", w:18}, {h:"عيد الميلاد", w:17, kind:"date"}, {h:"آخر اعتراف", w:17, kind:"date"}, {h:"مرات الاعتراف", w:10, kind:"num"}, {h:"آخر افتقاد", w:17, kind:"date"}, {h:"على البرنامج", w:11}];
+const exportVals = (p, i) => [i + 1, p.name, p.phone, p.area, p.address, mapUrl(p), p.job, p.birthday, p.lastConfession, (p.confessions||[]).length, p.lastVisit, p.onApp ? "نعم" : "لا"];
+function exportMeta(n){
+  const church = (S.church && S.church.name) || (S.settings && S.settings.churchName) || "";
+  const who = String(fatherSign() || "أبونا").replace(/^\s*[-–—]\s*/, "");
+  const d = new Date(), when = arDigits(d.getDate())+" "+GMONTHS[d.getMonth()]+" "+arDigits(d.getFullYear());
+  return {church, who, when, n, title:"ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية", head:"أولادي في الاعتراف · " + who,
+    foot:"صُدِّر من برنامج ⲙⲉⲛⲣⲓⲧ للمتابعة الروحية · Pinshti Solutions & Software · " + DEV.phone};
+}
 async function exportExcel(){
   if (!window.XLSX && Store.mode === "cloud"){ toast("جارٍ تجهيز ملف Excel…");
     await new Promise(res => { const sc = document.createElement("script"); sc.src = "xlsx.full.min.js"; sc.onload = sc.onerror = res; document.head.append(sc); }); }
-  if (!window.XLSX){ toast("مكتبة Excel لم تُحمَّل بعد، حاول مرة أخرى"); return; }
-  const rows = merged().map(p => ({"الاسم":p.name, "التليفون":p.phone, "المنطقة":p.area, "العنوان":p.address, "الخريطة":mapUrl(p), "الشغل":p.job,
-    "عيد الميلاد":p.birthday,
-    "آخر اعتراف":p.lastConfession, "مرات الاعتراف":(p.confessions||[]).length, "آخر افتقاد":p.lastVisit, "على البرنامج":p.onApp?"أيوه":"لأ"}));
-  const ws = XLSX.utils.json_to_sheet(rows); ws["!cols"] = Object.keys(rows[0]||{"الاسم":1}).map(()=>({wch:18}));
-  const wb = XLSX.utils.book_new(); wb.Workbook = {Views:[{RTL:true}]}; XLSX.utils.book_append_sheet(wb, ws, "أبنائي");
-  const buf = XLSX.write(wb, {type:"array", bookType:"xlsx"});
+  if (!window.XLSX || !XLSX.CFB){ toast("مكتبة Excel لم تُحمَّل بعد، حاول مرة أخرى"); return; }
+  const {list, late, days} = exportRows(), m = exportMeta(list.length);
+  const buf = XLB.build({sheet:"أبنائي", title:m.title, church:m.church ? "كنيسة " + m.church.replace(/^كنيسة\s+/, "") : "",
+    sub:m.head + " · " + m.when + " · " + arDigits(list.length) + " اسم · المظلل: عدّى " + arDigits(days) + " يوم من آخر اعتراف",
+    cols:EXPORT_COLS, rows:list.map(exportVals), late, lateCol:8, foot:m.foot, pageHead:"أولادي في الاعتراف", author:"ⲙⲉⲛⲣⲓⲧ · Pinshti Solutions & Software",
+    logo:XLB.dataUrlBytes(APP_MARK)});
   if (await saveFile("أولادي-في-الاعتراف-"+TODAY_S+".xlsx", buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) toast("تم تنزيل الملف");
+}
+// «🖨️ طباعة / PDF» (2026-11-09): the same list as a printed page; the phone's or computer's print screen offers «حفظ كـ PDF»
+// (a PDF written here would break the Arabic letters apart, the print screen keeps them right)
+function printList(){
+  const {list, late, days} = exportRows(), m = exportMeta(list.length);
+  const fmtD = v => v ? fmtShort(v).split(" · ")[0] + " " + arDigits(String(v).slice(0, 4)) : "";
+  const old = document.getElementById("printArea"); if (old) old.remove();
+  const area = h("div",{id:"printArea", dir:"rtl"},
+    h("header",{class:"pr-head"}, h("img",{class:"pr-logo", src:APP_MARK, alt:""}),
+      h("div",null, h("div",{class:"pr-title"}, m.title), m.church ? h("div",{class:"pr-church"}, "كنيسة " + m.church.replace(/^كنيسة\s+/, "")) : null,
+        h("div",{class:"pr-sub"}, m.head + " · " + m.when + " · " + arDigits(list.length) + " اسم"))),
+    h("table",{class:"pr-table"},
+      h("thead",null, h("tr",null, ["م","الاسم","التليفون","المنطقة","العنوان","الشغل","عيد الميلاد","آخر اعتراف","مرات الاعتراف","آخر افتقاد"].map(t => h("th",null,t)))),
+      h("tbody",null, list.map((p, i) => h("tr",null,
+        h("td",{class:"c"}, arDigits(i + 1)), h("td",{class:"nm"}, p.name || ""), h("td",{class:"c", dir:"ltr"}, p.phone || ""), h("td",null, p.area || ""),
+        h("td",null, p.address || ""), h("td",null, p.job || ""), h("td",{class:"c"}, fmtD(p.birthday)),
+        h("td",{class:"c" + (late.has(i) ? " late" : "")}, fmtD(p.lastConfession) || (late.has(i) ? "—" : "")), h("td",{class:"c"}, arDigits((p.confessions||[]).length)), h("td",{class:"c"}, fmtD(p.lastVisit)))))),
+    h("p",{class:"pr-note"}, "المظلل: عدّى " + arDigits(days) + " يوم أو أكثر من آخر اعتراف."),
+    h("footer",{class:"pr-foot"}, m.foot));
+  document.body.append(area); document.body.classList.add("printing");
+  const done = () => { document.body.classList.remove("printing"); area.remove(); removeEventListener("afterprint", done); };
+  addEventListener("afterprint", done);
+  setTimeout(() => { try { window.print(); } catch(e){ toast("الطباعة غير متاحة على هذا الجهاز"); done(); } }, 150);
 }
 async function collectBackup(){
   const docs = {};
@@ -5843,16 +6077,17 @@ const SCENES = {
     motes(c, w, h, t, 30, 17, "rgba(255,220,190,.8)", 1, 4, .8);
     c.strokeStyle = "rgba(255,220,190,.18)"; c.lineWidth = 1; for (let i = 0; i < 10; i++){ const y = h * (.72 + i * .025), x0 = ((i * 77 + t * 30) % (w + 80)) - 40; c.beginPath(); c.moveTo(x0, y); c.quadraticCurveTo(x0 + 20, y - 3, x0 + 40, y); c.stroke(); }
     vignette(c, w, h, .4); },
-  passion(c, w, h, t){ sky(c, w, h, ["#0d0507", "#3a0d14", [.65, "#7a2224"], "#c25a34"]);
-    glow(c, w * .5, h * .55, h * .5, "rgba(255,120,70,.35)");
-    for (let i = 0; i < 5; i++) cloud(c, ((w * (i * .28) + t * (6 + i * 2)) % (w * 1.4)) - w * .2, h * (.12 + (i % 3) * .08), h * (.1 + (i % 2) * .05), "rgba(20,4,6,.55)");
-    c.fillStyle = "#1a0709"; c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * .8); c.quadraticCurveTo(w * .3, h * .76, w * .42, h * .56); c.quadraticCurveTo(w * .5, h * .5, w * .58, h * .56); c.quadraticCurveTo(w * .7, h * .76, w, h * .8); c.lineTo(w, h); c.fill();
-    glow(c, w * .5, h * .3, h * .3, "rgba(255,200,140,.3)");
-    plainCross(c, w * .5, h * .34, h * .2, "#0e0405", .1); plainCross(c, w * .34, h * .52, h * .12, "#0e0405", .1); plainCross(c, w * .66, h * .52, h * .12, "#0e0405", .1);
-    c.save(); c.translate(w * .5, h * .9); c.scale(1, .35); c.strokeStyle = "#3a2316"; c.lineWidth = 5; for (let k = 0; k < 3; k++){ c.beginPath(); for (let a = 0; a <= TAU + .01; a += .1){ const rr = h * .2 + Math.sin(a * 7 + k * 2) * 4; c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } c.stroke(); }
-    c.strokeStyle = "#5a3a22"; c.lineWidth = 2; for (let i = 0; i < 28; i++){ const a = i / 28 * TAU, rr = h * .2; c.beginPath(); c.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); c.lineTo(Math.cos(a + .15) * (rr + 12), Math.sin(a + .15) * (rr + 12)); c.stroke(); } c.restore();
-    c.save(); c.globalAlpha = .7; palmFrond(c, 0, h, h * .5, -.9, "#2a3a18"); palmFrond(c, w, h, h * .5, -2.25, "#2a3a18"); c.restore();
-    motes(c, w, h, t, 22, 23, "rgba(255,150,90,.8)", -1, 8); vignette(c, w, h, .5); },
+  passion(c, w, h, t){ sky(c, w, h, ["#120406", "#2a070c", [.6, "#3d0c12"], "#1a0508"]);
+    const hx = w * .5, hy = h * .3;   // where the halo of the painting is (the painting stands in the middle)
+    glow(c, hx, hy, h * .95, "rgba(214,150,60,.30)");
+    rays(c, hx, hy, Math.max(w, h) * 1.1, 26, t, "rgba(240,190,100,.16)", .015, .045);
+    glow(c, w * .12, h * .5, h * .9, "rgba(150,20,30,.35)"); glow(c, w * .88, h * .5, h * .9, "rgba(150,20,30,.35)");
+    motes(c, w, h, t, 30, 23, "rgba(255,170,90,.85)", -1, 9);
+    },
+  church(c, w, h, t){ c.clearRect(0, 0, w, h);
+    const x = ((t * .06) % 1.6 - .3) * w;   // a slow band of sunlight crossing the photo
+    c.save(); c.globalCompositeOperation = "lighter"; c.fillStyle = lin(c, x - w * .25, 0, x + w * .25, h * .4, ["rgba(255,236,190,0)", [.5, "rgba(255,236,190,.16)"], "rgba(255,236,190,0)"]); c.fillRect(0, 0, w, h); c.restore();
+    motes(c, w, h, t, 18, 41, "rgba(255,225,150,.75)", -1, 6, .8); },
   resurrection(c, w, h, t){ sky(c, w, h, ["#f6c27a", "#fbe1a6", [.55, "#fff4d8"], "#fffaf0"]);
     const ox = w * .5, oy = h * .4;
     rays(c, ox, oy, h * 1.2, 24, t, "rgba(255,226,150,.28)", .02, .05);
@@ -5925,6 +6160,7 @@ function frameSVG(w, h){ const m = 8, r = 16, k = 26;
     + `<rect x="${m + 5}" y="${m + 5}" width="${w - 2 * m - 10}" height="${h - 2 * m - 10}" rx="${r - 4}" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width=".8" stroke-dasharray="2 4"/>`
     + corner(m + 2, m + 2, 1, 1) + corner(w - m - 2, m + 2, -1, 1) + corner(m + 2, h - m - 2, 1, -1) + corner(w - m - 2, h - m - 2, -1, -1)
     + `<g transform="translate(${w / 2} ${m})"><path d="M-30 0 H-9 M9 0 H30" stroke="currentColor" stroke-width="2"/><path d="M0 -6 l6 6 l-6 6 l-6 -6z" fill="currentColor"/><circle r="2" fill="#fff8e0"/></g></svg>`; }
+// a design may carry a photo (a file next to the app, cloud version only): it sits over or under its moving light
 const LIST = [
   {id:"kiahk", name:"كيهك", when:"الشهر القبطي كيهك", chip:"شهر التسبحة", greet:"كيهك المبارك", verse:"«تعظّم نفسي الرب، وتبتهج روحي بالله مخلّصي»", ref:"لوقا ١: ٤٦، ٤٧"},
   {id:"newyear", name:"رأس السنة", when:"٣١ ديسمبر و١ يناير", chip:"سنة جديدة", greet:"سنة مباركة", verse:"«كلّلت السنة بجودك، وآثارك تقطر دسمًا»", ref:"مزمور ٦٥: ١١"},
@@ -5932,10 +6168,11 @@ const LIST = [
   {id:"theophany", name:"عيد الغطاس", when:"١٩ يناير", chip:"١١ طوبة", greet:"غطاس مجيد", verse:"«هذا هو ابني الحبيب الذي به سُررت»", ref:"متى ٣: ١٧"},
   {id:"nineveh", name:"صوم نينوى", when:"ثلاثة أيام قبل الصوم الكبير", chip:"ثلاثة أيام", greet:"صوم يونان", verse:"«دعوت من ضيقي الرب فاستجابني»", ref:"يونان ٢: ٢"},
   {id:"lent", name:"الصوم الكبير", when:"٥٥ يومًا قبل القيامة", chip:"٥٥ يومًا", greet:"الصوم الكبير المقدس", verse:"«ارجعوا إليّ بكل قلوبكم، وبالصوم والبكاء والنوح»", ref:"يوئيل ٢: ١٢"},
-  {id:"passion", name:"أسبوع الآلام", when:"من أحد الشعانين إلى سبت النور", chip:"البصخة المقدسة", greet:"أسبوع الآلام", verse:"«لك القوة والمجد والبركة والعزة إلى الأبد، آمين»", ref:"من تسبحة البصخة"},
+  {id:"passion", photo:"passion.jpg", name:"أسبوع الآلام", when:"من أحد الشعانين إلى سبت النور", chip:"البصخة المقدسة", greet:"أسبوع الآلام", verse:"«لك القوة والمجد والبركة والعزة إلى الأبد، آمين»", ref:"من تسبحة البصخة"},
   {id:"resurrection", name:"عيد القيامة", when:"عيد القيامة والخماسين", chip:"Ⲡⲓⲭⲣⲓⲥⲧⲟⲥ ⲁϥⲧⲱⲛϥ", greet:"المسيح قام", verse:"«بالحقيقة قام. ليس هو ههنا لكنه قام»", ref:"لوقا ٢٤: ٦"},
   {id:"virgin", name:"صوم العذراء", when:"من ٧ إلى ٢٢ أغسطس", chip:"صوم السيدة العذراء", greet:"السلام لكِ يا مريم", verse:"«هوذا منذ الآن جميع الأجيال تطوّبني»", ref:"لوقا ١: ٤٨"},
   {id:"apostles", name:"صوم الرسل", when:"من بعد الخماسين إلى ١٢ يوليو", chip:"صوم الآباء الرسل", greet:"صوم الرسل", verse:"«اذهبوا إلى العالم أجمع، واكرزوا بالإنجيل للخليقة كلها»", ref:"مرقس ١٦: ١٥"},
+  {id:"church", photo:"church-bg.jpg", name:"صورة الكنيسة", when:"في أي وقت", chip:"بيت الله", greet:"بيت الله", verse:"«ما أحلى مساكنك يا رب الجنود»", ref:"مزمور ٨٤: ١"},
   {id:"nayrouz", name:"عيد النيروز", when:"١١ سبتمبر", chip:"١ توت", greet:"نيروز مبارك", verse:"«كن أمينًا إلى الموت فسأعطيك إكليل الحياة»", ref:"رؤيا ٢: ١٠"}
 ];
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -5955,6 +6192,7 @@ const find = id => LIST.find(o => o.id === id) || null;
 // the picture with the greeting over it; kind "home" (under the header) or "gate" (top of the sign-in card)
 function banner(id, kind){ const o = find(id); if (!o) return null;
   const el = h("section",{class:"occ occ-" + kind, "data-occ":o.id, role:"img", "aria-label":o.greet + "، " + o.verse},
+    o.photo ? h("div",{class:"occ-photo", "aria-hidden":"true", style:"background-image:url(" + o.photo + ")"}) : null,
     h("canvas",{"aria-hidden":"true"}), kind === "layer" ? null : h("div",{class:"occ-frame", "aria-hidden":"true"}),
     kind === "layer" ? null : h("div",{class:"occ-txt"}, h("span",{class:"occ-chip" + (/[Ⲁ-⳿Ϣ-ϯ]/.test(o.chip) ? " coptic" : "")}, o.chip), h("div",{class:"occ-greet"}, o.greet),
       kind === "home" ? [h("div",{class:"occ-verse"}, o.verse), h("div",{class:"occ-ref"}, o.ref)] : null));
@@ -6366,7 +6604,7 @@ function priestSettings(){
     wrap.append(h("div",{class:"card form", id:"occCard"}, h("h3",null,"✨ تصميم المناسبة"),
       h("p",{class:"small muted", style:"margin:0"},"اختر المناسبة فيتغير الجزء العلوي من الشاشة نفسه إلى صورتها المتحركة مع التهنئة عند الجميع، وكذلك خلفية شاشة الدخول، ويتساقط الثلج على الشاشات في الميلاد ورأس السنة. تظهر المناسبة في المدة المحددة تحتها فقط، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا."),
       curO && OCCASION.find(curO) ? occDates(st, saveSt) : null,
-      h("div",{class:"occ-pick"}, opt("", "بدون مناسبة"), OCCASION.LIST.map(o => opt(o.id, o.name))))); }
+      h("div",{class:"occ-pick"}, opt("", "بدون مناسبة"), OCCASION.LIST.filter(o => !o.photo || Store.mode === "cloud").map(o => opt(o.id, o.name))))); }
   if (churchWide){ const cur = st.palette || "teal";
     wrap.append(h("div",{class:"card form"}, h("h3",null,"🎨 لون البرنامج والخلفية"),
       h("p",{class:"small muted", style:"margin:0"}, manyFathers ? "الألوان دي بتتغيّر عند كل الناس في الكنيسة. الإطارات الدهبي زي ماهي." : "الألوان دي بتتغيّر في البرنامج كله. الإطارات الدهبي زي ماهي."),
@@ -6393,8 +6631,8 @@ function priestSettings(){
   if (!S.account || admScreen) wrap.append(backupCard());
   if (admScreen && Store.mode === "local") wrap.append(resetCard());
   wrap.append(h("div",{class:"card form"}, h("h3",null,"تصدير"),
-    h("p",{class:"small muted"},"نزّل قايمة أولادك ببياناتهم وتواريخ الاعتراف والافتقاد في ملف Excel."),
-    h("div",null, h("button",{class:"btn sm", onclick:exportExcel},"تصدير Excel"))));
+    h("p",{class:"small muted"},"نزّل قائمة أبنائك ببياناتهم وتواريخ الاعتراف والافتقاد في ملف Excel، أو اطبعها واحفظها PDF من شاشة الطباعة."),
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:exportExcel},"📊 تصدير Excel"), h("button",{class:"btn sm ghost", id:"printBtn2", onclick:printList},"🖨️ طباعة / PDF"))));
   const wt = waTplCard(); if (wt) wrap.append(wt);
   const dg = digitsCard(); if (dg) wrap.append(dg);
   return wrap;
@@ -7082,11 +7320,13 @@ function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsW
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
 const NEWS = {id:"2026-11-09b", title:"الجديد في آخر تحديث", items:{
   admin:[
-    ["⛪","صورة أب الاعتراف","في قائمة «الناس» تظهر صورة أب الاعتراف صغيرة على يسار اسم كل شخص بدلًا من سطر «أبوه»، ويظهر اسمه عند الوقوف عليها بالماوس أو الضغط عليها ضغطة طويلة."],
+    ["⏱️","تفاصيل سرعة التحميل","في كارت «سرعة التحميل» اضغط على أي اسم لعرض آخر ١٠ مرات فتح فيها البرنامج: الوقت، ونوع الجهاز، والإنترنت، ومدة تحميل الصفحة والبيانات، مع تفسير مبسط لسبب البطء. ولم يعد يُحسب الوقت الذي تكون فيه الشاشة مغلقة."],
+    ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
     ["📅","مدة المناسبة","تحت اختيار المناسبة في «الإعدادات» خانتا «من» و«إلى»، وتُملآن تلقائيًا بالمدة المعتادة لكل مناسبة، والمناسبات المتغيرة تُحسب من عيد القيامة. تظهر المناسبة في هذه المدة فقط، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا. ويمكنك تعديل التاريخين، أو الضغط على «إظهاره من اليوم»."],
     ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
   ],
   priest:[
+    ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."],
     ["💬","التأمل عبر واتساب","في «التأملات» اضغط «💬 إرسال عبر واتساب»، واختر من أبنائك الكل أو بعضهم أو شخصًا واحدًا، ثم اضغط على كل اسم فيُفتح واتساب على محادثته والرسالة مكتوبة، وفي آخرها أنها مرسلة منك عن طريق البرنامج."],
     ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
   ],
@@ -7421,7 +7661,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.09-2";
+const APP_VERSION = "2026.11.09-4";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -7920,9 +8160,42 @@ function speedCard(){
     slow ? h("p",{class:"speed-alert", role:"alert"},"⚠️ متوسط وقت ظهور البيانات هذا الأسبوع "+secs(st.avg)+" ثانية، وهو أبطأ من المعتاد. غالبًا يكون السبب ضعف الإنترنت عند المستخدمين، فإن تكرر عند الجميع فتواصل مع المطوّر على "+DEV.phone+".") : null,
     h("p",null,"متوسط وقت ظهور البيانات خلال ٧ أيام: ", h("b",{class:"num"}, secs(st.avg)+" ثانية"), h("span",{class:"small muted"}," (من "+arDigits(st.n)+" مرة فتح)")),
     h("p",{class:"small muted", style:"margin:0"},"الأبطأ:"),
-    h("ul",{class:"list speed-list"}, st.rows.slice(0, 5).map(r => h("li",null,
-      h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "آخر مرة "+secs(r.last.ms)+" ث"+(r.last.net ? " · "+r.last.net : ""))),
-      h("span",{class:"pill"+(r.med > SLOW_MS ? " warn" : "")}, secs(r.med)+" ث")))));
+    h("p",{class:"small muted", style:"margin:0"},"الرقم بجانب كل اسم هو الوقت المعتاد من آخر ١٠ مرات فتح. اضغط على الاسم لعرض التفاصيل."),
+    h("ul",{class:"list speed-list"}, st.rows.slice(0, 5).map(r => { const open = S.draft.speedOpen === r.id;
+      return h("li",{class:"speed-row"+(open ? " open" : "")},
+        h("button",{type:"button", class:"speed-head", "data-id":r.id, "aria-expanded":String(open), onclick:()=>{ S.draft.speedOpen = open ? null : r.id; render(); }},
+          h("div",{class:"who"}, h("strong",null, r.name), h("span",{class:"small muted"}, "آخر مرة "+secs(r.last.ms)+" ث"+(r.last.net ? " · "+r.last.net : "")+(r.last.dev ? " · "+SPEED_DEV[r.last.dev] : ""))),
+          h("span",{class:"pill"+(r.med > SLOW_MS ? " warn" : "")}, secs(r.med)+" ث")),
+        open ? speedDetail(r.id) : null); })));
+}
+const SPEED_DEV = {ios:"آيفون", ipad:"آيباد", android:"أندرويد", pc:"كمبيوتر"};
+// the last openings of one person, newest first, with what can explain a slow one
+function speedDetail(id){
+  const d = (S.speed || []).find(x => x.id === id) || {}, xs = (d.samples || []).filter(Boolean).slice().reverse();
+  const when = at => { const t = new Date(at); return WDAYS[t.getDay()]+" "+fmtG(t)+" · "+arDigits(pad(t.getHours()))+":"+arDigits(pad(t.getMinutes())); };
+  const why = x => { const bits = [];
+    bits.push(x.cached ? "من النسخة المحفوظة على الجهاز" : "من الإنترنت");
+    if (x.page) bits.push("تحميل صفحة البرنامج "+secs(x.page)+" ث");
+    if (x.api != null) bits.push("البيانات "+secs(x.api)+" ث"+(x.rq ? " ("+arDigits(x.rq)+" طلب"+(x.kb ? "، "+arDigits(x.kb)+" ك.ب" : "")+")" : ""));
+    if (x.wait != null) bits.push("انتظار السيرفر "+secs(x.wait)+" ث");
+    if (x.hid) bits.push("لم يُحسب "+secs(x.hid)+" ث كانت الشاشة فيها مغلقة أو في برنامج آخر");
+    return bits.join(" · "); };
+  const hint = speedHint(xs);
+  return h("div",{class:"speed-detail"},
+    hint ? h("p",{class:"speed-hint small"}, "💡 "+hint) : null,
+    h("ul",{class:"speed-samples"}, xs.map(x => h("li",{class:x.ms > SLOW_MS ? "slow" : ""},
+      h("div",{class:"row between"}, h("b",{class:"num"}, secs(x.ms)+" ث"), h("span",{class:"small muted"}, when(x.at))),
+      h("span",{class:"small"}, [x.dev ? SPEED_DEV[x.dev] + (x.app ? " (من الشاشة الرئيسية)" : x.dev ? " (من المتصفح)" : "") : "", x.net ? "نت "+x.net : ""].filter(Boolean).join(" · ")),
+      h("span",{class:"small muted"}, why(x))))));
+}
+// a plain reading of the numbers, only when the details are there
+function speedHint(xs){
+  const slow = xs.filter(x => x.ms > SLOW_MS && (x.page != null || x.api != null)); if (!slow.length) return "";
+  const avg = k => slow.filter(x => x[k] != null).reduce((a, x, _, l) => a + x[k] / l.length, 0);
+  if (slow.filter(x => x.page != null).length && avg("page") > 4000) return "أغلب الوقت يضيع في تحميل صفحة البرنامج نفسها، وهذا غالبًا من ضعف الإنترنت على الجهاز.";
+  if (avg("wait") > 3000) return "السيرفر نفسه يتأخر في الرد على هذا الجهاز. أرسل هذه التفاصيل للمطوّر.";
+  if (avg("api") > 4000) return "تحميل البيانات من الإنترنت بطيء على هذا الجهاز، وهذا غالبًا من ضعف الإنترنت.";
+  return "الإنترنت والسيرفر سريعان في هذه المرات، والتأخير داخل الجهاز نفسه. قد يفيد تحديث المتصفح أو إعادة تشغيل الجهاز.";
 }
 const ADM_NAV = [["admSum","الملخص"],["admTools","الأدوات"],["admFathers","الآباء"],["admPeople","الناس"]];
 function admNav(){
@@ -8088,25 +8361,18 @@ function adminView(all, part){
   const dirRow = a => {
     const m = memberOf(a.id) || {}, miss = ["user","pending"].includes(a.role) ? profileMissing(m, a.photo) : [], on = S.draft.accOpen === a.id;
     const sub = a.role === "priest" ? "⛪ أب اعتراف · "+arDigits(accs.filter(x => x.id !== a.id && x.role !== "priest" && x.father === a.id && !x.pending).length)+" معترف"
-      : a.role === "user" || a.father ? "" : (ROLES[a.role]||ROLES.user).label;
-    // 2026-11-09 (user): the confession father as a small photo on the left instead of «أبوه: …»; his name on hover or a long press
-    const fa = a.role !== "priest" && (a.role === "user" || a.father) ? (a.father ? accs.find(x => x.id === a.father) || {name:"؟"} : null) : undefined;
-    const faEl = fa === undefined ? null : fa ? h("span",{class:"dir-father", title:"أب الاعتراف: "+fa.name, "data-tip":fa.name, "aria-label":"أب الاعتراف: "+fa.name,
-        onpointerdown:e => { const el = e.currentTarget; clearTimeout(el._lp); el._lp = setTimeout(() => { el._held = 1; el.classList.add("tip"); setTimeout(() => el.classList.remove("tip"), 1800); }, 450); },
-        onpointerup:e => clearTimeout(e.currentTarget._lp), onpointerleave:e => clearTimeout(e.currentTarget._lp), oncontextmenu:e => e.preventDefault(),
-        onclick:e => { if (e.currentTarget._held){ e.currentTarget._held = 0; e.stopPropagation(); } }}, avatar({name:fa.name, photo:fa.photo}, "xs"))
-      : h("span",{class:"dir-nofather", title:"من غير أب اعتراف"},"⚠️ من غير أب");
+      : a.role === "user" || a.father ? (a.father ? "أبوه: "+((accs.find(x => x.id === a.father)||{}).name||"؟") : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
     return h("li",{class:"dir-row"+(on ? " on" : ""), role:"button", tabindex:"0", "aria-pressed":on ? "true" : "false", "data-id":a.id,
         "data-name":arKey(a.name+" "+(m.name||"")), "data-miss":miss.length ? "1" : "",
         onclick:()=>{ S.draft.accOpen = on ? null : a.id; S.draft.delAsk = null; render(); },
         onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
       avatar({name:a.name, photo:a.photo || m.photo}, "sm"),
-      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), sub ? h("span",{class:"small muted"}, sub) : null,
+      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), h("span",{class:"small muted"}, sub),
         cloudAdm && a.id !== S.account.id && seenText(a.id) ? h("span",{class:"seen"+(isOnline(a.id) ? " on" : "")}, seenText(a.id)) : null),
       h("span",{class:"dir-marks"},
         a.pending ? h("span",{class:"dir-mark warn", title:"مستني موافقة"},"⏳") : null,
         miss.length ? h("span",{class:"dir-mark miss", title:"ناقص: "+miss.join("، ")},"📝") : null,
-        a.active === false ? h("span",{class:"dir-mark bad", title:"متوقف"},"⛔") : null), faEl);
+        a.active === false ? h("span",{class:"dir-mark bad", title:"متوقف"},"⛔") : null));
   };
   let lists;
   if (cloudAdm){
@@ -8894,12 +9160,12 @@ pfamApi = {
 
 // how long the app took to show its data on this phone (2026-11-07): the last 10 times, kept for the admin's «سرعة التحميل» card
 speedApi = {
-  async save(ms, cached){
+  async save(ms, cached, det){
     if (!Cloud.me || Store.preview || !Cloud.church()) return;
     const k = "menrit_speed_"+Cloud.me.uid; let list = [];
     try { list = JSON.parse(localStorage.getItem(k) || "[]"); } catch(e){}
     list = (Array.isArray(list) ? list : []).filter(x => x && x.at > Date.now() - 14*864e5).slice(-9);
-    list.push({ms:Math.round(ms), at:Date.now(), net:(navigator.connection && navigator.connection.effectiveType) || "", cached:cached ? 1 : 0});
+    list.push(Object.assign({ms:Math.round(ms), at:Date.now(), net:(navigator.connection && navigator.connection.effectiveType) || "", cached:cached ? 1 : 0}, det || {}));
     try { localStorage.setItem(k, JSON.stringify(list)); } catch(e){}
     const body = JSON.stringify({church_id:Cloud.church(), path:"speed/"+Cloud.me.uid, data:{name:Cloud.me.name, role:Cloud.me.role, samples:list}});
     await Cloud.req("/rest/v1/docs?on_conflict=church_id,path", {method:"POST", headers:{Prefer:"resolution=merge-duplicates,return=minimal"}, body}).catch(() => {});
