@@ -240,6 +240,136 @@ ul.list li > .person-line{flex:1 1 240px}
 .family-head.letter-head{font-size:1.15rem}
 .wa-after{border:2px solid #86efac;display:grid;gap:10px}
 a.btn{text-decoration:none}
+.occ{position:relative;overflow:hidden;border-radius:22px;background:#14234f;box-shadow:0 10px 26px rgba(6,24,48,.3);color:#fff;isolation:isolate}
+.occ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.occ-frame{position:absolute;inset:0;pointer-events:none;color:#d9ad4c} .occ-frame svg{width:100%;height:100%;display:block}
+.occ-txt{position:absolute;inset:auto 0 0 0;padding:34px 22px 18px;background:linear-gradient(to top,rgba(0,0,0,.66),rgba(0,0,0,.3) 65%,rgba(0,0,0,0));display:grid;gap:3px;text-align:center}
+.occ-chip{justify-self:center;font-size:.72rem;padding:2px 10px;border-radius:999px;border:1px solid rgba(243,212,138,.7);color:#f8e3a8;background:rgba(0,0,0,.25)}
+.occ-greet{font-family:"Aref Ruqaa",var(--f-head);font-weight:700;font-size:2.05rem;line-height:1.45;padding:0 .3em;justify-self:center;background:linear-gradient(180deg,#fbe9b0,#ecc260 50%,#c28a26);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 1px rgba(40,20,0,.85)) drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+.occ-verse{font-size:.86rem;line-height:1.65;text-wrap:balance} .occ-ref{font-size:.72rem;opacity:.8}
+.band .hero.occ-on{position:relative;isolation:isolate;overflow:hidden}
+.occ-layer{position:absolute!important;inset:0;z-index:-1;border-radius:inherit;box-shadow:none;height:auto!important}
+.occ-layer::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 110% at 50% 45%,rgba(6,18,40,.28),rgba(6,18,40,.66))}
+.band .hero.occ-on .hero-meta{background:rgba(6,18,40,.45)}
+.occ-line{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 10px;text-align:center;margin-top:2px}
+.occ-line .occ-greet{font-size:1.7rem;line-height:1.35}
+.occ-line .occ-verse{flex-basis:100%;font-size:.8rem;line-height:1.6;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);text-wrap:balance}
+@media (max-width:640px){.occ-line .occ-greet{font-size:1.45rem} .occ-line .occ-verse{font-size:.74rem}}
+@media (max-height:520px){.occ-line .occ-verse{display:none}}
+#gate.occ-on{position:relative;isolation:isolate}
+#gate.occ-on > .occ-layer{position:fixed!important;border-radius:0}
+#snowFx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:35}
+.occ-gate{height:170px;border-radius:18px;margin:-6px -4px 4px}
+.occ-gate .occ-txt{padding:24px 12px 10px} .occ-gate .occ-greet{font-size:1.6rem}
+@media (max-height:700px){.occ-gate{height:120px} .occ-gate .occ-greet{font-size:1.3rem}}
+.occ-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.occ-opt{position:relative;border:2px solid var(--line);border-radius:14px;overflow:hidden;padding:0;cursor:pointer;background:var(--surface);color:var(--ink);font:inherit;display:grid;text-align:center}
+.occ-opt[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in oklab,var(--gold) 35%,transparent)}
+.occ-opt .occ{height:84px;border-radius:0;box-shadow:none} .occ-opt .occ-txt,.occ-opt .occ-frame{display:none}
+.occ-opt b{padding:6px 4px;font-size:.85rem}
+.occ-opt .none{height:84px;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-2);font-size:.8rem;padding:6px}
+.chat-fab{position:fixed;z-index:40;inset-inline-start:16px;bottom:calc(var(--nav-h,0px) + 18px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:2px solid var(--gold);cursor:pointer;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;box-shadow:0 8px 22px rgba(10,31,61,.35);display:grid;place-items:center;font-size:1.55rem}
+.chat-fab:focus-visible{outline:3px solid var(--gold-2);outline-offset:3px}
+.chat-fab .fab-ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold-2);opacity:0}
+.chat-fab.live .fab-ring{animation:chatRing 1.8s ease-out infinite}
+@keyframes chatRing{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+.chat-fab[data-on]:not([data-on=""])::after{content:attr(data-on);position:absolute;bottom:-3px;inset-inline-end:-3px;min-width:20px;height:20px;padding:0 4px;border-radius:99px;background:#16a34a;color:#fff;font-size:.72rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--surface)}
+.chat-badge{position:absolute;top:-5px;inset-inline-end:-5px;min-width:22px;height:22px;padding:0 5px;border-radius:99px;background:#dc2626;color:#fff;font-size:.78rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--surface)}
+.chat-badge.at{background:var(--gold-d)}
+.chat-peek{position:absolute;bottom:64px;inset-inline-start:0;width:max-content;max-width:min(260px,70vw);background:var(--surface);color:var(--ink);border:1px solid var(--gold);border-radius:14px;padding:8px 10px;font-size:.84rem;text-align:start;box-shadow:var(--shadow);line-height:1.5}
+body.chat-open .chat-fab{display:none}
+.chat-panel{position:fixed;z-index:41;inset-inline-start:16px;bottom:calc(var(--nav-h,0px) + 14px + env(safe-area-inset-bottom,0px));width:min(400px,calc(100vw - 32px));height:min(620px,calc(100dvh - var(--nav-h,0px) - 40px));
+  background:var(--surface);border:2px solid var(--gold);border-radius:22px;box-shadow:0 18px 50px rgba(10,31,61,.35);display:flex;flex-direction:column;overflow:hidden}
+.chat-panel[hidden]{display:none}
+@media (max-width:560px){.chat-panel{inset:0;width:auto;height:auto;border-radius:0;border:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} body.chat-open{overflow:hidden}}
+.chat-head{background:linear-gradient(135deg,var(--h1),var(--h2));color:#fff;padding:10px 12px;display:grid;gap:6px;border-bottom:2px solid var(--gold)}
+.chat-hrow{display:flex;align-items:center;gap:6px}
+.chat-title{flex:1;display:grid;line-height:1.35}
+.chat-title b{font-family:var(--f-head);font-size:1.05rem}
+.chat-title small{font-size:.76rem;opacity:.85;display:flex;align-items:center;gap:5px}
+.chat-title small i{width:8px;height:8px;border-radius:50%;background:#94a3b8;display:inline-block}
+.chat-title small.on i{background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
+.chat-x{border:0;background:rgba(255,255,255,.14);color:inherit;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;flex:none}
+.chat-x.sm{width:26px;height:26px;font-size:.8rem;background:rgba(0,0,0,.06);color:var(--ink-2)}
+.chat-online{display:flex;align-items:center;gap:8px;font-size:.78rem;opacity:.95;min-width:0}
+.chat-online .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stk{display:inline-flex}
+.stk .avatar{margin-inline-start:-7px;border:2px solid var(--surface)} .stk .avatar:first-child{margin-inline-start:0}
+.avatar.xs{width:24px;height:24px;font-size:.7rem} .avatar.xxs{width:16px;height:16px;font-size:.55rem;border-width:1px!important} .avatar.sm{width:32px;height:32px;font-size:.85rem;flex:none}
+.chat-search{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line)}
+.chat-search input{flex:1;min-width:0}
+.chat-pin{display:flex;gap:6px;align-items:center;padding:7px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:.84rem}
+.chat-pin b{color:var(--gold-d);flex:none} .chat-pin .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.chat-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg);overscroll-behavior:contain}
+.chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
+.chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
+.chat-new{align-self:stretch;text-align:center;color:var(--gold-d);font-size:.76rem;font-weight:800;border-top:1.5px dashed var(--gold);padding-top:3px;margin:4px 0}
+.chat-msg{display:flex;gap:6px;align-items:flex-end;max-width:88%}
+.chat-msg.mine{align-self:flex-end;flex-direction:row-reverse}
+.chat-msg .bub{background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:6px 10px 4px;min-width:90px;position:relative}
+.chat-msg.mine .bub{background:linear-gradient(135deg,#d9f2ef,#dbeafe);border-color:#b6dfe0;border-radius:16px 16px 4px 16px}
+:root[data-theme="dark"] .chat-msg.mine .bub{background:linear-gradient(135deg,#134e4a,#1e3a8a);border-color:#1f5f73}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chat-msg.mine .bub{background:linear-gradient(135deg,#134e4a,#1e3a8a);border-color:#1f5f73}}
+.chat-msg.tagged .bub{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.25)}
+.chat-msg.flash .bub{animation:chatFlash 1.4s}
+@keyframes chatFlash{0%,60%{box-shadow:0 0 0 4px var(--gold-2)}100%{box-shadow:none}}
+.chat-msg .by{font-size:.76rem;font-weight:800;color:var(--a);display:flex;gap:6px;align-items:center}
+.chat-msg .by small{background:var(--gold);color:#fff;border-radius:6px;padding:0 5px;font-size:.66rem}
+.chat-msg .q{border-inline-start:3px solid var(--gold);background:rgba(0,0,0,.04);border-radius:8px;padding:3px 8px;margin:3px 0;font-size:.78rem;cursor:pointer;display:grid}
+.chat-msg .q span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.chat-msg .txt{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:.93rem}
+.chat-msg .txt .mn{color:var(--gold-d);font-weight:800}
+.chat-msg .txt a.tel{color:var(--a);text-decoration:underline;direction:ltr;unicode-bidi:isolate}
+.chat-msg .txt mark{background:var(--gold-2);color:inherit;border-radius:3px}
+.chat-msg .tm{display:flex;gap:4px;align-items:center;justify-content:flex-end;font-size:.68rem;color:var(--ink-2);margin-top:2px;flex-wrap:wrap}
+.chat-msg .seen{color:#0ea5e9;font-weight:800;display:inline-flex;gap:3px;align-items:center}
+.chat-msg .tm-b{border:0;background:none;cursor:pointer;font-size:.74rem;padding:2px 3px;border-radius:6px;color:var(--ink-2);opacity:.75}
+.chat-msg .tm-b:hover,.chat-msg .tm-b:focus-visible{opacity:1;background:rgba(0,0,0,.06)}
+.chat-msg .tm-b.del{color:#b91c1c}
+.chat-msg .rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.chat-msg .rx button{border:1px solid var(--line);background:var(--surface-2);border-radius:99px;padding:0 7px;font-size:.8rem;cursor:pointer;display:inline-flex;gap:3px;align-items:center}
+.chat-msg .rx button.on{border-color:var(--a);background:rgba(15,118,110,.12)}
+.chat-msg .rx b{font-size:.7rem}
+.rx-picker{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px;background:var(--surface);border:1px solid var(--gold);border-radius:14px;padding:3px}
+.rx-picker button{border:0;background:none;font-size:1.15rem;cursor:pointer;border-radius:8px;padding:2px 4px}
+.rx-picker button.on{background:rgba(15,118,110,.15)}
+.rx-picker .pin-b{font-size:.78rem;color:var(--gold-d);font-weight:700}
+.chat-typing{min-height:20px;padding:0 12px;font-size:.76rem;color:var(--ink-2);display:flex;gap:6px;align-items:center;background:var(--bg)}
+.chat-typing .dots{display:inline-flex;gap:3px} .chat-typing .dots i{width:5px;height:5px;border-radius:50%;background:var(--ink-2);animation:chatDot 1s infinite}
+.chat-typing .dots i:nth-child(2){animation-delay:.15s} .chat-typing .dots i:nth-child(3){animation-delay:.3s}
+@keyframes chatDot{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.chat-quick{display:flex;gap:6px;overflow-x:auto;padding:6px 10px;border-top:1px solid var(--line);scrollbar-width:none}
+.chat-quick .chip-btn{white-space:nowrap;font-size:.8rem;padding:3px 10px}
+.chat-reply{display:flex;gap:8px;align-items:center;padding:6px 10px;background:var(--surface-2);border-top:1px solid var(--line)}
+.chat-reply .t{flex:1;display:grid;border-inline-start:3px solid var(--gold);padding-inline-start:8px;font-size:.8rem;min-width:0}
+.chat-reply .t span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.chat-mention{display:grid;border-top:1px solid var(--line);max-height:180px;overflow-y:auto}
+.chat-mention[hidden]{display:none}
+.chat-mention button{border:0;background:var(--surface);display:flex;gap:8px;align-items:center;padding:7px 12px;cursor:pointer;text-align:start;font:inherit;color:var(--ink)}
+.chat-mention button:hover,.chat-mention button:focus-visible{background:var(--surface-2)}
+.chat-form{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--line)}
+.chat-form input{flex:1;min-width:0;border-radius:99px}
+.chat-send{border-radius:50%;width:44px;height:44px;padding:0;flex:none;font-size:1.1rem}
+@media (prefers-reduced-motion:reduce){.chat-fab.live .fab-ring,.chat-typing .dots i,.chat-msg.flash .bub{animation:none}}
+.rs-card{display:grid;gap:12px}
+.rs-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.rs-head h3{margin:0}
+.rs-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px}
+.rs-num{border:1px solid var(--line);border-radius:14px;padding:8px 10px;display:grid;gap:2px;background:var(--surface)}
+.rs-num b{font-size:1.35rem;font-family:var(--f-head)}
+.rs-num span{font-size:.78rem;color:var(--ink-2)}
+.rs-num.ok b{color:var(--ok-ink)} .rs-num.warn b{color:var(--warn-ink)}
+.rs-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--line)}
+.rs-bar i{display:block;height:100%}
+.rs-wrap{overflow-x:auto}
+.rs-table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+.rs-table th,.rs-table td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:center}
+.rs-table th:first-child,.rs-table td:first-child{text-align:start}
+.rs-table th{font-size:.78rem;color:var(--ink-2);font-weight:600}
+.rs-table td.rs-wait{color:var(--warn-ink);font-weight:700}
+.rs-list{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.rs-list li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0}
 .chip-btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;font-size:.84rem;font-weight:600;cursor:pointer;color:var(--ink-2)}
 .chip-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--a);background:color-mix(in oklab,var(--a) 10%,var(--surface))}
 .kid-row{display:grid;grid-template-columns:1fr 150px auto;gap:8px;align-items:center}
@@ -1022,6 +1152,7 @@ body.crop-open{overflow:hidden}
 .on-pick{display:flex;flex-wrap:wrap;gap:6px 14px}
 .on-pick .chk{display:inline-flex;align-items:center;gap:4px;font-weight:400}
 .adm-msg div+div{margin-top:8px}
+.map-btn.approx{border-style:dashed}
 </style>
 <script>
 //---------------------------------------------------------------------
@@ -3961,8 +4092,7 @@ function routeLL(p){
 // a point Google Maps can use: the coordinates, otherwise the written address
 function routePoint(p){
   const ll = routeLL(p); if (ll) return ll.lat+","+ll.lng;
-  const a = [p.address, p.area].map(x => String(x||"").trim()).filter(Boolean).join("، ");
-  return a ? a+"، مصر" : "";
+  return addrQuery(p);
 }
 function routeUrl(stops, from){
   const pts = stops.map(routePoint).filter(Boolean).slice(0, ROUTE_MAX); if (!pts.length) return "";
@@ -4130,7 +4260,7 @@ function routeCard(all, overdueV){
       h("span",{class:"small muted"}, [next.area, next.address].filter(Boolean).join(" · ") || "لا يوجد عنوان"),
       etas[next.id] ? h("span",{class:"pill"}, "الوصول حوالي "+timeAr(hmStr(etas[next.id].at))) : null,
       h("div",{class:"row"},
-        routePoint(next) ? h("a",{class:"btn sm", href:routeUrl([next], r.start), target:"_blank", rel:"noopener"},"🧭 الطريق") : null,
+        routePoint(next) ? h("a",{class:"btn sm", id:"routeGo", href: !routeLL(next) && locOk(next.loc) ? locOk(next.loc) : routeUrl([next], r.start), target:"_blank", rel:"noopener"},"🧭 الطريق") : null,
         next.phone ? h("a",{class:"btn sm ghost", href:"tel:"+telOf(next.phone)},"📞 اتصال") : null,
         next.phone ? h("a",{class:"btn sm wa", href:waLink(next.phone, "سلام ونعمة، أبونا في الطريق إليكم الآن للزيارة 🙏"), target:"_blank", rel:"noopener"},"💬 في الطريق") : null,
         h("button",{class:"btn sm route-done", onclick:()=>routeDone(next, r.date)},"✅ تمت الزيارة"),
@@ -4744,6 +4874,7 @@ function priestRequests(all){
   const items = all.flatMap(p => [p.request ? {p, r:realBk(p, p.request, "confession"), k:"confession"} : null, p.visitReq ? {p, r:realBk(p, p.visitReq, "visit"), k:"visit"} : null]).filter(Boolean)
     .sort((a,b)=>String(a.r.date||"9").localeCompare(String(b.r.date||"9")));
   const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف والافتقاد"));
+  { const rs = reqSumPriestCard(); if (rs) wrap.append(rs); }
   const wa = S.draft.waAfter;
   if (wa) wrap.append(h("div",{class:"card wa-after"},
     h("p",{style:"margin:0"}, "✅ الميعاد وصل لـ "+wa.name+" في البرنامج. تحب تبعتهوله واتساب كمان؟"),
@@ -4757,6 +4888,7 @@ function priestRequests(all){
       if (when && p.phone) S.draft.waAfter = {name:p.name, phone:p.phone, text:apptText(p, k, when, note)};
       const patch = {[K.handled]: r.id, onApp:true}; if (when) patch[K.next] = when;
       await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, patch));
+      S.reqSum = null;
       await Store.set("members/"+p.id+"/inbox/"+newId(), when ? {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()}
         : {type:"seen", title:"أبونا شاف طلب ال"+K.label, text:"هيكلمك بنفسه يتفق معاك.", reqId:r.id, at:new Date().toISOString()});
     };
@@ -4789,8 +4921,8 @@ function priestRequests(all){
     icsBtn({id:"p"+p.id.replace(/[^A-Za-z0-9-]/g,"")+k[0]+String(when).replace(/\D/g,""), when, len: k === "visit" ? 45 : 20, title: REQ_KINDS[k].emo+" "+REQ_KINDS[k].label+": "+p.name,
       where: k === "visit" ? [p.address, p.area].filter(Boolean).join("، ") : "", note: k === "visit" && mapUrl(p) ? mapUrl(p) : ""}, "📅"),
     k==="confession"
-      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(cur.confessions||[]), TODAY_S])].sort()})); toast("تم تسجيل الاعتراف"); }},"اعترف")
-      : h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastVisit:TODAY_S, nextVisit:"", visits:[...(cur.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]})); toast("تم تسجيل الافتقاد"); }},"تم الافتقاد"))))));
+      ? h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastConfession:TODAY_S, nextConfession:"", confessions:[...new Set([...(cur.confessions||[]), TODAY_S])].sort()})); S.reqSum = null; toast("تم تسجيل الاعتراف"); }},"اعترف")
+      : h("button",{class:"btn sm ghost", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastVisit:TODAY_S, nextVisit:"", visits:[...(cur.visits||[]), {date:TODAY_S, type:"زيارة منزلية", note:""}]})); S.reqSum = null; toast("تم تسجيل الافتقاد"); }},"تم الافتقاد"))))));
   return wrap;
 }
 // «📅 ضيفه لتقويمي» (2026-11-05): an .ics file the phone's calendar opens, with a reminder at 8 in the morning and one an hour before
@@ -5191,6 +5323,755 @@ function onlineGet(){
   if (!onlineGet.timer) onlineGet.timer = setInterval(() => { if (!document.hidden && S.tab !== "settings" && S.tab !== "activity" && accRole() === "admin") onlineGet(); }, 30000);
   return S.online || null;
 }
+// «📊 ملخص طلبات الاعتراف والافتقاد» (2026-11-08, user chose «أرقام للأدمن»): the admin sees numbers per father, never
+// names; each father sees his own children's requests and what happened to each one
+let reqSumApi = null;
+const RS_PERIODS = [["m","هذا الشهر"],["3m","آخر ٣ شهور"],["y","هذه السنة"]];
+const RS_STATES = [["done","تمت","var(--ok)"],["appt","لها موعد","var(--a)"],["seen","تمت رؤيتها بدون موعد","var(--gold)"],["wait","في الانتظار","var(--warn)"],["cancelled","أُلغيت","var(--line)"]];
+function reqSumRange(k){ const y = TODAY.getFullYear(), m = TODAY.getMonth();
+  if (k === "y") return [y+"-01-01", TODAY_S]; if (k === "3m") return [addDaysS(TODAY_S, -89), TODAY_S]; return [ymd(new Date(y, m, 1)), TODAY_S]; }
+const rsState = x => x.done ? "done" : x.cancelled ? "cancelled" : x.answer === "appt" ? "appt" : x.answer === "noappt" ? "seen" : "wait";
+function reqSumGet(k){
+  if (!reqSumApi || Store.preview) return undefined;
+  S.reqSum = S.reqSum || {}; const key = k+"|"+accRole(), c = S.reqSum[key] || (S.reqSum[key] = {at:0});
+  if (!c.busy && Date.now() - c.at > 60000){ c.busy = true; const [a, b] = reqSumRange(k);
+    reqSumApi.get(a, b).then(r => { c.data = Array.isArray(r) ? r : []; c.err = false; }).catch(() => { c.err = true; })
+      .finally(() => { c.busy = false; c.at = Date.now(); scheduleRender(); }); }
+  return c.err && !c.data ? null : c.data;
+}
+function reqSumHead(k, title){
+  return h("div",{class:"rs-head"}, h("h3",null, title), h("div",{class:"chips"}, RS_PERIODS.map(([id, l]) => h("button",{type:"button", class:"chip-btn",
+    "aria-pressed": String(id === k), onclick:()=>{ S.draft.rsPer = id; render(); }}, l))));
+}
+function reqSumNums(t){
+  const tot = t.total || 0, pct = n => tot ? Math.round(n*100/tot) : 0;
+  return [h("div",{class:"rs-nums"},
+      h("div",{class:"rs-num"}, h("b",{class:"num"}, arDigits(tot)), h("span",null,"طلب ("+"🙏 "+arDigits(t.conf||0)+" · 🏡 "+arDigits(t.visit||0)+")")),
+      h("div",{class:"rs-num ok"}, h("b",{class:"num"}, arDigits(t.done||0)), h("span",null,"تمت ("+arDigits(pct(t.done||0))+"٪)")),
+      h("div",{class:"rs-num"}, h("b",{class:"num"}, arDigits(t.appt||0)), h("span",null,"لها موعد")),
+      h("div",{class:"rs-num"}, h("b",{class:"num"}, arDigits(t.seen||0)), h("span",null,"تمت رؤيتها بدون موعد")),
+      h("div",{class:"rs-num"+(t.wait ? " warn" : "")}, h("b",{class:"num"}, arDigits(t.wait||0)), h("span",null,"في الانتظار")),
+      t.cancelled ? h("div",{class:"rs-num"}, h("b",{class:"num"}, arDigits(t.cancelled)), h("span",null,"أُلغيت")) : null),
+    tot ? h("div",{class:"rs-bar", role:"img", "aria-label":RS_STATES.map(([f, l]) => l+" "+arDigits(t[f]||0)).join("، ")},
+      RS_STATES.map(([f, , col]) => t[f] ? h("i",{style:"width:"+(t[f]*100/tot)+"%;background:"+col, title:arDigits(t[f])}) : null)) : null];
+}
+function reqSumAdminCard(){
+  if (accRole() !== "admin") return null;
+  const k = S.draft.rsPer || "m", rows = reqSumGet(k); if (rows === undefined) return null;
+  const card = h("section",{class:"card rs-card", id:"admReqSum"}, reqSumHead(k, "📊 ملخص طلبات الاعتراف والافتقاد"));
+  if (!rows){ card.append(h("p",{class:"small muted"}, rows === null ? "تعذر تحميل الملخص. برجاء المحاولة لاحقًا." : "جاري التحميل…")); return card; }
+  const t = {}; for (const r of rows) for (const f of ["total","conf","visit","done","appt","seen","wait","cancelled"]) t[f] = (t[f]||0) + (r[f]||0);
+  card.append(...reqSumNums(t).filter(Boolean));
+  const used = rows.filter(r => r.total);
+  if (used.length) card.append(h("div",{class:"rs-wrap"}, h("table",{class:"rs-table"},
+    h("thead",null, h("tr",null, ["الأب","الطلبات","تمت","لها موعد","رآها بدون موعد","في الانتظار","أُلغيت"].map(x => h("th",{scope:"col"}, x)))),
+    h("tbody",null, used.map(r => h("tr",null, h("td",null, h("strong",null, r.name), h("div",{class:"small muted"}, "🙏 "+arDigits(r.conf)+" · 🏡 "+arDigits(r.visit))),
+      ...["total","done","appt","seen","wait","cancelled"].map(f => h("td",{class:"num"+(f === "wait" && r.wait ? " rs-wait" : "")}, arDigits(r[f]||0)))))))));
+  else card.append(h("p",{class:"small muted", style:"margin:0"},"لا توجد طلبات في هذه المدة."));
+  card.append(h("p",{class:"small muted", style:"margin:0"},"أرقام فقط بدون أسماء. كل أب يرى أسماء أبنائه في شاشة «الطلبات»."));
+  return card;
+}
+function reqSumPriestCard(){
+  if (!isFatherView() || Store.mode !== "cloud") return null;
+  const k = S.draft.rsPer || "m", rows = reqSumGet(k); if (rows === undefined) return null;
+  const card = h("section",{class:"card rs-card", id:"reqSum"}, reqSumHead(k, "📊 ملخص طلبات أبنائي"));
+  if (!rows){ card.append(h("p",{class:"small muted"}, rows === null ? "تعذر تحميل الملخص. برجاء المحاولة لاحقًا." : "جاري التحميل…")); return card; }
+  const t = {total:rows.length, conf:rows.filter(x => x.kind === "confession").length, visit:rows.filter(x => x.kind === "visit").length};
+  for (const x of rows){ const st = rsState(x); t[st] = (t[st]||0) + 1; }
+  card.append(...reqSumNums(t).filter(Boolean));
+  if (!rows.length){ card.append(h("p",{class:"small muted", style:"margin:0"},"لا توجد طلبات في هذه المدة.")); return card; }
+  const open = !!S.draft.rsOpen;
+  card.append(h("button",{type:"button", class:"btn sm quiet", "aria-expanded":String(open), onclick:()=>{ S.draft.rsOpen = !open; render(); }}, open ? "إخفاء الأسماء" : "عرض الأسماء ("+arDigits(rows.length)+")"));
+  if (open) card.append(h("ul",{class:"rs-list"}, rows.map(x => { const st = rsState(x), K = REQ_KINDS[x.kind] || REQ_KINDS.confession;
+    const label = st === "appt" && x.appt ? "موعد "+fmtWhen(x.appt) : (RS_STATES.find(r => r[0] === st) || [])[1];
+    return h("li",null, h("div",{class:"who"}, h("strong",null, K.emo+" "+(x.name || "؟")), h("span",{class:"small muted"}, K.label+" · طلب "+agoText(ymd(new Date(x.asked))))),
+      h("span",{class:"pill"+(st === "done" ? " ok" : st === "wait" ? " warn" : "")}, label)); })));
+  return card;
+}
+
+/* ---------- the occasion designs (2026-11-09, user approved v6 of the preview): the admin picks one occasion in «الإعدادات»
+   and its picture shows under the header for everyone, and on the sign-in screen. With none picked the app keeps its usual look.
+   The pictures are drawn on a canvas (no image files); they move slowly while on screen, and stand still with reduced motion. ---------- */
+const OCCASION = (function(){
+const TAU = Math.PI * 2, PI = Math.PI;
+function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- painting helpers ---------- */
+function lin(c, x0, y0, x1, y1, stops){ const g = c.createLinearGradient(x0, y0, x1, y1); stops.forEach((s, i) => Array.isArray(s) ? g.addColorStop(s[0], s[1]) : g.addColorStop(i / (stops.length - 1), s)); return g; }
+function sky(c, w, h, stops){ c.fillStyle = lin(c, 0, 0, 0, h, stops); c.fillRect(0, 0, w, h); }
+function glow(c, x, y, r, col, a){ const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, "rgba(0,0,0,0)"); c.globalAlpha = a == null ? 1 : a; c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.globalAlpha = 1; }
+function stars(c, w, h, t, n, seed, maxY, col){ const r = rng(seed); c.fillStyle = col || "#fff";
+  for (let i = 0; i < n; i++){ const x = r() * w, y = r() * h * (maxY || 1), s = r() * 1.3 + .3, p = r() * TAU, big = r() > .93;
+    c.globalAlpha = .3 + .7 * (.5 + .5 * Math.sin(t * (1 + r()) + p));
+    if (big){ c.beginPath(); c.moveTo(x, y - s * 4); c.lineTo(x + s * .6, y); c.lineTo(x, y + s * 4); c.lineTo(x - s * .6, y); c.closePath(); c.fill(); c.beginPath(); c.moveTo(x - s * 4, y); c.lineTo(x, y + s * .6); c.lineTo(x + s * 4, y); c.lineTo(x, y - s * .6); c.closePath(); c.fill(); }
+    else { c.beginPath(); c.arc(x, y, s, 0, TAU); c.fill(); } }
+  c.globalAlpha = 1; }
+/* floating motes: dir -1 rises, +1 falls */
+function motes(c, w, h, t, n, seed, col, dir, spd, size){ const r = rng(seed);
+  for (let i = 0; i < n; i++){ const x0 = r() * w, y0 = r() * h, s = (r() * 1.4 + .5) * (size || 1), v = (r() * .6 + .4) * (spd || 12), ph = r() * TAU;
+    const y = ((y0 + dir * t * v) % (h + 20) + h + 20) % (h + 20) - 10, x = x0 + Math.sin(t * .7 + ph) * 8;
+    const a = (.35 + .5 * Math.sin(t * 2 + ph) ** 2) * Math.max(0, Math.min(1, y / (h * .25), (h - y) / (h * .25) + .2));
+    glow(c, x, y, s * 3, col, a); }
+  c.globalAlpha = 1; }
+function ridge(c, w, h, base, amp, f, seed, fill, step){ c.fillStyle = fill; c.beginPath(); c.moveTo(0, h);
+  for (let x = 0; x <= w + 4; x += step || 4){ const y = base + amp * (Math.sin(x * f + seed) * .55 + Math.sin(x * f * 2.3 + seed * 1.7) * .3 + Math.sin(x * f * 5.7 + seed * 3.1) * .15); c.lineTo(x, y); }
+  c.lineTo(w, h); c.closePath(); c.fill(); }
+function vignette(c, w, h, a){ const g = c.createRadialGradient(w / 2, h * .45, Math.min(w, h) * .3, w / 2, h * .5, Math.max(w, h) * .8); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0," + a + ")"); c.fillStyle = g; c.fillRect(0, 0, w, h); }
+function rays(c, x, y, len, n, t, col, spin, width){ c.save(); c.translate(x, y); c.rotate(t * (spin || 0)); c.globalCompositeOperation = "lighter";
+  for (let i = 0; i < n; i++){ const a = i / n * TAU, wv = (width || .07) * (1 + .5 * Math.sin(i * 2.7)); c.fillStyle = lin(c, 0, 0, Math.cos(a) * len, Math.sin(a) * len, [col, "rgba(0,0,0,0)"]);
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a - wv) * len, Math.sin(a - wv) * len); c.lineTo(Math.cos(a + wv) * len, Math.sin(a + wv) * len); c.closePath(); c.fill(); }
+  c.restore(); }
+function beam(c, x, y, ang, len, spread, col){ c.save(); c.globalCompositeOperation = "lighter"; c.translate(x, y); c.rotate(ang);
+  c.fillStyle = lin(c, 0, 0, len, 0, [col, "rgba(0,0,0,0)"]); c.beginPath(); c.moveTo(0, -2); c.lineTo(len, -len * spread); c.lineTo(len, len * spread); c.lineTo(0, 2); c.closePath(); c.fill(); c.restore(); }
+/* Coptic cross: flared arms ending in three knobs */
+function copticCross(c, x, y, s, fill, halo){ c.save(); c.translate(x, y);
+  if (halo){ glow(c, 0, 0, s * 2.6, halo); }
+  c.fillStyle = fill; const a = s * .2;
+  for (let k = 0; k < 4; k++){ c.save(); c.rotate(k * PI / 2);
+    c.beginPath(); c.moveTo(-a, 0); c.lineTo(-a * .9, -s * .7); c.lineTo(-a * 1.8, -s * .86); c.lineTo(a * 1.8, -s * .86); c.lineTo(a * .9, -s * .7); c.lineTo(a, 0); c.closePath(); c.fill();
+    for (const kx of [-1.6, 0, 1.6]){ c.beginPath(); c.arc(kx * a, -s * .92 - (kx ? 0 : a * .35), a * (kx ? .5 : .62), 0, TAU); c.fill(); }
+    c.restore(); }
+  c.beginPath(); c.arc(0, 0, a * 1.4, 0, TAU); c.fill(); c.restore(); }
+function plainCross(c, x, y, s, fill, wd){ c.fillStyle = fill; const t = s * (wd || .12); c.fillRect(x - t / 2, y - s, t, s * 2.1); c.fillRect(x - s * .55, y - s * .55, s * 1.1, t); }
+/* Coptic church silhouette */
+function church(c, x, y, s, fill, lights){ c.save(); c.translate(x, y); c.fillStyle = fill;
+  c.fillRect(-s * 1.1, -s * .9, s * 2.2, s * .9);
+  c.beginPath(); c.arc(0, -s * .9, s * .55, PI, 0); c.fill();
+  c.fillRect(-s * .07, -s * 1.75, s * .14, s * .32); c.fillRect(-s * .2, -s * 1.66, s * .4, s * .1);
+  for (const sx of [-1, 1]){ c.fillRect(sx * s * 1.1 - s * .22, -s * 1.7, s * .44, s * 1.7);
+    c.beginPath(); c.arc(sx * s * 1.1, -s * 1.7, s * .22, PI, 0); c.fill();
+    c.fillRect(sx * s * 1.1 - s * .035, -s * 2.15, s * .07, s * .26); c.fillRect(sx * s * 1.1 - s * .11, -s * 2.08, s * .22, s * .06); }
+  c.beginPath(); c.arc(-s * .55, -s * .9, s * .25, PI, 0); c.arc(s * .55, -s * .9, s * .25, PI, 0); c.fill();
+  if (lights){ c.fillStyle = lights; c.beginPath(); c.moveTo(-s * .16, 0); c.lineTo(-s * .16, -s * .4); c.arc(0, -s * .4, s * .16, PI, 0); c.lineTo(s * .16, 0); c.fill();
+    for (const sx of [-.65, .65]){ c.beginPath(); c.moveTo(sx * s - s * .08, -s * .3); c.lineTo(sx * s - s * .08, -s * .55); c.arc(sx * s, -s * .55, s * .08, PI, 0); c.lineTo(sx * s + s * .08, -s * .3); c.fill(); }
+    for (const sx of [-1.1, 1.1]){ c.fillRect(sx * s - s * .06, -s * 1.35, s * .12, s * .22); } }
+  c.restore(); }
+function candle(c, x, y, s, t, ph){ c.fillStyle = lin(c, x - s * .2, 0, x + s * .2, 0, ["#e9d9b0", "#fff6dc", "#d8c391"]); c.fillRect(x - s * .17, y, s * .34, s * 1.6);
+  const f = 1 + .14 * Math.sin(t * 9 + ph) + .07 * Math.sin(t * 17 + ph * 2), sw = Math.sin(t * 3 + ph) * .1;
+  glow(c, x, y - s * .4, s * 2.2, "rgba(255,180,80,.42)");
+  c.save(); c.translate(x, y - s * .05); c.rotate(sw);
+  c.fillStyle = lin(c, 0, -s * .8 * f, 0, 0, ["#fff3c4", "#ffbf47", "#ff7a1a"]); c.beginPath(); c.moveTo(0, -s * .85 * f); c.bezierCurveTo(s * .26, -s * .45, s * .2, 0, 0, 0); c.bezierCurveTo(-s * .2, 0, -s * .26, -s * .45, 0, -s * .85 * f); c.fill();
+  c.fillStyle = "#fffbe8"; c.beginPath(); c.ellipse(0, -s * .2, s * .06, s * .16 * f, 0, 0, TAU); c.fill(); c.restore(); }
+function waves(c, w, h, t, y, amp, len, fill, spd){ c.fillStyle = fill; c.beginPath(); c.moveTo(0, h);
+  for (let x = 0; x <= w + 6; x += 5) c.lineTo(x, y + Math.sin(x / len + t * spd) * amp + Math.sin(x / (len * .43) - t * spd * 1.3) * amp * .35);
+  c.lineTo(w, h); c.closePath(); c.fill(); }
+function cloud(c, x, y, s, fill){ c.fillStyle = fill; c.beginPath(); c.ellipse(x, y, s * 1.4, s * .42, 0, 0, TAU); c.ellipse(x - s * .55, y - s * .2, s * .55, s * .42, 0, 0, TAU); c.ellipse(x + s * .2, y - s * .38, s * .68, s * .5, 0, 0, TAU); c.ellipse(x + s * .8, y - s * .1, s * .45, s * .32, 0, 0, TAU); c.fill(); }
+function dove(c, x, y, s, t, col){ const fl = Math.sin(t * 5); c.save(); c.translate(x, y); c.fillStyle = col || "#fff";
+  c.globalAlpha = .82; c.beginPath(); c.moveTo(-s * .05, -s * .05); c.bezierCurveTo(-s * .2, -s * (.5 + .45 * fl), -s * .7, -s * (.75 + .4 * fl), -s * 1.0, -s * (.55 + .5 * fl)); c.bezierCurveTo(-s * .65, -s * .3, -s * .35, -s * .1, s * .18, -s * .02); c.fill(); c.globalAlpha = 1;
+  c.beginPath(); c.ellipse(0, 0, s * .5, s * .2, -.15, 0, TAU); c.fill();
+  c.beginPath(); c.arc(s * .46, -s * .16, s * .15, 0, TAU); c.fill();
+  c.fillStyle = "#e9b04a"; c.beginPath(); c.moveTo(s * .6, -s * .17); c.lineTo(s * .74, -s * .13); c.lineTo(s * .6, -s * .1); c.fill(); c.fillStyle = col || "#fff";
+  c.beginPath(); c.moveTo(-s * .4, -s * .02); c.lineTo(-s * .85, -s * .2); c.lineTo(-s * .78, s * .05); c.lineTo(-s * .85, s * .18); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(s * .05, -s * .05); c.bezierCurveTo(-s * .05, -s * (.6 + .5 * fl), -s * .45, -s * (1.05 + .45 * fl), -s * .8, -s * (.95 + .55 * fl)); c.bezierCurveTo(-s * .5, -s * .45, -s * .25, -s * .12, s * .25, s * .02); c.fill();
+  c.restore(); }
+function bird(c, x, y, s, t, col){ const f = Math.sin(t * 6) * .5; c.strokeStyle = col; c.lineWidth = 1.4; c.beginPath(); c.moveTo(x - s, y - s * f); c.quadraticCurveTo(x - s * .4, y - s * .5, x, y); c.quadraticCurveTo(x + s * .4, y - s * .5, x + s, y - s * f); c.stroke(); }
+function palmTree(c, x, y, hgt, lean, t, fill, dates){ c.save(); c.translate(x, y); const sw = Math.sin(t * .8 + x) * .03;
+  c.strokeStyle = fill; c.lineWidth = hgt * .07; c.lineCap = "round"; const tx = hgt * lean, ty = -hgt;
+  c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(tx * .2, -hgt * .5, tx, ty); c.stroke();
+  c.translate(tx, ty); c.rotate(sw); c.fillStyle = fill;
+  for (let i = 0; i < 9; i++){ const a = -PI * .95 + i / 8 * PI * .9 + (i % 2) * .08, L = hgt * (.45 + .1 * Math.sin(i * 1.9)); c.save(); c.rotate(a);
+    c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(L * .5, -L * .28, L, L * .18); c.quadraticCurveTo(L * .5, -L * .08, 0, hgt * .02); c.fill(); c.restore(); }
+  if (dates){ c.fillStyle = dates; for (let i = 0; i < 14; i++){ const a = PI * .25 + (i % 7) / 6 * PI * .5, rr = hgt * (.06 + (i > 6 ? .05 : 0)); c.beginPath(); c.ellipse(Math.cos(a) * rr, Math.sin(a) * rr + hgt * .04, hgt * .02, hgt * .03, 0, 0, TAU); c.fill(); } }
+  c.restore(); }
+function lily(c, x, y, s, t, petal){ c.save(); c.translate(x, y); c.rotate(Math.sin(t * .9 + x * .05) * .06);
+  c.strokeStyle = "#4f8a41"; c.lineWidth = s * .12; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(s * .2, s * 1.4, 0, s * 3); c.stroke();
+  c.fillStyle = "#5e9c4c"; c.beginPath(); c.ellipse(s * .35, s * 1.6, s * .55, s * .14, -.7, 0, TAU); c.fill();
+  c.fillStyle = petal || "#fffdf4";
+  for (const a of [-1.1, -.45, .45, 1.1, 0]){ c.save(); c.rotate(a * .8); c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(-s * .3, -s * .3, -s * .2, -s * .9, 0, -s * 1.15); c.bezierCurveTo(s * .2, -s * .9, s * .3, -s * .3, 0, 0); c.fill(); c.restore(); }
+  c.fillStyle = "#e9b84a"; for (const a of [-.25, 0, .25]){ c.beginPath(); c.arc(Math.sin(a) * s * .55, -s * .6, s * .07, 0, TAU); c.fill(); }
+  c.restore(); }
+function camel(c, x, y, s, t, fill, rider){ c.save(); c.translate(x, y); c.fillStyle = fill; c.strokeStyle = fill; c.lineCap = "round";
+  const g = t * 3;
+  c.lineWidth = s * .09; for (const [lx, ph] of [[-.45, 0], [-.3, PI], [.35, PI * .5], [.5, PI * 1.5]]){ const k = Math.sin(g + ph) * .12; c.beginPath(); c.moveTo(lx * s, -s * .55); c.lineTo(lx * s + k * s, -s * .05); c.lineTo(lx * s + k * s * 1.4, 0); c.stroke(); }
+  c.beginPath(); c.moveTo(-s * .6, -s * .6); c.quadraticCurveTo(-s * .55, -s * .95, -s * .25, -s * .9); c.quadraticCurveTo(-s * .05, -s * 1.15, s * .15, -s * .9); c.quadraticCurveTo(s * .45, -s * .85, s * .55, -s * .65); c.lineTo(s * .5, -s * .5); c.lineTo(-s * .55, -s * .5); c.closePath(); c.fill();
+  c.lineWidth = s * .13; c.beginPath(); c.moveTo(s * .5, -s * .65); c.quadraticCurveTo(s * .85, -s * .7, s * .8, -s * 1.1); c.stroke();
+  c.beginPath(); c.ellipse(s * .9, -s * 1.12, s * .16, s * .08, .2, 0, TAU); c.fill();
+  c.lineWidth = s * .05; c.beginPath(); c.moveTo(-s * .6, -s * .7); c.quadraticCurveTo(-s * .75, -s * .55, -s * .7, -s * .35); c.stroke();
+  if (rider){ c.beginPath(); c.moveTo(-s * .2, -s * 1.0); c.lineTo(-s * .05, -s * 1.55); c.lineTo(s * .12, -s * 1.0); c.closePath(); c.fill(); c.beginPath(); c.arc(-s * .04, -s * 1.62, s * .1, 0, TAU); c.fill();
+    c.fillStyle = rider; c.beginPath(); c.moveTo(-s * .16, -s * 1.7); c.lineTo(-s * .1, -s * 1.85); c.lineTo(-s * .04, -s * 1.74); c.lineTo(s * .02, -s * 1.86); c.lineTo(s * .08, -s * 1.7); c.closePath(); c.fill(); }
+  c.restore(); }
+function sheep(c, x, y, s, fill){ c.fillStyle = fill; c.beginPath(); c.ellipse(x, y, s, s * .6, 0, 0, TAU); c.fill(); c.beginPath(); c.ellipse(x + s * .95, y - s * .15, s * .32, s * .24, 0, 0, TAU); c.fill(); c.fillRect(x - s * .6, y + s * .3, s * .14, s * .5); c.fillRect(x + s * .45, y + s * .3, s * .14, s * .5); }
+function boat(c, x, y, s, t, hull, sail, cross){ c.save(); c.translate(x, y); c.rotate(Math.sin(t * 1.2) * .05);
+  c.fillStyle = hull; c.beginPath(); c.moveTo(-s, -s * .1); c.lineTo(s * 1.1, -s * .14); c.quadraticCurveTo(s * .8, s * .32, s * .5, s * .32); c.lineTo(-s * .55, s * .32); c.quadraticCurveTo(-s * .85, s * .25, -s, -s * .1); c.fill();
+  c.fillStyle = "rgba(255,255,255,.15)"; c.fillRect(-s * .9, -s * .02, s * 1.9, s * .05);
+  c.fillStyle = hull; c.fillRect(-s * .04, -s * 1.5, s * .07, s * 1.42);
+  c.fillStyle = sail; c.beginPath(); c.moveTo(s * .05, -s * 1.42); c.quadraticCurveTo(s * .75 + Math.sin(t) * s * .05, -s * .8, s * .8, -s * .22); c.lineTo(s * .05, -s * .22); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(-s * .06, -s * 1.3); c.quadraticCurveTo(-s * .6, -s * .8, -s * .7, -s * .28); c.lineTo(-s * .06, -s * .28); c.closePath(); c.globalAlpha = .9; c.fill(); c.globalAlpha = 1;
+  if (cross) copticCross(c, s * .38, -s * .72, s * .2, cross);
+  c.restore(); }
+function felucca(c, x, y, s, t, hull, sail){ c.save(); c.translate(x, y); c.rotate(Math.sin(t * 1.1 + x) * .04);
+  c.fillStyle = hull; c.beginPath(); c.moveTo(-s, 0); c.quadraticCurveTo(0, s * .35, s, -s * .05); c.lineTo(-s, 0); c.fill();
+  c.fillStyle = sail; c.beginPath(); c.moveTo(-s * .1, -s * .02); c.lineTo(s * .55, -s * 1.9); c.quadraticCurveTo(s * .3, -s * .8, s * .55, -s * .02); c.closePath(); c.fill();
+  c.strokeStyle = hull; c.lineWidth = s * .05; c.beginPath(); c.moveTo(-s * .5, s * .02); c.lineTo(s * .7, -s * 2.05); c.stroke(); c.restore(); }
+function lamp(c, x, y, s, t, ph){ const sw = Math.sin(t * .9 + ph) * .08; c.save(); c.translate(x, 0); c.rotate(sw);
+  c.strokeStyle = "rgba(240,200,110,.8)"; c.lineWidth = 1; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, y - s * .5); c.moveTo(0, y - s * .5); c.lineTo(-s * .45, y); c.moveTo(0, y - s * .5); c.lineTo(s * .45, y); c.stroke();
+  glow(c, 0, y + s * .35, s * 2.6, "rgba(255,190,90,.5)");
+  c.fillStyle = lin(c, -s * .5, 0, s * .5, 0, ["#a8781f", "#f3d48a", "#a8781f"]); c.beginPath(); c.moveTo(-s * .5, y); c.lineTo(s * .5, y); c.quadraticCurveTo(s * .45, y + s * .7, 0, y + s * .8); c.quadraticCurveTo(-s * .45, y + s * .7, -s * .5, y); c.fill();
+  c.fillStyle = "#ffe7a6"; c.beginPath(); c.ellipse(0, y - s * .08, s * .09, s * .2 * (1 + .15 * Math.sin(t * 10 + ph)), 0, 0, TAU); c.fill();
+  c.restore(); }
+function fireworks(c, w, h, t, list){ c.save(); c.globalCompositeOperation = "lighter";
+  for (const [bx, by, off, col, n] of list){ const P = 3.4, p = ((t + off) % P) / P;
+    if (p < .18){ const k = p / .18; glow(c, w * bx, h - (h - h * by) * k, 6, col); continue; }
+    const q = (p - .18) / .82, R = h * .26 * (1 - (1 - q) ** 3), a = (1 - q) ** 1.3;
+    for (let i = 0; i < n; i++){ const ang = i / n * TAU + off; const px = w * bx + Math.cos(ang) * R, py = h * by + Math.sin(ang) * R + q * q * 22;
+      c.strokeStyle = col; c.globalAlpha = a * .6; c.lineWidth = 1.2; c.beginPath(); c.moveTo(px, py); c.lineTo(px - Math.cos(ang) * 10 * (1 - q), py - Math.sin(ang) * 10 * (1 - q) - 3); c.stroke();
+      c.globalAlpha = a; c.fillStyle = "#fff"; c.beginPath(); c.arc(px, py, 1.4, 0, TAU); c.fill(); }
+    glow(c, w * bx, h * by, h * .2 * (1 - q), col, a * .5); }
+  c.restore(); c.globalAlpha = 1; }
+function flame(c, x, y, s, t, ph){ const f = 1 + .15 * Math.sin(t * 8 + ph); glow(c, x, y - s * .4, s * 2.2, "rgba(255,140,40,.45)");
+  c.fillStyle = lin(c, x, y - s * 1.3 * f, x, y, ["#fff5c8", "#ffb238", "#e5451c"]); c.beginPath(); c.moveTo(x, y - s * 1.3 * f); c.bezierCurveTo(x + s * .55, y - s * .6, x + s * .45, y, x, y); c.bezierCurveTo(x - s * .45, y, x - s * .55, y - s * .6, x, y - s * 1.3 * f); c.fill(); }
+function palmFrond(c, x, y, len, ang, col){ c.save(); c.translate(x, y); c.rotate(ang); c.strokeStyle = col; c.lineWidth = 2.4; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(len * .5, -len * .1, len, 0); c.stroke(); c.fillStyle = col;
+  for (let i = 1; i < 18; i++){ const k = i / 18, px = len * k, py = -len * .1 * 4 * k * (1 - k), L = len * .24 * (1 - k * .7);
+    for (const sg of [-1, 1]){ c.beginPath(); c.moveTo(px, py); c.quadraticCurveTo(px + L * .3, py + sg * L * .5, px + L * .55, py + sg * L * .9); c.quadraticCurveTo(px + L * .15, py + sg * L * .4, px + 2, py); c.fill(); } }
+  c.restore(); }
+
+/* icon-style figures: (x, y) is the centre of the head, s the head radius */
+function saint(c, x, y, s, o){
+  const skin = o.skin || "#e3b98f", hair = o.hair || "#3a2618", beard = o.beard || hair, tunic = o.tunic || "#1e3f8f", mantle = o.mantle, gold = "#e8c46c";
+  const top = y + s * .95, bot = y + (o.h || 6.6) * s, dir = o.flip ? -1 : 1;
+  c.save(); c.lineJoin = "round"; c.lineCap = "round";
+  // halo
+  if (o.halo !== false){ c.save(); c.shadowColor = "rgba(255,225,140,.7)"; c.shadowBlur = s * 1.2;
+    c.fillStyle = lin(c, x - s * 1.6, y - s * 1.7, x + s * 1.6, y + s * 1.4, ["#fff0b8", "#e8c46c", "#b9862a"]); c.beginPath(); c.arc(x, y - s * .1, s * 1.62, 0, TAU); c.fill(); c.restore();
+    c.strokeStyle = "rgba(120,80,20,.55)"; c.lineWidth = Math.max(1, s * .08); c.beginPath(); c.arc(x, y - s * .1, s * 1.62, 0, TAU); c.stroke();
+    c.strokeStyle = "rgba(255,248,220,.8)"; c.lineWidth = Math.max(.8, s * .05); c.beginPath(); c.arc(x, y - s * .1, s * 1.42, 0, TAU); c.stroke();
+    if (o.christ){ c.fillStyle = "#b3262c"; const a = s * .19; c.fillRect(x - a, y - s * 1.5, a * 2, s * .5); c.fillRect(x - s * 1.5, y - s * .1 - a, s * .5, a * 2); c.fillRect(x + s * 1.0, y - s * .1 - a, s * .5, a * 2); } }
+  // long hair behind the shoulders, or the veil
+  if (o.veil){ c.fillStyle = o.veil; c.beginPath(); c.moveTo(x, y - s * 1.15); c.bezierCurveTo(x + s * 1.25, y - s * 1.1, x + s * 1.2, y + s * .8, x + s * 1.55, top + s * 1.6); c.lineTo(x - s * 1.55, top + s * 1.6); c.bezierCurveTo(x - s * 1.2, y + s * .8, x - s * 1.25, y - s * 1.1, x, y - s * 1.15); c.fill(); }
+  else if (o.long){ c.fillStyle = hair; c.beginPath(); c.ellipse(x, y + s * .35, s * .98, s * 1.35, 0, 0, TAU); c.fill(); }
+  // body: tunic, gold stripe, mantle with a gold hem
+  c.fillStyle = tunic; c.beginPath(); c.moveTo(x - s * .45, top); c.lineTo(x + s * .45, top); c.quadraticCurveTo(x + s * 1.3, top + s * .2, x + s * 1.35, top + s * .8);
+  c.lineTo(x + s * 1.65, bot); c.lineTo(x - s * 1.65, bot); c.lineTo(x - s * 1.35, top + s * .8); c.quadraticCurveTo(x - s * 1.3, top + s * .2, x - s * .45, top); c.fill();
+  c.strokeStyle = gold; c.lineWidth = Math.max(1, s * .14); c.beginPath(); c.moveTo(x + dir * s * .38, top + s * .1); c.lineTo(x + dir * s * .5, bot); c.stroke();
+  if (mantle){ c.fillStyle = mantle; c.beginPath(); c.moveTo(x - dir * s * 1.38, top + s * .7); c.quadraticCurveTo(x - dir * s * 1.2, top + s * .05, x - dir * s * .2, top + s * .05);
+    c.quadraticCurveTo(x + dir * s * .15, top + s * 1.6, x + dir * s * 1.5, bot - s * 1.4); c.lineTo(x + dir * s * 1.66, bot); c.lineTo(x - dir * s * 1.68, bot); c.closePath(); c.fill();
+    c.strokeStyle = gold; c.lineWidth = Math.max(1, s * .1); c.beginPath(); c.moveTo(x - dir * s * .2, top + s * .05); c.quadraticCurveTo(x + dir * s * .15, top + s * 1.6, x + dir * s * 1.5, bot - s * 1.4); c.stroke();
+    c.strokeStyle = "rgba(0,0,0,.22)"; c.lineWidth = Math.max(.8, s * .07); for (const k of [.3, .6]){ c.beginPath(); c.moveTo(x - dir * s * (1.2 - k), top + s * (1 + k)); c.quadraticCurveTo(x - dir * s * (1.0 - k), bot - s * 2, x - dir * s * (1.3 - k * .8), bot); c.stroke(); } }
+  // neck and face
+  c.fillStyle = skin; c.fillRect(x - s * .28, y + s * .6, s * .56, s * .5);
+  c.beginPath(); c.ellipse(x, y, s * .72, s * .9, 0, 0, TAU); c.fill();
+  c.fillStyle = "rgba(160,90,50,.25)"; c.beginPath(); c.ellipse(x + s * .32, y + s * .15, s * .16, s * .1, 0, 0, TAU); c.ellipse(x - s * .32, y + s * .15, s * .16, s * .1, 0, 0, TAU); c.fill();
+  // hair on top (or a balding brow)
+  c.fillStyle = hair;
+  if (o.bald){ c.beginPath(); c.ellipse(x - s * .66, y - s * .15, s * .2, s * .45, .2, 0, TAU); c.ellipse(x + s * .66, y - s * .15, s * .2, s * .45, -.2, 0, TAU); c.fill(); c.beginPath(); c.ellipse(x, y - s * .82, s * .14, s * .1, 0, 0, TAU); c.fill(); }
+  else if (o.curly){ for (let i = 0; i < 9; i++){ const a = PI * (1.05 + i * .1); c.beginPath(); c.arc(x + Math.cos(a) * s * .74, y - s * .08 + Math.sin(a) * s * .86, s * .24, 0, TAU); c.fill(); } }
+  else if (!o.veil){ c.beginPath(); c.moveTo(x - s * .78, y + s * .1); c.bezierCurveTo(x - s * .9, y - s * 1.1, x + s * .9, y - s * 1.1, x + s * .78, y + s * .1); c.bezierCurveTo(x + s * .6, y - s * .45, x + s * .1, y - s * .62, x, y - s * .5); c.bezierCurveTo(x - s * .1, y - s * .62, x - s * .6, y - s * .45, x - s * .78, y + s * .1); c.fill(); }
+  if (o.veil){ c.fillStyle = o.veil; c.beginPath(); c.moveTo(x - s * .9, y + s * .5); c.bezierCurveTo(x - s * .95, y - s * 1.25, x + s * .95, y - s * 1.25, x + s * .9, y + s * .5); c.bezierCurveTo(x + s * .7, y - s * .5, x - s * .7, y - s * .5, x - s * .9, y + s * .5); c.fill();
+    c.fillStyle = gold; for (const [dx, dy] of [[0, -.95], [-.95, .9], [.95, .9]]){ c.beginPath(); c.arc(x + dx * s, y + dy * s, s * .12, 0, TAU); c.fill(); } }
+  // beard
+  if (o.beardLen){ const L = o.beardLen; c.fillStyle = beard; c.beginPath(); c.moveTo(x - s * .7, y + s * .05); c.quadraticCurveTo(x - s * .72, y + s * (.5 + L * .5), x, y + s * (.55 + L)); c.quadraticCurveTo(x + s * .72, y + s * (.5 + L * .5), x + s * .7, y + s * .05);
+    c.quadraticCurveTo(x + s * .45, y + s * .62, x, y + s * .5); c.quadraticCurveTo(x - s * .45, y + s * .62, x - s * .7, y + s * .05); c.fill();
+    c.strokeStyle = beard; c.lineWidth = Math.max(1, s * .12); c.beginPath(); c.moveTo(x - s * .3, y + s * .38); c.quadraticCurveTo(x, y + s * .3, x + s * .3, y + s * .38); c.stroke(); }
+  // eyes, brows, nose
+  c.fillStyle = "#2a1a10"; for (const sx of [-1, 1]){ c.beginPath(); c.ellipse(x + sx * s * .28, y - s * .08, s * .1, s * .07, 0, 0, TAU); c.fill(); }
+  c.strokeStyle = "rgba(60,35,20,.8)"; c.lineWidth = Math.max(.7, s * .06);
+  for (const sx of [-1, 1]){ c.beginPath(); c.moveTo(x + sx * s * .1, y - s * .26); c.quadraticCurveTo(x + sx * s * .28, y - s * .36, x + sx * s * .46, y - s * .24); c.stroke(); }
+  c.beginPath(); c.moveTo(x, y - s * .2); c.quadraticCurveTo(x - s * .08, y + s * .12, x + s * .05, y + s * .2); c.stroke();
+  if (!o.beardLen){ c.strokeStyle = "rgba(150,60,50,.7)"; c.beginPath(); c.moveTo(x - s * .15, y + s * .45); c.quadraticCurveTo(x, y + s * .5, x + s * .15, y + s * .45); c.stroke(); }
+  // hands
+  const hand = (hx, hy, sleeve) => { c.strokeStyle = sleeve; c.lineWidth = s * .55; c.beginPath(); c.moveTo(x + Math.sign(hx - x) * s * 1.1, top + s * .5); c.quadraticCurveTo(x + Math.sign(hx - x) * s * 1.4, (top + hy) / 2 + s * .6, hx, hy + s * .2); c.stroke();
+    c.fillStyle = skin; c.beginPath(); c.arc(hx, hy, s * .3, 0, TAU); c.fill(); };
+  if (o.bless){ const hx = x - dir * s * 1.0, hy = top + s * .9; hand(hx, hy, mantle || tunic); c.fillStyle = skin; c.fillRect(hx - s * .16, hy - s * .62, s * .13, s * .48); c.fillRect(hx + s * .02, hy - s * .7, s * .13, s * .55); }
+  if (o.reach){ const [hx, hy] = o.reach, sx0 = x + Math.sign(hx - x) * s * 1.1, sy0 = top + s * .45, mx = sx0 + (hx - sx0) * .5, my = sy0 + (hy - sy0) * .5 + s * .3;
+    c.strokeStyle = tunic; c.lineWidth = s * .5; c.beginPath(); c.moveTo(sx0, sy0); c.lineTo(mx, my); c.stroke();
+    c.strokeStyle = skin; c.lineWidth = s * .28; c.beginPath(); c.moveTo(mx, my); c.lineTo(hx, hy); c.stroke();
+    c.fillStyle = skin; c.beginPath(); c.ellipse(hx, hy, s * .32, s * .22, Math.atan2(hy - my, hx - mx), 0, TAU); c.fill(); }
+  if (o.hold){ const hx = x + dir * s * .95, hy = top + s * 1.7, it = o.hold;
+    if (it === "book"){ c.save(); c.translate(hx, hy - s * .3); c.rotate(dir * -.12); c.fillStyle = "#7a1a20"; c.fillRect(-s * .55, -s * .7, s * 1.1, s * 1.4); c.strokeStyle = gold; c.lineWidth = Math.max(1, s * .1); c.strokeRect(-s * .45, -s * .6, s * .9, s * 1.2);
+      c.fillStyle = gold; c.fillRect(-s * .06, -s * .4, s * .12, s * .8); c.fillRect(-s * .3, -s * .16, s * .6, s * .12); c.restore(); }
+    if (it === "keys"){ c.strokeStyle = gold; c.lineWidth = Math.max(1.2, s * .14); for (const k of [-1, 1]){ c.save(); c.translate(hx, hy - s * .6); c.rotate(k * .35); c.beginPath(); c.arc(0, -s * .55, s * .28, 0, TAU); c.moveTo(0, -s * .27); c.lineTo(0, s * 1.1); c.moveTo(0, s * .8); c.lineTo(s * .3, s * .8); c.moveTo(0, s * 1.05); c.lineTo(s * .3, s * 1.05); c.stroke(); c.restore(); } }
+    if (it === "staff"){ c.strokeStyle = "#7a5a2a"; c.lineWidth = Math.max(1.2, s * .16); c.beginPath(); c.moveTo(hx + dir * s * .2, y - s * 1.9); c.lineTo(hx + dir * s * .2, bot); c.stroke(); copticCross(c, hx + dir * s * .2, y - s * 2.2, s * .4, gold); }
+    if (it === "scroll"){ c.fillStyle = "#f2e6c8"; c.fillRect(hx - s * .25, hy - s * .9, s * .5, s * 1.6); c.fillStyle = "#c9a96a"; c.beginPath(); c.ellipse(hx, hy - s * .9, s * .32, s * .12, 0, 0, TAU); c.ellipse(hx, hy + s * .7, s * .32, s * .12, 0, 0, TAU); c.fill(); }
+    c.fillStyle = skin; c.beginPath(); c.arc(hx, hy, s * .3, 0, TAU); c.fill(); }
+  c.restore(); }
+function banner(c, x, y, len, t, s){ c.fillStyle = "#8a6414"; c.fillRect(x - 1.2, y, 2.4, len); copticCross(c, x, y - s * .5, s * .6, "#e8b84a");
+  c.save(); c.translate(x + 1, y + 3); const fw = s * 4.2, fh = s * 3.2; c.beginPath(); c.moveTo(0, 0);
+  for (let i = 0; i <= 10; i++){ const k = i / 10; c.lineTo(fw * k, Math.sin(t * 3 - k * 4) * s * .4 * k); }
+  for (let i = 10; i >= 0; i--){ const k = i / 10; c.lineTo(fw * k - (i === 10 ? fw * .15 : 0), fh + Math.sin(t * 3 - k * 4) * s * .4 * k); }
+  c.closePath(); c.fillStyle = "#fffdf6"; c.fill(); c.fillStyle = "#c2272d"; const cx = fw * .45, cy = fh * .5; c.fillRect(cx - fh * .07, cy - fh * .32, fh * .14, fh * .64); c.fillRect(cx - fh * .3, cy - fh * .07, fh * .6, fh * .14); c.restore(); }
+
+
+/* ---------- symbols (2026-11-09: the user asked for symbols instead of people, and calmer pictures) ---------- */
+function rr(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+// an old church key: ring bow, long shaft, toothed bit
+function key(c, x, y, s, ang, col, dark){ c.save(); c.translate(x, y); c.rotate(ang);
+  c.strokeStyle = col; c.lineWidth = s * .16; c.lineCap = "round";
+  c.beginPath(); c.arc(0, -s * 1.15, s * .38, 0, TAU); c.stroke();
+  c.lineWidth = s * .1; c.beginPath(); c.arc(0, -s * 1.15, s * .16, 0, TAU); c.stroke();
+  c.lineWidth = s * .16; c.beginPath(); c.moveTo(0, -s * .76); c.lineTo(0, s * 1.2); c.stroke();
+  c.fillStyle = col; c.fillRect(-s * .02, s * .62, s * .42, s * .16); c.fillRect(-s * .02, s * .92, s * .34, s * .16); c.fillRect(s * .22, s * .62, s * .12, s * .46);
+  c.fillStyle = dark; c.beginPath(); c.arc(0, -s * .72, s * .1, 0, TAU); c.fill(); c.restore(); }
+// an open book with a cross on its pages
+function book(c, x, y, s, col, page){ c.save(); c.translate(x, y);
+  c.fillStyle = col; c.beginPath(); c.moveTo(-s * 1.15, -s * .62); c.quadraticCurveTo(-s * .55, -s * .82, 0, -s * .6); c.quadraticCurveTo(s * .55, -s * .82, s * 1.15, -s * .62); c.lineTo(s * 1.15, s * .62); c.quadraticCurveTo(s * .55, s * .44, 0, s * .66); c.quadraticCurveTo(-s * .55, s * .44, -s * 1.15, s * .62); c.closePath(); c.fill();
+  c.fillStyle = page; for (const d of [-1, 1]){ c.beginPath(); c.moveTo(0, -s * .52); c.quadraticCurveTo(d * s * .5, -s * .72, d * s * 1.04, -s * .54); c.lineTo(d * s * 1.04, s * .5); c.quadraticCurveTo(d * s * .5, s * .34, 0, s * .54); c.closePath(); c.fill(); }
+  c.strokeStyle = "rgba(120,90,50,.35)"; c.lineWidth = 1; for (const d of [-1, 1]) for (let i = 0; i < 4; i++){ const yy = -s * .22 + i * s * .2; c.beginPath(); c.moveTo(d * s * .2, yy); c.quadraticCurveTo(d * s * .55, yy - s * .1, d * s * .9, yy - s * .02); c.stroke(); }
+  c.strokeStyle = "rgba(120,90,50,.5)"; c.beginPath(); c.moveTo(0, -s * .52); c.lineTo(0, s * .54); c.stroke();
+  copticCross(c, -s * .52, -s * .32, s * .17, "#b3262c"); c.restore(); }
+// the scallop shell of baptism, pouring water
+function shell(c, x, y, s, t){ c.save(); c.translate(x, y); c.rotate(.5);
+  c.fillStyle = lin(c, 0, -s, 0, s * .4, ["#fff6e6", "#e9cfa4"]); c.beginPath(); c.moveTo(0, s * .45);
+  for (let i = 0; i <= 8; i++){ const a = PI + i / 8 * PI, r = s * (1 + (i % 2 ? -.06 : 0)); c.lineTo(Math.cos(a) * r, Math.sin(a) * r * .9); } c.closePath(); c.fill();
+  c.strokeStyle = "rgba(160,120,70,.55)"; c.lineWidth = 1.2; for (let i = 1; i < 8; i++){ const a = PI + i / 8 * PI; c.beginPath(); c.moveTo(0, s * .4); c.lineTo(Math.cos(a) * s * .95, Math.sin(a) * s * .86); c.stroke(); }
+  c.fillStyle = "#e3c793"; c.beginPath(); c.ellipse(0, s * .45, s * .28, s * .14, 0, 0, TAU); c.fill(); c.restore();
+  // water falling from the shell's lip
+  c.strokeStyle = "rgba(220,245,255,.85)"; c.lineWidth = 2; c.lineCap = "round";
+  for (let i = 0; i < 7; i++){ const p = (t * .8 + i / 7) % 1; c.globalAlpha = 1 - p * .6; c.beginPath(); c.moveTo(x + s * .55 + Math.sin(i) * 2, y + s * .7 + p * s * 2.6); c.lineTo(x + s * .55 + Math.sin(i) * 2, y + s * .7 + p * s * 2.6 + 6); c.stroke(); } c.globalAlpha = 1; }
+// Saint Peter the fisherman: a round net with two fish
+function netFish(c, x, y, s){ c.save(); c.translate(x, y);
+  c.strokeStyle = "rgba(120,86,48,.85)"; c.lineWidth = 1.4; c.beginPath(); c.arc(0, 0, s, 0, TAU); c.clip();
+  c.fillStyle = "rgba(255,248,230,.35)"; c.fillRect(-s, -s, s * 2, s * 2);
+  for (let i = -6; i <= 6; i++){ const d = i * s / 3.2; c.beginPath(); c.moveTo(d - s, -s); c.lineTo(d + s, s); c.stroke(); c.beginPath(); c.moveTo(d + s, -s); c.lineTo(d - s, s); c.stroke(); }
+  c.restore(); c.save(); c.translate(x, y); c.strokeStyle = "#8a6414"; c.lineWidth = s * .09; c.beginPath(); c.arc(0, 0, s, 0, TAU); c.stroke();
+  const fish = (fx, fy, fs, flip, col) => { c.save(); c.translate(fx, fy); c.scale(flip, 1); c.fillStyle = col;
+    c.beginPath(); c.moveTo(-fs, 0); c.quadraticCurveTo(-fs * .1, -fs * .62, fs * .7, 0); c.quadraticCurveTo(-fs * .1, fs * .62, -fs, 0); c.fill();
+    c.beginPath(); c.moveTo(fs * .55, 0); c.lineTo(fs * 1.15, -fs * .42); c.lineTo(fs * 1.05, 0); c.lineTo(fs * 1.15, fs * .42); c.closePath(); c.fill();
+    c.fillStyle = "#3a2410"; c.beginPath(); c.arc(-fs * .55, -fs * .08, fs * .09, 0, TAU); c.fill(); c.restore(); };
+  fish(0, -s * .3, s * .55, 1, "#f0c64e"); fish(0, s * .32, s * .55, -1, "#e6e9ee"); c.restore(); }
+// a crescent moon
+function crescent(c, x, y, r, col){ c.save(); c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.arc(x, y - r * .35, r * .9, 0, TAU, true); c.fill("evenodd"); c.restore(); }
+// a small star
+function star5(c, x, y, r, col){ c.fillStyle = col; c.beginPath(); for (let k = 0; k < 10; k++){ const rr2 = k % 2 ? r * .42 : r, a = k / 10 * TAU - PI / 2; c.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2); } c.closePath(); c.fill(); }
+// a sword (Saint Paul)
+function sword(c, x, y, s, ang){ c.save(); c.translate(x, y); c.rotate(ang);
+  c.fillStyle = lin(c, -s * .1, 0, s * .1, 0, ["#eef2f6", "#9aa6b4", "#e2e8ee"]); c.beginPath(); c.moveTo(-s * .1, -s * .6); c.lineTo(-s * .1, s * 1.3); c.lineTo(0, s * 1.55); c.lineTo(s * .1, s * 1.3); c.lineTo(s * .1, -s * .6); c.closePath(); c.fill();
+  c.fillStyle = "#d9a93a"; rr(c, -s * .42, -s * .7, s * .84, s * .14, s * .06); c.fill(); c.fillStyle = "#7a4a1c"; c.fillRect(-s * .07, -s * 1.15, s * .14, s * .45); c.fillStyle = "#d9a93a"; c.beginPath(); c.arc(0, -s * 1.2, s * .1, 0, TAU); c.fill(); c.restore(); }
+/* ---------- the scenes ---------- */
+const SCENES = {
+  kiahk(c, w, h, t){ sky(c, w, h, ["#0b0a26", "#231c5c", "#3d2a6e"]);
+    const ax = w * .5, aw = w * .3, top = h * .08, bot = h * .6;
+    c.save(); c.beginPath(); c.moveTo(ax - aw / 2, bot); c.lineTo(ax - aw / 2, top + aw / 2); c.arc(ax, top + aw / 2, aw / 2, PI, 0); c.lineTo(ax + aw / 2, bot); c.closePath(); c.clip();
+    sky(c, w, h, ["#101a4a", "#2b3f8a"]); stars(c, w, h, t, 50, 11, .7, "#ffeeb8"); glow(c, ax, top + aw * .5, aw * .5, "rgba(255,225,150,.35)"); copticCross(c, ax, top + aw * .55, aw * .15, "rgba(255,226,150,.9)", "rgba(255,210,120,.35)"); c.restore();
+    c.strokeStyle = "#e8c46c"; c.lineWidth = 3; c.beginPath(); c.moveTo(ax - aw / 2, bot); c.lineTo(ax - aw / 2, top + aw / 2); c.arc(ax, top + aw / 2, aw / 2, PI, 0); c.lineTo(ax + aw / 2, bot); c.stroke();
+    c.fillStyle = "rgba(10,8,30,.55)"; c.fillRect(0, 0, w * .12, h); c.fillRect(w * .88, 0, w * .12, h);
+    lamp(c, w * .16, h * .2, h * .06, t, 0); lamp(c, w * .84, h * .17, h * .06, t, 1.7);
+    c.fillStyle = lin(c, 0, h * .66, 0, h, ["#2a1d4a", "#140f2a"]); c.fillRect(0, h * .68, w, h * .32); c.fillStyle = "rgba(232,196,108,.4)"; c.fillRect(0, h * .68, w, 2);
+    // the daf (frame drum) with its jingles
+    const dx = w * .3, dy = h * .5, R = h * .17, sw = Math.sin(t * 1.3) * .08, beat = Math.max(0, Math.sin(t * 3.2)) ** 8;
+    for (let k = 0; k < 3; k++){ const p = (t * .55 + k / 3) % 1; c.strokeStyle = "rgba(255,214,130," + (.45 * (1 - p)) + ")"; c.lineWidth = 1.5; c.beginPath(); c.arc(dx, dy, R * (1.05 + p * .9), 0, TAU); c.stroke(); }
+    c.save(); c.translate(dx, dy); c.rotate(sw - .2); c.scale(1, .92);
+    glow(c, 0, 0, R * 1.6, "rgba(255,200,110,.35)");
+    c.fillStyle = lin(c, -R, -R, R, R, ["#c98a3e", "#7a4a1c", "#b5763a"]); c.beginPath(); c.arc(0, 0, R, 0, TAU); c.fill();
+    c.fillStyle = c.createRadialGradient(-R * .3, -R * .3, R * .1, 0, 0, R * .86); c.fillStyle.addColorStop(0, "#fff6dc"); c.fillStyle.addColorStop(1, "#e2c48e"); c.beginPath(); c.arc(0, 0, R * .84, 0, TAU); c.fill();
+    c.strokeStyle = "rgba(122,74,28,.55)"; c.lineWidth = 1.2; c.beginPath(); c.arc(0, 0, R * .62, 0, TAU); c.stroke();
+    c.fillStyle = "rgba(122,74,28,.5)"; for (let i = 0; i < 16; i++){ const a = i / 16 * TAU; c.beginPath(); c.arc(Math.cos(a) * R * .72, Math.sin(a) * R * .72, R * .03, 0, TAU); c.fill(); }
+    copticCross(c, 0, 0, R * .3, "rgba(150,90,30,.7)");
+    for (let i = 0; i < 6; i++){ const a = i / 6 * TAU + .3, jx = Math.cos(a) * R * .92, jy = Math.sin(a) * R * .92; c.fillStyle = "#3a220c"; c.beginPath(); c.ellipse(jx, jy, R * .13, R * .07, a + PI / 2, 0, TAU); c.fill();
+      for (const o of [-1, 1]){ c.fillStyle = lin(c, jx - 4, jy - 4, jx + 4, jy + 4, ["#fff3b0", "#c9952e"]); c.beginPath(); c.arc(jx + o * R * .05 * Math.cos(a + PI / 2) + Math.sin(t * 20 + i) * beat * 1.5, jy + o * R * .05 * Math.sin(a + PI / 2), R * .07, 0, TAU); c.fill(); } }
+    if (beat > .3) glow(c, 0, 0, R * .9, "rgba(255,255,230," + (beat * .4) + ")");
+    c.restore();
+    // the triangle (تريانتو) hanging, and its beater
+    const tx = w * .7, ty = h * .3, L = h * .22, ang = Math.sin(t * 1.1) * .06, hit = Math.max(0, Math.sin(t * 3.2 + 1.6)) ** 10;
+    c.strokeStyle = "rgba(240,220,170,.7)"; c.lineWidth = 1; c.beginPath(); c.moveTo(tx, 0); c.lineTo(tx, ty); c.stroke();
+    c.save(); c.translate(tx, ty); c.rotate(ang); glow(c, 0, L * .55, L * .9, "rgba(200,220,255," + (.15 + hit * .35) + ")");
+    c.strokeStyle = lin(c, -L * .5, 0, L * .5, L, ["#ffffff", "#9aa6b4", "#e9eef4", "#7c8796"]); c.lineWidth = h * .02;
+    c.beginPath(); c.moveTo(-L * .5 + 4, L * .87); c.lineTo(-L * .5, L * .87); c.lineTo(0, 0); c.lineTo(L * .5, L * .87); c.lineTo(-L * .42, L * .87); c.stroke();
+    for (let k = 0; k < 2; k++){ const p = (t * .7 + k / 2) % 1; c.strokeStyle = "rgba(220,235,255," + (.5 * (1 - p)) + ")"; c.lineWidth = 1.2; c.beginPath(); c.arc(0, L * .55, L * (.6 + p * .7), -PI * .9, -PI * .1); c.stroke(); }
+    c.restore();
+    c.save(); c.translate(tx + L * .55, ty + L * .35); c.rotate(-.9 + hit * .5); c.strokeStyle = "#cfd6de"; c.lineWidth = h * .012; c.beginPath(); c.moveTo(0, 0); c.lineTo(-L * .55, 0); c.stroke(); c.restore();
+    // floating notes
+    c.save(); c.font = Math.round(h * .07) + "px serif"; c.textAlign = "center"; const nr = rng(5);
+    for (let i = 0; i < 9; i++){ const x0 = nr() * w, sp = 8 + nr() * 10, y = h * .7 - ((t * sp + nr() * h) % (h * .7)); c.globalAlpha = Math.min(1, y / (h * .2)) * .8; c.fillStyle = i % 2 ? "#f3d48a" : "#fff3d0"; c.fillText(i % 3 ? "♪" : "♫", x0 + Math.sin(t + i) * 8, y); }
+    c.restore(); c.globalAlpha = 1;
+    motes(c, w, h, t, 24, 9, "rgba(255,214,130,.9)", -1, 7); vignette(c, w, h, .45); },
+  newyear(c, w, h, t){ sky(c, w, h, ["#030a1f", "#0a1f47", "#1c2f66"]); stars(c, w, h, t, 70, 21, .65);
+    fireworks(c, w, h, t, [[.22, .3, 0, "#ffd56b", 34], [.72, .24, 1.1, "#ff7aa2", 30], [.5, .42, 2.2, "#7fe3ff", 36], [.88, .45, 2.9, "#b9ff8a", 26], [.1, .5, 1.7, "#ffb36b", 24]]);
+    const d = new Date(), yr = String(d.getMonth() >= 9 ? d.getFullYear() + 1 : d.getFullYear());
+    c.save(); c.font = "700 " + Math.round(h * .2) + "px 'IBM Plex Sans Arabic', sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
+    c.shadowColor = "rgba(255,210,110,.9)"; c.shadowBlur = 22; c.fillStyle = lin(c, 0, h * .5, 0, h * .7, ["#fff6d8", "#e8b84a"]); c.globalAlpha = .9 + .1 * Math.sin(t * 2); c.fillText(yr, w * .5, h * .58); c.restore(); c.globalAlpha = 1;
+    const r = rng(5); c.fillStyle = "#060d22"; c.beginPath(); c.moveTo(0, h); let x = 0; while (x < w){ const bw = 14 + r() * 26, bh = h * (.08 + r() * .14); c.lineTo(x, h - bh); c.lineTo(x + bw, h - bh); x += bw; } c.lineTo(w, h); c.fill();
+    church(c, w * .5, h, h * .13, "#060d22"); const rr = rng(8); c.fillStyle = "rgba(255,213,107,.85)"; for (let i = 0; i < 46; i++){ const lx = rr() * w, ly = h - rr() * h * .13; if (Math.abs(lx - w * .5) < h * .18) continue; c.fillRect(lx, ly, 2, 3); }
+    const cr = rng(12), cols = ["#ffd56b", "#ff7aa2", "#7fe3ff", "#fff"]; for (let i = 0; i < 40; i++){ const cx = cr() * w, sp = 15 + cr() * 25, cy = ((cr() * h + t * sp) % h); c.save(); c.translate(cx + Math.sin(t + i) * 6, cy); c.rotate(t * 2 + i); c.fillStyle = cols[i % 4]; c.globalAlpha = .75; c.fillRect(-2, -1, 4, 2); c.restore(); }
+    c.globalAlpha = 1; vignette(c, w, h, .3); },
+  nativity(c, w, h, t){ sky(c, w, h, ["#0a1430", "#1b2c55", "#2d3560"]); stars(c, w, h, t, 60, 31, .5, "#fff4d6");
+    const sx = w * .5, sy = h * .14; glow(c, sx, sy, h * .42, "rgba(255,230,160,.28)"); rays(c, sx, sy, h * .38, 16, t, "rgba(255,236,180,.14)", .01);
+    c.save(); c.translate(sx, sy); c.fillStyle = "#fffbea"; c.shadowColor = "#ffe9a8"; c.shadowBlur = 14; c.beginPath();
+    for (let i = 0; i < 16; i++){ const r2 = i % 2 ? h * .014 : (i === 8 ? h * .11 : i % 4 === 0 ? h * .06 : h * .035); const a = i / 16 * TAU - PI / 2; c.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); } c.closePath(); c.fill(); c.restore();
+    // a soft hill with the cave (raised so the greeting does not cover it)
+    c.save(); c.translate(0, -h * .15);
+    c.fillStyle = lin(c, 0, h * .2, 0, h, ["#3e3a5c", "#262340"]); c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * .46); c.quadraticCurveTo(w * .24, h * .26, w * .5, h * .27); c.quadraticCurveTo(w * .78, h * .26, w, h * .48); c.lineTo(w, h); c.fill();
+    const cave = () => { c.beginPath(); c.moveTo(w * .26, h * .8); c.bezierCurveTo(w * .25, h * .44, w * .38, h * .36, w * .5, h * .36); c.bezierCurveTo(w * .62, h * .36, w * .75, h * .44, w * .74, h * .8); c.closePath(); };
+    c.save(); cave(); c.clip(); c.fillStyle = lin(c, 0, h * .36, 0, h * .8, ["#4a3220", "#8a5a2c", "#b98242"]); c.fillRect(0, 0, w, h);
+    glow(c, w * .5, h * .66, h * .32, "rgba(255,215,140,.7)"); beam(c, sx, sy, PI / 2, h * .58, .07, "rgba(255,245,210,.35)");
+    // the manger, the straw and the swaddled Child as a glowing bundle with a cross over it
+    c.fillStyle = "#5e3c1c"; c.beginPath(); c.moveTo(w * .4, h * .67); c.lineTo(w * .6, h * .67); c.lineTo(w * .57, h * .74); c.lineTo(w * .43, h * .74); c.closePath(); c.fill();
+    c.strokeStyle = "#3e2610"; c.lineWidth = 3; c.beginPath(); c.moveTo(w * .42, h * .72); c.lineTo(w * .4, h * .8); c.moveTo(w * .58, h * .72); c.lineTo(w * .6, h * .8); c.stroke();
+    c.strokeStyle = "#e8c46c"; c.lineWidth = 1; for (let i = 0; i < 11; i++){ c.beginPath(); c.moveTo(w * (.41 + i * .018), h * .67); c.lineTo(w * (.415 + i * .018), h * .645); c.stroke(); }
+    glow(c, w * .5, h * .635, h * .09, "rgba(255,250,228,1)");
+    c.fillStyle = "#fffaf0"; c.beginPath(); c.ellipse(w * .5, h * .642, h * .065, h * .024, 0, 0, TAU); c.fill();
+    c.strokeStyle = "rgba(190,160,110,.6)"; c.lineWidth = 1; for (const k of [-.024, 0, .024]){ c.beginPath(); c.moveTo(w * .5 + k * h - 3, h * .622); c.lineTo(w * .5 + k * h + 3, h * .662); c.stroke(); }
+    copticCross(c, w * .5, h * .56, h * .035, "#ffe7a6", "rgba(255,230,160,.4)");
+    c.restore();
+    c.strokeStyle = "rgba(232,196,108,.55)"; c.lineWidth = 2; cave(); c.stroke(); c.restore();
+    // a palm on one side, sheep resting on the other, a quiet ground
+    palmTree(c, w * .13, h * .86, h * .36, .1, t * .4, "#1d1a30"); palmTree(c, w * .88, h * .88, h * .3, -.12, t * .4, "#1d1a30");
+    c.fillStyle = "#1b1730"; c.fillRect(0, h * .8, w, h * .2); sheep(c, w * .26, h * .87, h * .028, "#e9e2d0"); sheep(c, w * .72, h * .88, h * .026, "#d8d0bc"); sheep(c, w * .8, h * .9, h * .022, "#e1d9c6");
+    motes(c, w, h, t, 12, 5, "rgba(255,240,190,.8)", 1, 3); vignette(c, w, h, .3); },
+  theophany(c, w, h, t){ sky(c, w, h, ["#1b4f7a", "#4f93ba", [.55, "#b8e0ea"], "#eef7f3"]);
+    glow(c, w * .5, -h * .05, h * .62, "rgba(255,248,215,.85)"); rays(c, w * .5, -h * .08, h * 1.1, 20, 0, "rgba(255,250,225,.16)", 0, .05);
+    cloud(c, w * .16, h * .1, h * .11, "rgba(255,255,255,.8)"); cloud(c, w * .86, h * .08, h * .11, "rgba(255,255,255,.8)");
+    // the heavens opened: the dove in a beam of light
+    beam(c, w * .5, 0, PI / 2, h * .62, .09, "rgba(255,255,240,.42)");
+    const dvy = h * .14 + Math.sin(t * .6) * h * .01; glow(c, w * .5, dvy, h * .09, "rgba(255,250,220,.9)"); dove(c, w * .5, dvy, h * .05, t * .6, "#ffffff");
+    // the banks of the Jordan with reeds and a palm
+    ridge(c, w, h, h * .52, h * .02, .01, 3, "#7aa688"); palmTree(c, w * .9, h * .54, h * .22, -.12, t * .4, "#3a6a54");
+    c.fillStyle = lin(c, 0, h * .53, 0, h, ["#86c8d8", "#3a8db2", "#1c5f86"]); c.fillRect(0, h * .53, w, h * .47);
+    // a cross of light rising from the water, with soft rings around it
+    const cy = h * .44; glow(c, w * .5, cy, h * .2, "rgba(255,250,225,.7)");
+    copticCross(c, w * .5, cy, h * .085, "#fff5d6", "rgba(255,240,190,.35)");
+    for (let k = 0; k < 3; k++){ const p = ((t * .22 + k / 3) % 1); c.strokeStyle = "rgba(255,255,255," + (.55 * (1 - p)) + ")"; c.lineWidth = 1.3; c.beginPath(); c.ellipse(w * .5, h * .6, w * .05 + p * w * .28, h * .014 + p * h * .045, 0, 0, TAU); c.stroke(); }
+    c.save(); c.globalAlpha = .45; c.scale(1, -1); copticCross(c, w * .5, -h * .76, h * .06, "#fff5d6"); c.restore();
+    c.strokeStyle = "rgba(255,255,255,.35)"; c.lineWidth = 1; for (let i = 0; i < 9; i++){ const yy = h * (.66 + i * .035), xx = ((i * 53 + t * 10) % (w + 60)) - 30; c.beginPath(); c.moveTo(xx, yy); c.lineTo(xx + 18 + i * 2, yy); c.stroke(); }
+    // the shell of baptism pouring water, on the left bank
+    shell(c, w * .2, h * .38, h * .075, t);
+    c.strokeStyle = "#3f6e4a"; c.lineWidth = 2; for (let i = 0; i < 7; i++){ const x = w * (.03 + i * .022) , sw2 = Math.sin(t * .8 + i) * 3; c.beginPath(); c.moveTo(x, h * .62); c.quadraticCurveTo(x + sw2, h * .55, x + sw2 * 1.5, h * (.47 + (i % 3) * .02)); c.stroke(); }
+    motes(c, w, h, t, 12, 14, "rgba(255,255,235,.9)", 1, 5); vignette(c, w, h, .14); },
+  nineveh(c, w, h, t){ sky(c, w, h, ["#13222e", "#2e4b5c", [.6, "#7a8f8f"], "#c9b48a"]);
+    glow(c, w * .78, h * .42, h * .35, "rgba(255,220,150,.45)");
+    cloud(c, w * .2 + Math.sin(t * .2) * 15, h * .14, h * .18, "rgba(20,32,42,.75)"); cloud(c, w * .65 + Math.sin(t * .15) * 15, h * .2, h * .2, "rgba(28,42,54,.7)");
+    c.fillStyle = "#3b4a4f"; const r = rng(9); c.beginPath(); c.moveTo(w * .55, h * .6); let x = w * .55; while (x < w){ const bw = 8 + r() * 14, bh = h * (.03 + r() * .06); c.lineTo(x, h * .58 - bh); c.lineTo(x + bw, h * .58 - bh); x += bw; } c.lineTo(w, h * .6); c.closePath(); c.fill();
+    c.fillStyle = "rgba(255,210,130,.85)"; for (let i = 0; i < 12; i++) c.fillRect(w * .57 + r() * w * .42, h * (.53 + r() * .04), 1.6, 2);
+    waves(c, w, h, t, h * .6, 4, 30, "#2c5466", .8);
+    const wx = w * .36, wy = h * .74 + Math.sin(t * .9) * h * .02, s = h * .2; c.save(); c.translate(wx, wy); c.rotate(Math.sin(t * .9) * .05);
+    c.fillStyle = lin(c, 0, -s * .6, 0, s * .3, ["#3d6b80", "#1d3a4a"]); c.beginPath(); c.moveTo(-s * 1.3, -s * .05); c.bezierCurveTo(-s * 1.2, -s * .8, s * .6, -s * .9, s * 1.05, -s * .2); c.bezierCurveTo(s * 1.15, s * .05, s * .9, s * .3, s * .4, s * .3); c.lineTo(-s * 1.2, s * .2); c.closePath(); c.fill();
+    c.fillStyle = "#c9d7d6"; c.beginPath(); c.moveTo(-s * .9, s * .12); c.bezierCurveTo(-s * .2, s * .32, s * .5, s * .3, s * .95, s * .02); c.bezierCurveTo(s * .6, s * .18, -s * .2, s * .2, -s * .9, s * .12); c.fill();
+    c.fillStyle = "#1d3a4a"; c.beginPath(); c.moveTo(-s * 1.2, -s * .05); c.quadraticCurveTo(-s * 1.55, -s * .45 + Math.sin(t * 1.4) * s * .1, -s * 1.85, -s * .55 + Math.sin(t * 1.4) * s * .12); c.quadraticCurveTo(-s * 1.55, -s * .1, -s * 1.85, s * .2); c.quadraticCurveTo(-s * 1.45, s * .05, -s * 1.2, s * .12); c.fill();
+    c.fillStyle = "#0b1a22"; c.beginPath(); c.arc(s * .62, -s * .2, s * .05, 0, TAU); c.fill();
+    c.strokeStyle = "rgba(10,25,32,.6)"; c.lineWidth = 1.4; c.beginPath(); c.moveTo(s * .2, s * .05); c.quadraticCurveTo(s * .7, s * .1, s * 1.0, -s * .12); c.stroke();
+    const sp = (t * .6) % 1; c.strokeStyle = "rgba(220,240,245," + (1 - sp) + ")"; c.lineWidth = 2; for (const k of [-1, 0, 1]){ c.beginPath(); c.moveTo(s * .25, -s * .72); c.quadraticCurveTo(s * .25 + k * s * .2, -s * (1 + sp * .6), s * .25 + k * s * .45, -s * (.9 + sp * .5)); c.stroke(); }
+    c.restore();
+    waves(c, w, h, t, h * .8, 6, 26, "rgba(36,72,90,.92)", 1.3); waves(c, w, h, t + 2, h * .88, 7, 20, "#16313f", 1.7);
+    c.strokeStyle = "rgba(235,245,245,.7)"; c.lineWidth = 1.2; for (let i = 0; i < 8; i++){ const fx = ((i * 61 + t * 25) % (w + 40)) - 20, fy = h * (.82 + (i % 3) * .05); c.beginPath(); c.arc(fx, fy, 6, PI * 1.1, PI * 1.9); c.stroke(); }
+    c.strokeStyle = "rgba(200,220,230,.25)"; c.lineWidth = 1; const rr = rng(77); for (let i = 0; i < 50; i++){ const rx = rr() * w, ry = (rr() * h + t * 260) % h; c.beginPath(); c.moveTo(rx, ry); c.lineTo(rx - 3, ry + 9); c.stroke(); }
+    vignette(c, w, h, .4); },
+  lent(c, w, h, t){ sky(c, w, h, ["#1d1238", "#4a2a6a", [.55, "#a25a7c"], "#e8a87a"]); stars(c, w, h, t, 40, 41, .35, "#fbe6ff");
+    glow(c, w * .5, h * .58, h * .45, "rgba(255,190,140,.6)");
+    ridge(c, w, h, h * .6, h * .03, .006, 2, "#6a3a64"); c.fillStyle = "#4e2a52"; c.beginPath(); c.moveTo(w * .36, h * .62); c.quadraticCurveTo(w * .5, h * .44, w * .64, h * .62); c.fill();
+    rays(c, w * .5, h * .4, h * .5, 14, t, "rgba(255,225,170,.12)", .02);
+    copticCross(c, w * .5, h * .4, h * .07, "#f6d79a", "rgba(255,220,160,.55)");
+    ridge(c, w, h, h * .7, h * .04, .009, 5, "#7b3f5f"); ridge(c, w, h, h * .8, h * .05, .007, 9, "#5a2c4a");
+    c.fillStyle = "rgba(255,210,170,.32)"; c.beginPath(); c.moveTo(w * .38, h); c.quadraticCurveTo(w * .52, h * .82, w * .48, h * .7); c.quadraticCurveTo(w * .5, h * .66, w * .5, h * .62); c.quadraticCurveTo(w * .52, h * .68, w * .54, h * .72); c.quadraticCurveTo(w * .6, h * .84, w * .62, h); c.fill();
+    ridge(c, w, h, h * .92, h * .03, .012, 12, "#3a1c34");
+    const px = w * .55, py = h * .86; c.fillStyle = "#2a1428"; c.beginPath(); c.moveTo(px - h * .025, py + h * .03); c.lineTo(px, py - h * .06); c.lineTo(px + h * .025, py + h * .03); c.fill(); c.beginPath(); c.arc(px, py - h * .07, h * .014, 0, TAU); c.fill(); c.lineWidth = 1.4; c.strokeStyle = "#2a1428"; c.beginPath(); c.moveTo(px + h * .03, py + h * .03); c.lineTo(px + h * .035, py - h * .07); c.stroke();
+    motes(c, w, h, t, 30, 17, "rgba(255,220,190,.8)", 1, 4, .8);
+    c.strokeStyle = "rgba(255,220,190,.18)"; c.lineWidth = 1; for (let i = 0; i < 10; i++){ const y = h * (.72 + i * .025), x0 = ((i * 77 + t * 30) % (w + 80)) - 40; c.beginPath(); c.moveTo(x0, y); c.quadraticCurveTo(x0 + 20, y - 3, x0 + 40, y); c.stroke(); }
+    vignette(c, w, h, .4); },
+  passion(c, w, h, t){ sky(c, w, h, ["#0d0507", "#3a0d14", [.65, "#7a2224"], "#c25a34"]);
+    glow(c, w * .5, h * .55, h * .5, "rgba(255,120,70,.35)");
+    for (let i = 0; i < 5; i++) cloud(c, ((w * (i * .28) + t * (6 + i * 2)) % (w * 1.4)) - w * .2, h * (.12 + (i % 3) * .08), h * (.1 + (i % 2) * .05), "rgba(20,4,6,.55)");
+    c.fillStyle = "#1a0709"; c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * .8); c.quadraticCurveTo(w * .3, h * .76, w * .42, h * .56); c.quadraticCurveTo(w * .5, h * .5, w * .58, h * .56); c.quadraticCurveTo(w * .7, h * .76, w, h * .8); c.lineTo(w, h); c.fill();
+    glow(c, w * .5, h * .3, h * .3, "rgba(255,200,140,.3)");
+    plainCross(c, w * .5, h * .34, h * .2, "#0e0405", .1); plainCross(c, w * .34, h * .52, h * .12, "#0e0405", .1); plainCross(c, w * .66, h * .52, h * .12, "#0e0405", .1);
+    c.save(); c.translate(w * .5, h * .9); c.scale(1, .35); c.strokeStyle = "#3a2316"; c.lineWidth = 5; for (let k = 0; k < 3; k++){ c.beginPath(); for (let a = 0; a <= TAU + .01; a += .1){ const rr = h * .2 + Math.sin(a * 7 + k * 2) * 4; c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } c.stroke(); }
+    c.strokeStyle = "#5a3a22"; c.lineWidth = 2; for (let i = 0; i < 28; i++){ const a = i / 28 * TAU, rr = h * .2; c.beginPath(); c.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); c.lineTo(Math.cos(a + .15) * (rr + 12), Math.sin(a + .15) * (rr + 12)); c.stroke(); } c.restore();
+    c.save(); c.globalAlpha = .7; palmFrond(c, 0, h, h * .5, -.9, "#2a3a18"); palmFrond(c, w, h, h * .5, -2.25, "#2a3a18"); c.restore();
+    motes(c, w, h, t, 22, 23, "rgba(255,150,90,.8)", -1, 8); vignette(c, w, h, .5); },
+  resurrection(c, w, h, t){ sky(c, w, h, ["#f6c27a", "#fbe1a6", [.55, "#fff4d8"], "#fffaf0"]);
+    const ox = w * .5, oy = h * .4;
+    rays(c, ox, oy, h * 1.2, 24, t, "rgba(255,226,150,.28)", .02, .05);
+    cloud(c, w * .12, h * .14, h * .1, "rgba(255,255,255,.8)"); cloud(c, w * .9, h * .1, h * .1, "rgba(255,255,255,.7)");
+    // the garden and the empty tomb, its stone rolled away (raised above the greeting)
+    c.save(); c.translate(0, -h * .13);
+    ridge(c, w, h, h * .66, h * .03, .01, 4, "#b9cc92");
+    c.fillStyle = "#cdb08a"; c.beginPath(); c.moveTo(w * .2, h * .78); c.quadraticCurveTo(w * .5, h * .26, w * .8, h * .78); c.fill();
+    c.fillStyle = "#2a1b0c"; c.beginPath(); c.moveTo(w * .4, h * .78); c.lineTo(w * .4, h * .6); c.arc(w * .5, h * .6, w * .1, PI, 0); c.lineTo(w * .6, h * .78); c.fill();
+    // light pouring out of the tomb
+    glow(c, w * .5, h * .66, h * .2, "rgba(255,245,210,.85)");
+    c.fillStyle = "#fffaf0"; c.beginPath(); c.ellipse(w * .5, h * .74, w * .07, h * .02, 0, 0, TAU); c.fill(); // the grave clothes, folded
+    c.fillStyle = lin(c, w * .74, h * .62, w * .86, h * .8, ["#e2cfae", "#9a8160"]); c.beginPath(); c.ellipse(w * .82, h * .72, w * .075, h * .08, 0, 0, TAU); c.fill();
+    c.strokeStyle = "rgba(120,96,64,.5)"; c.lineWidth = 1.5; c.beginPath(); c.ellipse(w * .82, h * .72, w * .05, h * .055, 0, 0, TAU); c.stroke();
+    // the banner of the resurrection standing over the tomb
+    const fy = h * .14 + Math.sin(t * .6) * h * .006; glow(c, ox, fy + h * .12, h * .2, "rgba(255,255,240,.8)");
+    banner(c, ox, fy + h * .1, h * .3, t * .5, h * .04); c.restore();
+    ridge(c, w, h, h * .86, h * .02, .02, 8, "#93b56e");
+    for (let i = 0; i < 6; i++) lily(c, w * (.06 + i * .175), h * (.86 + (i % 2) * .03), h * .045, t * .5, "#fffdf4");
+    motes(c, w, h, t, 18, 29, "rgba(255,255,230,1)", -1, 6, 1); },
+  virgin(c, w, h, t){ sky(c, w, h, ["#29497f", "#4f78b8", [.6, "#9dbde6"], "#eaf0fb"]);
+    glow(c, w * .5, h * .44, h * .55, "rgba(255,250,230,.55)");
+    cloud(c, w * .12 + Math.sin(t * .1) * 6, h * .82, h * .15, "rgba(255,255,255,.85)"); cloud(c, w * .88 - Math.sin(t * .08) * 6, h * .84, h * .17, "rgba(255,255,255,.85)");
+    // a crown of twelve stars, a white lily and the moon under it
+    for (let i = 0; i < 12; i++){ const a = -PI / 2 + (i - 5.5) / 12 * PI * 1.3, r2 = h * .27; const x = w * .5 + Math.cos(a) * r2, y = h * .4 + Math.sin(a) * r2 * .95;
+      c.save(); c.shadowColor = "#fff2c0"; c.shadowBlur = 8; c.globalAlpha = .8 + .2 * Math.sin(t * 1.2 + i); star5(c, x, y, h * .022, "#ffe7a0"); c.restore(); }
+    c.globalAlpha = 1; glow(c, w * .5, h * .36, h * .18, "rgba(255,255,245,.9)");
+    crescent(c, w * .5, h * .66, h * .085, "#f6e3a8");
+    c.save(); c.translate(w * .5, h * .62); c.rotate(Math.sin(t * .5) * .02);
+    c.strokeStyle = "#5e9c4c"; c.lineWidth = h * .012; c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -h * .34); c.stroke();
+    c.fillStyle = "#6aa957"; for (const [yy, d] of [[-.08, 1], [-.14, -1], [-.2, 1]]){ c.beginPath(); c.ellipse(d * h * .045, yy * h, h * .05, h * .012, d * -.6, 0, TAU); c.fill(); }
+    c.restore();
+    for (const [dy, s2] of [[-.43, 1], [-.33, .8], [-.25, .65]]) lily(c, w * .5 + (s2 < 1 ? (s2 < .7 ? -1 : 1) * h * .03 : 0), h * .62 + dy * h + h * .08, h * .05 * s2, t * .5, "#ffffff");
+    const rr2 = rng(33); for (let i = 0; i < 16; i++){ const px = rr2() * w, sp = 6 + rr2() * 8, py = (rr2() * h + t * sp) % (h + 10) - 5; c.save(); c.translate(px + Math.sin(t * .6 + i) * 8, py); c.rotate(t * .5 + i); c.fillStyle = i % 3 ? "rgba(255,255,255,.8)" : "rgba(240,160,175,.7)"; c.beginPath(); c.ellipse(0, 0, 3, 1.7, 0, 0, TAU); c.fill(); c.restore(); }
+    vignette(c, w, h, .16); },
+  apostles(c, w, h, t){ sky(c, w, h, ["#1d5a68", "#4a97a6", [.5, "#f0cf9c"], "#ffe8c0"]);
+    glow(c, w * .5, h * .48, h * .5, "rgba(255,228,170,.6)");
+    for (let i = 0; i < 12; i++){ const a = PI + (i + .5) / 12 * PI, x = w * .5 + Math.cos(a) * w * .42, y = h * .2 + Math.sin(a) * h * .14 + h * .1; flame(c, x, y, h * .02, t * .6, i); }
+    glow(c, w * .5, h * .1, h * .07, "rgba(255,255,230,.8)"); dove(c, w * .5, h * .1, h * .04, t * .5, "#ffffff");
+    c.fillStyle = lin(c, 0, h * .5, 0, h, ["#ecc790", "#4a93a2", "#1a5868"]); c.fillRect(0, h * .5, w, h * .5);
+    boat(c, w * .5, h * .58, h * .055, t * .5, "#4a2a16", "#fff6e6", "#c2272d");
+    c.fillStyle = "#cdb084"; c.beginPath(); c.moveTo(0, h); c.lineTo(0, h * .72); c.quadraticCurveTo(w * .5, h * .66, w, h * .72); c.lineTo(w, h); c.fill();
+    // Saint Peter's net with fish (the user asked for another symbol than the keys) and Saint Paul's sword with the book of his letters
+    const py = h * .4; glow(c, w * .25, py, h * .16, "rgba(255,245,215,.75)"); glow(c, w * .75, py, h * .16, "rgba(255,245,215,.75)");
+    netFish(c, w * .25, py, h * .1);
+    sword(c, w * .75 + h * .05, py - h * .02, h * .08, .35); book(c, w * .75 - h * .02, py + h * .03, h * .07, "#9b2335", "#fff8e8");
+    c.save(); c.font = "700 " + Math.round(h * .05) + "px 'IBM Plex Sans Arabic', sans-serif"; c.textAlign = "center"; c.fillStyle = "rgba(60,36,14,.9)";
+    c.fillText("بطرس", w * .25, h * .62); c.fillText("بولس", w * .75, h * .62); c.restore();
+    vignette(c, w, h, .2); },
+  nayrouz(c, w, h, t){ sky(c, w, h, ["#5a0c18", "#a3192a", [.55, "#e7704a"], "#ffd28a"]);
+    const sx = w * .5, sy = h * .64; glow(c, sx, sy, h * .7, "rgba(255,220,150,.75)"); rays(c, sx, sy, h * 1.1, 20, t, "rgba(255,230,170,.2)", .02);
+    c.fillStyle = lin(c, sx, sy - h * .14, sx, sy, ["#fff3c9", "#ffb347"]); c.beginPath(); c.arc(sx, sy, h * .14, PI, 0); c.fill();
+    const cy = h * .22 + Math.sin(t) * 3; c.save(); c.translate(sx, cy); c.fillStyle = lin(c, -30, -20, 30, 20, ["#f8dc8a", "#c8952e"]); c.shadowColor = "rgba(255,220,140,.8)"; c.shadowBlur = 14;
+    c.beginPath(); c.moveTo(-h * .11, h * .05); c.lineTo(-h * .12, -h * .03); c.lineTo(-h * .06, h * .01); c.lineTo(0, -h * .06); c.lineTo(h * .06, h * .01); c.lineTo(h * .12, -h * .03); c.lineTo(h * .11, h * .05); c.closePath(); c.fill();
+    c.shadowBlur = 0; c.fillStyle = "#c2272d"; for (const dx of [-.06, 0, .06]){ c.beginPath(); c.arc(dx * h, h * .03, h * .012, 0, TAU); c.fill(); } copticCross(c, 0, -h * .085, h * .022, "#f8dc8a"); c.restore();
+    c.fillStyle = lin(c, 0, sy, 0, h, ["#f6b26b", "#a8433a", "#5a1420"]); c.fillRect(0, sy, w, h - sy);
+    c.save(); c.globalCompositeOperation = "lighter"; c.fillStyle = "rgba(255,225,160,.45)"; for (let i = 0; i < 12; i++){ const y = sy + i * h * .025 + 3, ww = w * (.18 - i * .01), x = sx + Math.sin(t * 1.4 + i) * 5; c.fillRect(x - ww / 2, y, ww, 1.6); } c.restore();
+    felucca(c, ((w * .22 + t * 5) % (w + 60)) - 30, h * .76, h * .07, t, "#3a0b12", "#fff2dc"); felucca(c, w * .78, h * .72, h * .05, t + 1, "#3a0b12", "#ffe9cc");
+    palmTree(c, w * .08, h * 1.02, h * .62, .18, t, "#2a0a10", "#d8283a"); palmTree(c, w * .93, h * 1.02, h * .55, -.2, t, "#2a0a10", "#d8283a");
+    for (let i = 0; i < 14; i++){ const x = w * (.25 + (i % 7) * .08), y = h * (.93 + Math.floor(i / 7) * .04); c.fillStyle = lin(c, x - 3, y - 4, x + 3, y + 4, ["#ff5a6a", "#9b0f22"]); c.beginPath(); c.ellipse(x, y, 3.2, 4.6, .4, 0, TAU); c.fill(); }
+    motes(c, w, h, t, 26, 41, "rgba(255,230,180,.9)", -1, 9); vignette(c, w, h, .35); }
+};
+
+/* ---------- gold frame (SVG overlay) ---------- */
+function frameSVG(w, h){ const m = 8, r = 16, k = 26;
+  const corner = (x, y, sx, sy) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})"><path d="M0 ${k} Q0 0 ${k} 0" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M6 ${k + 8} Q6 6 ${k + 8} 6" fill="none" stroke="currentColor" stroke-width="1"/>`
+    + `<circle cx="12" cy="12" r="4.2" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="#fff8e0"/><path d="M${k + 4} 0 l5 -4 l5 4 l-5 4z M0 ${k + 4} l-4 5 l4 5 l4 -5z" fill="currentColor"/></g>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1c2"/><stop offset=".5" stop-color="currentColor"/><stop offset="1" stop-color="#8a6414"/></linearGradient></defs>`
+    + `<rect x="${m}" y="${m}" width="${w - 2 * m}" height="${h - 2 * m}" rx="${r}" fill="none" stroke="url(#fg)" stroke-width="1.6"/>`
+    + `<rect x="${m + 5}" y="${m + 5}" width="${w - 2 * m - 10}" height="${h - 2 * m - 10}" rx="${r - 4}" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width=".8" stroke-dasharray="2 4"/>`
+    + corner(m + 2, m + 2, 1, 1) + corner(w - m - 2, m + 2, -1, 1) + corner(m + 2, h - m - 2, 1, -1) + corner(w - m - 2, h - m - 2, -1, -1)
+    + `<g transform="translate(${w / 2} ${m})"><path d="M-30 0 H-9 M9 0 H30" stroke="currentColor" stroke-width="2"/><path d="M0 -6 l6 6 l-6 6 l-6 -6z" fill="currentColor"/><circle r="2" fill="#fff8e0"/></g></svg>`; }
+const LIST = [
+  {id:"kiahk", name:"كيهك", when:"الشهر القبطي كيهك", chip:"شهر التسبحة", greet:"كيهك المبارك", verse:"«تعظّم نفسي الرب، وتبتهج روحي بالله مخلّصي»", ref:"لوقا ١: ٤٦، ٤٧"},
+  {id:"newyear", name:"رأس السنة", when:"٣١ ديسمبر و١ يناير", chip:"سنة جديدة", greet:"سنة مباركة", verse:"«كلّلت السنة بجودك، وآثارك تقطر دسمًا»", ref:"مزمور ٦٥: ١١"},
+  {id:"nativity", name:"عيد الميلاد", when:"٧ يناير", chip:"٢٩ كيهك", greet:"ميلاد مجيد", verse:"«المجد لله في الأعالي، وعلى الأرض السلام، وبالناس المسرّة»", ref:"لوقا ٢: ١٤"},
+  {id:"theophany", name:"عيد الغطاس", when:"١٩ يناير", chip:"١١ طوبة", greet:"غطاس مجيد", verse:"«هذا هو ابني الحبيب الذي به سُررت»", ref:"متى ٣: ١٧"},
+  {id:"nineveh", name:"صوم نينوى", when:"ثلاثة أيام قبل الصوم الكبير", chip:"ثلاثة أيام", greet:"صوم يونان", verse:"«دعوت من ضيقي الرب فاستجابني»", ref:"يونان ٢: ٢"},
+  {id:"lent", name:"الصوم الكبير", when:"٥٥ يومًا قبل القيامة", chip:"٥٥ يومًا", greet:"الصوم الكبير المقدس", verse:"«ارجعوا إليّ بكل قلوبكم، وبالصوم والبكاء والنوح»", ref:"يوئيل ٢: ١٢"},
+  {id:"passion", name:"أسبوع الآلام", when:"من أحد الشعانين إلى سبت النور", chip:"البصخة المقدسة", greet:"أسبوع الآلام", verse:"«لك القوة والمجد والبركة والعزة إلى الأبد، آمين»", ref:"من تسبحة البصخة"},
+  {id:"resurrection", name:"عيد القيامة", when:"عيد القيامة والخماسين", chip:"Ⲡⲓⲭⲣⲓⲥⲧⲟⲥ ⲁϥⲧⲱⲛϥ", greet:"المسيح قام", verse:"«بالحقيقة قام. ليس هو ههنا لكنه قام»", ref:"لوقا ٢٤: ٦"},
+  {id:"virgin", name:"صوم العذراء", when:"من ٧ إلى ٢٢ أغسطس", chip:"صوم السيدة العذراء", greet:"السلام لكِ يا مريم", verse:"«هوذا منذ الآن جميع الأجيال تطوّبني»", ref:"لوقا ١: ٤٨"},
+  {id:"apostles", name:"صوم الرسل", when:"من بعد الخماسين إلى ١٢ يوليو", chip:"صوم الآباء الرسل", greet:"صوم الرسل", verse:"«اذهبوا إلى العالم أجمع، واكرزوا بالإنجيل للخليقة كلها»", ref:"مرقس ١٦: ١٥"},
+  {id:"nayrouz", name:"عيد النيروز", when:"١١ سبتمبر", chip:"١ توت", greet:"نيروز مبارك", verse:"«كن أمينًا إلى الموت فسأعطيك إكليل الحياة»", ref:"رؤيا ٢: ١٠"}
+];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const live = new Set();
+let raf = 0, last = 0;
+function size(cv){ const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); const W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d));
+  if (cv.width !== W || cv.height !== H){ cv.width = W; cv.height = H; } const c = cv.getContext("2d"); c.setTransform(d, 0, 0, d, 0, 0); return [c, r.width, r.height]; }
+function paint(el, now){ const cv = el.querySelector("canvas"); if (!cv || !cv.isConnected) return; const [c, w, h] = size(cv); if (w < 10 || h < 10) return;
+  try { SCENES[el.dataset.occ](c, w, h, reduce ? 3.1 : now / 1000 * .7); } catch(e){}
+  const fr = el.querySelector(".occ-frame"), key = Math.round(w) + "x" + Math.round(h); if (fr && fr.dataset.k !== key){ fr.dataset.k = key; fr.innerHTML = frameSVG(Math.round(w), Math.round(h)); } }
+function tick(now){ raf = 0; if (document.hidden) return; if (now - last > 40){ last = now; for (const el of live) if (!el.isConnected) live.delete(el); else if (el._seen !== false) paint(el, now); }
+  if (live.size && !reduce) raf = requestAnimationFrame(tick); }
+const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { for (const e of es){ e.target._seen = e.isIntersecting; } if (!raf && !reduce) raf = requestAnimationFrame(tick); }) : null;
+document.addEventListener("visibilitychange", () => { if (!document.hidden && live.size && !raf && !reduce) raf = requestAnimationFrame(tick); });
+addEventListener("resize", () => { for (const el of live) paint(el, performance.now()); });
+const find = id => LIST.find(o => o.id === id) || null;
+// the picture with the greeting over it; kind "home" (under the header) or "gate" (top of the sign-in card)
+function banner(id, kind){ const o = find(id); if (!o) return null;
+  const el = h("section",{class:"occ occ-" + kind, "data-occ":o.id, role:"img", "aria-label":o.greet + "، " + o.verse},
+    h("canvas",{"aria-hidden":"true"}), kind === "layer" ? null : h("div",{class:"occ-frame", "aria-hidden":"true"}),
+    kind === "layer" ? null : h("div",{class:"occ-txt"}, h("span",{class:"occ-chip" + (/[Ⲁ-⳿Ϣ-ϯ]/.test(o.chip) ? " coptic" : "")}, o.chip), h("div",{class:"occ-greet"}, o.greet),
+      kind === "home" ? [h("div",{class:"occ-verse"}, o.verse), h("div",{class:"occ-ref"}, o.ref)] : null));
+  if (kind === "thumb"){ requestAnimationFrame(() => paint(el, 3100 / .7)); return el; }  // the small pictures in the admin's list stay still
+  live.add(el); if (io) io.observe(el);
+  requestAnimationFrame(() => { paint(el, performance.now()); if (!raf && !reduce) raf = requestAnimationFrame(tick); });
+  return el; }
+// falling snow (2026-11-09, user: «الكريسماس لو عملت تساقط ثلوج علي الشاشات هتبقي حلوه») for the nativity and the new year
+let snowCv = null, snowRaf = 0, flakes = [];
+function snow(on){
+  if (!on || reduce){ if (snowCv){ snowCv.remove(); snowCv = null; cancelAnimationFrame(snowRaf); snowRaf = 0; } return; }
+  if (snowCv) return;
+  snowCv = h("canvas",{id:"snowFx", "aria-hidden":"true"}); document.body.append(snowCv);
+  const n = Math.min(90, Math.round(innerWidth / 9)); flakes = Array.from({length:n}, () => ({x:Math.random(), y:Math.random(), r:1 + Math.random() * 2.6, v:.25 + Math.random() * .55, s:Math.random() * TAU}));
+  let lt = 0;
+  const step = now => { snowRaf = 0; if (!snowCv) return; if (!document.hidden && now - lt > 33){ const dt = lt ? Math.min(100, now - lt) / 16.7 : 1; lt = now;
+      const d = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight; if (snowCv.width !== Math.round(W * d)){ snowCv.width = Math.round(W * d); snowCv.height = Math.round(H * d); }
+      const c = snowCv.getContext("2d"); c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H); c.fillStyle = "#fff";
+      for (const f of flakes){ f.y += f.v * dt / H * 1.6 * (1 + f.r * .3); f.s += .02 * dt; if (f.y > 1.02){ f.y = -.02; f.x = Math.random(); }
+        const x = f.x * W + Math.sin(f.s) * 14 * f.r / 2, y = f.y * H; c.globalAlpha = .55 + f.r * .12; c.beginPath(); c.arc(x, y, f.r, 0, TAU); c.fill(); } c.globalAlpha = 1; }
+    snowRaf = requestAnimationFrame(step); };
+  snowRaf = requestAnimationFrame(step);
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && snowCv && !snowRaf) snowRaf = requestAnimationFrame(t => { snowRaf = 0; snow(false); snow(true); }); });
+const SNOW = new Set(["nativity", "newyear"]);
+// the picture of the occasion as the background of an element (the header, or the sign-in screen)
+function dress(host, id, withLine){
+  const old = host.querySelector(":scope > .occ-layer"), oldLine = host.querySelector(".occ-line");
+  if (!find(id)){ if (old) old.remove(); if (oldLine) oldLine.remove(); host.classList.remove("occ-on"); return; }
+  if (old && old.dataset.occ === id) return;
+  if (old) old.remove(); if (oldLine) oldLine.remove();
+  const o = find(id), el = banner(id, "layer"); el.classList.add("occ-layer"); host.prepend(el); host.classList.add("occ-on");
+  if (withLine) withLine.append(h("div",{class:"occ-line"}, h("span",{class:"occ-chip" + (/[Ⲁ-⳿Ϣ-ϯ]/.test(o.chip) ? " coptic" : "")}, o.chip), h("b",{class:"occ-greet"}, o.greet), h("span",{class:"occ-verse"}, o.verse + " (" + o.ref + ")")));
+}
+return {LIST, find, banner, dress, snow, SNOW};
+})();
+// which occasion the admin chose (settings/app.occasion); "" = none
+const occasionNow = () => { const id = (S.settings && S.settings.occasion) || ""; return OCCASION.find(id) ? id : ""; };
+// the banner under the header, kept outside #app so it is not redrawn on every render
+function occSync(){
+  const id = S.ready && S.account ? occasionNow() : "", hero = document.querySelector(".band .hero");
+  if (hero) OCCASION.dress(hero, id, hero.querySelector(".hero-main"));
+  OCCASION.snow(OCCASION.SNOW.has(id));
+}
+/* ---------- the chat (2026-11-08, user): «💬 شات الآباء» for the fathers of the church, «💬 شات الإدارة» for the admin and
+   the supervisors, taken from the service program: a floating button with the unread count, who is online and who is writing,
+   reply, reactions, @mention, one pinned message, ✓✓ with the faces of who read it, search and quick replies.
+   The server polls: every 3 seconds while the chat is open, every 20 seconds for the count while it is closed. ---------- */
+let chatApi = null;
+const CHAT_RX = ["👍","❤️","😂","🙏","😮","😢"];
+const CHAT_QUICK = ["🙏 آمين","👍 تمام","حاضر","ربنا يبارك","شكرًا ❤️","🙏 صلّوا لأجلي"];
+const CH = {room:null, msgs:new Map(), since:null, members:[], pin:null, open:false, timer:null, busy:false, reply:null, q:"", rxFor:null, newFrom:0, typedAt:0, peekAt:0, first:true};
+const chatTitle = r => r === "priests" ? "💬 شات الآباء" : "💬 شات الإدارة";
+const chatSeenKey = () => "menrit_chatseen_"+(S.account ? S.account.id : "")+"_"+CH.room;
+const chatSeenAt = () => { try { return Number(localStorage.getItem(chatSeenKey())) || 0; } catch(e){ return 0; } };
+const chatMyRoom = () => !chatApi || Store.mode !== "cloud" || Store.preview || !S.account ? null : accRole() === "priest" ? "priests" : ["admin","supervisor"].includes(accRole()) ? "admins" : null;
+function chatSync(){
+  const r = chatMyRoom();
+  if (r !== CH.room){ chatStop(); if (!r) return; CH.room = r; CH.first = true; chatMount(); chatPoll(); }
+  chatSchedule();
+}
+function chatStop(){ clearTimeout(CH.timer); CH.timer = null; CH.room = null; CH.msgs = new Map(); CH.since = null; CH.members = []; CH.pin = null; CH.open = false; CH.reply = null; CH.q = ""; CH.rxFor = null;
+  for (const id of ["chatFab","chatPanel"]){ const el = document.getElementById(id); if (el) el.remove(); } document.body.classList.remove("chat-open"); }
+function chatSchedule(){ clearTimeout(CH.timer); if (!CH.room) return; CH.timer = setTimeout(() => { if (!document.hidden) chatPoll(); else chatSchedule(); }, CH.open ? 3000 : 20000); }
+async function chatPoll(){
+  if (!CH.room || CH.busy) return; CH.busy = true; const room = CH.room;
+  try {
+    const since = CH.since ? new Date(new Date(CH.since).getTime() - 5000).toISOString() : null;
+    const r = await chatApi.feed(room, since); if (room !== CH.room || !r) return;
+    for (const m of r.msgs || []){ if (m.deleted) CH.msgs.delete(m.id); else CH.msgs.set(m.id, m); }
+    CH.since = r.now; CH.members = r.members || []; CH.pin = r.pin || null;
+    if (CH.first){ CH.first = false; CH.newFrom = chatSeenAt(); }
+    chatPaint();
+  } catch(e){ console.warn("chat", e.message); }
+  finally { CH.busy = false; chatSchedule(); }
+}
+const chatList = () => [...CH.msgs.values()].sort((a,b) => a.id - b.id);
+const chatMe = () => S.account ? S.account.id : "";
+const chatName = uid => { const m = CH.members.find(x => x.uid === uid); return m ? m.name : ""; };
+const chatPhoto = uid => { const a = (S.accounts||[]).find(x => x.id === uid); return a && a.photo || ""; };
+const chatFirst = n => String(n||"").replace(/^(أبونا|ابونا|القس|القمص)\s+/, "").split(/\s+/)[0];
+function chatUnread(){ const seen = chatSeenAt(), me = chatMe(); const fresh = chatList().filter(m => m.by !== me && new Date(m.at).getTime() > seen);
+  return {n:fresh.length, at:fresh.some(m => (m.mn||[]).includes(me)), last:fresh[fresh.length-1]}; }
+function chatMarkSeen(){ try { localStorage.setItem(chatSeenKey(), String(Date.now())); } catch(e){}
+  if (!chatMarkSeen.at || Date.now() - chatMarkSeen.at > 8000){ chatMarkSeen.at = Date.now(); chatApi.mark(CH.room, false).catch(() => {}); } }
+function chatMount(){
+  if (document.getElementById("chatFab")) return;
+  const fab = h("button",{type:"button", id:"chatFab", class:"chat-fab", "aria-label":chatTitle(CH.room), title:chatTitle(CH.room), onclick:()=>chatOpen(true)},
+    h("span",{class:"fab-ring"}), h("span",{class:"chat-fab-ic", "aria-hidden":"true"},"💬"), h("span",{id:"chatBadge", class:"chat-badge", hidden:true}), h("span",{id:"chatPeek", class:"chat-peek", hidden:true}));
+  const panel = h("div",{id:"chatPanel", class:"chat-panel", role:"dialog", "aria-label":chatTitle(CH.room), hidden:true});
+  document.body.append(fab, panel);
+  try { if (new URLSearchParams(location.search).get("chat") === "1") setTimeout(() => chatOpen(true), 600); } catch(e){}
+}
+function chatOpen(on){
+  CH.open = on; const p = document.getElementById("chatPanel"); if (!p) return;
+  p.hidden = !on; document.body.classList.toggle("chat-open", on);
+  if (on){ CH.newFrom = chatSeenAt(); CH.first = false; CH.scrolled = false; chatPaint(true); chatPoll(); setTimeout(() => { const i = document.getElementById("chatInput"); if (i && matchMedia("(min-width:700px)").matches) i.focus(); }, 50); }
+  else { CH.rxFor = null; chatPaint(); }
+  chatSchedule();
+}
+function chatFmt(text){
+  const names = CH.members.map(m => m.name).filter(Boolean).sort((a,b) => b.length - a.length).map(n => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const re = new RegExp((names.length ? "(@(?:"+names.join("|")+"))" : "(\\uFFFF)")+"|((?:\\+?2)?[0٠][1١][0-9٠-٩]{9})", "g");
+  const out = []; let i = 0, m; const q = CH.q.toLowerCase();
+  const mark = s => { if (!q) return [s]; const r = []; let j = 0, k; const low = s.toLowerCase(); while ((k = low.indexOf(q, j)) !== -1){ r.push(s.slice(j, k), h("mark",null, s.slice(k, k + q.length))); j = k + q.length; } r.push(s.slice(j)); return r; };
+  while ((m = re.exec(text))){ out.push(...mark(text.slice(i, m.index)));
+    if (m[1]) out.push(h("span",{class:"mn"}, m[1]));
+    else { const tel = m[0].replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)); out.push(h("a",{class:"tel", href:"tel:"+tel}, m[0])); }
+    i = m.index + m[0].length; }
+  out.push(...mark(text.slice(i))); return out;
+}
+const chatDay = ts => { const d = new Date(ts), t = new Date(), y = new Date(); y.setDate(t.getDate()-1);
+  if (d.toDateString() === t.toDateString()) return "اليوم"; if (d.toDateString() === y.toDateString()) return "أمس"; return WDAYS[d.getDay()]+" "+fmtShort(ymd(d)); };
+const chatTime = ts => { const d = new Date(ts); return timeAr(pad(d.getHours())+":"+pad(d.getMinutes())); };
+async function chatSend(text){
+  text = String(text||"").trim(); if (!text || !CH.room) return false;
+  const rp = CH.reply; CH.reply = null; CH.scrolled = false;
+  try { await chatApi.send(CH.room, text, rp ? {id:rp.id} : null); CH.newFrom = Date.now(); chatMarkSeen.at = 0; chatMarkSeen(); await chatPoll(); return true; }
+  catch(e){ CH.reply = rp; toast(/too many/.test(e.message||"") ? "برجاء الانتظار قليلًا قبل إرسال رسائل أخرى." : "لم تُرسل الرسالة. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."); chatPaint(); return false; }
+}
+function chatPaint(force){
+  if (!CH.room) return;
+  const fab = document.getElementById("chatFab"), badge = document.getElementById("chatBadge"), peek = document.getElementById("chatPeek");
+  const on = CH.members.filter(m => m.on && m.uid !== chatMe());
+  if (fab){ const u = CH.open ? {n:0} : chatUnread(); badge.hidden = !u.n; badge.textContent = u.at ? "@"+(u.n > 1 ? arDigits(u.n) : "") : u.n > 99 ? "+٩٩" : arDigits(u.n); badge.classList.toggle("at", !!u.at);
+    fab.classList.toggle("live", !!u.n); fab.dataset.on = on.length ? arDigits(on.length) : "";
+    if (u.last && new Date(u.last.at).getTime() > CH.peekAt){ const old = !CH.peekAt && Date.now() - new Date(u.last.at).getTime() > 120000; CH.peekAt = new Date(u.last.at).getTime();
+      if (!old){ peek.replaceChildren(h("b",null, chatFirst(u.last.by_name)+": "), (u.last.mn||[]).includes(chatMe()) ? "أشار إليك ✨" : String(u.last.text).slice(0, 60)); peek.hidden = false; clearTimeout(chatPaint.pt); chatPaint.pt = setTimeout(() => { peek.hidden = true; }, 5000); } } }
+  const panel = document.getElementById("chatPanel"); if (!panel || !CH.open) return;
+  const box0 = panel.querySelector(".chat-msgs"), keepTop = box0 ? box0.scrollTop : 0, nearBottom = box0 ? box0.scrollHeight - box0.scrollTop - box0.clientHeight < 90 : true;
+  const input0 = document.getElementById("chatInput"), draft = input0 ? input0.value : "", hadFocus = document.activeElement === input0, sel = input0 ? [input0.selectionStart, input0.selectionEnd] : null;
+  const me = chatMe(), q = CH.q.toLowerCase();
+  const list = chatList().filter(m => !q || String(m.text).toLowerCase().includes(q) || String(m.by_name).toLowerCase().includes(q));
+  let lastMine = null; for (const m of chatList()) if (m.by === me) lastMine = m;
+  const typing = CH.members.filter(m => m.typing && m.uid !== me).map(m => chatFirst(m.name));
+  // header
+  const head = h("div",{class:"chat-head"},
+    h("div",{class:"chat-hrow"}, h("div",{class:"chat-title"}, h("b",null, chatTitle(CH.room)),
+        h("small",{class:on.length ? "on" : ""}, h("i"), on.length ? (on.length === 1 ? "شخص واحد متصل الآن" : arDigits(on.length)+" متصلون الآن") : "لا يوجد أحد متصل الآن")),
+      h("button",{type:"button", class:"chat-x", "aria-label":"بحث", title:"بحث في الشات", onclick:()=>{ CH.searching = !CH.searching; if (!CH.searching) CH.q = ""; chatPaint(true); if (CH.searching) setTimeout(() => { const s = document.getElementById("chatSearch"); if (s) s.focus(); }, 30); }},"🔍"),
+      h("button",{type:"button", class:"chat-x", "aria-label":"إغلاق", onclick:()=>chatOpen(false)},"✕")),
+    on.length ? h("div",{class:"chat-online", title:on.map(m => m.name).join("، ")}, h("span",{class:"stk"}, on.slice(0, 6).map(m => avatar({name:m.name, photo:chatPhoto(m.uid)}, "xs"))), h("span",{class:"nm"}, on.map(m => chatFirst(m.name)).join("، "))) : null);
+  const search = CH.searching ? h("div",{class:"chat-search"}, h("input",{type:"search", id:"chatSearch", placeholder:"ابحث عن كلمة أو اسم…", value:CH.q, oninput:e=>{ CH.q = e.target.value; chatPaint(true); const s = document.getElementById("chatSearch"); if (s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }}),
+    h("span",{class:"small muted"}, CH.q ? arDigits(list.length)+" رسالة" : "")) : null;
+  const pin = CH.pin ? h("div",{class:"chat-pin"}, h("b",null,"📌 مثبتة:"), h("span",{class:"t", onclick:()=>chatGoTo(CH.pin.id)}, chatFirst(CH.pin.by_name)+": "+CH.pin.text),
+    CH.room === "priests" || accRole() === "admin" ? h("button",{type:"button", class:"chat-x sm", "aria-label":"إلغاء التثبيت", onclick:async()=>{ await chatApi.pin(CH.room, null).catch(() => {}); chatPoll(); }},"✕") : null) : null;
+  // messages
+  const box = h("div",{class:"chat-msgs"});
+  if (!list.length) box.append(h("div",{class:"chat-empty"}, q ? "لا توجد رسائل بهذه الكلمة 🔍" : "لا توجد رسائل بعد. ابدأ أنت 👋"));
+  let lastDay = "", newShown = !!q;
+  for (const m of list){
+    const day = chatDay(m.at); if (day !== lastDay){ box.append(h("div",{class:"chat-day"}, day)); lastDay = day; }
+    const mine = m.by === me;
+    if (!newShown && CH.newFrom && !mine && new Date(m.at).getTime() > CH.newFrom){ box.append(h("div",{class:"chat-new", id:"chatNewMark"},"رسائل جديدة")); newShown = true; }
+    const re = m.re && typeof m.re === "object" ? m.re : {}, groups = {};
+    for (const [u, e] of Object.entries(re)) (groups[e] = groups[e] || []).push(u);
+    const tagged = (m.mn||[]).includes(me) && !mine;
+    const seenBy = mine && lastMine && m.id === lastMine.id ? CH.members.filter(x => x.uid !== me && x.seen && new Date(x.seen) >= new Date(m.at)) : null;
+    box.append(h("div",{class:"chat-msg"+(mine ? " mine" : "")+(tagged ? " tagged" : ""), "data-mid":String(m.id)},
+      mine ? null : avatar({name:m.by_name, photo:chatPhoto(m.by)}, "sm"),
+      h("div",{class:"bub"+(CH.rxFor === m.id ? " rx-pick" : ""), ondblclick:()=>{ CH.rxFor = CH.rxFor === m.id ? null : m.id; chatPaint(); }},
+        mine ? null : h("div",{class:"by"}, m.by_name, m.role === "admin" ? h("small",null,"أدمن") : m.role === "supervisor" ? h("small",null,"مشرف") : null),
+        m.rp && m.rp.id ? h("div",{class:"q", onclick:()=>chatGoTo(m.rp.id)}, h("b",null,"↩️ "+(m.rp.by_name === S.account.name ? "أنت" : m.rp.by_name)), h("span",null, m.rp.text)) : null,
+        h("div",{class:"txt"}, chatFmt(String(m.text))),
+        h("div",{class:"tm"}, chatTime(m.at),
+          seenBy ? (seenBy.length ? h("span",{class:"seen", title:"قرأها: "+seenBy.map(x => x.name).join("، ")},"✓✓", h("span",{class:"stk"}, seenBy.slice(0, 4).map(x => avatar({name:x.name, photo:chatPhoto(x.uid)}, "xxs")))) : h("span",{class:"seen", title:"أُرسلت"},"✓")) : null,
+          h("button",{type:"button", class:"tm-b", title:"رد", "aria-label":"رد", onclick:()=>{ CH.reply = {id:m.id, by_name:m.by_name, text:String(m.text).slice(0, 90)}; chatPaint(true); const i = document.getElementById("chatInput"); if (i) i.focus(); }},"↩️"),
+          h("button",{type:"button", class:"tm-b", title:"تفاعل", "aria-label":"تفاعل", onclick:()=>{ CH.rxFor = CH.rxFor === m.id ? null : m.id; chatPaint(); }},"😊"),
+          mine || (CH.room === "admins" && accRole() === "admin") ? h("button",{type:"button", class:"tm-b del", onclick:async()=>{ if (CH.delAsk !== m.id){ CH.delAsk = m.id; toast("اضغط «حذف» مرة أخرى للتأكيد"); return; } CH.delAsk = null; await chatApi.del(m.id).catch(() => toast("لم تُحذف الرسالة.")); CH.msgs.delete(m.id); chatPoll(); }},"حذف") : null),
+        Object.keys(groups).length ? h("div",{class:"rx"}, Object.entries(groups).sort((a,b) => b[1].length - a[1].length).map(([e, us]) => h("button",{type:"button", class:us.includes(me) ? "on" : "", title:us.map(u => u === me ? "أنت" : chatName(u)).join("، "),
+          onclick:async()=>{ await chatApi.react(m.id, us.includes(me) && re[me] === e ? "" : e).catch(() => {}); chatPoll(); }}, e, us.length > 1 ? h("b",null, arDigits(us.length)) : null))) : null,
+        CH.rxFor === m.id ? h("div",{class:"rx-picker"}, CHAT_RX.map(e => h("button",{type:"button", class:re[me] === e ? "on" : "", "aria-label":e, onclick:async()=>{ CH.rxFor = null; await chatApi.react(m.id, re[me] === e ? "" : e).catch(() => {}); chatPoll(); }}, e)),
+          CH.room === "priests" || accRole() === "admin" ? h("button",{type:"button", class:"pin-b", onclick:async()=>{ CH.rxFor = null; await chatApi.pin(CH.room, CH.pin && CH.pin.id === m.id ? null : m.id).catch(() => {}); chatPoll(); }}, CH.pin && CH.pin.id === m.id ? "📌 إلغاء التثبيت" : "📌 تثبيت") : null) : null)));
+  }
+  const typingEl = h("div",{class:"chat-typing", "aria-live":"polite"}, typing.length ? [h("span",{class:"dots"}, h("i"), h("i"), h("i")), h("span",null, typing.length === 1 ? typing[0]+" يكتب…" : typing.length === 2 ? typing[0]+" و"+typing[1]+" يكتبان…" : typing[0]+" و"+arDigits(typing.length-1)+" آخرون يكتبون…")] : null);
+  const quick = h("div",{class:"chat-quick"}, CHAT_QUICK.map(t => h("button",{type:"button", class:"chip-btn", onclick:()=>chatSend(t)}, t)));
+  const replyBar = CH.reply ? h("div",{class:"chat-reply"}, h("div",{class:"t"}, h("b",null,"↩️ رد على "+(CH.reply.by_name === S.account.name ? "نفسك" : CH.reply.by_name)), h("span",null, CH.reply.text)),
+    h("button",{type:"button", class:"chat-x sm", "aria-label":"إلغاء الرد", onclick:()=>{ CH.reply = null; chatPaint(true); }},"✕")) : null;
+  const mention = h("div",{class:"chat-mention", id:"chatMention", hidden:true});
+  const input = h("input",{type:"text", id:"chatInput", placeholder:"اكتب رسالة… (@ للإشارة إلى شخص)", maxlength:"1000", autocomplete:"off", value:draft,
+    oninput:e=>{ if (Date.now() - CH.typedAt > 3000){ CH.typedAt = Date.now(); chatApi.mark(CH.room, true).catch(() => {}); } chatMention(e.target); }});
+  const form = h("form",{class:"chat-form", onsubmit:async e=>{ e.preventDefault(); const t = input.value.trim(); if (!t) return; input.value = ""; mention.hidden = true; if (!(await chatSend(t))){ const i = document.getElementById("chatInput"); if (i && !i.value) i.value = t; } }},
+    input, h("button",{type:"submit", class:"btn chat-send", "aria-label":"إرسال"},"➤"));
+  panel.replaceChildren(...[head, search, pin, box, typingEl, quick, replyBar, mention, form].filter(Boolean));
+  if (hadFocus){ const i = document.getElementById("chatInput"); i.focus(); if (sel) try { i.setSelectionRange(sel[0], sel[1]); } catch(e){} }
+  // where the list stands: first opening → the first unread (or the end); afterwards it follows new messages only when near the end
+  if (!CH.scrolled){ CH.scrolled = true; const mk = document.getElementById("chatNewMark"); box.scrollTop = mk && !q ? Math.max(0, mk.offsetTop - box.offsetTop - 50) : box.scrollHeight; }
+  else box.scrollTop = nearBottom && !q && !force ? box.scrollHeight : nearBottom && !q ? box.scrollHeight : keepTop;
+  if (!document.hidden) chatMarkSeen();
+}
+function chatGoTo(id){ const row = document.querySelector('#chatPanel .chat-msg[data-mid="'+id+'"]');
+  if (!row){ if (CH.q){ CH.q = ""; chatPaint(true); setTimeout(() => chatGoTo(id), 30); return; } toast("هذه الرسالة قديمة ولم تعد موجودة."); return; }
+  row.scrollIntoView({block:"center", behavior:"smooth"}); row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash"); }
+function chatMention(inp){
+  const box = document.getElementById("chatMention"); const v = inp.value.slice(0, inp.selectionStart), m = v.match(/@([^\s@]*)$/);
+  if (!m){ box.hidden = true; return; }
+  const k = arKey(m[1]), opts = CH.members.filter(x => x.uid !== chatMe() && arKey(x.name).includes(k)).slice(0, 6);
+  if (!opts.length){ box.hidden = true; return; }
+  box.replaceChildren(...opts.map(x => h("button",{type:"button", onclick:()=>{ const pos = inp.selectionStart, start = pos - m[0].length; inp.value = inp.value.slice(0, start)+"@"+x.name+" "+inp.value.slice(pos); box.hidden = true; inp.focus(); const p = start + x.name.length + 2; inp.setSelectionRange(p, p); }},
+    avatar({name:x.name, photo:chatPhoto(x.uid)}, "xs"), x.name)));
+  box.hidden = false;
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && CH.room) chatPoll(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && CH.open) chatOpen(false); });
 const isOnline = id => { const t = (S.online || {})[id]; return !!t && Date.now() - t < ONLINE_MS; };
 function seenText(id){ const t = (S.online || {})[id]; if (!t) return "";
   if (Date.now() - t < ONLINE_MS) return "متصل الآن";
@@ -5331,6 +6212,17 @@ function priestSettings(){
       h("label",{class:"btn sm ghost", for:"stLogo", style:"cursor:pointer"},"ارفع شعار الكنيسة"),
       h("input",{id:"stLogo", type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 256, url=>saveSt({logo:url},"الشعار اتحفظ")); }}),
       st.logo ? h("button",{class:"btn sm quiet", onclick:()=>saveSt({logo:""},"تمت إزالة الشعار")},"شيل الشعار") : null)));
+  if (churchWide) wrap.append(h("div",{class:"card form"}, h("h3",null,"📍 مدينة الكنيسة للخرائط"),
+    h("p",{class:"small muted", style:"margin:0"},"تُضاف إلى العنوان المكتوب عند فتحه على جوجل ماب لمن ليس له لوكيشن محفوظ، حتى لا يبحث جوجل في مدينة أخرى."),
+    h("label",null,"المنطقة والمدينة", h("input",{id:"stCity", value:st.mapCity||"", placeholder:"مثلًا: شبرا، القاهرة", maxlength:"60"})),
+    h("div",{class:"row"}, h("button",{class:"btn sm", id:"stCitySave", onclick:()=>saveSt({mapCity:$("#stCity").value.trim().slice(0, 60)}, "تم حفظ المدينة")},"حفظ"))));
+  if (churchWide && (Store.mode !== "cloud" || accRole() === "admin")){ const curO = st.occasion || "";
+    const opt = (id, label) => h("button",{type:"button", class:"occ-opt", "aria-pressed":String(curO === id), "data-o":id||"none",
+      onclick:async()=>{ await saveSt({occasion:id}, id ? "تم اختيار تصميم «" + label + "»" : "عاد البرنامج إلى شكله المعتاد"); S.settings = Object.assign({}, S.settings, {occasion:id}); render(); }},
+      id ? OCCASION.banner(id, "thumb") : h("span",{class:"none"},"الشكل المعتاد"), h("b",null, label));
+    wrap.append(h("div",{class:"card form", id:"occCard"}, h("h3",null,"✨ تصميم المناسبة"),
+      h("p",{class:"small muted", style:"margin:0"},"اختر المناسبة فيتغير الجزء العلوي من الشاشة نفسه إلى صورتها المتحركة مع التهنئة عند الجميع، وكذلك خلفية شاشة الدخول، ويتساقط الثلج على الشاشات في الميلاد ورأس السنة. اختر «الشكل المعتاد» بعد انتهاء المناسبة."),
+      h("div",{class:"occ-pick"}, opt("", "بدون مناسبة"), OCCASION.LIST.map(o => opt(o.id, o.name))))); }
   if (churchWide){ const cur = st.palette || "teal";
     wrap.append(h("div",{class:"card form"}, h("h3",null,"🎨 لون البرنامج والخلفية"),
       h("p",{class:"small muted", style:"margin:0"}, manyFathers ? "الألوان دي بتتغيّر عند كل الناس في الكنيسة. الإطارات الدهبي زي ماهي." : "الألوان دي بتتغيّر في البرنامج كله. الإطارات الدهبي زي ماهي."),
@@ -6023,16 +6915,32 @@ const hereRow = (id, onLink) => h("div",{class:"row here-row"}, hereBtn(id, onLi
 const fillLoc = (inputId, msg) => link => { const el = document.getElementById(inputId); if (!el) return; el.value = link; el.dispatchEvent(new Event("input", {bubbles:true})); toast(msg); };
 // a visit request keeps the house location on the person's own profile, where the father reads it
 const saveHomeLoc = async link => { await editDoc("members/"+S.uid, cur => Object.assign(cur || {}, {loc:link})); toast("تم حفظ موقع البيت، وسيظهر لأب الاعتراف."); };
+// a written address as Google Maps finds it best (2026-11-08, a father was taken to the wrong place): Latin digits,
+// no floor or flat (they only confuse the search), then the area, the church's city from «الإعدادات», and Egypt
+function addrQuery(o){ o = o || {};
+  const latin = x => String(x||"").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+  const addr = latin(o.address).replace(/(?:^|[\s،,\-])(?:ال)?(?:دور|طابق)\s*(?:رقم\s*)?(?:ال)?[^\s،,]+/g, " ")
+    .replace(/(?:^|[\s،,\-])(?:ال)?شق[ةه]\s*(?:رقم\s*)?[^\s،,]+/g, " ").replace(/\s*[،,]\s*([،,]\s*)+/g, "، ").replace(/\s+/g, " ").replace(/^[\s،,\-]+|[\s،,\-]+$/g, "");
+  const parts = [addr, latin(o.area).trim()].filter(Boolean); if (!parts.length) return "";
+  const city = latin((S.settings||{}).mapCity).trim(), all = parts.join("، ");
+  for (const c of city.split(/[،,]/).map(x => x.trim()).filter(Boolean)) if (!all.includes(c)) parts.push(c);
+  return parts.join("، ")+"، مصر";
+}
 function mapUrl(o){ o = o || {}; const l = locOk(o.loc); if (l) return l;
-  const a = [o.address, o.area].map(x => String(x||"").trim()).filter(Boolean).join("، ");
-  return a ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a+"، مصر") : ""; }
-function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null;
-  return h("a",{class:"btn sm ghost map-btn", href:u, target:"_blank", rel:"noopener", onclick:e => e.stopPropagation()}, label || (locOk(o.loc) ? "📍 افتح اللوكيشن" : "📍 افتح على الخريطة")); }
+  const a = addrQuery(o);
+  return a ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a) : ""; }
+// without a saved location the button says the place is approximate, so the father knows to ask for «📍 استخدام موقعي الحالي»
+function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact = !!locOk(o.loc);
+  return h("a",{class:"btn sm ghost map-btn"+(exact ? "" : " approx"), href:u, target:"_blank", rel:"noopener", title: exact ? "اللوكيشن المحفوظ" : "مكان تقريبي من العنوان المكتوب، وليس لوكيشن محفوظًا", onclick:e => e.stopPropagation()},
+    exact ? (label || "📍 افتح اللوكيشن") : (label === "📍" ? "📍 تقريبي" : "📍 مكان تقريبي")); }
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-08a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-09a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["✨","تصميم المناسبة","في «الإعدادات» اختر مناسبة من ١١ مناسبة كنسية (كيهك، رأس السنة، الميلاد، الغطاس، نينوى، الصوم الكبير، أسبوع الآلام، القيامة، صوم العذراء، صوم الرسل، النيروز)، فتظهر صورتها وتهنئتها أعلى الشاشة الرئيسية عند الجميع وفي شاشة الدخول. وبعد المناسبة اختر «بدون مناسبة»."],
+    ["💬","شات الإدارة","زر الشات أسفل الشاشة يجمع الأدمن والمشرفين في الكنيسة: من متصل الآن، ومن يكتب، والرد على رسالة، والتفاعل، والإشارة إلى شخص بكتابة @، وتثبيت رسالة مهمة. ويصل إشعار على الموبايل لمن لا يفتح البرنامج. شات الآباء خاص بهم ولا يظهر للإدارة."],
+    ["📊","ملخص طلبات الاعتراف والافتقاد","في شاشة «الآباء» أعلى المربعات: عدد الطلبات لكل أب خلال هذا الشهر أو آخر ٣ شهور أو هذه السنة، وكم منها تمت أو لها موعد أو في الانتظار. أرقام فقط بدون أسماء."],
     ["⚡","فتح أسرع","يحتفظ البرنامج بنسخة من آخر بيانات ظهرت على الجهاز، فتظهر فور الفتح ثم يُحدّث ما تغيّر فقط. وتُحذف هذه النسخة عند «خروج»."],
     ["⏱️","سرعة التحميل","في شاشة «الأدمن» كارت جديد يعرض متوسط وقت ظهور البيانات خلال الأسبوع وأبطأ الأجهزة، مع تنبيه إذا تجاوز المتوسط ٥ ثوانٍ."],
     ["📝","التسجيل الجديد","لا يُنشأ حساب جديد إلا بعد كتابة كل البيانات المطلوبة بشكل صحيح: الاسم الثلاثي والموبايل والرقم القومي والعنوان والصورة. ويُرفض الرقم القومي غير الصحيح أو المسجّل لشخص آخر."],
@@ -6048,11 +6956,14 @@ const NEWS = {id:"2026-11-08a", title:"الجديد في آخر تحديث", ite
     ["👀","شاشة أب تجريبية","في أعلى شاشة الأدمن زر «شاشة أب تجريبية» يعرض شاشة أب الاعتراف ببيانات وهمية للتعرف على ما يراه الآباء. لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية."],
     ["🕊️","التأملات","تصل التأملات من أب الاعتراف إلى أبنائه فقط. لم يعد المشرف يرسل تأملات، ولا يرى الأدمن تأملات الآباء."],
     ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
+    ["📍","مدينة الكنيسة للخرائط","في «الإعدادات» خانة «مدينة الكنيسة للخرائط» تُضاف إلى العنوان المكتوب، فيبحث جوجل في المكان الصحيح. والزر الذي يفتح بالعنوان المكتوب مكتوب عليه «مكان تقريبي»."],
     ["✉️","رسالة للمتصلين الآن","في كارت «متصل الآن» زر «✉️ رسالة»: اكتب الرسالة واختر من تصل إليه، فتصل في «الرسائل» ومعها إشعار على الموبايل."],
     ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
     ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
     ["🖼️","الصورة في كل مكان","الصورة التي تُختار من «بياناتي» تظهر الآن أعلى الصفحة وفي كل القوائم، وليس داخل «بياناتي» فقط."]],
   priest:[
+    ["💬","شات الآباء","زر الشات أسفل الشاشة يجمع آباء الكنيسة فقط، ولا تراه الإدارة ولا المشرفون: من متصل الآن، والرد على رسالة، والتفاعل، والإشارة إلى أب بكتابة @، وتثبيت رسالة مهمة، ويصل إشعار على الموبايل."],
+    ["📊","ملخص طلبات أبنائي","في أول شاشة «الطلبات»: عدد طلبات الاعتراف والافتقاد خلال المدة التي تختارها وما تم في كل طلب، ومع «عرض الأسماء» تظهر أسماء أبنائك."],
     ["⚡","فتح أسرع","تظهر البيانات فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط. وتُحذف النسخة المحفوظة على جهازك عند «خروج»."],
     ["🗺️","يوم افتقاد ذكي","في شاشة «اليوم» اضغط «ابدأ يوم افتقاد» وحدّد الساعات، فيقترح البرنامج البيوت: المحجوزة بمواعيدها، ثم طلبات الافتقاد، ثم الأطول انتظارًا والأقرب لبعضها، بترتيب أقصر مشوار وموعد وصول لكل بيت يتعدّل مع سير اليوم. ويمكنك إبلاغ الكل بمواعيدهم بضغطة، ومتابعة «البيت التالي»، ومن لم تتم زيارته يظهر أولًا في المرة القادمة."],
     ["🕘","فترتان ومدة للمواعيد","في «مواعيدي» لكل يوم فترة صباحية وفترة مسائية، ويمكنك تحديد مدة تُطبَّق فيها المواعيد. قبل نهايتها بثلاثة أيام يصلك سؤال: تكرار نفس المواعيد أو تعديلها."],
@@ -6067,6 +6978,7 @@ const NEWS = {id:"2026-11-08a", title:"الجديد في آخر تحديث", ite
     ["📍","موقع البيت بضغطة","في بيانات أي شخص زر «استخدام موقعي الحالي» يحفظ موقع البيت من الموبايل وأنت هناك، ويستخدمه «يوم افتقاد» في ترتيب المشوار."],
     ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
     ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
+    ["📍","الخريطة أدق","«🧭 الطريق» يفتح اللوكيشن المحفوظ نفسه، والزر الذي يفتح بالعنوان المكتوب فقط مكتوب عليه «مكان تقريبي»؛ اطلب من الشخص حفظ موقعه بزر «استخدام موقعي الحالي»."],
     ["📣","رسائل الإدارة","رسالة أدمن البرنامج تظهر في أول الشاشة حتى تضغط «تمت القراءة»."]],
   user:[
     ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."],
@@ -6304,7 +7216,7 @@ function render(){
   document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
   $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? (Store.mode === "cloud" ? " · شاشتي كمعترف" : " (معاينة شاشة المعترف)") : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
-  renderNotice(); renderMe();
+  renderNotice(); renderMe(); chatSync(); occSync();
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
@@ -6510,7 +7422,7 @@ function navFixSoon(){ [0, 120, 400, 900].forEach(t => setTimeout(navFix, t)); }
 window.addEventListener("orientationchange", navFixSoon); window.addEventListener("resize", navFixSoon); window.addEventListener("pageshow", navFixSoon);
 if (window.visualViewport){ visualViewport.addEventListener("resize", navFixSoon); visualViewport.addEventListener("scroll", navFix); }
 { const r0 = render; render = function(){ const r = r0.apply(this, arguments); navFix(); return r; }; }
-function logout(){ clearTimeout(idleTimer); if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); chatStop(); { const hero = document.querySelector(".band .hero"); if (hero) OCCASION.dress(hero, ""); OCCASION.snow(false); } if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -7056,6 +7968,7 @@ function adminView(all, part){
         h("span",{class:"father-n"}, arDigits(n)+" معترف"),
         id === "none" ? null : h("span",{class:"ft-bar", title:Math.round(n*100/allKids)+"%"}, h("i",{style:"width:"+Math.min(100, Math.round(n*100/allKids))+"%"})));
     }))) : null;
+  if (only("fathers") && isAdmin){ const rs = reqSumAdminCard(); if (rs) wrap.append(rs); }
   if (only("fathers")){ if (fStrip) wrap.append(fStrip);
     else if (part && !loading) wrap.append(h("p",{class:"small muted"},"لا يوجد آباء اعتراف بعد.")); }
   if (!only("people")) return wrap;
@@ -7773,8 +8686,10 @@ async function showCloudGate(){
         err, btn("تفعيل الكنيسة وإنشاء حساب الأدمن"));
       extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ lic = null; draw(); }},"رجوع")];
     }
+    const occId = info && info.occasion && OCCASION.find(info.occasion) ? info.occasion : "";
     gate.replaceChildren(gateCard([churchMark(), h("div",null, h("h1",null,title), h("p",{class:"muted small"}, sub))],
       [form, ...extra, h("p",{class:"small muted gate-note", style:"margin:0"},"🔒 بياناتك محفوظة على سيرفر الكنيسة، ومحدش بيشوفها غير اللي ليه صلاحية."), devBlock()]));
+    OCCASION.dress(gate, occId); OCCASION.snow(OCCASION.SNOW.has(occId));
     const f = gate.querySelector("input"); if (f) f.focus();
   };
   draw();
@@ -7794,6 +8709,13 @@ visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_i
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
 dbApi = { usage: () => Cloud.rpc("db_usage") };
 onlineApi = { list: () => Cloud.rpc("online_list") };
+reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
+chatApi = { feed: (room, since) => Cloud.rpc("chat_feed", {p_room:room, p_since:since}),
+  send: (room, text, rp) => Cloud.rpc("chat_send", {p_room:room, p_text:text, p_rp:rp}),
+  react: (id, e) => Cloud.rpc("chat_react", {p_id:id, p_emoji:e}),
+  del: id => Cloud.rpc("chat_delete", {p_id:id}),
+  pin: (room, id) => Cloud.rpc("chat_pin_set", {p_room:room, p_id:id}),
+  mark: (room, typing) => Cloud.rpc("chat_mark", {p_room:room, p_typing:typing}) };
 releaseApi = { async child(uid){ await Cloud.rpc("release_child", {p_uid:uid}); Cloud.refresh("members/x"); Cloud.refresh("accounts/x"); Cloud.refresh(PP()+"/x"); } };
 nidApi = { async set(uid, nid){ await Cloud.rpc("set_nid", {p_uid:uid, p_nid:nid}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); } };
 // asking to move to another confession father (2026-11-05): the confessee asks, only the admin answers
