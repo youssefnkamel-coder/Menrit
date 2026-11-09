@@ -267,17 +267,33 @@ a.btn{text-decoration:none}
 .occ-opt[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in oklab,var(--gold) 35%,transparent)}
 .occ-opt .occ{height:84px;border-radius:0;box-shadow:none} .occ-opt .occ-txt,.occ-opt .occ-frame{display:none}
 .occ-opt b{padding:6px 4px;font-size:.85rem}
+.occ-dates{display:grid;gap:8px;padding:12px;border:1px solid var(--gold);border-radius:14px;background:var(--surface-2)}
+.occ-state.on{color:#166534} .occ-state.soon{color:var(--gold-d)} .occ-state.over{color:var(--ink-2)}
 .occ-opt .none{height:84px;display:grid;place-items:center;background:var(--surface-2);color:var(--ink-2);font-size:.8rem;padding:6px}
-.chat-fab{position:fixed;z-index:40;inset-inline-start:16px;bottom:calc(var(--nav-h,0px) + 18px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:2px solid var(--gold);cursor:pointer;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;box-shadow:0 8px 22px rgba(10,31,61,.35);display:grid;place-items:center;font-size:1.55rem}
-.chat-fab:focus-visible{outline:3px solid var(--gold-2);outline-offset:3px}
-.chat-fab .fab-ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold-2);opacity:0}
-.chat-fab.live .fab-ring{animation:chatRing 1.8s ease-out infinite}
-@keyframes chatRing{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
-.chat-fab[data-on]:not([data-on=""])::after{content:attr(data-on);position:absolute;bottom:-3px;inset-inline-end:-3px;min-width:20px;height:20px;padding:0 4px;border-radius:99px;background:#16a34a;color:#fff;font-size:.72rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--surface)}
-.chat-badge{position:absolute;top:-5px;inset-inline-end:-5px;min-width:22px;height:22px;padding:0 5px;border-radius:99px;background:#dc2626;color:#fff;font-size:.78rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--surface)}
+/* the chat bubble (2026-11-09, user: «نقي وشيك وجديد وسمارت» and movable): glass teal→blue, a thin gold ring, a drawn white icon;
+   drag it anywhere, it snaps to the nearest side and each phone remembers where */
+.chat-fab{position:fixed;z-index:40;inset-inline-start:16px;bottom:calc(var(--nav-h,0px) + 18px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:50%;cursor:grab;padding:0;
+  border:0;color:#fff;display:grid;place-items:center;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;
+  background:radial-gradient(120% 120% at 30% 20%,rgba(255,255,255,.38),rgba(255,255,255,0) 42%),linear-gradient(145deg,#14b8a6 0%,#0e7490 48%,#1d4ed8 100%);
+  box-shadow:0 0 0 2px #fff,0 0 0 4px var(--gold),0 10px 24px rgba(10,31,61,.32),inset 0 -6px 12px rgba(10,31,61,.25);
+  transition:transform .18s ease,box-shadow .18s ease,left .32s cubic-bezier(.2,.9,.25,1.15),top .32s cubic-bezier(.2,.9,.25,1.15)}
+.chat-fab.placed{inset:auto}
+.chat-fab:hover{transform:translateY(-2px) scale(1.04)}
+.chat-fab:active{transform:scale(.96)}
+.chat-fab.drag{cursor:grabbing;transition:none;transform:scale(1.1);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--gold-2),0 18px 36px rgba(10,31,61,.4)}
+.chat-fab:focus-visible{outline:3px solid var(--gold-2);outline-offset:5px}
+.chat-fab-ic{width:30px;height:30px;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.chat-fab-ic svg{width:100%;height:100%;display:block}
+.chat-fab .fab-ring{position:absolute;inset:-7px;border-radius:50%;border:2px solid var(--gold-2);opacity:0;pointer-events:none}
+.chat-fab.live .fab-ring{animation:chatRing 2.2s ease-out infinite}
+.chat-fab.bump{animation:chatBump .6s ease}
+@keyframes chatRing{0%{transform:scale(.9);opacity:.85}100%{transform:scale(1.3);opacity:0}}
+@keyframes chatBump{0%,100%{transform:scale(1)}35%{transform:scale(1.16)}65%{transform:scale(.95)}}
+.chat-fab[data-on]:not([data-on=""])::after{content:attr(data-on);position:absolute;bottom:-2px;inset-inline-end:-2px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#22c55e;color:#fff;font-size:.66rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}
+.chat-badge{position:absolute;top:-3px;inset-inline-end:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:linear-gradient(135deg,#f43f5e,#dc2626);color:#fff;font-size:.72rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px #fff,0 3px 8px rgba(220,38,38,.4)}
 .chat-badge.at{background:var(--gold-d)}
-.chat-peek{position:absolute;bottom:64px;inset-inline-start:0;width:max-content;max-width:min(260px,70vw);background:var(--surface);color:var(--ink);border:1px solid var(--gold);border-radius:14px;padding:8px 10px;font-size:.84rem;text-align:start;box-shadow:var(--shadow);line-height:1.5}
+.chat-fab.side-l .chat-peek{inset-inline-start:auto;left:0} .chat-fab.side-r .chat-peek{inset-inline-start:auto;right:0} .chat-fab.low-room .chat-peek{bottom:auto;top:70px}
+.chat-peek{position:absolute;bottom:70px;inset-inline-start:0;cursor:pointer;width:max-content;max-width:min(260px,70vw);background:var(--surface);color:var(--ink);border:1px solid var(--gold);border-radius:14px;padding:8px 10px;font-size:.84rem;text-align:start;box-shadow:var(--shadow);line-height:1.5}
 body.chat-open .chat-fab{display:none}
 .chat-panel{position:fixed;z-index:41;inset-inline-start:16px;bottom:calc(var(--nav-h,0px) + 14px + env(safe-area-inset-bottom,0px));width:min(400px,calc(100vw - 32px));height:min(620px,calc(100dvh - var(--nav-h,0px) - 40px));
   background:var(--surface);border:2px solid var(--gold);border-radius:22px;box-shadow:0 18px 50px rgba(10,31,61,.35);display:flex;flex-direction:column;overflow:hidden}
@@ -351,7 +367,7 @@ body.chat-open .chat-fab{display:none}
 .chat-form{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--line)}
 .chat-form input{flex:1;min-width:0;border-radius:99px}
 .chat-send{border-radius:50%;width:44px;height:44px;padding:0;flex:none;font-size:1.1rem}
-@media (prefers-reduced-motion:reduce){.chat-fab.live .fab-ring,.chat-typing .dots i,.chat-msg.flash .bub{animation:none}}
+@media (prefers-reduced-motion:reduce){.chat-fab.live .fab-ring,.chat-fab.bump,.chat-typing .dots i,.chat-msg.flash .bub{animation:none}}
 .rs-card{display:grid;gap:12px}
 .rs-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
 .rs-head h3{margin:0}
@@ -442,6 +458,19 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .invite-url{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;background:var(--surface-2);border:1px dashed var(--gold-line);border-radius:12px;padding:10px 12px;word-break:break-all;user-select:all;text-align:left}
 .invite-btns{flex-wrap:wrap;gap:8px}
 .btn.wa{background:linear-gradient(135deg,#16a34a,#15803d);text-decoration:none}
+.mw{gap:10px}
+.mw-pick,.mw-q{max-height:420px;overflow:auto}
+.mw-chk{display:flex;align-items:center;gap:10px;cursor:pointer;width:100%}
+.mw-chk input{width:20px;height:20px;accent-color:#16a34a;flex:none}
+.mw-row{display:flex;align-items:center;gap:8px}
+.mw-row .who{flex:1;min-width:0}
+.mw-row.done{opacity:.6}
+.mw-row.next{background:rgba(22,163,74,.08);border-radius:12px}
+.mw-ok{background:#dcfce7;color:#166534}
+.mw-prog{display:grid;gap:4px}
+.mw-bar{height:8px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden}
+.mw-bar i{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);transition:width .3s}
+.mw-text{white-space:pre-wrap;font:inherit;font-size:.88rem;margin:6px 0 0;padding:10px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0}
 .qr-box{display:grid;justify-items:center;gap:8px;padding:12px;border-radius:14px;background:#fff}
 .qr-box[hidden]{display:none}
 .qr-box .small{color:#334155!important;text-align:center}
@@ -4957,7 +4986,7 @@ function priestMeditations(all){
     const doc = {title, text, at:new Date().toISOString(), date:TODAY_S};
     if (to === "all") await Store.set("meditations/"+newId(), doc);
     else await Store.set("members/"+to+"/inbox/"+newId(), Object.assign({type:"meditation"}, doc));
-    S.draft.mTitle=""; S.draft.mText=""; S.draft.medTo="all";
+    S.draft.medLast = {title, text}; S.draft.mTitle=""; S.draft.mText=""; S.draft.medTo="all";
     toast(to==="all" ? (Store.mode === "cloud" ? "وصل التأمل إلى كل أبنائك على البرنامج" : "التأمل وصل لكل الناس") : "وصل التأمل"); render();
   };
   wrap.append(h("div",{class:"card form"},
@@ -4967,14 +4996,67 @@ function priestMeditations(all){
     h("label",null,"العنوان (اختياري)", h("input",{id:"mTitle", value:S.draft.mTitle||"", oninput:e=>S.draft.mTitle=e.target.value})),
     h("label",null,"التأمل", h("textarea",{id:"mText", rows:"6", oninput:e=>S.draft.mText=e.target.value}, S.draft.mText||"")),
     h("div",{class:"row"}, h("button",{class:"btn", onclick:send},"إرسال التأمل"),
-      h("span",{class:"small muted"},"التأمل الخاص بيوصل للشخص لوحده ومحدش تاني بيشوفه."))));
+      h("button",{class:"btn wa", type:"button", id:"medWaOpen", onclick:()=>{ const t = ($("#mText").value||"").trim(), last = S.draft.medLast;
+          if (!t && !last){ toast("اكتب التأمل أولًا"); return; }
+          medWaStart(t ? {title:($("#mTitle").value||"").trim(), text:t} : last); }},"💬 إرسال عبر واتساب"),
+      h("span",{class:"small muted"},"التأمل الخاص بيوصل للشخص لوحده ومحدش تاني بيشوفه.")),
+    S.draft.medWa ? medWaPanel(all) : null));
   // on the server every meditation carries its author (by): a father sees and removes only his own
   const mine = m => Store.mode !== "cloud" || Store.preview || accRole() === "admin" || m.by === (S.account && S.account.id);
   const sent = S.meditations.filter(m => Store.mode !== "cloud" || Store.preview || !m.by || mine(m));
   wrap.append(h("section",null, h("h3",null,"ما تم إرساله للجميع"),
     sent.length ? h("div",{style:"display:grid;gap:14px"}, sent.slice(0,10).map(m => h("div",{class:"card"}, meditationBlock(m),
-      mine(m) ? h("div",null, h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("تم الحذف"); }},"حذف")) : null))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
+      mine(m) ? h("div",{class:"row"}, h("button",{class:"btn sm wa med-wa-again", type:"button", onclick:()=>{ medWaStart({title:m.title||"", text:m.text||""}); window.scrollTo({top:0, behavior:"smooth"}); }},"💬 واتساب"),
+        h("button",{class:"btn sm quiet", onclick:async()=>{ await Store.del("meditations/"+m.id); toast("تم الحذف"); }},"حذف")) : null))) : h("div",{class:"empty"},"لسه ما اتبعتش تأملات.")));
   return wrap;
+}
+/* the meditation by WhatsApp (2026-11-09, user): the father ticks all, some or one of his children; WhatsApp opens on each one's chat with
+   the message written and a closing line naming him and the program (WhatsApp lets no program send to many people in one tap) */
+function medWaStart(m){ S.draft.medWa = m; S.draft.medSel = []; S.draft.medSent = []; S.draft.medQ = ""; S.draft.medStep = "pick"; render();
+  setTimeout(() => { const el = $("#medWa"); if (el) el.scrollIntoView({block:"start", behavior:"smooth"}); }, 40); }
+function medWaText(m){
+  const church = (S.church && S.church.name) || (S.settings && S.settings.churchName) || "";
+  const who = String(fatherSign() || "أبونا").replace(/^\s*[-–—]\s*/, "");
+  return (m.title ? "🕊️ "+m.title+"\n\n" : "🕊️ ")+m.text+"\n\n— أُرسلت من "+who+(church ? " – "+church : "")+" عن طريق برنامج ⲙⲉⲛⲣⲓⲧ للمتابعة الروحية.";
+}
+function medWaPanel(all){
+  const d = S.draft, m = d.medWa, sel = new Set(d.medSel || []), sent = new Set(d.medSent || []);
+  const kids = all.filter(p => p.phone && waNum(p.phone).length >= 8).sort((a, b) => String(a.name||"").localeCompare(String(b.name||""), "ar"));
+  const noPh = all.length - kids.length, text = medWaText(m);
+  const close = () => { d.medWa = null; render(); };
+  const head = h("div",{class:"row between"}, h("h3",{style:"margin:0"},"💬 إرسال التأمل عبر واتساب"), h("button",{class:"btn sm quiet", type:"button", onclick:close, "aria-label":"إغلاق"},"✕"));
+  const preview = h("details",{class:"mw-prev"}, h("summary",{class:"small"},"معاينة الرسالة"), h("pre",{class:"mw-text"}, text));
+  if (!kids.length) return h("div",{class:"card form mw", id:"medWa"}, head, h("div",{class:"empty"},"لا يوجد أحد من أبنائك مسجل له رقم موبايل."));
+  if (d.medStep === "send"){
+    const list = kids.filter(p => sel.has(p.id)), done = list.filter(p => sent.has(p.id)).length, next = list.find(p => !sent.has(p.id));
+    return h("div",{class:"card form mw", id:"medWa"}, head,
+      h("div",{class:"mw-prog"}, h("div",{class:"mw-bar"}, h("i",{style:"width:"+Math.round(done * 100 / list.length)+"%"})),
+        h("span",{class:"small"}, done === list.length ? "✓ تم الإرسال إلى الجميع ("+arDigits(list.length)+")" : "تم "+arDigits(done)+" من "+arDigits(list.length))),
+      h("p",{class:"small muted", style:"margin:0"},"اضغط على كل اسم، فيُفتح واتساب على محادثته والرسالة مكتوبة، ثم اضغط «إرسال» في واتساب وارجع إلى البرنامج."),
+      h("ul",{class:"list mw-q"}, list.map(p => h("li",{class:"mw-row"+(sent.has(p.id) ? " done" : "")+(next === p ? " next" : "")},
+        h("div",{class:"who"}, h("strong",null, p.name), h("span",{class:"small muted num", dir:"ltr"}, p.phone)),
+        sent.has(p.id) ? h("span",{class:"pill mw-ok"},"✓ تم") : null,
+        h("a",{class:"btn sm wa mw-go", href:waLink(p.phone, text), target:"_blank", rel:"noopener", "data-id":p.id,
+          onclick:() => { if (!sent.has(p.id)){ d.medSent = [...sent, p.id]; setTimeout(render, 300); } }}, sent.has(p.id) ? "إعادة" : "💬 إرسال")))),
+      preview,
+      h("div",{class:"row"}, h("button",{class:"btn sm ghost", type:"button", onclick:()=>{ d.medStep = "pick"; render(); }},"✏️ تعديل الاختيار"),
+        done === list.length ? h("button",{class:"btn sm", type:"button", onclick:close},"تم") : null));
+  }
+  const q = String(d.medQ || "").trim(), shown = q ? kids.filter(p => String(p.name||"").includes(q)) : kids;
+  const toggle = (id, on) => { const x = new Set(d.medSel || []); on ? x.add(id) : x.delete(id); d.medSel = [...x]; };
+  const count = h("b",{id:"mwCount"}, arDigits(sel.size));
+  return h("div",{class:"card form mw", id:"medWa"}, head,
+    h("p",{class:"small muted", style:"margin:0"},"اختر من تريد إرسال التأمل إليه: الكل، أو بعضهم، أو شخصًا واحدًا."),
+    h("input",{id:"mwSearch", type:"search", placeholder:"🔍 البحث بالاسم", value:d.medQ || "", oninput:e => { d.medQ = e.target.value; render(); const i = $("#mwSearch"); if (i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }}),
+    h("div",{class:"row"}, h("button",{class:"btn sm ghost", type:"button", id:"mwAll", onclick:()=>{ shown.forEach(p => toggle(p.id, true)); render(); }},"تحديد الكل"),
+      h("button",{class:"btn sm ghost", type:"button", id:"mwNone", onclick:()=>{ d.medSel = []; render(); }},"إلغاء التحديد"),
+      h("span",{class:"small"},"المحدد: ", count)),
+    h("ul",{class:"list mw-pick"}, shown.map(p => h("li",null, h("label",{class:"mw-chk"},
+      h("input",{type:"checkbox", value:p.id, checked:sel.has(p.id), onchange:e => { toggle(p.id, e.target.checked); count.textContent = arDigits((d.medSel||[]).length); }}),
+      h("span",{class:"who"}, h("strong",null, p.name), h("span",{class:"small muted"}, p.onApp ? "على البرنامج" : "ليس على البرنامج")))))),
+    noPh ? h("p",{class:"small muted", style:"margin:0"}, arDigits(noPh)+" من أبنائك ليس لهم رقم موبايل مسجل، فلا يظهرون هنا.") : null,
+    preview,
+    h("div",{class:"row"}, h("button",{class:"btn wa", type:"button", id:"mwStart", onclick:()=>{ if (!(d.medSel||[]).length){ toast("اختر شخصًا واحدًا على الأقل"); return; } d.medStep = "send"; d.medSent = []; render(); }},"متابعة الإرسال")));
 }
 
 
@@ -5902,10 +5984,41 @@ function dress(host, id, withLine){
   const o = find(id), el = banner(id, "layer"); el.classList.add("occ-layer"); host.prepend(el); host.classList.add("occ-on");
   if (withLine) withLine.append(h("div",{class:"occ-line"}, h("span",{class:"occ-chip" + (/[Ⲁ-⳿Ϣ-ϯ]/.test(o.chip) ? " coptic" : "")}, o.chip), h("b",{class:"occ-greet"}, o.greet), h("span",{class:"occ-verse"}, o.verse + " (" + o.ref + ")")));
 }
-return {LIST, find, banner, dress, snow, SNOW};
+// the usual period of each occasion (2026-11-09, user: «من/إلى», then back to the usual look): fixed feasts by date,
+// the moving ones from the Coptic Easter (Julian computus + 13 days, right for 1900–2099); the next period that has not ended
+const D = (y, m, d) => new Date(y, m - 1, d), add = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+function easter(y){ const a = y % 4, b = y % 7, c = y % 19, d = (19 * c + 15) % 30, e = (2 * a + 4 * b - d + 34) % 7, x = d + e + 114; return add(D(y, Math.floor(x / 31), x % 31 + 1), 13); }
+function spanIn(id, y){ const E = easter(y);
+  return ({kiahk:[D(y - 1, 12, 10), D(y, 1, 6)], newyear:[D(y - 1, 12, 31), D(y, 1, 2)], nativity:[D(y, 1, 6), D(y, 1, 18)], theophany:[D(y, 1, 19), D(y, 1, 21)],
+    nineveh:[add(E, -69), add(E, -66)], lent:[add(E, -55), add(E, -8)], passion:[add(E, -7), add(E, -1)], resurrection:[E, add(E, 49)],
+    apostles:[add(E, 50), D(y, 7, 11)], virgin:[D(y, 8, 7), D(y, 8, 22)], nayrouz:[D(y, 9, 11), D(y, 9, 26)]})[id]; }
+const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+function span(id, today){ today = today || new Date(); const t = iso(today), y = today.getFullYear();
+  for (const yy of [y, y + 1, y + 2]){ const r = spanIn(id, yy); if (r && iso(r[1]) >= t) return [iso(r[0]), iso(r[1])]; } return ["", ""]; }
+return {LIST, find, banner, dress, snow, SNOW, span, easter};
 })();
 // which occasion the admin chose (settings/app.occasion); "" = none
-const occasionNow = () => { const id = (S.settings && S.settings.occasion) || ""; return OCCASION.find(id) ? id : ""; };
+// 2026-11-09: only between «من» and «إلى» (settings occFrom/occTo, either may be empty); afterwards the usual look comes back by itself
+const occDay = () => { const n = new Date(); return n.getFullYear()+"-"+pad(n.getMonth()+1)+"-"+pad(n.getDate()); };
+const occState = st => { st = st || {}; const id = st.occasion || "", f = st.occFrom || "", t = st.occTo || "", d = occDay();
+  return !OCCASION.find(id) ? "" : f && d < f ? "soon" : t && d > t ? "over" : "on"; };
+const occasionNow = () => occState(S.settings) === "on" ? S.settings.occasion : "";
+// «من» / «إلى» under the chosen occasion; filled with its usual period when it is picked, the admin may change them
+function occDates(st, saveSt){
+  const o = OCCASION.find(st.occasion), k = occState(st), f = st.occFrom || "", t = st.occTo || "";
+  const day = v => v ? fmtShort(v) : "";
+  const line = k === "soon" ? "⏳ يظهر التصميم ابتداءً من " + day(f) + "." : k === "over" ? "✔️ انتهت المدة، وعاد البرنامج إلى شكله المعتاد." : "✅ ظاهر الآن" + (t ? " حتى " + day(t) + "، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا." : ".");
+  const save = async () => { const nf = $("#occFrom").value, nt = $("#occTo").value;
+    if (nf && nt && nt < nf){ toast("تاريخ «إلى» قبل تاريخ «من»"); return; }
+    await saveSt({occFrom:nf, occTo:nt}, "تم حفظ مدة المناسبة"); S.settings = Object.assign({}, S.settings, {occFrom:nf, occTo:nt}); render(); };
+  return h("div",{class:"occ-dates", id:"occDates"},
+    h("b",null,"📅 مدة «" + o.name + "»"),
+    h("div",{class:"two"}, h("label",null,"من", h("input",{id:"occFrom", type:"date", value:f})), h("label",null,"إلى", h("input",{id:"occTo", type:"date", value:t}))),
+    h("div",{class:"row"}, h("button",{class:"btn sm", type:"button", id:"occDatesSave", onclick:save},"حفظ المدة"),
+      h("button",{class:"btn sm ghost", type:"button", id:"occDatesAuto", onclick:()=>{ const [a, b] = OCCASION.span(st.occasion); $("#occFrom").value = a; $("#occTo").value = b; save(); }},"المدة المعتادة"),
+      k === "soon" ? h("button",{class:"btn sm ghost", type:"button", id:"occNow", onclick:()=>{ $("#occFrom").value = occDay(); save(); }},"إظهاره من اليوم") : null),
+    h("p",{class:"small occ-state " + k, id:"occState", style:"margin:0"}, line));
+}
 // the banner under the header, kept outside #app so it is not redrawn on every render
 function occSync(){
   const id = S.ready && S.account ? occasionNow() : "", hero = document.querySelector(".band .hero");
@@ -5955,11 +6068,35 @@ function chatMarkSeen(){ try { localStorage.setItem(chatSeenKey(), String(Date.n
   if (!chatMarkSeen.at || Date.now() - chatMarkSeen.at > 8000){ chatMarkSeen.at = Date.now(); chatApi.mark(CH.room, false).catch(() => {}); } }
 function chatMount(){
   if (document.getElementById("chatFab")) return;
-  const fab = h("button",{type:"button", id:"chatFab", class:"chat-fab", "aria-label":chatTitle(CH.room), title:chatTitle(CH.room), onclick:()=>chatOpen(true)},
-    h("span",{class:"fab-ring"}), h("span",{class:"chat-fab-ic", "aria-hidden":"true"},"💬"), h("span",{id:"chatBadge", class:"chat-badge", hidden:true}), h("span",{id:"chatPeek", class:"chat-peek", hidden:true}));
+  const fab = h("button",{type:"button", id:"chatFab", class:"chat-fab", "aria-label":chatTitle(CH.room), title:chatTitle(CH.room), onclick:e=>{ if (fab.dataset.moved){ delete fab.dataset.moved; e.preventDefault(); return; } chatOpen(true); }},
+    h("span",{class:"fab-ring"}), h("span",{class:"chat-fab-ic", "aria-hidden":"true"}), h("span",{id:"chatBadge", class:"chat-badge", hidden:true}), h("span",{id:"chatPeek", class:"chat-peek", hidden:true}));
   const panel = h("div",{id:"chatPanel", class:"chat-panel", role:"dialog", "aria-label":chatTitle(CH.room), hidden:true});
-  document.body.append(fab, panel);
+  fab.querySelector(".chat-fab-ic").innerHTML = '<svg viewBox="0 0 32 32" fill="none"><path d="M16 5C9.4 5 4 9.6 4 15.3c0 3 1.5 5.7 3.9 7.6L7 27.5l5.1-2.6c1.2.3 2.5.5 3.9.5 6.6 0 12-4.6 12-10.2S22.6 5 16 5Z" fill="#fff"/><circle cx="11" cy="15.4" r="1.7" fill="#0e7490"/><circle cx="16" cy="15.4" r="1.7" fill="#0e7490"/><circle cx="21" cy="15.4" r="1.7" fill="#1d4ed8"/></svg>';
+  document.body.append(fab, panel); chatDrag(fab);
   try { if (new URLSearchParams(location.search).get("chat") === "1") setTimeout(() => chatOpen(true), 600); } catch(e){}
+}
+// drag the bubble: past a few pixels it follows the finger, on release it snaps to the nearest side; saved per device
+const FAB_KEY = "menrit_fabpos";
+function chatFabPlace(fab, pos){
+  if (!pos) return; const W = innerWidth, H = innerHeight, nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 0, sz = 60, m = 14;
+  const top = Math.max(m + 60, Math.min(H - nav - sz - m, pos.y * H));
+  fab.classList.add("placed"); fab.style.left = (pos.side === "l" ? m : W - sz - m) + "px"; fab.style.top = top + "px";
+  fab.classList.toggle("side-l", pos.side === "l"); fab.classList.toggle("side-r", pos.side !== "l"); fab.classList.toggle("low-room", top < 150);
+}
+function chatDrag(fab){
+  let st = null, pos = null; try { pos = JSON.parse(localStorage.getItem(FAB_KEY) || "null"); } catch(e){}
+  chatFabPlace(fab, pos);
+  addEventListener("resize", () => chatFabPlace(fab, pos));
+  fab.addEventListener("pointerdown", e => { if (e.button) return; const r = fab.getBoundingClientRect(); st = {x:e.clientX, y:e.clientY, dx:e.clientX - r.left, dy:e.clientY - r.top, on:false, id:e.pointerId}; try { fab.setPointerCapture(e.pointerId); } catch(x){} });
+  fab.addEventListener("pointermove", e => { if (!st || e.pointerId !== st.id) return;
+    if (!st.on){ if (Math.hypot(e.clientX - st.x, e.clientY - st.y) < 8) return; st.on = true; fab.classList.add("drag", "placed"); }
+    fab.style.left = Math.max(4, Math.min(innerWidth - 64, e.clientX - st.dx)) + "px"; fab.style.top = Math.max(4, Math.min(innerHeight - 64, e.clientY - st.dy)) + "px"; e.preventDefault(); });
+  const end = e => { if (!st) return; const was = st.on; st = null; if (!was) return;
+    fab.classList.remove("drag"); fab.dataset.moved = "1"; setTimeout(() => { delete fab.dataset.moved; }, 400);
+    const r = fab.getBoundingClientRect(); pos = {side: r.left + r.width / 2 < innerWidth / 2 ? "l" : "r", y: r.top / innerHeight};
+    try { localStorage.setItem(FAB_KEY, JSON.stringify(pos)); } catch(x){}
+    requestAnimationFrame(() => chatFabPlace(fab, pos)); };
+  fab.addEventListener("pointerup", end); fab.addEventListener("pointercancel", end);
 }
 function chatOpen(on){
   CH.open = on; const p = document.getElementById("chatPanel"); if (!p) return;
@@ -5995,7 +6132,7 @@ function chatPaint(force){
   if (fab){ const u = CH.open ? {n:0} : chatUnread(); badge.hidden = !u.n; badge.textContent = u.at ? "@"+(u.n > 1 ? arDigits(u.n) : "") : u.n > 99 ? "+٩٩" : arDigits(u.n); badge.classList.toggle("at", !!u.at);
     fab.classList.toggle("live", !!u.n); fab.dataset.on = on.length ? arDigits(on.length) : "";
     if (u.last && new Date(u.last.at).getTime() > CH.peekAt){ const old = !CH.peekAt && Date.now() - new Date(u.last.at).getTime() > 120000; CH.peekAt = new Date(u.last.at).getTime();
-      if (!old){ peek.replaceChildren(h("b",null, chatFirst(u.last.by_name)+": "), (u.last.mn||[]).includes(chatMe()) ? "أشار إليك ✨" : String(u.last.text).slice(0, 60)); peek.hidden = false; clearTimeout(chatPaint.pt); chatPaint.pt = setTimeout(() => { peek.hidden = true; }, 5000); } } }
+      if (!old){ fab.classList.remove("bump"); void fab.offsetWidth; fab.classList.add("bump"); peek.replaceChildren(h("b",null, chatFirst(u.last.by_name)+": "), (u.last.mn||[]).includes(chatMe()) ? "أشار إليك ✨" : String(u.last.text).slice(0, 60)); peek.hidden = false; clearTimeout(chatPaint.pt); chatPaint.pt = setTimeout(() => { peek.hidden = true; }, 5000); } } }
   const panel = document.getElementById("chatPanel"); if (!panel || !CH.open) return;
   const box0 = panel.querySelector(".chat-msgs"), keepTop = box0 ? box0.scrollTop : 0, nearBottom = box0 ? box0.scrollHeight - box0.scrollTop - box0.clientHeight < 90 : true;
   const input0 = document.getElementById("chatInput"), draft = input0 ? input0.value : "", hadFocus = document.activeElement === input0, sel = input0 ? [input0.selectionStart, input0.selectionEnd] : null;
@@ -6218,10 +6355,12 @@ function priestSettings(){
     h("div",{class:"row"}, h("button",{class:"btn sm", id:"stCitySave", onclick:()=>saveSt({mapCity:$("#stCity").value.trim().slice(0, 60)}, "تم حفظ المدينة")},"حفظ"))));
   if (churchWide && (Store.mode !== "cloud" || accRole() === "admin")){ const curO = st.occasion || "";
     const opt = (id, label) => h("button",{type:"button", class:"occ-opt", "aria-pressed":String(curO === id), "data-o":id||"none",
-      onclick:async()=>{ await saveSt({occasion:id}, id ? "تم اختيار تصميم «" + label + "»" : "عاد البرنامج إلى شكله المعتاد"); S.settings = Object.assign({}, S.settings, {occasion:id}); render(); }},
+      onclick:async()=>{ const [f, t] = id ? OCCASION.span(id) : ["", ""], ch = {occasion:id, occFrom:f, occTo:t};
+        await saveSt(ch, id ? "تم اختيار تصميم «" + label + "»" : "عاد البرنامج إلى شكله المعتاد"); S.settings = Object.assign({}, S.settings, ch); render(); }},
       id ? OCCASION.banner(id, "thumb") : h("span",{class:"none"},"الشكل المعتاد"), h("b",null, label));
     wrap.append(h("div",{class:"card form", id:"occCard"}, h("h3",null,"✨ تصميم المناسبة"),
-      h("p",{class:"small muted", style:"margin:0"},"اختر المناسبة فيتغير الجزء العلوي من الشاشة نفسه إلى صورتها المتحركة مع التهنئة عند الجميع، وكذلك خلفية شاشة الدخول، ويتساقط الثلج على الشاشات في الميلاد ورأس السنة. اختر «الشكل المعتاد» بعد انتهاء المناسبة."),
+      h("p",{class:"small muted", style:"margin:0"},"اختر المناسبة فيتغير الجزء العلوي من الشاشة نفسه إلى صورتها المتحركة مع التهنئة عند الجميع، وكذلك خلفية شاشة الدخول، ويتساقط الثلج على الشاشات في الميلاد ورأس السنة. تظهر المناسبة في المدة المحددة تحتها فقط، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا."),
+      curO && OCCASION.find(curO) ? occDates(st, saveSt) : null,
       h("div",{class:"occ-pick"}, opt("", "بدون مناسبة"), OCCASION.LIST.map(o => opt(o.id, o.name))))); }
   if (churchWide){ const cur = st.palette || "teal";
     wrap.append(h("div",{class:"card form"}, h("h3",null,"🎨 لون البرنامج والخلفية"),
@@ -6936,61 +7075,19 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-09a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-09b", title:"الجديد في آخر تحديث", items:{
   admin:[
-    ["✨","تصميم المناسبة","في «الإعدادات» اختر مناسبة من ١١ مناسبة كنسية (كيهك، رأس السنة، الميلاد، الغطاس، نينوى، الصوم الكبير، أسبوع الآلام، القيامة، صوم العذراء، صوم الرسل، النيروز)، فتظهر صورتها وتهنئتها أعلى الشاشة الرئيسية عند الجميع وفي شاشة الدخول. وبعد المناسبة اختر «بدون مناسبة»."],
-    ["💬","شات الإدارة","زر الشات أسفل الشاشة يجمع الأدمن والمشرفين في الكنيسة: من متصل الآن، ومن يكتب، والرد على رسالة، والتفاعل، والإشارة إلى شخص بكتابة @، وتثبيت رسالة مهمة. ويصل إشعار على الموبايل لمن لا يفتح البرنامج. شات الآباء خاص بهم ولا يظهر للإدارة."],
-    ["📊","ملخص طلبات الاعتراف والافتقاد","في شاشة «الآباء» أعلى المربعات: عدد الطلبات لكل أب خلال هذا الشهر أو آخر ٣ شهور أو هذه السنة، وكم منها تمت أو لها موعد أو في الانتظار. أرقام فقط بدون أسماء."],
-    ["⚡","فتح أسرع","يحتفظ البرنامج بنسخة من آخر بيانات ظهرت على الجهاز، فتظهر فور الفتح ثم يُحدّث ما تغيّر فقط. وتُحذف هذه النسخة عند «خروج»."],
-    ["⏱️","سرعة التحميل","في شاشة «الأدمن» كارت جديد يعرض متوسط وقت ظهور البيانات خلال الأسبوع وأبطأ الأجهزة، مع تنبيه إذا تجاوز المتوسط ٥ ثوانٍ."],
-    ["📝","التسجيل الجديد","لا يُنشأ حساب جديد إلا بعد كتابة كل البيانات المطلوبة بشكل صحيح: الاسم الثلاثي والموبايل والرقم القومي والعنوان والصورة. ويُرفض الرقم القومي غير الصحيح أو المسجّل لشخص آخر."],
-    ["📱","شاشة الأدمن في خمس شاشات","أصبحت شاشة الأدمن خمس شاشات أسفل الشاشة: «الملخص» للأرقام وكل ما ينتظر ردك، و«الآباء» بمربعات تعرض صورة كل أب وعدد أبنائه، و«الناس» لكل الحسابات والبحث، و«النشاط»، و«الإعدادات» وفيها رابط التسجيل وأكواد جواز السفر والنسخة الاحتياطية."],
-    ["🖼️","صورة أب الاعتراف","عند التسجيل الجديد تظهر صورة كل أب اعتراف بجانب اسمه."],
-    ["🌡️","درجة الحرارة","تظهر درجة الحرارة بالأرقام التي اخترتها في الإعدادات دائمًا."],
-    ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
-    ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
-    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
-    ["💾","مساحة قاعدة البيانات","في شاشة «الأدمن» سطر يعرض المساحة المستخدمة من ٥٠٠ ميجابايت، ويتحوّل إلى تنبيه إذا تجاوزت ٧٠٪."],
-    ["🟢","متصل الآن","في شاشة «الأدمن» كارت يعرض عدد من يفتحون البرنامج الآن وأسماءهم، وبجانب كل اسم في قائمة الناس «متصل الآن» أو «آخر ظهور». يظهر للأدمن فقط."],
-    ["⛪","ترتيب الآباء","تظهر مربعات الآباء مرتبة حسب عدد المعترفين، من الأكثر إلى الأقل."],
-    ["👀","شاشة أب تجريبية","في أعلى شاشة الأدمن زر «شاشة أب تجريبية» يعرض شاشة أب الاعتراف ببيانات وهمية للتعرف على ما يراه الآباء. لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية."],
-    ["🕊️","التأملات","تصل التأملات من أب الاعتراف إلى أبنائه فقط. لم يعد المشرف يرسل تأملات، ولا يرى الأدمن تأملات الآباء."],
-    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
-    ["📍","مدينة الكنيسة للخرائط","في «الإعدادات» خانة «مدينة الكنيسة للخرائط» تُضاف إلى العنوان المكتوب، فيبحث جوجل في المكان الصحيح. والزر الذي يفتح بالعنوان المكتوب مكتوب عليه «مكان تقريبي»."],
-    ["✉️","رسالة للمتصلين الآن","في كارت «متصل الآن» زر «✉️ رسالة»: اكتب الرسالة واختر من تصل إليه، فتصل في «الرسائل» ومعها إشعار على الموبايل."],
-    ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
-    ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
-    ["🖼️","الصورة في كل مكان","الصورة التي تُختار من «بياناتي» تظهر الآن أعلى الصفحة وفي كل القوائم، وليس داخل «بياناتي» فقط."]],
+    ["📅","مدة المناسبة","تحت اختيار المناسبة في «الإعدادات» خانتا «من» و«إلى»، وتُملآن تلقائيًا بالمدة المعتادة لكل مناسبة، والمناسبات المتغيرة تُحسب من عيد القيامة. تظهر المناسبة في هذه المدة فقط، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا. ويمكنك تعديل التاريخين، أو الضغط على «إظهاره من اليوم»."],
+    ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
+  ],
   priest:[
-    ["💬","شات الآباء","زر الشات أسفل الشاشة يجمع آباء الكنيسة فقط، ولا تراه الإدارة ولا المشرفون: من متصل الآن، والرد على رسالة، والتفاعل، والإشارة إلى أب بكتابة @، وتثبيت رسالة مهمة، ويصل إشعار على الموبايل."],
-    ["📊","ملخص طلبات أبنائي","في أول شاشة «الطلبات»: عدد طلبات الاعتراف والافتقاد خلال المدة التي تختارها وما تم في كل طلب، ومع «عرض الأسماء» تظهر أسماء أبنائك."],
-    ["⚡","فتح أسرع","تظهر البيانات فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط. وتُحذف النسخة المحفوظة على جهازك عند «خروج»."],
-    ["🗺️","يوم افتقاد ذكي","في شاشة «اليوم» اضغط «ابدأ يوم افتقاد» وحدّد الساعات، فيقترح البرنامج البيوت: المحجوزة بمواعيدها، ثم طلبات الافتقاد، ثم الأطول انتظارًا والأقرب لبعضها، بترتيب أقصر مشوار وموعد وصول لكل بيت يتعدّل مع سير اليوم. ويمكنك إبلاغ الكل بمواعيدهم بضغطة، ومتابعة «البيت التالي»، ومن لم تتم زيارته يظهر أولًا في المرة القادمة."],
-    ["🕘","فترتان ومدة للمواعيد","في «مواعيدي» لكل يوم فترة صباحية وفترة مسائية، ويمكنك تحديد مدة تُطبَّق فيها المواعيد. قبل نهايتها بثلاثة أيام يصلك سؤال: تكرار نفس المواعيد أو تعديلها."],
-    ["📝","طلبات التسجيل","لا يصلك طلب تسجيل إلا وبياناته كاملة وصحيحة، والرقم القومي مطابق لتاريخ الميلاد والنوع."],
-    ["🗑️","إزالة من أولادي","في بيانات أي شخص زر «إزالة من أولادي» يسأل للتأكيد أولًا. يبقى حساب الشخص على البرنامج بدون أب اعتراف، وتُحذف ملاحظاتك عنه نهائيًا، ولا يرى الأدمن أي ملاحظات."],
-    ["🪪","الرقم القومي","في «شخص جديد» وبيانات من ليس على البرنامج خانة للرقم القومي، يُملأ منها تاريخ الميلاد تلقائيًا، ويُنبَّه إذا كان الرقم غير صحيح أو مسجَّلًا لشخص آخر."],
-    ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
-    ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
-    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
-    ["🕊️","التأملات","يصل التأمل الذي ترسله «لكل أبنائي» إلى أبنائك على البرنامج فقط."],
-    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
-    ["📍","موقع البيت بضغطة","في بيانات أي شخص زر «استخدام موقعي الحالي» يحفظ موقع البيت من الموبايل وأنت هناك، ويستخدمه «يوم افتقاد» في ترتيب المشوار."],
-    ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
-    ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
-    ["📍","الخريطة أدق","«🧭 الطريق» يفتح اللوكيشن المحفوظ نفسه، والزر الذي يفتح بالعنوان المكتوب فقط مكتوب عليه «مكان تقريبي»؛ اطلب من الشخص حفظ موقعه بزر «استخدام موقعي الحالي»."],
-    ["📣","رسائل الإدارة","رسالة أدمن البرنامج تظهر في أول الشاشة حتى تضغط «تمت القراءة»."]],
+    ["💬","التأمل عبر واتساب","في «التأملات» اضغط «💬 إرسال عبر واتساب»، واختر من أبنائك الكل أو بعضهم أو شخصًا واحدًا، ثم اضغط على كل اسم فيُفتح واتساب على محادثته والرسالة مكتوبة، وفي آخرها أنها مرسلة منك عن طريق البرنامج."],
+    ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
+  ],
   user:[
-    ["⚡","فتح أسرع","تظهر بياناتك فور فتح البرنامج، ثم يُحدّث ما تغيّر فقط."],
-    ["👆","الدخول بالبصمة","لم يعد الخروج من البرنامج على جهاز آخر يوقف الدخول بالبصمة على جهازك."],
-    ["🔐","كلمات سر أقوى","عند اختيار كلمة سر جديدة يجب أن تكون ٨ حروف وأرقام على الأقل، ولا تُقبل الكلمات السهلة مثل 123456 أو رقم الموبايل. كلمات السر الحالية تظل صالحة."],
-    ["⏏️","خروج تلقائي أدق","عند الرجوع إلى البرنامج بعد أكثر من ٣ دقائق دون استخدام يتم الخروج فورًا حفاظًا على الخصوصية."],
-    ["🕊️","التأملات","تظهر لك التأملات التي يرسلها أب اعترافك فقط."],
-    ["🖼️","ضبط الصورة","عند اختيار أي صورة تظهر داخل دائرة كما ستظهر في البرنامج، ويمكن تحريكها وتكبيرها وتدويرها قبل الحفظ."],
-    ["📍","موقع البيت بضغطة","في «بياناتي» وطلب الافتقاد زر «استخدام موقعي الحالي» يحفظ موقع بيتك من الموبايل مباشرة. اضغطه وأنت داخل البيت. ومن لم يحفظ موقعه بعد يظهر له تذكير في الشاشة الرئيسية."],
-    ["🔑","كلمة السر كل ثلاثة أشهر","تتغير كلمة السر كل ثلاثة أشهر حفاظًا على الخصوصية، ولا يمكن تكرار آخر خمس كلمات سر. يظهر تذكير قبل انتهاء المدة بأسبوع."],
-    ["🔔","إشعارات مميزة","إشعارات البرنامج على الموبايل لها هزّة خاصة وعلامة الصليب، وتبقى ظاهرة حتى تضغط عليها."],
-    ["🖼️","الصورة في كل مكان","الصورة التي تُختار من «بياناتي» تظهر الآن أعلى الصفحة وفي كل القوائم، وليس داخل «بياناتي» فقط."]]}};
+    ["✨","تصميم المناسبات","في المناسبات الكنسية يتغير الجزء العلوي من الشاشة إلى صورة متحركة مع التهنئة، ويتساقط الثلج في الميلاد ورأس السنة."]
+  ]
+}};
 let newsApi = null;
 const newsAud = () => Store.mode !== "cloud" || !S.account || Store.preview ? null : accRole() === "admin" ? "admin" : accRole() === "priest" ? "priest" : accRole() === "pending" ? null : "user";
 function newsDue(){
@@ -7318,7 +7415,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.07-2";
+const APP_VERSION = "2026.11.09-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
