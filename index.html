@@ -749,6 +749,11 @@ li.dir-row .who{min-width:0;flex:1}
 li.dir-row .who strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 li.dir-row .who .small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dir-marks{display:flex;gap:4px;flex:none}
+.dir-father{position:relative;flex:none;margin-inline-start:auto;display:grid;place-items:center;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--gold-2),var(--gold-d));box-shadow:0 2px 6px rgba(0,0,0,.18);-webkit-touch-callout:none}
+.dir-father .avatar.xs{width:34px;height:34px;font-size:.85rem;border:2px solid var(--surface);margin:0}
+.dir-father::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:0;white-space:nowrap;background:var(--ink);color:var(--surface);font-size:.75rem;font-weight:700;padding:4px 8px;border-radius:8px;opacity:0;pointer-events:none;transform:translateY(4px);transition:.15s;z-index:3}
+.dir-father:hover::after,.dir-father.tip::after{opacity:1;transform:none}
+.dir-nofather{flex:none;margin-inline-start:auto;font-size:.72rem;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:99px;padding:3px 8px;white-space:nowrap}
 .dir-mark{font-size:.95rem}
 .dir-rail{position:sticky;top:70px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:999px;background:var(--surface);border:1px solid var(--gold-line);max-height:calc(100vh - 90px);overflow-y:auto}
 .dir-rail button{all:unset;cursor:pointer;width:26px;height:24px;display:grid;place-items:center;border-radius:50%;font-weight:800;font-size:.82rem;color:var(--brand)}
@@ -7077,6 +7082,7 @@ function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsW
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
 const NEWS = {id:"2026-11-09b", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["⛪","صورة أب الاعتراف","في قائمة «الناس» تظهر صورة أب الاعتراف صغيرة على يسار اسم كل شخص بدلًا من سطر «أبوه»، ويظهر اسمه عند الوقوف عليها بالماوس أو الضغط عليها ضغطة طويلة."],
     ["📅","مدة المناسبة","تحت اختيار المناسبة في «الإعدادات» خانتا «من» و«إلى»، وتُملآن تلقائيًا بالمدة المعتادة لكل مناسبة، والمناسبات المتغيرة تُحسب من عيد القيامة. تظهر المناسبة في هذه المدة فقط، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا. ويمكنك تعديل التاريخين، أو الضغط على «إظهاره من اليوم»."],
     ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
   ],
@@ -7415,7 +7421,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.09-1";
+const APP_VERSION = "2026.11.09-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8082,18 +8088,25 @@ function adminView(all, part){
   const dirRow = a => {
     const m = memberOf(a.id) || {}, miss = ["user","pending"].includes(a.role) ? profileMissing(m, a.photo) : [], on = S.draft.accOpen === a.id;
     const sub = a.role === "priest" ? "⛪ أب اعتراف · "+arDigits(accs.filter(x => x.id !== a.id && x.role !== "priest" && x.father === a.id && !x.pending).length)+" معترف"
-      : a.role === "user" || a.father ? (a.father ? "أبوه: "+((accs.find(x => x.id === a.father)||{}).name||"؟") : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
+      : a.role === "user" || a.father ? "" : (ROLES[a.role]||ROLES.user).label;
+    // 2026-11-09 (user): the confession father as a small photo on the left instead of «أبوه: …»; his name on hover or a long press
+    const fa = a.role !== "priest" && (a.role === "user" || a.father) ? (a.father ? accs.find(x => x.id === a.father) || {name:"؟"} : null) : undefined;
+    const faEl = fa === undefined ? null : fa ? h("span",{class:"dir-father", title:"أب الاعتراف: "+fa.name, "data-tip":fa.name, "aria-label":"أب الاعتراف: "+fa.name,
+        onpointerdown:e => { const el = e.currentTarget; clearTimeout(el._lp); el._lp = setTimeout(() => { el._held = 1; el.classList.add("tip"); setTimeout(() => el.classList.remove("tip"), 1800); }, 450); },
+        onpointerup:e => clearTimeout(e.currentTarget._lp), onpointerleave:e => clearTimeout(e.currentTarget._lp), oncontextmenu:e => e.preventDefault(),
+        onclick:e => { if (e.currentTarget._held){ e.currentTarget._held = 0; e.stopPropagation(); } }}, avatar({name:fa.name, photo:fa.photo}, "xs"))
+      : h("span",{class:"dir-nofather", title:"من غير أب اعتراف"},"⚠️ من غير أب");
     return h("li",{class:"dir-row"+(on ? " on" : ""), role:"button", tabindex:"0", "aria-pressed":on ? "true" : "false", "data-id":a.id,
         "data-name":arKey(a.name+" "+(m.name||"")), "data-miss":miss.length ? "1" : "",
         onclick:()=>{ S.draft.accOpen = on ? null : a.id; S.draft.delAsk = null; render(); },
         onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
       avatar({name:a.name, photo:a.photo || m.photo}, "sm"),
-      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), h("span",{class:"small muted"}, sub),
+      h("div",{class:"who"}, h("strong",null, a.name, a.id === S.account.id ? " (إنت)" : ""), sub ? h("span",{class:"small muted"}, sub) : null,
         cloudAdm && a.id !== S.account.id && seenText(a.id) ? h("span",{class:"seen"+(isOnline(a.id) ? " on" : "")}, seenText(a.id)) : null),
       h("span",{class:"dir-marks"},
         a.pending ? h("span",{class:"dir-mark warn", title:"مستني موافقة"},"⏳") : null,
         miss.length ? h("span",{class:"dir-mark miss", title:"ناقص: "+miss.join("، ")},"📝") : null,
-        a.active === false ? h("span",{class:"dir-mark bad", title:"متوقف"},"⛔") : null));
+        a.active === false ? h("span",{class:"dir-mark bad", title:"متوقف"},"⛔") : null), faEl);
   };
   let lists;
   if (cloudAdm){
