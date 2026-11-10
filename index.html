@@ -479,6 +479,15 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .invite-btns{flex-wrap:wrap;gap:8px}
 .btn.wa{background:linear-gradient(135deg,#16a34a,#15803d);text-decoration:none}
 #printArea{display:none}
+.fa-line{color:var(--gold-d);font-weight:700} .pill.fa-line{background:color-mix(in oklab,var(--gold) 16%,transparent);border-color:color-mix(in oklab,var(--gold) 55%,transparent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fa-line{color:#e9c46a}}
+:root[data-theme="dark"] .fa-line{color:#e9c46a}
+.rename-box{text-align:center;border:2px solid var(--gold)} .rename-ic{font-size:2.6rem;line-height:1}
+.rename-new{font-size:1.5rem;font-weight:800;color:var(--gold-d);padding:10px 14px;border:2px dashed var(--gold);border-radius:14px;margin:4px 0 6px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rename-new{color:#e9c46a}} :root[data-theme="dark"] .rename-new{color:#e9c46a}
+.rename-box .rename-ok{display:flex!important;flex-direction:row;gap:10px;align-items:center;justify-content:center;font-weight:700;margin:6px 0;cursor:pointer;grid-template-columns:none}
+.rename-box .rename-ok input{width:22px!important;height:22px;flex:none;margin:0;accent-color:var(--gold-d)}
+.rename-box .row{justify-content:center}
 @media print{
   @page{size:A4 landscape;margin:12mm 10mm 14mm;@bottom-left{content:counter(page) " / " counter(pages);font:9pt sans-serif;color:#6b7280}}
   body.printing > *:not(#printArea){display:none!important}
@@ -5631,7 +5640,7 @@ let calApi = null;
 let signupApi = null;
 let passportApi = null;  // passport instead of the national ID with a one-time code from the admin (2026-11-05)
 let nidApi = null;
-let childApi = null;
+let childApi = null, renameApi = null;
 let releaseApi = null;
 let dbApi = null;       // how full the server database is (2026-11-07)
 let onlineApi = null;   // who has the app open now, for the admin (2026-11-07)
@@ -6533,7 +6542,8 @@ function childEdit(uid, m){
     const patch = {}; for (const k in d) if (String(m[k] || "") !== d[k]) patch[k] = d[k];
     if (!Object.keys(patch).length){ S.draft.chEdit = null; render(); toast("لم يتغير شيء"); return; }
     btn.disabled = true;
-    try { await childApi.set(uid, patch); S.draft.chEdit = null; toast("✅ تم تعديل البيانات وتسجيلها في «النشاط»، وسيصل إشعار لصاحبها."); render(); }
+    try { await childApi.set(uid, patch); S.draft.chEdit = null; toast("✅ تم تعديل البيانات وتسجيلها في «النشاط»، وسيصل إشعار لصاحبها."); render();
+      if (patch.name) renameWa(patch.name, d.phone || m.phone || ""); }
     catch(err){ btn.disabled = false; toast(cloudMsg(err)); }
   };
   return h("div",{class:"card form ch-form", onclick:e => e.stopPropagation()},
@@ -7037,8 +7047,8 @@ function memberMe(){
         const miss = profileMissing(data, S.account && S.account.photo);
         if (miss.length){ toast("ما زال ناقصًا: "+miss.join("، ")); return; } }
       if (!data.joined) data.joined = TODAY_S;
-      try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("تم حفظ بياناتك"); if (!S.profile){ S.tab="today"; } }
-      catch(e){ toast("تعذّر الحفظ. تأكد أن أبونا أضافك إلى البرنامج."); }
+      try { await patchDoc("members/"+S.uid, S.profile || {}, data); S.draft.meForm = {}; S.draft.myKids = (data.children||[]).map(k => Object.assign({}, k)); S.draft.myKidsFor = S.uid; toast("تم حفظ بياناتك"); if (!S.profile){ S.tab="today"; } if (Store.mode === "cloud" && renameApi) renameApi.refresh(); }
+      catch(e){ toast(/name taken|name too long/.test(String(e && e.message || e)) && typeof cloudMsg === "function" ? cloudMsg(e) : "تعذّر الحفظ. تأكد أن أبونا أضافك إلى البرنامج."); }
     }},"حفظ"))));
   const fq = freqCard(); if (fq) wrap.append(fq);
   const pc = pushCard(false); if (pc) wrap.append(pc);
@@ -7318,20 +7328,19 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-09b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-10a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🔑","اسم الدخول يتغير مع الاسم","لما تعدّل اسم شخص من «تعديل البيانات»، أو يعدّله هو، يتغير اسم الدخول معاه، وتظهر له رسالة كبيرة أول ما يفتح البرنامج، ويظهر لك زر «📲 إبلاغه على واتساب»."],
+    ["✨","«أب الاعتراف» بالدهبي","في «الناس» يظهر تحت كل اسم «أب الاعتراف: …» باللون الدهبي."],
     ["⏱️","تفاصيل سرعة التحميل","في كارت «سرعة التحميل» اضغط على أي اسم لعرض آخر ١٠ مرات فتح فيها البرنامج: الوقت، ونوع الجهاز، والإنترنت، ومدة تحميل الصفحة والبيانات، مع تفسير مبسط لسبب البطء. ولم يعد يُحسب الوقت الذي تكون فيه الشاشة مغلقة."],
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
-    ["📅","مدة المناسبة","تحت اختيار المناسبة في «الإعدادات» خانتا «من» و«إلى»، وتُملآن تلقائيًا بالمدة المعتادة لكل مناسبة، والمناسبات المتغيرة تُحسب من عيد القيامة. تظهر المناسبة في هذه المدة فقط، ثم يعود البرنامج إلى شكله المعتاد تلقائيًا. ويمكنك تعديل التاريخين، أو الضغط على «إظهاره من اليوم»."],
-    ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
   ],
   priest:[
-    ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."],
-    ["💬","التأمل عبر واتساب","في «التأملات» اضغط «💬 إرسال عبر واتساب»، واختر من أبنائك الكل أو بعضهم أو شخصًا واحدًا، ثم اضغط على كل اسم فيُفتح واتساب على محادثته والرسالة مكتوبة، وفي آخرها أنها مرسلة منك عن طريق البرنامج."],
-    ["🫧","فقاعة الشات الجديدة","شكل جديد لزر الشات، ويمكن سحبه بالإصبع إلى أي مكان في الشاشة فيستقر على أقرب جانب، ويحفظ كل جهاز مكانه. والضغط عليه يفتح الشات كالمعتاد."]
+    ["🔑","اسم الدخول يتغير مع الاسم","لما تعدّل اسم أحد أبنائك من «تعديل البيانات» يتغير اسم الدخول بتاعه معاه، ويظهر لك زر «📲 إبلاغه على واتساب»، وتظهر له رسالة كبيرة أول ما يفتح."],
+    ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
-    ["✨","تصميم المناسبات","في المناسبات الكنسية يتغير الجزء العلوي من الشاشة إلى صورة متحركة مع التهنئة، ويتساقط الثلج في الميلاد ورأس السنة."]
+    ["🔑","اسم الدخول","لو اسمك اتعدّل في «بياناتي»، اسم الدخول بيتغير معاه، وهتظهر لك رسالة بالاسم الجديد. كلمة السر زي ما هي."]
   ]
 }};
 let newsApi = null;
@@ -7362,7 +7371,37 @@ function newsBox(again){
       h("div",{class:"row"}, h("button",{class:"btn", id:"newsOk", onclick:close}, "حسنًا"))));
   document.body.append(box);
 }
-function newsCheck(){ if (!$("#newsBox") && newsDue()) newsBox(false); }
+function newsCheck(){ if ($("#renameBox")) return; if (!$("#newsBox") && newsDue()) newsBox(false); }
+// the sign-in name follows the name (2026-11-10, user): a big notice the first time he opens the app, until he confirms he read it
+function renameCheck(){
+  const a = S.account; if (Store.mode !== "cloud" || !a || !a.renamedFrom || Store.preview) return false;
+  if ($("#renameBox")) return true;
+  const box = h("div",{class:"news-wrap rename-wrap", id:"renameBox", role:"alertdialog", "aria-modal":"true", "aria-label":"تم تغيير اسم الدخول"},
+    h("div",{class:"news-box rename-box"},
+      h("div",{class:"rename-ic", "aria-hidden":"true"},"🔑"),
+      h("h2",null,"تم تغيير اسم الدخول"),
+      h("p",null,"من الآن، ادخل إلى البرنامج بهذا الاسم:"),
+      h("div",{class:"rename-new"}, h("bdi",null, a.name)),
+      h("p",{class:"small muted"},"الاسم القديم «", h("bdi",null, a.renamedFrom), "» لن يعمل بعد الآن. كلمة السر كما هي."),
+      h("label",{class:"rename-ok"}, h("input",{type:"checkbox", id:"renameRead", onchange:e => { $("#renameDone").disabled = !e.target.checked; }}), " قرأت، وسأدخل بالاسم الجديد"),
+      h("div",{class:"row"}, h("button",{class:"btn", id:"renameDone", disabled:true, onclick:async e => { e.currentTarget.disabled = true;
+        try { await renameApi.seen(); box.remove(); toast("✅ تمام"); newsCheck(); } catch(x){ e.currentTarget.disabled = false; toast(cloudMsg(x)); } }},"تأكيد"))));
+  document.body.append(box); return true;
+}
+// after the father or the admin changes someone's name: a ready WhatsApp message with the new sign-in name
+function renameWa(name, phone){
+  $("#renameWaBox") && $("#renameWaBox").remove();
+  const church = (S.church && S.church.name) || (S.settings && S.settings.title) || "";
+  const txt = "سلام ونعمة 🌿\nتم تغيير اسم الدخول الخاص بك في برنامج ⲙⲉⲛⲣⲓⲧ للمتابعة الروحية" + (church ? " (" + church + ")" : "") + " إلى:\n«" + name + "»\nمن الآن ادخل بهذا الاسم، وكلمة السر كما هي.";
+  const box = h("div",{class:"news-wrap", id:"renameWaBox", role:"dialog", "aria-modal":"true", "aria-label":"إبلاغه على واتساب"},
+    h("div",{class:"news-box"}, h("h2",null,"🔑 تغيّر اسم الدخول"),
+      h("p",null,"اسم الدخول الجديد: ", h("b",null, h("bdi",null, name))),
+      h("p",{class:"small muted"},"ستظهر له رسالة كبيرة أول ما يفتح البرنامج. أرسل له أيضًا على واتساب:"),
+      h("div",{class:"row"},
+        phone ? h("a",{class:"btn wa", id:"renameWaGo", href:waLink(phone, txt), target:"_blank", rel:"noopener", onclick:() => setTimeout(() => box.remove(), 300)},"📲 إبلاغه على واتساب") : h("span",{class:"small muted"},"لا يوجد رقم موبايل له."),
+        h("button",{class:"btn ghost", id:"renameWaClose", onclick:() => box.remove()},"إغلاق"))));
+  document.body.append(box);
+}
 function newsRow(){ return newsAud() && newsApi ? h("div",{class:"card"}, h("div",{class:"row between", style:"align-items:center"}, h("strong",null,"🆕 الجديد في آخر تحديث"),
   h("button",{class:"btn sm ghost", id:"newsAgain", onclick:()=>newsBox(true)},"عرض"))) : null; }
 function showPhoto(src){
@@ -7575,7 +7614,7 @@ function render(){
     if (el.type !== "file") keep.push([el.id, el.type === "checkbox" || el.type === "radio" ? {c:el.checked} : {v:el.value}]);
   render.scope = scope;
   app.replaceChildren(view);
-  newsCheck();
+  if (!renameCheck()) newsCheck();
   for (const [id, k] of keep){ const el = document.getElementById(id); if (!el || !app.contains(el)) continue;
     if ("c" in k) el.checked = k.c; else el.value = k.v; el.dataset.dirty = "1"; }
 }
@@ -7661,7 +7700,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.09-4";
+const APP_VERSION = "2026.11.10-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8285,7 +8324,7 @@ function adminView(all, part){
       h("div",{class:"row"}, h("span",{class:"pill "+(a.role==="admin"?"acc":a.role==="priest"?"ok":a.role==="supervisor"?"warn":"")}, (ROLES[a.role]||ROLES.user).label),
         a.pending ? h("span",{class:"pill warn"},"⏳ مستني موافقة") : null,
         isFatherAcc(a) ? h("span",{class:"pill ok"},"⛪ أب اعتراف · "+arDigits(accs.filter(x=>x.father===a.id).length)) : null,
-        (a.role==="user" || (a.role==="admin" && a.father)) && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?"":" warn")}, a.father ? "أبوه: "+((accs.find(x=>x.id===a.father)||{}).name||"؟") : "من غير أب اعتراف") : null,
+        (a.role==="user" || (a.role==="admin" && a.father)) && Store.mode==="cloud" ? h("span",{class:"pill"+(a.father?" fa-line":" warn")}, a.father ? ["أب الاعتراف: ", h("bdi",null,(accs.find(x=>x.id===a.father)||{}).name||"؟")] : "من غير أب اعتراف") : null,
         a.active===false ? h("span",{class:"pill bad"},"متوقف") : null),
       isAdmin && Store.mode==="cloud" && ["user","pending"].includes(a.role) || (isAdmin && a.pending) ? nidBadge((S.members||[]).find(m => m.id === a.id), a.id, false, !a.pending) : null,
       miss.length ? h("p",{class:"small acc-miss", style:"margin:0;grid-column:1/-1"},"📝 ناقص: "+miss.join("، ")) : null,
@@ -8361,7 +8400,7 @@ function adminView(all, part){
   const dirRow = a => {
     const m = memberOf(a.id) || {}, miss = ["user","pending"].includes(a.role) ? profileMissing(m, a.photo) : [], on = S.draft.accOpen === a.id;
     const sub = a.role === "priest" ? "⛪ أب اعتراف · "+arDigits(accs.filter(x => x.id !== a.id && x.role !== "priest" && x.father === a.id && !x.pending).length)+" معترف"
-      : a.role === "user" || a.father ? (a.father ? "أبوه: "+((accs.find(x => x.id === a.father)||{}).name||"؟") : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
+      : a.role === "user" || a.father ? (a.father ? h("span",{class:"fa-line"}, "أب الاعتراف: ", h("bdi",null,(accs.find(x => x.id === a.father)||{}).name||"؟")) : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
     return h("li",{class:"dir-row"+(on ? " on" : ""), role:"button", tabindex:"0", "aria-pressed":on ? "true" : "false", "data-id":a.id,
         "data-name":arKey(a.name+" "+(m.name||"")), "data-miss":miss.length ? "1" : "",
         onclick:()=>{ S.draft.accOpen = on ? null : a.id; S.draft.delAsk = null; render(); },
@@ -8510,6 +8549,8 @@ function cloudMsg(e){
   if (/bad time|day closed/.test(m)) return "الميعاد ده مش متاح. اختار ميعاد تاني.";
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
+  if (/name taken/.test(m)) return "الاسم ده مستخدم لشخص تاني في الكنيسة. اكتبه بشكل مختلف (مثلًا زوّد اسم الجد).";
+  if (/name too long/.test(m)) return "الاسم طويل جدًا لاسم الدخول (أقصى حد ٦٠ حرف).";
   if (/already registered|already exists|already a member|duplicate key/i.test(m)) return "فيه حساب بالاسم ده.";
   if (/bad passport code/.test(m)) return "كود الباسبور غلط أو خلص. خد كود جديد من أدمن الكنيسة.";
   if (/bad passport/.test(m)) return "رقم الباسبور لازم يكون من ٦ لـ ٢٠ حرف إنجليزي أو رقم.";
@@ -8729,7 +8770,8 @@ function watchApproval(){
       if (++watchApproval.n % 3 === 0) ping();
       if (document.hidden || !Cloud.sess || !S.account || Store.preview) return;
       try { const me = await Cloud.rpc("me"); if (!me || !S.account) return;
-        if (me.role !== role || !me.active){ clearInterval(watchApproval.t); S.gateNote = me.active ? "برجاء الدخول بالاسم وكلمة السر." : ""; logout(); }
+        if (me.role !== role || !me.active){ clearInterval(watchApproval.t); S.gateNote = me.active ? "برجاء الدخول بالاسم وكلمة السر." : ""; logout(); return; }
+        if (me.name !== S.account.name || (me.renamed_from || "") !== (S.account.renamedFrom || "")) renameApi.refresh();
       } catch(e){}
     }, 20000);
     return; }
@@ -8780,7 +8822,7 @@ function cloudAccount(me){
   try { localStorage.setItem(CHURCH_KEY, me.slug); } catch(e){}
   S.fathers = me.fathers || [];
   return {id:me.uid, name:me.name, role:me.role, active:me.active, mustChange:me.must_change, photo:me.photo||"", lastLogin:me.last_login, logins:me.logins,
-    father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||"", confessor:!!me.confessor, pwDue:me.pw_due||""};
+    father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||"", confessor:!!me.confessor, pwDue:me.pw_due||"", renamedFrom:me.renamed_from||""};
 }
 async function restoreCloudSession(){
   const s = Cloud.loadSess(); if (!s || !ssGet(okKey())) return false;
@@ -9079,7 +9121,14 @@ newsApi = {
 };
 // new sign-ups (2026-11-05): the admin's code and the open / closed switch
 // fixing someone's national ID (his own father or the admin)
-childApi = { async set(uid, data){ const r = await Cloud.rpc("child_profile_set", {p_uid:uid, p_data:data}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); return r; } };
+childApi = { async set(uid, data){ const r = await Cloud.rpc("child_profile_set", {p_uid:uid, p_data:data}); Cloud.refresh("members/x"); Cloud.refresh("pending/x"); Cloud.refresh("nid_dupes/x"); Cloud.refresh("accounts/x"); return r; } };
+// the sign-in name follows the name (2026-11-10): the person's own new name is read back, and «قرأت» hides the big notice
+renameApi = {
+  async refresh(){ try { const me = await Cloud.rpc("me"); if (!me || !S.account) return; Cloud.me = me;
+    if (me.name !== S.account.name || (me.renamed_from || "") !== (S.account.renamedFrom || "")){ S.account.name = me.name; S.account.renamedFrom = me.renamed_from || "";
+      const b = Bio.get(); if (b && b.uid === me.uid && b.name !== me.name){ b.name = me.name; Bio.put(b); } render(); } } catch(e){} },
+  async seen(){ await Cloud.rpc("rename_seen"); if (S.account) S.account.renamedFrom = ""; if (Cloud.me) Cloud.me.renamed_from = ""; }
+};
 // «📣 إبلاغ الكل» on a visit day (2026-11-07): a message with his time to each confessee on the app, and a phone notification
 visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_items:items}); return n; } };
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
