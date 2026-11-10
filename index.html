@@ -6409,7 +6409,7 @@ function supCard(compact){
 function supInbox(){
   if (!supOn() || !supIsAdmin()) return null;
   const th = SUP.threads, wait = supWaiting();
-  const pill = t => t.status === "done" ? h("span",{class:"sup-st done"},"🟢 تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
+  const pill = t => t.status === "done" ? h("span",{class:"sup-st done"},"✅ تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
   return h("div",{class:"card sup-inbox", id:"supInbox"},
     h("h3",null, "🛟 الدعم الفني", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
     th.length ? h("ul",{class:"list sup-list"}, th.slice(0, 30).map(t => h("li",{class:"sup-row" + (t.unread || t.status === "new" ? " hot" : ""), "data-uid":t.uid, onclick:()=>supOpen(t.uid)},
@@ -7755,6 +7755,22 @@ const ICONS = {
 /* drawn icons instead of emoji: the same look on every phone and computer (white line icon in a coloured circle).
    Emoji written anywhere on the screen are swapped for these as they appear; WhatsApp texts keep their emoji. */
 const IC = {
+  support:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.9 4.9l4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3",
+  help:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01",
+  bulb:"M15 14c.2-1 .7-1.7 1.5-2.5A6 6 0 1 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4",
+  mobile:"M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM12 18h.01",
+  star:"M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z",
+  reply:"M9 17l-5-5 5-5M20 18v-2a4 4 0 0 0-4-4H4",
+  hand:"M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.4l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15",
+  chart:"M3 3v18h18M8 17v-5M13 17V8M18 17v-9",
+  printer:"M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z",
+  megaphone:"M3 11l18-5v12L3 14v-3zM11.6 16.8a3 3 0 1 1-5.8-1.6",
+  unlock:"M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2zM7 11V7a5 5 0 0 1 9.9-1",
+  map:"M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14",
+  skip:"M5 4l10 8-10 8V4zM19 5v14",
+  shuffle:"M2 18h1.4a4 4 0 0 0 3.3-1.8l6.6-10.4A4 4 0 0 1 16.6 4H22M18 2l4 2-4 2M2 6h1.9a4 4 0 0 1 3.4 1.9M22 20h-5.4a4 4 0 0 1-3.3-1.8l-.5-.8M18 22l4-2-4-2",
+  hash:"M4 9h16M4 15h16M10 3L8 21M16 3l-2 18",
+  dot:"M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
   cloud:"M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z",
   palette:"M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-1-.9-1.4-.9-2.4 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3zM7.5 12.5a1.2 1.2 0 1 0 0-.01M10 8a1.2 1.2 0 1 0 0-.01M14.5 8a1.2 1.2 0 1 0 0-.01",
   idcard:"M3 6h18v12H3zM7 10.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M5.5 15.5c.6-1.6 3.4-1.6 4 0M13 10h5M13 13h4",
@@ -7839,7 +7855,12 @@ const EMO = {"🎨":["palette","#db2777"],"🖌️":["palette","#0891b2"],"🪪"
   "📤":["share","#0ea5e9"],"🔳":["qr","#334155"],"👑":["crown","#c9a227"],"📖":["book","#14b8a6"],"📔":["notebook","#22c55e"],"💌":["mail","#ec4899"],"👥":["users","#3b82f6"],
   "👀":["eye","#0ea5e9"],"👁️":["eye","#64748b"],"🙈":["eyeoff","#64748b"],"🛡️":["shield","#6366f1"],"📨":["send","#0ea5e9"],"🔑":["key","#c9a227"],"🔐":["lock","#64748b"],
   "🟢":["active","#16a34a"],"⏸":["pause","#f59e0b"],"🗑":["trash","#ef4444"],"➕":["plus","#16a34a"],"⚙️":["gear","#64748b"],"🎉":["sparkles","#eab308"],"🆕":["sparkles","#0ea5e9"],
-  "⛔":["no","#ef4444"],"🔒":["lock","#0f766e"],"👆":["finger","#0f766e"],"📷":["camera","#8b5cf6"]};
+  "⛔":["no","#ef4444"],"🔒":["lock","#0f766e"],"👆":["finger","#0f766e"],"📷":["camera","#8b5cf6"],
+  "🛟":["support","#0e7490"],"❓":["help","#7c3aed"],"💡":["bulb","#eab308"],"🐢":["wait","#f59e0b"],"📱":["mobile","#0891b2"],"📲":["phone","#16a34a"],
+  "⭐":["star","#eab308"],"↩️":["reply","#0e7490"],"👋":["hand","#f59e0b"],"✉️":["mail","#2563eb"],"📌":["pin","#ef4444"],"🔴":["dot","#dc2626"],"🟡":["dot","#eab308"],
+  "📊":["chart","#16a34a"],"✏️":["pen","#0891b2"],"✍️":["pen","#7c3aed"],"🔍":["search","#0891b2"],"🛂":["idcard","#7c3aed"],"🗺️":["map","#16a34a"],"📣":["megaphone","#ea580c"],
+  "🖨️":["printer","#475569"],"❤️":["heart","#e11d48"],"🔁":["refresh","#0891b2"],"🔀":["shuffle","#7c3aed"],"⏭️":["skip","#f59e0b"],"✔️":["ok","#16a34a"],"🍎":["mobile","#475569"],
+  "🔢":["hash","#0891b2"],"🔓":["unlock","#16a34a"],"⏱️":["clock","#f59e0b"],"🛠️":["gear","#475569"]};
 const icSvg = name => '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="'+(IC[name]||IC.cross)+'"/></svg>';
 const EMO_RE = new RegExp("(?:"+Object.keys(EMO).sort((a,b)=>b.length-a.length).map(k=>k.replace(/\uFE0F/g,"")).filter((k,i,a)=>a.indexOf(k)===i)
   .map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?", "gu");
@@ -7993,7 +8014,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.10-4";
+const APP_VERSION = "2026.11.10-5";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
