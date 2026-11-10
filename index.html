@@ -364,6 +364,9 @@ body.chat-open .chat-fab{display:none}
 .sup-info{align-self:stretch;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:.82rem;display:grid;gap:6px}
 .sup-info dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0} .sup-info dt{color:var(--ink-2)} .sup-info dd{margin:0;font-weight:700}
 .sup-panel textarea#supInput{flex:1;min-width:0;resize:none;min-height:40px;max-height:120px;font:inherit}
+.cal-steps{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:.86rem}
+.cal-steps ol{margin:4px 0;padding-inline-start:20px;display:grid;gap:2px} .cal-steps.on{border-color:var(--gold,#c9a227)}
+.cal-test.ok{color:#15803d;font-weight:700} .cal-test.bad{color:#b91c1c;font-weight:700}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
 .chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
 .chat-new{align-self:stretch;text-align:center;color:var(--gold-d);font-size:.76rem;font-weight:800;border-top:1.5px dashed var(--gold);padding-top:3px;margin:4px 0}
@@ -6843,8 +6846,23 @@ function calCard(){
     : [h("p",{class:"small"},"اختار موبايلك:"),
        h("div",{class:"row"},
          h("a",{class:"btn sm", id:"calIos", href:C.url.replace(/^https?:/, "webcal:")},"🍎 آيفون"),
-         h("a",{class:"btn sm", id:"calGoogle", href:"https://calendar.google.com/calendar/r?cid="+encodeURIComponent(C.url.replace(/^https?:/, "webcal:")), target:"_blank", rel:"noopener"},"🤖 أندرويد (Google)"),
-         h("button",{class:"btn sm ghost", id:"calCopy", onclick:async()=>{ try { await navigator.clipboard.writeText(C.url); toast("تم نسخ الرابط"); } catch(e){ prompt("انسخ الرابط:", C.url); } }},"نسخ الرابط")),
+         // the Google Calendar app cannot add a calendar from a link (2026-11-10, user: «ربط المواعيد المحجوزة غير مفعلة على تقويم جوجل»):
+         // the link is copied and Google's «From URL» page opens; once added there it shows on the phone by itself
+         h("a",{class:"btn sm", id:"calGoogle", href:"https://calendar.google.com/calendar/u/0/r/settings/addbyurl", target:"_blank", rel:"noopener",
+           onclick:()=>{ try { navigator.clipboard.writeText(C.url).then(() => toast("تم نسخ الرابط، الصقه في صفحة جوجل")).catch(() => {}); } catch(e){} C.gHelp = true; setTimeout(render, 300); }},"📅 الربط بتقويم جوجل"),
+         h("button",{class:"btn sm ghost", id:"calCopy", onclick:async()=>{ try { await navigator.clipboard.writeText(C.url); toast("تم نسخ الرابط"); } catch(e){ prompt("انسخ الرابط:", C.url); } }},"نسخ الرابط"),
+         h("button",{class:"btn sm ghost", id:"calTest", onclick:async e=>{ const b = e.currentTarget; b.disabled = true; C.test = {wait:true}; render();
+           try { const r = await fetch(C.url, {cache:"no-store"}); const t = await r.text();
+             C.test = r.ok && /BEGIN:VCALENDAR/.test(t) ? {ok:true, n:(t.match(/BEGIN:VEVENT/g) || []).length} : {ok:false}; }
+           catch(x){ C.test = {ok:false}; } render(); }},"🔍 اختبار الرابط")),
+       C.test ? h("p",{class:"small cal-test " + (C.test.wait ? "" : C.test.ok ? "ok" : "bad"), id:"calTestMsg"},
+         C.test.wait ? "جارٍ الاختبار…" : C.test.ok ? (C.test.n ? "✅ الرابط يعمل، وفيه " + arDigits(C.test.n) + " " + (C.test.n === 1 ? "ميعاد" : "مواعيد") + " قادمة." : "✅ الرابط يعمل، لكن لا توجد مواعيد قادمة مؤكدة الآن.")
+           : "❌ الرابط لا يعمل الآن. برجاء المحاولة بعد قليل، أو التواصل مع الدعم الفني.") : null,
+       h("div",{class:"cal-steps" + (C.gHelp ? " on" : ""), id:"calSteps"}, h("b",null,"ربط تقويم جوجل (مرة واحدة فقط):"),
+         h("ol",null, h("li",null,"اضغط «📅 الربط بتقويم جوجل»، فيُنسخ الرابط وتفتح صفحة جوجل «إضافة تقويم من رابط». الأفضل فتحها من الكمبيوتر أو من متصفح الموبايل."),
+           h("li",null,"الصق الرابط في خانة «عنوان URL الخاص بالتقويم»، ثم اضغط «إضافة تقويم»."),
+           h("li",null,"بعد ذلك تظهر المواعيد في تطبيق تقويم جوجل على موبايلك تلقائيًا، على نفس حساب جوجل.")),
+         h("a",{class:"small", id:"calGoogleDirect", href:"https://calendar.google.com/calendar/r?cid="+encodeURIComponent(C.url.replace(/^https?:/, "webcal:")), target:"_blank", rel:"noopener"},"أو الإضافة المباشرة من الكمبيوتر")),
        h("p",{class:"small muted", style:"margin:0"},"الرابط ده سرّي، متبعتهوش لحد. تقويم جوجل بيحدّث كل كام ساعة، فالميعاد الجديد ممكن ياخد وقت لحد ما يظهر. ولو حد عرف الرابط، اعمل واحد جديد والقديم هيبطل."),
        h("div",{class:"row"}, h("button",{class:"btn sm quiet", id:"calReset", onclick:e => { if (!confirm("القديم هيبطل، وهتحتاج تربط التقويم تاني. أكمّل؟")) return; busy(e.currentTarget, async () => { C.url = await calApi.reset(); toast("تم إنشاء رابط جديد"); }); }},"إنشاء رابط جديد"))];
   return h("section",{class:"card cal-card"}, h("h3",null,"📅 مواعيدك في تقويم الموبايل"), ...body);
@@ -7595,7 +7613,7 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-10c", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-10d", title:"الجديد في آخر تحديث", items:{
   admin:[
     ["🛟","الدعم الفني","في «الملخص» صندوق «🛟 الدعم الفني»: كل شخص يكتب مشكلته بعد أسئلة قصيرة تحدد الموضوع، ويصلك طلبه ومعه ملخص وبيانات جهازه (النسخة، ونوع الجهاز، والتنبيهات). ردك يظهر له باسم «ⲙⲉⲛⲣⲓⲧ · الدعم الفني» ولا يظهر اسمك أبدًا، ومعك ردود جاهزة وزر «✅ تم الحل»، ثم يقيّم الخدمة."],
     ["📊","Excel بشعار الكنيسة","ملف Excel والطباعة فيهما شعار الكنيسة على اليمين وشعار ⲙⲉⲛⲣⲓⲧ على اليسار، واسم ⲙⲉⲛⲣⲓⲧ يظهر صحيحًا بدل المربعات."],
@@ -7606,6 +7624,7 @@ const NEWS = {id:"2026-11-10c", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["📅","تقويم جوجل","في «الإعدادات» ← «مواعيدك في تقويم الموبايل»: زر «📅 الربط بتقويم جوجل» ينسخ الرابط ويفتح صفحة جوجل «إضافة تقويم من رابط» مع خطوات قصيرة، وزر «🔍 اختبار الرابط» يوضح أن الرابط يعمل وعدد المواعيد فيه."],
     ["🛟","الدعم الفني","في «الإعدادات» زر «🛟 الدعم الفني» لأي مشكلة في استخدام البرنامج: أسئلة قصيرة تحدد المشكلة وتقترح الحل، وإن لم تُحل يصل طلبك إلى فريق الدعم ويرد عليك هنا."],
     ["📊","Excel بشعار الكنيسة","ملف Excel والطباعة فيهما شعار الكنيسة، واسم ⲙⲉⲛⲣⲓⲧ يظهر صحيحًا بدل المربعات."],
     ["🔑","اسم الدخول مثل الاسم في البيانات","لو اسم الدخول لأحد أبنائك مختلف عن اسمه في البيانات، يظهر في كارته زر «🔑 اسم الدخول مثل الاسم في البيانات»، وبالضغط عليه يتغير اسم الدخول ويظهر لك زر «📲 إبلاغه على واتساب»."],
@@ -7974,7 +7993,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.10-3";
+const APP_VERSION = "2026.11.10-4";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
