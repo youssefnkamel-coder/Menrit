@@ -495,6 +495,7 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
   body.printing #printArea{display:block;color:#0a1f3d;font-family:var(--f-body,system-ui),sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #printArea .pr-head{display:flex;align-items:center;gap:14px;padding-bottom:8px;margin-bottom:10px;border-bottom:2.5px solid #c9a227}
   #printArea .pr-logo{width:64px;height:64px;border-radius:50%;border:2px solid #c9a227;object-fit:cover}
+  #printArea .pr-mark{margin-inline-start:auto}
   #printArea .pr-title{font-size:19pt;font-weight:800;color:#0e7490}
   #printArea .pr-church{font-size:12.5pt;font-weight:700}
   #printArea .pr-sub{font-size:9.5pt;color:#8a6a1f}
@@ -4737,7 +4738,7 @@ function personDetail(all){
     p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone), target:"_blank", rel:"noopener"},"💬 واتساب") : null,
     p.onApp ? h("button",{class:"btn sm ghost", onclick:()=>{ S.draft.medTo=p.id; S.tab="meditations"; render(); }},"إرسال تأمل") : null));
   const ro = p.onApp && !isNew;
-  if (ro && p.self){ const ce = childEdit(p.id, self); card.append(nidBadge(self, p.id, true), ce && S.draft.chEdit === p.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(p.id, self && self.nid))); }
+  if (ro && p.self){ const ce = childEdit(p.id, self); card.append(nidBadge(self, p.id, true), ce && S.draft.chEdit === p.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(p.id, self && self.nid), syncNameBtn(p.id, self))); }
   card.append(h("div",{class:"form"},
     ro ? null :
     h("div",{class:"two"},
@@ -5359,6 +5360,7 @@ async function saveFile(filename, data, mime){
 const XLB = (() => {
   const esc = v => String(v == null ? "" : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   const col = i => { let s = ""; i++; while (i){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const COPTIC = "Segoe UI Historic";
   const hf = t => String(t || "").replace(/&/g, "&&");  // a plain & in a page header or footer is written twice
   const serial = ymdS => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymdS || ""); return m ? (Date.UTC(+m[1], +m[2] - 1, +m[3]) - Date.UTC(1899, 11, 30)) / 864e5 : null; };
   const STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -5402,14 +5404,19 @@ const XLB = (() => {
 </styleSheet>`;
   const S_ = {title:1, church:2, sub:3, head:4, txt:[5, 6], date:[7, 8], link:[9, 10], late:11, foot:12, num:[13, 14], lateTxt:15};
   // cols: [{h, w, kind:"txt"|"date"|"link"|"num"}]; rows: arrays of values; late: Set of row indexes whose «late» column is highlighted
-  function build({sheet, title, church, sub, cols, rows, late, lateCol, foot, pageHead, logo, author}){
+  function build({sheet, title, church, sub, cols, rows, late, lateCol, foot, pageHead, logo, logo2, author}){
+    // logo: on the right (the church's own, 2026-11-10), logo2: ⲙⲉⲛⲣⲓⲧ on the left end
+    const pics = [logo && {img:logo, c:0}, logo2 && {img:logo2, c:cols.length - 1}].filter(Boolean); logo = pics.length ? pics[0].img : null;
     const N = cols.length, last = col(N - 1), HR = 5, enc = new TextEncoder();
     const cells = [], links = [];
     const str = (r, c, v, s) => `<c r="${col(c)}${r}" t="inlineStr" s="${s}"><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
+    // Calibri has no Coptic letters (2026-11-10, user: «الاسم طالع مربعات»): ⲙⲉⲛⲣⲓⲧ is written in Segoe UI Historic (Windows 10 and 11)
+    const rich = (r, c, v, s, rpr) => /[\u2C80-\u2CFF]/.test(v || "") ? `<c r="${col(c)}${r}" t="inlineStr" s="${s}"><is>${String(v).split(/([\u2C80-\u2CFF]+)/).filter(Boolean)
+      .map(t => `<r><rPr>${rpr}<rFont val="${/[\u2C80-\u2CFF]/.test(t) ? COPTIC : "Calibri"}"/></rPr><t xml:space="preserve">${esc(t)}</t></r>`).join("")}</is></c>` : str(r, c, v, s);
     const row = (r, ht, inner) => `<row r="${r}"${ht ? ` ht="${ht}" customHeight="1"` : ""}>${inner}</row>`;
-    cells.push(row(1, 34, str(1, 1, title, S_.title)));
+    cells.push(row(1, 34, rich(1, 1, title, S_.title, '<b/><sz val="20"/><color rgb="FF0E7490"/>')));
     cells.push(row(2, 22, str(2, 1, church, S_.church)));
-    cells.push(row(3, 20, str(3, 1, sub, S_.sub) + Array.from({length:N - 2}, (_, i) => `<c r="${col(i + 2)}3" s="${S_.sub}"/>`).join("")));
+    cells.push(row(3, 20, str(3, 1, sub, S_.sub) + Array.from({length:N - (pics.length > 1 ? 3 : 2)}, (_, i) => `<c r="${col(i + 2)}3" s="${S_.sub}"/>`).join("")));
     cells.push(row(4, 8, ""));
     cells.push(row(HR, 30, cols.map((c, i) => str(HR, i, c.h, S_.head)).join("")));
     rows.forEach((vals, k) => { const r = HR + 1 + k, z = k % 2;
@@ -5420,8 +5427,9 @@ const XLB = (() => {
         return str(r, i, v, S_.txt[z]); }).join("")));
     });
     const lastRow = HR + rows.length, fr = lastRow + 2;
-    cells.push(row(fr, 20, str(fr, 0, foot, S_.foot)));
-    const merges = [`B1:${last}1`, `B2:${last}2`, `B3:${last}3`, `A${fr}:${last}${fr}`, "A1:A3"];
+    cells.push(row(fr, 20, rich(fr, 0, foot, S_.foot, '<i/><sz val="9"/><color rgb="FF6B7280"/>')));
+    const tl = pics.length > 1 ? col(N - 2) : last;
+    const merges = [`B1:${tl}1`, `B2:${tl}2`, `B3:${tl}3`, `A${fr}:${last}${fr}`, "A1:A3"].concat(pics.length > 1 ? [`${last}1:${last}3`] : []);
     const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:${last}${fr}"/>
@@ -5434,7 +5442,7 @@ ${rows.length ? `<autoFilter ref="A${HR}:${last}${lastRow}"/>` : ""}
 ${links.length ? `<hyperlinks>${links.map(([ref], i) => `<hyperlink ref="${ref}" r:id="rId${i + 2}"/>`).join("")}</hyperlinks>` : ""}
 <printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.6" bottom="0.7" header="0.3" footer="0.3"/>
 <pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>
-<headerFooter><oddHeader>${esc("&C&\"Calibri,Bold\"&11" + hf(pageHead))}</oddHeader><oddFooter>${esc("&L&8&P / &N&R&8" + hf(foot))}</oddFooter></headerFooter>
+<headerFooter><oddHeader>${esc("&C&\"Calibri,Bold\"&11" + hf(pageHead))}</oddHeader><oddFooter>${esc("&L&8&P / &N&R&8" + hf(foot).replace(/[\u2C80-\u2CFF]+/g, t => `&"${COPTIC},Regular"${t}&"Calibri,Regular"`))}</oddFooter></headerFooter>
 ${logo ? `<drawing r:id="rId1"/>` : ""}
 </worksheet>`;
     const sheetRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -5442,12 +5450,12 @@ ${logo ? `<drawing r:id="rId1"/>` : ""}
     const emu = px => Math.round(px * 9525);
     const drawing = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-<xdr:oneCellAnchor><xdr:from><xdr:col>0</xdr:col><xdr:colOff>${emu(8)}</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>${emu(6)}</xdr:rowOff></xdr:from><xdr:ext cx="${emu(92)}" cy="${emu(92)}"/>
-<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="ⲙⲉⲛⲣⲓⲧ"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>
-<xdr:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
-<xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${emu(92)}" cy="${emu(92)}"/></a:xfrm><a:prstGeom prst="ellipse"><a:avLst/></a:prstGeom><a:ln w="19050"><a:solidFill><a:srgbClr val="C9A227"/></a:solidFill></a:ln></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>`;
+${pics.map((q, k) => `<xdr:oneCellAnchor><xdr:from><xdr:col>${q.c}</xdr:col><xdr:colOff>${emu(8)}</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>${emu(6)}</xdr:rowOff></xdr:from><xdr:ext cx="${emu(92)}" cy="${emu(92)}"/>
+<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="${k + 2}" name="${k ? "ⲙⲉⲛⲣⲓⲧ" : "logo"}"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>
+<xdr:blipFill><a:blip r:embed="rId${k + 1}"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
+<xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${emu(92)}" cy="${emu(92)}"/></a:xfrm><a:prstGeom prst="ellipse"><a:avLst/></a:prstGeom><a:ln w="19050"><a:solidFill><a:srgbClr val="C9A227"/></a:solidFill></a:ln></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>`).join("")}</xdr:wsDr>`;
     const drawRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.${logo && logo.ext}"/></Relationships>`;
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${pics.map((q, k) => `<Relationship Id="rId${k + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image${k + 1}.${q.img.ext}"/>`).join("")}</Relationships>`;
     const sn = esc(sheet).replace(/'/g, "''");
     const workbook = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
@@ -5471,7 +5479,7 @@ ${logo ? `<drawing r:id="rId1"/>` : ""}
     if (logo){ files["xl/drawings/drawing1.xml"] = drawing; files["xl/drawings/_rels/drawing1.xml.rels"] = drawRels; }
     const CFB = XLSX.CFB, z = CFB.utils.cfb_new();
     for (const [k, v] of Object.entries(files)) CFB.utils.cfb_add(z, k, enc.encode(v));
-    if (logo) CFB.utils.cfb_add(z, "xl/media/image1." + logo.ext, logo.bytes);
+    pics.forEach((q, k) => CFB.utils.cfb_add(z, "xl/media/image" + (k + 1) + "." + q.img.ext, q.img.bytes));
     // the library's own empty entry is not part of the file
     try { CFB.utils.cfb_del(z, "\u0001Sh33tJ5"); } catch(e){}
     return CFB.write(z, {fileType:"zip", type:"array", compression:true});
@@ -5486,8 +5494,8 @@ function exportRows(){
   const list = merged().slice().sort((a, b) => String(a.name||"").localeCompare(String(b.name||""), "ar"));
   return {days, list, late: new Set(list.map((p, i) => !p.lastConfession || daysBetween(parseYmd(p.lastConfession), TODAY) > days ? i : -1).filter(i => i >= 0))};
 }
-const EXPORT_COLS = [{h:"م", w:5, kind:"num"}, {h:"الاسم", w:28}, {h:"التليفون", w:16}, {h:"المنطقة", w:14}, {h:"العنوان", w:34}, {h:"الخريطة", w:15, kind:"link", label:"📍 فتح الخريطة"},
-  {h:"الشغل", w:18}, {h:"عيد الميلاد", w:17, kind:"date"}, {h:"آخر اعتراف", w:17, kind:"date"}, {h:"مرات الاعتراف", w:10, kind:"num"}, {h:"آخر افتقاد", w:17, kind:"date"}, {h:"على البرنامج", w:11}];
+const EXPORT_COLS = [{h:"م", w:5, kind:"num"}, {h:"الاسم", w:28}, {h:"التليفون", w:16}, {h:"المنطقة", w:14}, {h:"العنوان", w:34}, {h:"الخريطة", w:15, kind:"link", label:"فتح الخريطة"},
+  {h:"الشغل", w:18}, {h:"عيد الميلاد", w:17, kind:"date"}, {h:"آخر اعتراف", w:17, kind:"date"}, {h:"مرات الاعتراف", w:10, kind:"num"}, {h:"آخر افتقاد", w:17, kind:"date"}, {h:"على البرنامج", w:14}];
 const exportVals = (p, i) => [i + 1, p.name, p.phone, p.area, p.address, mapUrl(p), p.job, p.birthday, p.lastConfession, (p.confessions||[]).length, p.lastVisit, p.onApp ? "نعم" : "لا"];
 function exportMeta(n){
   const church = (S.church && S.church.name) || (S.settings && S.settings.churchName) || "";
@@ -5504,7 +5512,7 @@ async function exportExcel(){
   const buf = XLB.build({sheet:"أبنائي", title:m.title, church:m.church ? "كنيسة " + m.church.replace(/^كنيسة\s+/, "") : "",
     sub:m.head + " · " + m.when + " · " + arDigits(list.length) + " اسم · المظلل: عدّى " + arDigits(days) + " يوم من آخر اعتراف",
     cols:EXPORT_COLS, rows:list.map(exportVals), late, lateCol:8, foot:m.foot, pageHead:"أولادي في الاعتراف", author:"ⲙⲉⲛⲣⲓⲧ · Pinshti Solutions & Software",
-    logo:XLB.dataUrlBytes(APP_MARK)});
+    ...(() => { const cl = XLB.dataUrlBytes(S.settings && S.settings.logo), mk = XLB.dataUrlBytes(APP_MARK); return cl ? {logo:cl, logo2:mk} : {logo:mk}; })()});
   if (await saveFile("أولادي-في-الاعتراف-"+TODAY_S+".xlsx", buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) toast("تم تنزيل الملف");
 }
 // «🖨️ طباعة / PDF» (2026-11-09): the same list as a printed page; the phone's or computer's print screen offers «حفظ كـ PDF»
@@ -5514,9 +5522,10 @@ function printList(){
   const fmtD = v => v ? fmtShort(v).split(" · ")[0] + " " + arDigits(String(v).slice(0, 4)) : "";
   const old = document.getElementById("printArea"); if (old) old.remove();
   const area = h("div",{id:"printArea", dir:"rtl"},
-    h("header",{class:"pr-head"}, h("img",{class:"pr-logo", src:APP_MARK, alt:""}),
+    h("header",{class:"pr-head"}, h("img",{class:"pr-logo", src:(S.settings && S.settings.logo) || APP_MARK, alt:""}),
       h("div",null, h("div",{class:"pr-title"}, m.title), m.church ? h("div",{class:"pr-church"}, "كنيسة " + m.church.replace(/^كنيسة\s+/, "")) : null,
-        h("div",{class:"pr-sub"}, m.head + " · " + m.when + " · " + arDigits(list.length) + " اسم"))),
+        h("div",{class:"pr-sub"}, m.head + " · " + m.when + " · " + arDigits(list.length) + " اسم")),
+      S.settings && S.settings.logo ? h("img",{class:"pr-logo pr-mark", src:APP_MARK, alt:""}) : null),
     h("table",{class:"pr-table"},
       h("thead",null, h("tr",null, ["م","الاسم","التليفون","المنطقة","العنوان","الشغل","عيد الميلاد","آخر اعتراف","مرات الاعتراف","آخر افتقاد"].map(t => h("th",null,t)))),
       h("tbody",null, list.map((p, i) => h("tr",null,
@@ -6522,6 +6531,18 @@ function releaseBtn(p){
     } catch(e){ toast(typeof cloudMsg === "function" ? cloudMsg(e) : "⚠️ تعذّرت الإزالة، برجاء المحاولة مرة أخرى."); }
   }}, p.onApp ? "🗑️ إزالة من أولادي" : "🗑️ إزالته من القائمة");
 }
+// «🔑 اسم الدخول مثل الاسم» (2026-11-10): for a name changed before the sign-in name followed it; shown only when they differ
+const nmKey = n => String(n || "").trim().replace(/\s+/g, " ").toLowerCase();
+function syncNameBtn(uid, m){
+  if (!(renameApi && Store.mode === "cloud" && !Store.preview && uid && (accRole() === "admin" || accRole() === "priest"))) return null;
+  const a = (S.accounts || []).find(x => x.id === uid), nm = String((m && m.name) || "").trim().replace(/\s+/g, " ");
+  if (!a || a.role === "priest" || !nm || nmKey(nm) === nmKey(a.name)) return null;
+  return h("button",{class:"btn sm ghost sync-name", type:"button", title:"اسم الدخول الآن: " + a.name, onclick:async e => { e.stopPropagation();
+    if (!confirm("سيتغير اسم الدخول من «" + a.name + "» إلى «" + nm + "». كلمة السر كما هي. متابعة؟")) return;
+    const btn = e.currentTarget; btn.disabled = true;
+    try { await renameApi.sync(uid); a.name = nm; toast("✅ تم تغيير اسم الدخول"); render(); renameWa(nm, (m && m.phone) || ""); }
+    catch(x){ btn.disabled = false; toast(cloudMsg(x)); } }}, "🔑 اسم الدخول مثل الاسم في البيانات");
+}
 // «✏️ عدّل البيانات» (2026-11-05): أبونا (or the admin) fixes a confessee's «بياناتي» fields; the server checks, logs and tells the person
 function childEdit(uid, m){
   if (!(childApi && Store.mode === "cloud" && !Store.preview && uid && (accRole() === "admin" || accRole() === "priest"))) return null;
@@ -7328,14 +7349,16 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-10a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-10b", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🔑","اسم الدخول مثل الاسم في البيانات","لو اسم الدخول لشخص مختلف عن اسمه في البيانات (اسم تعدّل قبل التحديث ده)، يظهر في كارته زر «🔑 اسم الدخول مثل الاسم في البيانات». بالضغط عليه يتغير اسم الدخول، ويظهر لك زر «📲 إبلاغه على واتساب»، وتظهر له رسالة كبيرة أول ما يفتح البرنامج."],
     ["🔑","اسم الدخول يتغير مع الاسم","لما تعدّل اسم شخص من «تعديل البيانات»، أو يعدّله هو، يتغير اسم الدخول معاه، وتظهر له رسالة كبيرة أول ما يفتح البرنامج، ويظهر لك زر «📲 إبلاغه على واتساب»."],
     ["✨","«أب الاعتراف» بالدهبي","في «الناس» يظهر تحت كل اسم «أب الاعتراف: …» باللون الدهبي."],
     ["⏱️","تفاصيل سرعة التحميل","في كارت «سرعة التحميل» اضغط على أي اسم لعرض آخر ١٠ مرات فتح فيها البرنامج: الوقت، ونوع الجهاز، والإنترنت، ومدة تحميل الصفحة والبيانات، مع تفسير مبسط لسبب البطء. ولم يعد يُحسب الوقت الذي تكون فيه الشاشة مغلقة."],
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🔑","اسم الدخول مثل الاسم في البيانات","لو اسم الدخول لأحد أبنائك مختلف عن اسمه في البيانات، يظهر في كارته زر «🔑 اسم الدخول مثل الاسم في البيانات»، وبالضغط عليه يتغير اسم الدخول ويظهر لك زر «📲 إبلاغه على واتساب»."],
     ["🔑","اسم الدخول يتغير مع الاسم","لما تعدّل اسم أحد أبنائك من «تعديل البيانات» يتغير اسم الدخول بتاعه معاه، ويظهر لك زر «📲 إبلاغه على واتساب»، وتظهر له رسالة كبيرة أول ما يفتح."],
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
@@ -7700,7 +7723,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.10-1";
+const APP_VERSION = "2026.11.10-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8330,7 +8353,7 @@ function adminView(all, part){
       miss.length ? h("p",{class:"small acc-miss", style:"margin:0;grid-column:1/-1"},"📝 ناقص: "+miss.join("، ")) : null,
       cloudAdm && !self ? h("div",{class:"acc-contact", style:"grid-column:1/-1"}, contactRow(a)) : null);
     if (open && isAdmin && !self && Store.mode==="cloud" && ["user","pending"].includes(a.role)) { const mm = (S.members||[]).find(m => m.id === a.id) || {}, ce = childEdit(a.id, mm);
-      li.append(ce && S.draft.chEdit === a.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(a.id, mm.nid))); }
+      li.append(ce && S.draft.chEdit === a.id ? ce : h("div",{class:"row"}, ce, nidFixBtn(a.id, mm.nid), syncNameBtn(a.id, mm))); }
     if (open && manage){
       const custom = isAdmin ? h("input",{placeholder:"كلمة سر من اختيارك (اختياري)", dir:"ltr", style:"max-width:220px"}) : h("span",{class:"small muted"},"البرنامج هيعمل كلمة سر، وصاحب الحساب هيغيّرها أول ما يدخل.");
       const roleSel = isAdmin && !self ? h("select",{style:"max-width:160px", onchange:async e=>{ await saveAccount(a, {role:e.target.value}); await logAct("غيّر صلاحية "+a.name+" لـ "+ROLES[e.target.value].label); toast("تم تغيير الصلاحية"); }},
@@ -9127,6 +9150,7 @@ renameApi = {
   async refresh(){ try { const me = await Cloud.rpc("me"); if (!me || !S.account) return; Cloud.me = me;
     if (me.name !== S.account.name || (me.renamed_from || "") !== (S.account.renamedFrom || "")){ S.account.name = me.name; S.account.renamedFrom = me.renamed_from || "";
       const b = Bio.get(); if (b && b.uid === me.uid && b.name !== me.name){ b.name = me.name; Bio.put(b); } render(); } } catch(e){} },
+  async sync(uid){ const r = await Cloud.rpc("sync_login_name", {p_uid:uid}); Cloud.refresh("accounts/x"); return r; },
   async seen(){ await Cloud.rpc("rename_seen"); if (S.account) S.account.renamedFrom = ""; if (Cloud.me) Cloud.me.renamed_from = ""; }
 };
 // «📣 إبلاغ الكل» on a visit day (2026-11-07): a message with his time to each confessee on the app, and a phone notification
