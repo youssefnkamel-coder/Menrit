@@ -338,6 +338,32 @@ body.chat-open .chat-fab{display:none}
 .chat-pin{display:flex;gap:6px;align-items:center;padding:7px 10px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:.84rem}
 .chat-pin b{color:var(--gold-d);flex:none} .chat-pin .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .chat-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg);overscroll-behavior:contain}
+/* «🛟 الدعم الفني» (2026-11-10) */
+.sup-card{display:flex;align-items:center;gap:12px}
+.sup-card .sup-card-ic{width:46px;height:46px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:linear-gradient(135deg,#0e7490,#1d4ed8);box-shadow:0 0 0 2px var(--gold,#c9a227)}
+.sup-card .sup-card-t{flex:1;min-width:0} .sup-card h3{margin:0 0 2px} .sup-card p{margin:0}
+.sup-card.live{border-color:var(--gold,#c9a227);box-shadow:0 0 0 2px rgba(201,162,39,.25)}
+.sup-inbox h3{display:flex;align-items:center;gap:8px}
+.sup-list .sup-row{display:flex;align-items:center;gap:10px;cursor:pointer}
+.sup-list .sup-row .who{flex:1;min-width:0;display:grid} .sup-list .sup-row .who span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sup-list .sup-row.hot strong{color:var(--gold-d,#8a6414)}
+.sup-meta{display:grid;justify-items:end;gap:2px;flex:none}
+.sup-st{font-size:.74rem;font-weight:800;border-radius:99px;padding:1px 8px;background:var(--surface-2)}
+.sup-st.new{color:#b91c1c} .sup-st.open{color:#a16207} .sup-st.done{color:#15803d}
+.sup-av{width:30px;height:30px;flex:none;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1.5px var(--gold,#c9a227);background:#fff}
+.sup-av img{width:100%;height:100%;object-fit:cover;display:block} .sup-av.lg{width:38px;height:38px}
+.sup-title{display:flex;align-items:center;gap:10px} .sup-title > span:last-child{display:grid}
+.sup-bot .bub .by{color:var(--gold-d,#8a6414)}
+.sup-msgs .txt{white-space:pre-wrap}
+.sup-opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sup-opts .chip-btn.ok{border-color:#16a34a;color:#15803d}
+.sup-sys{align-self:center;font-size:.78rem;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line);border-radius:99px;padding:2px 12px}
+.sup-stars{display:flex;gap:2px;margin-top:6px;direction:ltr;justify-content:flex-end}
+.sup-stars .star{background:none;border:0;font-size:1.6rem;line-height:1;color:#d1d5db;cursor:pointer;padding:0 2px}
+.sup-stars:hover .star{color:#f5b301} .sup-stars .star:hover ~ .star{color:#d1d5db}
+.sup-info{align-self:stretch;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:.82rem;display:grid;gap:6px}
+.sup-info dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0} .sup-info dt{color:var(--ink-2)} .sup-info dd{margin:0;font-weight:700}
+.sup-panel textarea#supInput{flex:1;min-width:0;resize:none;min-height:40px;max-height:120px;font:inherit}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
 .chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
 .chat-new{align-self:stretch;text-align:center;color:var(--gold-d);font-size:.76rem;font-weight:800;border-top:1.5px dashed var(--gold);padding-top:3px;margin:4px 0}
@@ -4133,7 +4159,7 @@ function priestToday(all){
   const overdueV = all.filter(p => !p.lastVisit || daysBetween(parseYmd(p.lastVisit),TODAY) > visitDays());
   const reqs = all.filter(p=>p.request||p.visitReq), fresh = all.filter(p=>p.isNew);
   const stat = (n,label,tab,alert,ic) => h("button",{class:"stat"+(alert&&n?" alert":""), onclick:()=>{S.tab=tab; render();}}, icon(ic), h("b",null,arDigits(n)), h("span",null,label));
-  const wrap = h("div",{class:"dash"}, pwDueCard(), admMsgCard(), pushCard(true), pendingCard());
+  const wrap = h("div",{class:"dash"}, pwDueCard(), admMsgCard(), supCard(true), pushCard(true), pendingCard());
   const lb = S.meta && S.meta.lastBackup, lbDays = lb ? daysBetween(parseYmd(lb), TODAY) : null;
   // on the server the data is kept there and the admin takes the backups, so only the single-file version nags أبونا
   if (Store.mode !== "demo" && Store.mode !== "cloud" && (!S.account || accRole() === "admin") && (lbDays === null || lbDays > 7) && all.length) wrap.append(h("div",{class:"warnbox"},
@@ -6286,6 +6312,224 @@ function occSync(){
   if (hero) OCCASION.dress(hero, id, hero.querySelector(".hero-main"));
   OCCASION.snow(OCCASION.SNOW.has(id));
 }
+/* ---------- «🛟 الدعم الفني» (2026-11-10, user: «شات لكل مستخدم مع الادمن علشان يكون فيه تواصل للدعم الفني … المستخدم مبعرفش
+   مين اللي بيتكلم معاه … هو البرنامج مينريت … ولما يدخل الشات يسأله الشات اسئله استدلاليه علي طلبه»; «دعم فني بس»):
+   every confessee, father and supervisor has one private conversation with the church's admin. Before writing, a few guided
+   questions find the topic and offer the known fix; only then the request goes to the admin with a summary and the phone's details
+   (version, device, notifications…, shown to the admin only). The answers always read «ⲙⲉⲛⲣⲓⲧ · الدعم الفني», never a name.
+   Questions about how the program is made are not support: they get a fixed answer and are not sent. ---------- */
+let supApi = null;
+const SUP = {open:false, uid:null, data:null, timer:null, busy:false, flow:null, unread:0, threads:[], listT:null, listAt:0, reopen:false, rated:false, sig:""};
+const SUP_NAME = "ⲙⲉⲛⲣⲓⲧ · الدعم الفني";
+const SUP_OFF = /(برمج|لغ(ة|ات) (البرمجة|برمجة)|(بأي|بأنهي|بانهي|بايه|بإيه) لغ|اتعمل(ت)? (ازاي|إزاي|بإيه|بايه)|معمول(ة)? (بإيه|بايه)|تركيب(ة)? البرنامج|فكرة البرنامج|مين (اللي )?(عمل|برمج|صمم|كتب) البرنامج|سورس|source|الكود المصدري|كود البرنامج|javascript|\bjava\b|\bhtml\b|\bcss\b|python|\bphp\b|react|flutter|supabase|firebase|سيرفر|server|قاعدة البيانات|database|داتا ?بيز|framework|\bapi\b)/i;
+const SUP_OFF_MSG = "هذه المحادثة مخصصة للدعم الفني فقط. يُرجى كتابة المشكلة التي تواجهك أثناء استخدام البرنامج.";
+const supOn = () => !!(supApi && Store.mode === "cloud" && !Store.preview && S.account && !S.account.pending);
+const supIsAdmin = () => accRole() === "admin";
+const supWhere = () => accRole() === "user" ? "بياناتي" : "الإعدادات";
+const SUP_FLOW = {
+  login:{ic:"🔑", t:"الدخول وكلمة السر", q:"ما المشكلة في الدخول؟", o:[
+    ["نسيت كلمة السر", {tip:"من شاشة الدخول اضغط «نسيت كلمة السر؟» واكتب اسمك، وسيصل طلبك إلى إدارة البرنامج لإنشاء كلمة سر جديدة لك."}],
+    ["الاسم أو كلمة السر غير صحيحة", {tip:"اكتب اسمك كما هو في بياناتك تمامًا، وتأكد من لغة لوحة المفاتيح ومن الحروف الكبيرة والصغيرة في كلمة السر."}],
+    ["تغيّر اسم الدخول", {tip:"عندما يتغير اسمك في البيانات يتغير اسم الدخول معه، وتبقى كلمة السر كما هي. ادخل بالاسم الجديد."}],
+    ["شيء آخر", {ask:true}]]},
+  photo:{ic:"📷", t:"الصورة والبيانات", q:"ما الذي تواجهه؟", o:[
+    ["لا أستطيع رفع صورة", {tip:() => "افتح «"+supWhere()+"» واضغط «غيّر الصورة»، واختر صورة من المعرض، ثم حرّك الإطار واضغط «حفظ». إذا لم تظهر، أغلق البرنامج وافتحه مرة أخرى."}],
+    ["الصورة الجديدة لا تظهر", {tip:"قد تستغرق الصورة الجديدة دقيقة حتى تظهر عند الآخرين. أغلق البرنامج وافتحه مرة أخرى."}],
+    ["البيانات لا تُحفظ", {ask:true, hint:"اكتب البيان الذي لا يُحفظ، والرسالة التي تظهر لك إن وُجدت."}],
+    ["شيء آخر", {ask:true}]]},
+  push:{ic:"🔔", t:"التنبيهات", q:"هل فعّلت التنبيهات من البرنامج؟", o:[
+    ["نعم، ولا تصلني", {q:"ما نوع جهازك؟", o:[
+      ["آيفون", {tip:"على الآيفون يجب إضافة البرنامج إلى الشاشة الرئيسية أولًا: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»، وافتح البرنامج من هناك وفعّل التنبيهات."}],
+      ["أندرويد", {tip:"افتح إعدادات الموبايل ثم التطبيقات ثم المتصفح، وتأكد أن الإشعارات مسموحة. بعد ذلك اضغط «📨 تجربة التنبيه» في البرنامج."}],
+      ["كمبيوتر", {tip:"اسمح بالإشعارات لموقع البرنامج من علامة القفل بجوار العنوان في المتصفح، ثم اضغط «📨 تجربة التنبيه»."}]]}],
+    ["لا، لا أعرف كيف", {tip:() => "افتح «"+supWhere()+"» واضغط «تفعيل التنبيهات»، ثم اختر «سماح» عندما يسألك الجهاز."}]]},
+  booking:{ic:"📅", t:"المواعيد والحجز", q:"ما الذي تحتاجه؟", o:[
+    ["لا أجد مواعيد متاحة", {tip:"المواعيد يحددها أب الاعتراف، وتظهر عندما يفتح فترة جديدة، وتصلك رسالة بذلك."}],
+    ["حجزت ولم يصلني تأكيد", {ask:true, hint:"اكتب اليوم والساعة اللذين حجزتهما."}],
+    ["شيء آخر", {ask:true}]]},
+  slow:{ic:"🐢", t:"البرنامج بطيء أو لا يعمل", q:"ماذا يحدث؟", o:[
+    ["بطيء في الفتح", {tip:"تأكد من الاتصال بالإنترنت، ثم أغلق البرنامج تمامًا وافتحه مرة أخرى."}],
+    ["تظهر رسالة خطأ", {ask:true, hint:"اكتب الرسالة التي ظهرت لك كما هي."}],
+    ["الصفحة بيضاء أو لا يفتح", {tip:"أغلق البرنامج تمامًا وافتحه مرة أخرى."}]]},
+  idea:{ic:"💡", t:"اقتراح", ask:true, hint:"اكتب اقتراحك، ويسعدنا سماعه."},
+  other:{ic:"❓", t:"شيء آخر", ask:true}
+};
+const SUP_QUICK = ["أغلق البرنامج تمامًا وافتحه مرة أخرى، ثم أخبرنا بالنتيجة.", "سنراجع المشكلة ونرد عليك في أقرب وقت.", "تم إنشاء كلمة سر جديدة لك، وستصلك على واتساب.",
+  "برجاء تحديث البرنامج: أغلقه وافتحه مرتين.", "هل ما زالت المشكلة قائمة؟", "تم حل المشكلة، شكرًا لتواصلك معنا 🙏"];
+// the last error the page met (shown to the admin with the request)
+addEventListener("error", e => { try { localStorage.setItem("menrit_lasterr", JSON.stringify({m:String(e.message || "").slice(0, 160), at:Date.now()})); } catch(x){} });
+addEventListener("unhandledrejection", e => { try { localStorage.setItem("menrit_lasterr", JSON.stringify({m:String((e.reason && e.reason.message) || e.reason || "").slice(0, 160), at:Date.now()})); } catch(x){} });
+function supInfo(){
+  const ua = navigator.userAgent || "", d = {v:APP_VERSION};
+  d.dev = /iPhone/.test(ua) ? "آيفون" : /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? "آيباد" : /Android/.test(ua) ? (/Mobile/.test(ua) ? "موبايل أندرويد" : "تابلت أندرويد") : /Windows/.test(ua) ? "كمبيوتر ويندوز" : /Macintosh/.test(ua) ? "كمبيوتر ماك" : "كمبيوتر";
+  const os = /Android ([\d.]+)/.exec(ua) || /OS (\d+)[_.](\d+)/.exec(ua) || /Windows NT ([\d.]+)/.exec(ua); if (os) d.os = os[1] + (os[2] ? "." + os[2] : "");
+  d.br = /Edg\//.test(ua) ? "Edge" : /SamsungBrowser/.test(ua) ? "Samsung Internet" : /CriOS|Chrome\//.test(ua) ? "Chrome" : /FxiOS|Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "";
+  try { d.app = matchMedia("(display-mode: standalone)").matches || navigator.standalone ? 1 : 0; } catch(e){}
+  try { d.push = typeof Notification === "undefined" ? "none" : Notification.permission; d.pushOn = localStorage.getItem("menrit_push_on") === "1" ? 1 : 0; } catch(e){}
+  try { const c = navigator.connection; if (c && c.effectiveType) d.net = c.effectiveType; d.online = navigator.onLine ? 1 : 0; } catch(e){}
+  d.scr = innerWidth + "×" + innerHeight;
+  try { const er = JSON.parse(localStorage.getItem("menrit_lasterr") || "null"); if (er && er.m && Date.now() - er.at < 7 * 864e5) d.err = er.m; } catch(e){}
+  return d;
+}
+function supInfoRows(i){
+  if (!i || typeof i !== "object") return [];
+  const push = i.push === "granted" ? (i.pushOn ? "مفعّلة" : "مسموحة وغير مفعّلة") : i.push === "denied" ? "مرفوضة من الجهاز" : i.push === "none" ? "غير مدعومة" : "لم تُفعّل";
+  return [["النسخة", i.v], ["الجهاز", [i.dev, i.os].filter(Boolean).join(" ")], ["المتصفح", i.br], ["على الشاشة الرئيسية", i.app ? "نعم" : "لا"], ["التنبيهات", push],
+    ["الإنترنت", i.online === 0 ? "غير متصل" : i.net ? String(i.net).toUpperCase() : ""], ["الشاشة", i.scr], ["آخر خطأ", i.err]].filter(r => r[1]);
+}
+const supAgo = ts => { const d = Date.now() - new Date(ts).getTime(); if (d < 6e4) return "الآن"; if (d < 36e5) return "منذ " + arDigits(Math.round(d / 6e4)) + " دقيقة";
+  if (d < 864e5) return "منذ " + arDigits(Math.round(d / 36e5)) + " ساعة"; return fmtShort(ymd(new Date(ts))); };
+// the count of unread answers (a person) / the inbox (the admin), every 45 seconds while the app is open
+function supSync(){
+  if (!supOn()){ clearTimeout(SUP.listT); SUP.listT = null; return; }
+  if (!SUP.listT){ supList(); try { const q = new URLSearchParams(location.search).get("support"); if (q) setTimeout(() => supOpen(q === "1" ? null : q), 700); } catch(e){} }
+}
+async function supList(){
+  clearTimeout(SUP.listT); SUP.listT = setTimeout(() => { if (!document.hidden) supList(); else { SUP.listT = null; supSync(); } }, 45000);
+  if (!supOn()) return;
+  try { const r = await supApi.list(); if (!r) return;
+    const sig = JSON.stringify(r); if (sig === SUP.sig) return; SUP.sig = sig;
+    SUP.unread = Number(r.unread) || 0; SUP.threads = r.threads || []; scheduleRender(); } catch(e){ console.warn("support", e.message); }
+}
+const supWaiting = () => SUP.threads.filter(t => t.status === "new" || t.unread > 0).length;
+// a person's card: «🛟 الدعم الفني» (in «بياناتي», «الإعدادات», and on the first screen while an answer waits)
+function supCard(compact){
+  if (!supOn() || supIsAdmin()) return null;
+  if (compact && !SUP.unread) return null;
+  return h("div",{class:"card sup-card" + (SUP.unread ? " live" : ""), id:compact ? "supNotice" : "supCard"},
+    h("div",{class:"sup-card-ic", "aria-hidden":"true"}, "🛟"),
+    h("div",{class:"sup-card-t"}, h("h3",null, "الدعم الفني"),
+      h("p",{class:"small muted"}, SUP.unread ? (SUP.unread === 1 ? "وصلك رد جديد من فريق الدعم." : "وصلتك " + arDigits(SUP.unread) + " ردود جديدة من فريق الدعم.") : "تواجه مشكلة في استخدام البرنامج؟ اسألنا وسنساعدك.")),
+    h("button",{class:"btn sm", type:"button", id:compact ? "supNoticeOpen" : "supOpenBtn", onclick:()=>supOpen(null)}, SUP.unread ? "اقرأ الرد" : "تواصل معنا"));
+}
+// the admin's inbox, in «الملخص»
+function supInbox(){
+  if (!supOn() || !supIsAdmin()) return null;
+  const th = SUP.threads, wait = supWaiting();
+  const pill = t => t.status === "done" ? h("span",{class:"sup-st done"},"🟢 تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
+  return h("div",{class:"card sup-inbox", id:"supInbox"},
+    h("h3",null, "🛟 الدعم الفني", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
+    th.length ? h("ul",{class:"list sup-list"}, th.slice(0, 30).map(t => h("li",{class:"sup-row" + (t.unread || t.status === "new" ? " hot" : ""), "data-uid":t.uid, onclick:()=>supOpen(t.uid)},
+      avatar({name:t.name, photo:t.photo}, "sm"),
+      h("div",{class:"who"}, h("strong",null, t.name, t.role === "priest" ? h("small",{class:"muted"}," · أب") : t.role === "supervisor" ? h("small",{class:"muted"}," · مشرف") : null),
+        h("span",{class:"small muted"}, (t.topic ? t.topic + " · " : "") + (t.last_admin ? "أنت: " : "") + String(t.last_text || "").replace(/\s+/g, " ").slice(0, 70))),
+      h("div",{class:"sup-meta"}, pill(t), h("span",{class:"small muted"}, supAgo(t.last_at)), t.unread ? h("span",{class:"badge"}, arDigits(t.unread)) : null))))
+    : h("p",{class:"small muted", style:"margin:0"}, "لا توجد طلبات دعم. عندما يكتب أحد يظهر هنا، ويصلك تنبيه على الموبايل."));
+}
+function supMount(){
+  if (document.getElementById("supPanel")) return document.getElementById("supPanel");
+  const p = h("div",{id:"supPanel", class:"chat-panel sup-panel", role:"dialog", "aria-label":SUP_NAME, hidden:true}); document.body.append(p); return p;
+}
+async function supOpen(uid){
+  if (!supOn()) return; if (supIsAdmin() && !uid) return;
+  if (typeof chatOpen === "function" && CH.open) chatOpen(false);
+  SUP.open = true; SUP.uid = supIsAdmin() ? uid : null; SUP.data = null; SUP.flow = null; SUP.reopen = false; SUP.rated = false; SUP.scrolled = false;
+  const p = supMount(); p.hidden = false; document.body.classList.add("chat-open"); supPaint(); await supPoll();
+}
+function supClose(){ SUP.open = false; clearTimeout(SUP.timer); const p = document.getElementById("supPanel"); if (p) p.hidden = true; document.body.classList.remove("chat-open"); supList(); }
+async function supPoll(){
+  clearTimeout(SUP.timer); if (!SUP.open || SUP.busy) return; SUP.busy = true;
+  try { const r = await supApi.feed(SUP.uid); if (!SUP.open) return;
+    const sig = JSON.stringify([r.msgs.length, r.msgs.length && r.msgs[r.msgs.length - 1].id, r.thread && r.thread.status, r.thread && r.thread.rating]);
+    const changed = sig !== SUP.dsig; SUP.dsig = sig; SUP.data = r; if (changed || !SUP.painted) supPaint();
+    const lastAdmin = r.msgs.filter(m => SUP.uid ? !m.admin : m.admin).pop();
+    if (lastAdmin && changed) supApi.seen(SUP.uid).then(() => { if (!SUP.uid && SUP.unread){ SUP.unread = 0; SUP.sig = ""; scheduleRender(); } }).catch(() => {});
+  } catch(e){ console.warn("support", e.message); }
+  finally { SUP.busy = false; if (SUP.open) SUP.timer = setTimeout(() => { if (!document.hidden) supPoll(); else SUP.timer = setTimeout(supPoll, 4000); }, 4000); }
+}
+const supBot = (...kids) => h("div",{class:"chat-msg sup-bot"}, h("span",{class:"sup-av"}, h("img",{src:APP_MARK, alt:""})), h("div",{class:"bub"}, h("div",{class:"by"}, SUP_NAME), h("div",{class:"txt"}, ...kids)));
+const supMine = text => h("div",{class:"chat-msg mine"}, h("div",{class:"bub"}, h("div",{class:"txt"}, text)));
+function supNode(){ const f = SUP.flow; if (!f) return null; let n = SUP_FLOW[f.topic]; for (const a of f.path) n = (n.o.find(o => o[0] === a) || [null, {ask:true}])[1]; return n; }
+function supTipText(n){ return typeof n.tip === "function" ? n.tip() : n.tip; }
+async function supSend(text){
+  text = String(text || "").trim(); if (!text) return false;
+  if (!SUP.uid && SUP_OFF.test(text)){ SUP.offTopic = (SUP.offTopic || 0) + 1; supPaint(true); return false; }
+  SUP.offTopic = 0;
+  try {
+    if (SUP.uid) await supApi.reply(SUP.uid, text);
+    else if (SUP.flow){ const f = SUP.flow, top = SUP_FLOW[f.topic]; let n = top; const lines = [];
+      for (const a of f.path){ lines.push("• " + n.q + " " + a); n = n.o.find(o => o[0] === a)[1]; }
+      await supApi.send("📌 " + top.t + (lines.length ? "\n" + lines.join("\n") : "") + "\n\n" + text, top.t, supInfo()); SUP.flow = null; }
+    else await supApi.send(text, null, SUP.reopen ? supInfo() : null);
+    SUP.reopen = false; SUP.scrolled = false; SUP.dsig = ""; await supPoll(); return true;
+  } catch(e){ toast(/too many/.test(e.message || "") ? "برجاء الانتظار قليلًا قبل إرسال رسائل أخرى." : "لم تُرسل الرسالة. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."); return false; }
+}
+function supStars(){
+  return h("div",{class:"sup-stars", role:"group", "aria-label":"تقييم الخدمة"}, [1,2,3,4,5].map(n => h("button",{type:"button", class:"star", "data-n":String(n), "aria-label":arDigits(n) + " من ٥",
+    onclick:async()=>{ try { await supApi.close(null, n); SUP.rated = true; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); } catch(e){ toast("لم يُحفظ التقييم. حاول مرة أخرى."); } }}, "★")));
+}
+function supPaint(force){
+  const panel = document.getElementById("supPanel"); if (!panel || !SUP.open) return; SUP.painted = true;
+  const r = SUP.data, adm = !!SUP.uid, th = r && r.thread, msgs = r ? r.msgs : [];
+  const box0 = panel.querySelector(".chat-msgs"), nearBottom = box0 ? box0.scrollHeight - box0.scrollTop - box0.clientHeight < 90 : true;
+  const in0 = document.getElementById("supInput"), draft = in0 ? in0.value : "", hadFocus = document.activeElement === in0;
+  const head = h("div",{class:"chat-head"}, h("div",{class:"chat-hrow"},
+    adm ? h("div",{class:"chat-title"}, h("b",null, "🛟 " + ((r && r.name) || "…")), h("small",null, th && th.topic ? th.topic : "الدعم الفني"))
+        : h("div",{class:"chat-title sup-title"}, h("span",{class:"sup-av lg"}, h("img",{src:APP_MARK, alt:""})), h("span",null, h("b",null, SUP_NAME), h("small",{class:"on"}, h("i"), "نرد عليك هنا في أقرب وقت"))),
+    !adm && th && th.status !== "done" ? h("button",{type:"button", class:"btn sm ghost", id:"supMyDone", onclick:async()=>{ try { await supApi.close(null, null); SUP.dsig = ""; await supPoll(); } catch(e){ toast("تعذّر الحفظ"); } }}, "✅ تم الحل") : null,
+    adm && th && th.status !== "done" ? h("button",{type:"button", class:"btn sm ghost", id:"supDone", onclick:async()=>{ try { await supApi.close(SUP.uid, null); SUP.dsig = ""; toast("✅ تم إغلاق الطلب"); await supPoll(); supList(); } catch(e){ toast("تعذّر الإغلاق"); } }}, "✅ تم الحل") : null,
+    h("button",{type:"button", class:"chat-x", id:"supX", "aria-label":"إغلاق", onclick:supClose}, "✕")));
+  const box = h("div",{class:"chat-msgs sup-msgs"});
+  if (!r) box.append(h("div",{class:"chat-empty"}, "جارٍ التحميل…"));
+  if (adm && r){
+    const rows = supInfoRows(th && th.info);
+    box.append(h("div",{class:"sup-info"}, h("b",null, "📱 بيانات جهازه (تظهر لك وحدك)"), rows.length ? h("dl",null, rows.map(([k, v]) => [h("dt",null, k), h("dd",{dir:"auto"}, String(v))])) : h("span",{class:"small muted"}, "لا توجد بيانات."),
+      r.phone ? h("a",{class:"btn sm ghost", href:"https://wa.me/" + waNum(r.phone), target:"_blank", rel:"noopener"}, "📲 واتساب") : null));
+  }
+  let lastDay = "";
+  for (const m of msgs){
+    const day = chatDay(m.at); if (day !== lastDay){ box.append(h("div",{class:"chat-day"}, day)); lastDay = day; }
+    if (m.kind === "sys"){
+      const rt = /^rated:(\d)$/.exec(m.text);
+      box.append(h("div",{class:"sup-sys"}, m.text === "done" ? (adm ? "✅ أغلقت هذا الطلب" : "✅ أغلق فريق الدعم هذا الطلب") : rt ? "⭐ التقييم: " + "★".repeat(+rt[1]) + "☆".repeat(5 - rt[1]) : "✅ تم حل المشكلة"));
+      continue;
+    }
+    const mine = adm ? m.admin : !m.admin;
+    if (mine){ const el = supMine(m.text); el.querySelector(".bub").append(h("div",{class:"tm"}, chatTime(m.at))); box.append(el); }
+    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), h("div",{class:"txt", style:"white-space:pre-wrap"}, m.text), h("div",{class:"tm"}, chatTime(m.at))))); }
+    else { const el = supBot(m.text); el.querySelector(".bub").append(h("div",{class:"tm"}, chatTime(m.at))); box.append(el); }
+  }
+  // the person: the guided questions when nothing is open
+  let foot = null;
+  const active = th && th.status !== "done";
+  if (!adm && r){
+    if (th && th.status === "done" && !SUP.reopen && !SUP.flow){
+      if (!th.rating && !SUP.rated) box.append(supBot("هل تم حل مشكلتك؟ يسعدنا تقييمك للخدمة.", supStars(),
+        h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supStill", onclick:()=>{ SUP.reopen = true; supPaint(true); }}, "لا، ما زالت المشكلة قائمة"))));
+    }
+    if (!active && !SUP.reopen){
+      const f = SUP.flow;
+      if (!f) box.append(supBot(msgs.length ? "هل تحتاج إلى مساعدة أخرى؟ اختر الموضوع:" : "مرحبًا بك 👋 كيف يمكننا مساعدتك؟ اختر الموضوع:",
+        h("div",{class:"sup-opts"}, Object.entries(SUP_FLOW).map(([k, t]) => h("button",{type:"button", class:"chip-btn sup-topic", "data-k":k, onclick:()=>{ SUP.flow = {topic:k, path:[]}; supPaint(true); }}, t.ic + " " + t.t)))));
+      else {
+        const top = SUP_FLOW[f.topic]; box.append(supMine(top.ic + " " + top.t));
+        let n = top;
+        for (const a of f.path){ box.append(supBot(n.q), supMine(a)); n = n.o.find(o => o[0] === a)[1]; }
+        if (n.tip && !f.ask){
+          box.append(supBot(supTipText(n), h("div",{class:"sup-opts"},
+            h("button",{type:"button", class:"chip-btn ok", id:"supSolved", onclick:()=>{ SUP.flow = null; SUP.thanks = true; supPaint(true); }}, "✅ تم الحل، شكرًا"),
+            h("button",{type:"button", class:"chip-btn", id:"supNotSolved", onclick:()=>{ f.ask = true; supPaint(true); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); }}, "✉️ لم تُحل، أريد مراسلة الدعم"))));
+        } else if (n.o && !n.ask && !f.ask){
+          box.append(supBot(n.q, h("div",{class:"sup-opts"}, n.o.map(([a]) => h("button",{type:"button", class:"chip-btn sup-ans", onclick:()=>{ f.path.push(a); supPaint(true); }}, a)))));
+        } else box.append(supBot((n.hint || "اكتب المشكلة باختصار") + " وسيرد عليك فريق الدعم هنا.",
+          h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", onclick:()=>{ SUP.flow = null; supPaint(true); }}, "↩️ رجوع"))));
+      }
+      if (SUP.thanks && !SUP.flow){ box.lastChild && box.insertBefore(supBot("يسعدنا ذلك 🙏 نحن هنا دائمًا إذا احتجت إلى أي مساعدة."), box.lastChild); SUP.thanks = false; }
+    }
+    if (SUP.offTopic) box.append(supBot(SUP_OFF_MSG));
+  }
+  const canWrite = adm || active || SUP.reopen || (SUP.flow && (SUP.flow.ask || (() => { const n = supNode(); return n && n.ask; })()));
+  if (r && canWrite){
+    const input = h("textarea",{id:"supInput", rows:"1", maxlength:"1500", placeholder:adm ? "اكتب الرد… (يظهر له باسم ⲙⲉⲛⲣⲓⲧ)" : "اكتب رسالتك…", oninput:e=>{ e.target.style.height = "auto"; e.target.style.height = Math.min(120, e.target.scrollHeight) + "px"; }});
+    input.value = draft;
+    const form = h("form",{class:"chat-form", onsubmit:async e=>{ e.preventDefault(); const t = input.value.trim(); if (!t) return; input.value = ""; if (!(await supSend(t))){ const i = document.getElementById("supInput"); if (i && !i.value) i.value = t; } }},
+      input, h("button",{type:"submit", class:"btn chat-send", id:"supSend", "aria-label":"إرسال"}, "➤"));
+    foot = [adm ? h("div",{class:"chat-quick"}, SUP_QUICK.map(t => h("button",{type:"button", class:"chip-btn", onclick:()=>{ const i = document.getElementById("supInput"); i.value = t; i.focus(); }}, t))) : null, form];
+  }
+  panel.replaceChildren(...[head, box].concat(foot || []).filter(Boolean));
+  if (hadFocus){ const i = document.getElementById("supInput"); if (i) i.focus(); }
+  if (!SUP.scrolled || nearBottom || force){ SUP.scrolled = true; box.scrollTop = box.scrollHeight; }
+}
 /* ---------- the chat (2026-11-08, user): «💬 شات الآباء» for the fathers of the church, «💬 شات الإدارة» for the admin and
    the supervisors, taken from the service program: a floating button with the unread count, who is online and who is writing,
    reply, reactions, @mention, one pinned message, ✓✓ with the faces of who read it, search and quick replies.
@@ -6607,7 +6851,7 @@ function calCard(){
 }
 function priestSettings(){
   const st = S.settings || {};
-  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), newsRow(), pushCard(false), calCard());
+  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), newsRow(), supCard(false), pushCard(false), calCard());
   const admScreen = S.role === "admin" && accRole() === "admin";
   if (admScreen){ const inv = inviteCard(), ppc = passportCard(); if (inv) wrap.append(inv); if (ppc) wrap.append(ppc); }
   const manyFathers = Store.mode === "cloud";
@@ -6764,6 +7008,7 @@ function memberToday(){
   if (S.profileLoaded && !profileFilled()) wrap.append(h("div",{class:"card detail"}, h("h3",null,"أهلًا بك في البرنامج"),
     h("p",null,"ابدأ بكتابة بياناتك عشان أبونا يعرفك. بيشوفها أب اعترافك وأدمن البرنامج بس."), h("div",null, h("button",{class:"btn", onclick:()=>{S.tab="me"; render();}},"كتابة بياناتي"))));
   { const pc = pwDueCard(); if (pc) wrap.append(pc); }
+  { const sc = supCard(true); if (sc) wrap.append(sc); }
   { const lc = locCard(); if (lc) wrap.append(lc); }
   for (const [type, title] of [["appointment","🙏 ميعاد اعترافك"],["visit","🏡 ميعاد الافتقاد"]]){
     const appt = S.inbox.find(m => m.type===type && m.when && new Date(m.when) >= TODAY);
@@ -7072,6 +7317,7 @@ function memberMe(){
       catch(e){ toast(/name taken|name too long/.test(String(e && e.message || e)) && typeof cloudMsg === "function" ? cloudMsg(e) : "تعذّر الحفظ. تأكد أن أبونا أضافك إلى البرنامج."); }
     }},"حفظ"))));
   const fq = freqCard(); if (fq) wrap.append(fq);
+  { const sc = supCard(false); if (sc) wrap.append(sc); }
   const pc = pushCard(false); if (pc) wrap.append(pc);
   const nr = newsRow(); if (nr) wrap.append(nr);
   if (S.account && S.account.role === "user") wrap.append(myPasswordCard());
@@ -7349,8 +7595,10 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-10b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-10c", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🛟","الدعم الفني","في «الملخص» صندوق «🛟 الدعم الفني»: كل شخص يكتب مشكلته بعد أسئلة قصيرة تحدد الموضوع، ويصلك طلبه ومعه ملخص وبيانات جهازه (النسخة، ونوع الجهاز، والتنبيهات). ردك يظهر له باسم «ⲙⲉⲛⲣⲓⲧ · الدعم الفني» ولا يظهر اسمك أبدًا، ومعك ردود جاهزة وزر «✅ تم الحل»، ثم يقيّم الخدمة."],
+    ["📊","Excel بشعار الكنيسة","ملف Excel والطباعة فيهما شعار الكنيسة على اليمين وشعار ⲙⲉⲛⲣⲓⲧ على اليسار، واسم ⲙⲉⲛⲣⲓⲧ يظهر صحيحًا بدل المربعات."],
     ["🔑","اسم الدخول مثل الاسم في البيانات","لو اسم الدخول لشخص مختلف عن اسمه في البيانات (اسم تعدّل قبل التحديث ده)، يظهر في كارته زر «🔑 اسم الدخول مثل الاسم في البيانات». بالضغط عليه يتغير اسم الدخول، ويظهر لك زر «📲 إبلاغه على واتساب»، وتظهر له رسالة كبيرة أول ما يفتح البرنامج."],
     ["🔑","اسم الدخول يتغير مع الاسم","لما تعدّل اسم شخص من «تعديل البيانات»، أو يعدّله هو، يتغير اسم الدخول معاه، وتظهر له رسالة كبيرة أول ما يفتح البرنامج، ويظهر لك زر «📲 إبلاغه على واتساب»."],
     ["✨","«أب الاعتراف» بالدهبي","في «الناس» يظهر تحت كل اسم «أب الاعتراف: …» باللون الدهبي."],
@@ -7358,11 +7606,14 @@ const NEWS = {id:"2026-11-10b", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🛟","الدعم الفني","في «الإعدادات» زر «🛟 الدعم الفني» لأي مشكلة في استخدام البرنامج: أسئلة قصيرة تحدد المشكلة وتقترح الحل، وإن لم تُحل يصل طلبك إلى فريق الدعم ويرد عليك هنا."],
+    ["📊","Excel بشعار الكنيسة","ملف Excel والطباعة فيهما شعار الكنيسة، واسم ⲙⲉⲛⲣⲓⲧ يظهر صحيحًا بدل المربعات."],
     ["🔑","اسم الدخول مثل الاسم في البيانات","لو اسم الدخول لأحد أبنائك مختلف عن اسمه في البيانات، يظهر في كارته زر «🔑 اسم الدخول مثل الاسم في البيانات»، وبالضغط عليه يتغير اسم الدخول ويظهر لك زر «📲 إبلاغه على واتساب»."],
     ["🔑","اسم الدخول يتغير مع الاسم","لما تعدّل اسم أحد أبنائك من «تعديل البيانات» يتغير اسم الدخول بتاعه معاه، ويظهر لك زر «📲 إبلاغه على واتساب»، وتظهر له رسالة كبيرة أول ما يفتح."],
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["🛟","الدعم الفني","في «بياناتي» زر «🛟 الدعم الفني» لأي مشكلة في استخدام البرنامج: أسئلة قصيرة تحدد المشكلة وتقترح الحل، وإن لم تُحل يصل طلبك إلى فريق الدعم ويرد عليك هنا."],
     ["🔑","اسم الدخول","لو اسمك اتعدّل في «بياناتي»، اسم الدخول بيتغير معاه، وهتظهر لك رسالة بالاسم الجديد. كلمة السر زي ما هي."]
   ]
 }};
@@ -7605,7 +7856,7 @@ function icon(k, size){
 // the admin's screen in five parts at the bottom, like the father's and the confessee's (2026-11-07, user):
 // الملخص (numbers and whatever waits for an answer) · الآباء · الناس · النشاط · الإعدادات (invite link, passport codes, backup)
 function admTabs(){
-  const t = [["admin","الملخص", (S.pwreqs||[]).length + (S.pending||[]).length]];
+  const t = [["admin","الملخص", (S.pwreqs||[]).length + (S.pending||[]).length + supWaiting()]];
   if (Store.mode === "cloud") t.push(["afathers","الآباء"]);
   t.push(["apeople","الناس"],["activity","النشاط"],["settings","الإعدادات"]);
   return t;
@@ -7621,7 +7872,7 @@ function render(){
   document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:()=>{ S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
   $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? (Store.mode === "cloud" ? " · شاشتي كمعترف" : " (معاينة شاشة المعترف)") : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
-  renderNotice(); renderMe(); chatSync(); occSync();
+  renderNotice(); renderMe(); chatSync(); supSync(); occSync();
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
@@ -7723,7 +7974,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.10-2";
+const APP_VERSION = "2026.11.10-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8312,11 +8563,12 @@ function adminView(all, part){
     // whatever waits for the admin's answer comes first (2026-11-07), then the numbers, then who is online, the space and the speed
     // (the father-change card goes to the end while nothing in it waits)
     const fa = freqAdminCard(), faWait = (S.freqs || []).some(x => x.wait);
-    [pwDueCard(), admMsgCard(), pendingCard(), faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
+    [pwDueCard(), admMsgCard(), pendingCard(), supWaiting() ? supInbox() : null, faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
     wrap.append(statsEl);
-    const tools = h("div",{class:"adm-tools", id:"admTools"}); [onlineCard(accs), dbCard(), speedCard(), pushCard(true), faWait ? null : fa].forEach(x => { if (x) tools.append(x); });
+    const tools = h("div",{class:"adm-tools", id:"admTools"}); [supWaiting() ? null : supInbox(), onlineCard(accs), dbCard(), speedCard(), pushCard(true), faWait ? null : fa].forEach(x => { if (x) tools.append(x); });
     if (tools.childNodes.length) wrap.append(tools);
   } else if (!part){
+  if (!isAdmin){ const sc = supCard(false); if (sc) wrap.append(sc); }
   wrap.append(statsEl);
   const tools = h("div",{class:"adm-tools", id:"admTools"});
   if (isAdmin){ const ph = pushCard(true); if (ph) tools.append(ph); }
@@ -9159,6 +9411,13 @@ visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_i
 dbApi = { usage: () => Cloud.rpc("db_usage") };
 onlineApi = { list: () => Cloud.rpc("online_list") };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
+// «🛟 الدعم الفني» (2026-11-10)
+supApi = { feed: uid => Cloud.rpc("support_feed", {p_uid:uid || null}),
+  send: (text, topic, info) => Cloud.rpc("support_send", {p_text:text, p_topic:topic || null, p_info:info || null}),
+  reply: (uid, text) => Cloud.rpc("support_reply", {p_uid:uid, p_text:text}),
+  close: (uid, rating) => Cloud.rpc("support_close", {p_uid:uid || null, p_rating:rating || null}),
+  seen: uid => Cloud.rpc("support_seen", {p_uid:uid || null}),
+  list: () => Cloud.rpc("support_list") };
 chatApi = { feed: (room, since) => Cloud.rpc("chat_feed", {p_room:room, p_since:since}),
   send: (room, text, rp) => Cloud.rpc("chat_send", {p_room:room, p_text:text, p_rp:rp}),
   react: (id, e) => Cloud.rpc("chat_react", {p_id:id, p_emoji:e}),
