@@ -385,6 +385,17 @@ body.chat-open .chat-fab{display:none}
 .sup-q:hover{background:var(--surface-2)}
 .sup-welcome b{color:var(--gold-ink)} .sup-closed{color:var(--bad);font-weight:700}
 .sup-hours{gap:8px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:8px;margin-top:8px} .sup-hours input{max-width:120px}
+.sup-sum-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.sup-sum-t{display:grid;gap:2px;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2)}
+.sup-sum-t b{font-size:1.35rem} .sup-sum-t.new b{color:var(--bad)} .sup-sum-t.open b{color:var(--warn-ink)} .sup-sum-t.done b{color:var(--ok-ink)} .sup-sum-t.rate b{color:var(--gold-ink)}
+@media (max-width:560px){.sup-sum-g{grid-template-columns:repeat(2,1fr)}}
+.sup-screen{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.sup-screen{grid-template-columns:1fr}}
+.sto-big{margin:8px 0 4px} .sto-big b{font-size:1.25rem}
+.sto-bar{display:flex;gap:2px;height:14px;border-radius:8px;overflow:hidden;background:var(--line);margin:6px 0 10px} .sto-bar i{display:block;min-width:4px}
+.sto-list{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:7px}
+.sto-list li{display:flex;align-items:center;gap:8px} .sto-l{flex:1} .sto-dot{width:11px;height:11px;border-radius:50%;flex:none}
+.sto-all{border-top:1px dashed var(--line);padding-top:8px;margin-bottom:8px}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
 .chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
 .chat-new{align-self:stretch;text-align:center;color:var(--gold-d);font-size:.76rem;font-weight:800;border-top:1.5px dashed var(--gold);padding-top:3px;margin:4px 0}
@@ -1235,6 +1246,38 @@ body.one-tab{--nav-h:0px}
 .act-facts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;font-size:.85rem}
 .act-facts>div{background:var(--surface-2);border-radius:10px;padding:7px 9px}.act-facts small{display:block;color:var(--ink-2)}
 .act-sums4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
+.act-dash{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;margin-bottom:12px}
+@media (max-width:860px){.act-dash{grid-template-columns:1fr}}
+.act-dash-a,.act-dash-b{display:grid;gap:12px;align-content:start}
+.act-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:560px){.act-kpis{grid-template-columns:repeat(2,1fr)}}
+.act-kpi{display:grid;gap:1px;text-align:start;padding:10px 12px;border-radius:14px;border:1px solid transparent;color:#fff;cursor:pointer;font:inherit;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s, box-shadow .15s}
+.act-kpi:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.14)}
+.act-kpi b{font-size:1.6rem;line-height:1.1} .act-kpi span{font-size:.82rem;font-weight:700} .act-kpi small{font-size:.72rem;opacity:.85}
+.act-kpi.k1{background:linear-gradient(135deg,#059669,#10b981)} .act-kpi.k2{background:linear-gradient(135deg,#1d4ed8,#0ea5e9)}
+.act-kpi.k3{background:linear-gradient(135deg,#64748b,#94a3b8)} .act-kpi.k3.hot{background:linear-gradient(135deg,#ea580c,#f59e0b)} .act-kpi.k4{background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.act-kpi.on{outline:3px solid var(--gold);outline-offset:2px}
+.act-box{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface-2)}
+.act-box h4{margin:0 0 8px;display:flex;align-items:center;gap:6px;font-size:.92rem}
+.act-chart{display:flex;align-items:flex-end;gap:4px;height:96px}
+.act-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}
+.act-col i{display:block;width:100%;max-width:22px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#0ea5e9,#1d4ed8);animation:actGrow .5s ease-out both}
+.act-col.today i{background:linear-gradient(180deg,#f5c84c,#c9a227)} .act-col small{font-size:.66rem;color:var(--ink-2)} .act-n{font-size:.66rem;color:var(--ink-2);min-height:.9em}
+@keyframes actGrow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+.act-faces{display:flex;flex-wrap:wrap;gap:8px}
+.act-face{display:grid;justify-items:center;gap:2px;border:0;background:none;cursor:pointer;font:inherit;padding:2px;width:58px}
+.act-face small{font-size:.7rem;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-face.more b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--line)}
+.act-feed{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.act-feed li{display:flex;align-items:center;gap:8px;font-size:.85rem;animation:actIn .4s ease-out both}
+.act-feed li.fresh{background:color-mix(in srgb,var(--gold) 14%,transparent);border-radius:8px;padding:2px 4px}
+.act-fw{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@keyframes actIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.act-live{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.6);animation:actPulse 2s infinite}
+@keyframes actPulse{70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+@media (prefers-reduced-motion:reduce){.act-col i,.act-feed li,.act-live{animation:none}}
+.act-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap} .act-tools #actQ{flex:1;min-width:180px} .act-tools .act-chips{margin:0}
+.act-fbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0;padding:6px 10px;border-radius:10px;background:var(--surface-2);font-size:.88rem}
 .act-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
 .act-sum{display:grid;gap:2px;text-align:center;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .act-sum b{font-size:1.4rem}
@@ -6499,13 +6542,51 @@ function supHoursRow(){
     h("button",{type:"button", class:"btn sm ghost", id:"supHoursSave", onclick:async()=>{ const f = $("#supFrom").value, t = $("#supTo").value; if (!f || !t || f === t){ toast("اختر وقت البداية والنهاية"); return; }
       await editDoc("settings/app", cur => Object.assign(cur, {supFrom:f, supTo:t})); toast("تم حفظ مواعيد الدعم، وتظهر لكل من يفتح الدعم الفني"); }}, "حفظ"));
 }
-// the admin's inbox, in «الملخص»
+// «الملخص»: the support numbers only, and the way to «الدعم الفني»
+function supSumCard(){
+  if (!supOn() || !supIsAdmin()) return null;
+  const th = SUP.threads || [], n = k => th.filter(t => t.status === k).length, rated = th.filter(t => t.rating > 0);
+  const avg = rated.length ? rated.reduce((a, t) => a + +t.rating, 0) / rated.length : 0, wait = supWaiting();
+  const tile = (v, label, cls) => h("div",{class:"sup-sum-t " + cls}, h("b",{class:"num"}, v), h("span",{class:"small"}, label));
+  return h("div",{class:"card sup-sum", id:"supSum"}, h("div",{class:"row between", style:"align-items:center"}, h("h3",{style:"margin:0"}, "🛟 الدعم الفني", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
+      h("button",{type:"button", class:"btn sm", id:"supGo", onclick:()=>{ S.tab = "support"; render(); window.scrollTo({top:0}); }}, "فتح الدعم الفني")),
+    h("div",{class:"sup-sum-g"}, tile(arDigits(n("new")), "طلبات جديدة", "new"), tile(arDigits(n("open")), "جارٍ العمل عليها", "open"), tile(arDigits(n("done")), "تم حلها", "done"),
+      tile(rated.length ? arDigits(avg.toFixed(1).replace(/\.0$/, "")) + " ★" : "—", rated.length ? "متوسط التقييم (" + arDigits(rated.length) + ")" : "لا توجد تقييمات بعد", "rate")));
+}
+// «المساحة المستخدمة» (2026-11-11, like the service program): what each kind of the church's data takes, sizes only
+const STO_KINDS = [["photos","الصور","#c9a227"],["supimg","صور الدعم الفني","#e11d48"],["people","بيانات الناس والمواعيد","#16a34a"],["log","النشاط وسجل التعديلات","#8b5cf6"],["chat","الشات والدعم الفني","#2563eb"],["rest","الحسابات والإعدادات وباقي البيانات","#64748b"]];
+const stoSize = b => b >= 1048576 ? arDigits((b / 1048576).toFixed(b >= 10485760 ? 0 : 1).replace(/\.0$/, "")) + " ميجا" : arDigits(Math.max(1, Math.round(b / 1024))) + " كيلو";
+function storageCard(){
+  if (!dbApi || !dbApi.detail || accRole() !== "admin" || Store.preview) return null;
+  const load = () => { storageCard.busy = true; return dbApi.detail().then(r => { S.sto = r; storageCard.at = Date.now(); }).catch(() => { S.stoErr = true; }).finally(() => { storageCard.busy = false; scheduleRender(); }); };
+  if (!S.sto && !storageCard.busy && !S.stoErr) load();
+  const r = S.sto;
+  if (!r) return h("div",{class:"card sto-card", id:"stoCard"}, h("h3",null,"💾 المساحة المستخدمة"), h("p",{class:"small muted"}, S.stoErr ? "تعذّر حساب المساحة." : "جارٍ الحساب…"),
+    S.stoErr ? h("button",{type:"button", class:"btn sm ghost", onclick:()=>{ S.stoErr = false; load(); }}, "إعادة المحاولة") : null);
+  const mine = STO_KINDS.reduce((a, [k]) => a + (+r[k] || 0), 0), f = r.used / r.limit, pc = Math.max(1, Math.round(f * 100));
+  const at = new Date(r.at), atTxt = (ymd(at) === ymd(new Date()) ? "اليوم " : fmtShort(ymd(at)) + " ") + at.toLocaleTimeString(timeLoc(), {hour:"numeric", minute:"2-digit"});
+  return h("div",{class:"card sto-card", id:"stoCard"},
+    h("div",{class:"row between", style:"align-items:center"}, h("h3",{style:"margin:0"},"💾 المساحة المستخدمة"), h("span",{class:"pill" + (f >= .9 ? " bad" : f >= DB_WARN ? " warn" : " ok")}, f < .01 ? "أقل من ١٪" : arDigits(pc) + "٪")),
+    h("p",{class:"sto-big"}, "بيانات الكنيسة: ", h("b",{class:"num"}, stoSize(mine))),
+    h("div",{class:"sto-bar", role:"img", "aria-label":"توزيع المساحة"}, STO_KINDS.map(([k, , c]) => +r[k] > 0 ? h("i",{style:"background:" + c + ";flex:" + Math.max(+r[k] / mine, .015)}) : null)),
+    h("ul",{class:"sto-list"}, STO_KINDS.map(([k, label, c]) => h("li",{"data-k":k}, h("span",{class:"sto-dot", style:"background:" + c}),
+      h("span",{class:"sto-l"}, label, k === "photos" && r.photo_n ? h("small",{class:"muted"}, " (" + arDigits(r.photo_n) + " صورة)") : k === "supimg" && r.supimg_n ? h("small",{class:"muted"}, " (" + arDigits(r.supimg_n) + " صورة)") : null),
+      h("b",{class:"num"}, +r[k] ? stoSize(+r[k]) : "—")))),
+    h("div",{class:"sto-all"}, h("span",{class:"small"}, "مساحة البرنامج كله: مستخدم ", h("b",{class:"num"}, stoSize(r.used)), " من ", h("b",{class:"num"}, stoSize(r.limit)), " · متاح ", h("b",{class:"num"}, stoSize(Math.max(0, r.limit - r.used)))),
+      h("div",{class:"db-bar"}, h("i",{style:"width:" + Math.min(100, pc) + "%"}))),
+    h("div",{class:"row between", style:"align-items:center"}, h("span",{class:"small muted"}, "آخر حساب: " + atTxt),
+      h("button",{type:"button", class:"btn sm ghost", id:"stoAgain", onclick:()=>load()}, "🔄 احسب مرة أخرى")));
+}
+function supportView(){
+  return h("div",{style:"display:grid;gap:18px"}, sectionHead("الدعم الفني"), h("div",{class:"sup-screen"}, supInbox() || h("div",{class:"card"},"الدعم الفني غير متاح."), storageCard()));
+}
+// the admin's inbox, in «الدعم الفني»
 function supInbox(){
   if (!supOn() || !supIsAdmin()) return null;
   const th = SUP.threads, wait = supWaiting();
   const pill = t => t.status === "done" ? h("span",{class:"sup-st done"},"✅ تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
   return h("div",{class:"card sup-inbox", id:"supInbox"},
-    h("h3",null, "🛟 الدعم الفني", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
+    h("h3",null, "🛟 طلبات الدعم", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
     th.length ? h("ul",{class:"list sup-list"}, th.slice(0, 30).map(t => h("li",{class:"sup-row" + (t.unread || t.status === "new" ? " hot" : ""), "data-uid":t.uid, onclick:()=>supOpen(t.uid)},
       avatar({name:t.name, photo:t.photo}, "sm"),
       h("div",{class:"who"}, h("strong",null, t.name, t.role === "priest" ? h("small",{class:"muted"}," · أب") : t.role === "supervisor" ? h("small",{class:"muted"}," · مشرف") : null),
@@ -7768,8 +7849,10 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-11b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-11c", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🛟","شاشة الدعم الفني","أصبح للدعم الفني شاشة مستقلة بالأسفل، فيها كل الطلبات والمحادثات ومواعيد الدعم، و«المساحة المستخدمة» مفصّلة حسب نوع البيانات مع زر «احسب مرة أخرى». ويبقى في «الملخص» كارت صغير بأعداد الطلبات ومتوسط التقييم."],
+    ["📊","شاشة النشاط","أصبحت شاشة النشاط ملخصة: أربعة مربعات بالأرقام تُصفّي الجدول عند الضغط عليها، ورسم للدخول في آخر ١٤ يومًا، ومن يحتاجون متابعة، وآخر ما حدث، ويعرض الجدول أول ١٠ أسماء مع زر «عرض الكل»."],
     ["📷","الصور في الدعم الفني","يمكن للشخص إرسال صورة (مثل صورة من الشاشة) مع رسالته، ويمكنك أنت أيضًا إرسال صورة في ردك. اضغط على الصورة لعرضها بحجم كبير. وتظهر صورة الشخص بجوار رسائله."],
     ["⏱️","مواعيد الدعم","عند فتح الدعم الفني تظهر رسالة ترحيب بمواعيد الدعم. يمكنك تعديل المواعيد من كارت الدعم الفني في «الملخص»."],
     ["💬","الردود الجاهزة","تظهر الردود الجاهزة كاملة في قائمة عند الضغط على «ردود جاهزة»."],
@@ -8054,8 +8137,8 @@ function startIcons(){ iconize(document.body);
   new MutationObserver(ms => { for (const m of ms){ if (m.type === "characterData") iconizeText(m.target); else m.addedNodes.forEach(iconize); } })
     .observe(document.body, {childList:true, subtree:true, characterData:true}); }
 if (document.body) startIcons(); else document.addEventListener("DOMContentLoaded", startIcons);
-const ICON_COLORS = {activity:"#0ea5e9", families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b", afathers:"#0f766e", apeople:"#3b82f6"};
-const EMOJI = {activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️", afathers:"⛪", apeople:"👥"};
+const ICON_COLORS = {support:"#e11d48", activity:"#0ea5e9", families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b", afathers:"#0f766e", apeople:"#3b82f6"};
+const EMOJI = {support:"🛟", activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️", afathers:"⛪", apeople:"👥"};
 function icon(k, size){
   const e = emoKey(EMOJI[k]||"✝️") || ["cross","#0f766e"], s = h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||e[1]), "aria-hidden":"true"});
   s.innerHTML = icSvg(e[0]); return s; }
@@ -8063,9 +8146,11 @@ function icon(k, size){
 // the admin's screen in five parts at the bottom, like the father's and the confessee's (2026-11-07, user):
 // الملخص (numbers and whatever waits for an answer) · الآباء · الناس · النشاط · الإعدادات (invite link, passport codes, backup)
 function admTabs(){
-  const t = [["admin","الملخص", (S.pwreqs||[]).length + (S.pending||[]).length + supWaiting()]];
+  const t = [["admin","الملخص", (S.pwreqs||[]).length + (S.pending||[]).length]];
   if (Store.mode === "cloud") t.push(["afathers","الآباء"]);
-  t.push(["apeople","الناس"],["activity","النشاط"],["settings","الإعدادات"]);
+  t.push(["apeople","الناس"],["activity","النشاط"]);
+  if (supOn() && supIsAdmin()) t.push(["support","الدعم الفني", supWaiting()]);
+  t.push(["settings","الإعدادات"]);
   return t;
 }
 function render(){
@@ -8083,7 +8168,7 @@ function render(){
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
-  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : adminView(all, {afathers:"fathers", apeople:"people"}[S.tab] || "sum");
+  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : S.tab === "support" ? supportView() : adminView(all, {afathers:"fathers", apeople:"people"}[S.tab] || "sum");
   else if (priest) view = ({today:priestToday, people:priestPeople, families:priestToday, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = adminView([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
@@ -8181,7 +8266,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-3";
+const APP_VERSION = "2026.11.11-4";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8379,7 +8464,7 @@ function activityCard(logs, accs){
   const people = new Map();
   for (const a of accs) if (!a.pending) people.set(a.name, {name:a.name, role:a.role, acc:a, last:a.lastLogin || ""});
   for (const l of logs) if (l.who && !people.has(l.who)) people.set(l.who, {name:l.who, role:l.role, acc:null, last:""});
-  for (const l of logs){ const p = people.get(l.who); if (p && !p.acc && /^دخل البرنامج/.test(l.action) && l.at > p.last) p.last = l.at; }
+  for (const l of logs){ const p = people.get(l.who); if (p && /^دخل البرنامج/.test(l.action) && l.at > p.last) p.last = l.at; }
   // ---- one person's page
   const sel = d.actWho && people.get(d.actWho);
   if (sel){
@@ -8407,12 +8492,14 @@ function activityCard(logs, accs){
     if (!inPer(l)) continue; const k = actKind(l.action); if (k === "in" && /^خرج/.test(l.action)) continue;
     const c = counts.get(l.who) || {in:0, acc:0, pw:0, more:0}; c[k]++; counts.set(l.who, c);
   }
-  const q = arKey(d.actQ || ""), srt = d.actSort || "last";
-  let rows = [...people.values()].filter(p => !q || arKey(p.name).includes(q)).map(p => Object.assign({c: counts.get(p.name) || {in:0, acc:0, pw:0, more:0}}, p));
+  const q = arKey(d.actQ || ""), srt = d.actSort || "last", flt = d.actF || "";
+  const fOk = p => !flt || (flt === "today" ? dayOf(p.last) === 0 : flt === "week" ? p.last && dayOf(p.last) < 7
+    : flt === "asleep" ? p.acc && p.acc.active !== false && (!p.last || dayOf(p.last) >= 30) : (p.c.acc + p.c.pw + p.c.more) > 0);
+  let rows = [...people.values()].filter(p => !q || arKey(p.name).includes(q)).map(p => Object.assign({c: counts.get(p.name) || {in:0, acc:0, pw:0, more:0}}, p)).filter(fOk);
   rows.sort((x, y) => srt === "name" ? x.name.localeCompare(y.name, "ar") : srt === "last" ? (y.last || "").localeCompare(x.last || "") || x.name.localeCompare(y.name, "ar") : (y.c[srt] - x.c[srt]) || x.name.localeCompare(y.name, "ar"));
-  const live = accs.filter(a => a.active !== false && !a.pending);
-  const inToday = live.filter(a => dayOf(a.lastLogin) === 0).length, inWeek = live.filter(a => a.lastLogin && dayOf(a.lastLogin) < 7).length;
-  const asleep = live.filter(a => !a.lastLogin || dayOf(a.lastLogin) >= 30).length;
+  const live = [...people.values()].filter(p => p.acc && p.acc.active !== false);
+  const inToday = live.filter(p => p.last && dayOf(p.last) === 0).length, inWeek = live.filter(p => p.last && dayOf(p.last) < 7).length;
+  const asleep = live.filter(p => !p.last || dayOf(p.last) >= 30).length;
   const pill = (n, label, cls) => h("div",{class:"act-sum "+(cls||"")}, h("b",{class:"num"}, arDigits(n)), h("span",{class:"small"}, label));
   const th = (k, kids, cls) => h("th",{class:(cls||"")+(srt === k ? " on" : ""), scope:"col", "aria-sort": srt === k ? "descending" : "none"},
     h("button",{type:"button", "data-sort":k, onclick:()=>{ d.actSort = k; render(); }}, ...kids));
@@ -8424,15 +8511,49 @@ function activityCard(logs, accs){
     h("button",{type:"button", class:"chip-btn", "aria-pressed":String(per === k), "data-per":k, onclick:()=>{ d.actPer = k; render(); }}, label)));
   const table = h("div",{class:"act-tbl-wrap"}, h("table",{class:"act-tbl"},
     h("thead",null, h("tr",null, th("name", ["الاسم"], "nm"), ...ACT_COLS.map(([k, label, emo]) => th(k, [h("span",{class:"act-thic","aria-hidden":"true"}, emo), h("small",null,label)])), th("last", [h("small",null,"آخر دخول")]))),
-    h("tbody",null, rows.map(p => { const n = dayOf(p.last), old = !p.last || n >= 30;
+    h("tbody",null, rows.slice(0, d.actAll ? rows.length : 10).map(p => { const n = dayOf(p.last), old = !p.last || n >= 30;
       return h("tr",{class:"act-person", tabindex:"0", "data-who":p.name, onclick:()=>{ d.actWho = p.name; d.actShow = 40; render(); window.scrollTo && $(".act-card") && $(".act-card").scrollIntoView({block:"start"}); },
         onkeydown:e=>{ if (e.key === "Enter"){ d.actWho = p.name; render(); } }},
         h("td",{class:"nm"}, h("b",null, p.name, fresh.has(p.name) ? h("span",{class:"act-dot", title:"فيه جديد"}) : null), h("span",null, (ROLES[p.role]||{}).label || (p.acc ? "" : "تم الحذف"))),
         ...ACT_COLS.map(([k]) => h("td",{class:"num"+(p.c[k] ? "" : " z")}, arDigits(p.c[k]))),
         h("td",{class:"last"+(old ? " old" : "")}, lastTxt(p))); }))));
-  return card(h("div",{class:"act-sums"}, pill(inToday,"دخلوا النهارده","ok"), pill(inWeek,"دخلوا الأسبوع ده",""), pill(asleep,"مدخلوش من شهر", asleep ? "warn" : "")),
-    search, chips, rows.length ? table : h("div",{class:"empty"}, people.size ? "مفيش حد بالاسم ده." : "لسه مفيش نشاط متسجل."),
-    rows.length ? h("p",{class:"small muted act-hint"},"دوس على أي اسم يفتح تفاصيله، ودوس على عنوان أي عمود يرتّب بيه.") : null);
+  // the tiles
+  let edits = 0; for (const c of counts.values()) edits += c.acc + c.pw + c.more;
+  const perName = (ACT_PERIODS.find(x => x[0] === per) || ACT_PERIODS[1])[1];
+  const tile = (k, n, label, sub, cls) => h("button",{type:"button", class:"act-kpi " + cls + (flt === k ? " on" : ""), "data-f":k, "aria-pressed":String(flt === k),
+      onclick:()=>{ d.actF = flt === k ? "" : k; d.actAll = false; render(); }},
+    h("b",{class:"num"}, arDigits(n)), h("span",null, label), sub ? h("small",null, sub) : null);
+  const kpis = h("div",{class:"act-kpis"}, tile("today", inToday, "دخلوا اليوم", "", "k1"), tile("week", inWeek, "نشطون هذا الأسبوع", live.length ? "من " + arDigits(live.length) : "", "k2"),
+    tile("asleep", asleep, "لم يدخلوا منذ ٣٠ يومًا", "", "k3" + (asleep ? " hot" : "")), tile("edits", edits, "تعديلات", perName, "k4"));
+  // 14 days: how many people signed in each day
+  const days = []; for (let i = 13; i >= 0; i--){ const dt = new Date(TODAY); dt.setDate(dt.getDate() - i); days.push({k:ymd(dt), set:new Set(), dt}); }
+  const byDay = new Map(days.map(x => [x.k, x]));
+  for (const l of logs) if (/^دخل البرنامج/.test(l.action)){ const x = byDay.get(ymd(new Date(l.at))); if (x) x.set.add(l.who); }
+  for (const p of live) if (p.last){ const x = byDay.get(ymd(new Date(p.last))); if (x) x.set.add(p.name); }
+  const mx = Math.max(1, ...days.map(x => x.set.size)), wd = ["ح","ن","ث","ر","خ","ج","س"];
+  const chart = h("div",{class:"act-box act-chart-box"}, h("h4",null,"📊 الدخول في آخر ١٤ يومًا"),
+    h("div",{class:"act-chart", role:"img", "aria-label":"عدد من دخلوا في كل يوم"}, days.map((x, i) => h("div",{class:"act-col" + (i === 13 ? " today" : ""), title:fmtShort(x.k) + ": " + arDigits(x.set.size)},
+      h("span",{class:"act-n num"}, x.set.size ? arDigits(x.set.size) : ""), h("i",{style:"height:" + Math.max(3, Math.round(x.set.size / mx * 100)) + "%"}), h("small",null, wd[x.dt.getDay()])))));
+  // who needs following up
+  const late = live.filter(p => p.role !== "admin" && (!p.last || dayOf(p.last) >= 30)).map(p => Object.assign({}, p.acc, {name:p.name, lastLogin:p.last})).sort((x, y) => (x.lastLogin || "").localeCompare(y.lastLogin || ""));
+  const follow = h("div",{class:"act-box"}, h("h4",null,"⚠️ يحتاجون متابعة", late.length ? h("span",{class:"badge num"}, arDigits(late.length)) : null),
+    late.length ? h("div",{class:"act-faces"}, late.slice(0, 10).map(a => h("button",{type:"button", class:"act-face", title:a.name + " · " + (a.lastLogin ? "آخر دخول منذ " + arDigits(dayOf(a.lastLogin)) + " يومًا" : "لم يدخل أبدًا"), onclick:()=>{ d.actWho = a.name; d.actShow = 40; render(); }},
+        avatar({name:a.name, photo:a.photo}, "sm"), h("small",null, String(a.name).split(/\s+/)[0]))),
+      late.length > 10 ? h("button",{type:"button", class:"act-face more", onclick:()=>{ d.actF = "asleep"; d.actAll = true; render(); }}, h("b",{class:"num"}, "+" + arDigits(late.length - 10)), h("small",null,"عرض الكل")) : null)
+    : h("p",{class:"small muted", style:"margin:0"}, "كل الناس دخلوا خلال آخر ٣٠ يومًا."));
+  // the latest events
+  const feed = h("div",{class:"act-box"}, h("h4",null,"🕒 آخر ما حدث", h("span",{class:"act-live", title:"يتحدّث تلقائيًا"})),
+    logs.length ? h("ul",{class:"act-feed"}, logs.slice(0, 6).map(l => h("li",{class:d.logSeen && l.at > d.logSeen && l.who !== me ? "fresh" : "", "data-at":l.at},
+      h("span",{class:"act-ic", "aria-hidden":"true"}, actIcon(l.action)), h("span",{class:"act-fw"}, h("b",null, l.who || "—"), " ", h("span",{class:"muted"}, l.action)), h("small",{class:"muted num"}, timeAgo(l.at)))))
+    : h("p",{class:"small muted", style:"margin:0"}, "لا يوجد نشاط بعد."));
+  const fName = {today:"دخلوا اليوم", week:"نشطون هذا الأسبوع", asleep:"لم يدخلوا منذ ٣٠ يومًا", edits:"من عملوا تعديلات"}[flt];
+  const more = rows.length > 10 && !d.actAll ? h("div",{class:"row", style:"justify-content:center"}, h("button",{type:"button", class:"btn sm ghost", id:"actAll", onclick:()=>{ d.actAll = true; render(); }}, "عرض الكل (" + arDigits(rows.length) + ")")) : null;
+  return h("section",{class:"card act-card act-dash-card"},
+    h("div",{class:"act-dash"}, h("div",{class:"act-dash-a"}, kpis, chart), h("div",{class:"act-dash-b"}, follow, feed)),
+    h("div",{class:"act-tools"}, search, chips),
+    fName ? h("div",{class:"act-fbar"}, h("span",null, "يظهر الآن: ", h("b",null, fName), " (" + arDigits(rows.length) + ")"), h("button",{type:"button", class:"linkish", id:"actFx", onclick:()=>{ d.actF = ""; render(); }}, "✕ عرض الجميع")) : null,
+    rows.length ? table : h("div",{class:"empty"}, people.size ? (flt ? "لا يوجد أحد هنا." : "مفيش حد بالاسم ده.") : "لسه مفيش نشاط متسجل."),
+    more, rows.length ? h("p",{class:"small muted act-hint"},"دوس على أي اسم يفتح تفاصيله، ودوس على عنوان أي عمود يرتّب بيه.") : null);
 }
 async function logAct(action, who){
   const a = S.account || {};
@@ -8656,12 +8777,13 @@ function speedStats(){
 }
 // a warning for the admin when the database passes 70% of the free plan's space (2026-11-07): when it is full, nothing saves
 const DB_WARN = 0.7;
-function dbCard(){
+function dbCard(warnOnly){
   if (!dbApi || accRole() !== "admin" || Store.preview) return null;
   if (!dbCard.at || Date.now() - dbCard.at > 6*36e5){ dbCard.at = Date.now(); dbApi.usage().then(r => { S.dbUse = r; scheduleRender(); }).catch(() => {}); }
   const u = S.dbUse; if (!u || !u.limit) return null;
   const f = u.used / u.limit, mb = n => arDigits(Math.round(n / 1048576));
   // under 70% a quiet line, over it the warning (2026-11-07, user: always show it)
+  if (f < DB_WARN && warnOnly) return null;
   if (f < DB_WARN) return h("div",{class:"card db-card ok"}, h("div",{class:"row between", style:"align-items:center"},
       h("strong",null,"💾 مساحة قاعدة البيانات"), h("span",{class:"small"}, mb(u.used)+" من "+mb(u.limit)+" ميجابايت ("+arDigits(Math.max(1, Math.round(f*100)))+"٪)")),
     h("div",{class:"db-bar"}, h("i",{style:"width:"+Math.max(1, Math.round(f*100))+"%"})));
@@ -8770,9 +8892,9 @@ function adminView(all, part){
     // whatever waits for the admin's answer comes first (2026-11-07), then the numbers, then who is online, the space and the speed
     // (the father-change card goes to the end while nothing in it waits)
     const fa = freqAdminCard(), faWait = (S.freqs || []).some(x => x.wait);
-    [pwDueCard(), admMsgCard(), pendingCard(), supWaiting() ? supInbox() : null, faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
+    [pwDueCard(), admMsgCard(), pendingCard(), faWait ? fa : null, reqsEl].forEach(x => { if (x) wrap.append(x); });
     wrap.append(statsEl);
-    const tools = h("div",{class:"adm-tools", id:"admTools"}); [supWaiting() ? null : supInbox(), onlineCard(accs), dbCard(), speedCard(), pushCard(true), faWait ? null : fa].forEach(x => { if (x) tools.append(x); });
+    const tools = h("div",{class:"adm-tools", id:"admTools"}); [supSumCard(), onlineCard(accs), dbCard(true), speedCard(), pushCard(true), faWait ? null : fa].forEach(x => { if (x) tools.append(x); });
     if (tools.childNodes.length) wrap.append(tools);
   } else if (!part){
   if (!isAdmin){ const sc = supCard(false); if (sc) wrap.append(sc); }
@@ -9622,7 +9744,7 @@ renameApi = {
 // «📣 إبلاغ الكل» on a visit day (2026-11-07): a message with his time to each confessee on the app, and a phone notification
 visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_items:items}); return n; } };
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
-dbApi = { usage: () => Cloud.rpc("db_usage") };
+dbApi = { usage: () => Cloud.rpc("db_usage"), detail: () => Cloud.rpc("storage_usage") };
 onlineApi = { list: () => Cloud.rpc("online_list") };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
 // «🛟 الدعم الفني» (2026-11-10)
