@@ -373,6 +373,18 @@ body.chat-open .chat-fab{display:none}
 .pill.multi-pill{background:rgba(201,162,39,.2);color:inherit;border:1px solid var(--gold,#c9a227);font-weight:800} li.bk-multi{border-inline-start:4px solid var(--gold,#c9a227);padding-inline-start:8px}
 .ap-cx{display:grid;gap:6px;width:100%;background:var(--surface-2);border:1px dashed #dc2626;border-radius:12px;padding:8px 10px}
 .ap-cx-note{border:1.5px solid #dc2626} .ap-was{opacity:.75} .pill.ap-was-pill{background:rgba(220,38,38,.12);color:#b91c1c;font-weight:800}
+.chat-form .chat-pic{flex:none;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;cursor:pointer;background:var(--surface-2);border:1px solid var(--line)}
+.sup-img{display:block;margin:6px 0 2px;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);cursor:zoom-in;max-width:240px;min-height:40px}
+.sup-img img{display:block;width:100%;height:auto;max-height:320px;object-fit:contain;image-rendering:auto}
+.sup-pend{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid var(--line);background:var(--surface-2)}
+.sup-pend img{width:56px;height:56px;object-fit:cover;border-radius:10px;border:1px solid var(--gold,#c9a227)} .sup-pend span{flex:1}
+.sup-quick{border-top:1px solid var(--line);padding:6px 10px;display:grid;gap:6px}
+.sup-quick-t{justify-self:start;font-weight:800}
+.sup-quick-l{display:grid;gap:6px;max-height:34vh;overflow-y:auto}
+.sup-q{text-align:start;white-space:normal;line-height:1.5;font:inherit;font-size:.92rem;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--gold,#c9a227);border-radius:12px;padding:8px 12px;cursor:pointer}
+.sup-q:hover{background:var(--surface-2)}
+.sup-welcome b{color:var(--gold-ink)} .sup-closed{color:var(--bad);font-weight:700}
+.sup-hours{gap:8px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:8px;margin-top:8px} .sup-hours input{max-width:120px}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
 .chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
 .chat-new{align-self:stretch;text-align:center;color:var(--gold-d);font-size:.76rem;font-weight:800;border-top:1.5px dashed var(--gold);padding-top:3px;margin:4px 0}
@@ -6468,6 +6480,25 @@ function supCard(compact){
       h("p",{class:"small muted"}, SUP.unread && SUP.rate ? "✅ تم حل طلبك. يسعدنا تقييمك للخدمة." : SUP.unread ? (SUP.unread === 1 ? "وصلك رد جديد من فريق الدعم." : "وصلتك " + arDigits(SUP.unread) + " ردود جديدة من فريق الدعم.") : "تواجه مشكلة في استخدام البرنامج؟ اسألنا وسنساعدك.")),
     h("button",{class:"btn sm", type:"button", id:compact ? "supNoticeOpen" : "supOpenBtn", onclick:()=>supOpen(null)}, SUP.unread && SUP.rate ? "⭐ قيّم الخدمة" : SUP.unread ? "اقرأ الرد" : "تواصل معنا"));
 }
+const supPhoto = uid => { const t = (SUP.threads || []).find(x => x.uid === uid); return (t && t.photo) || chatPhoto(uid) || ""; };
+const supHours = () => { const st = S.settings || {}, ok = v => /^([01]\d|2[0-3]):[0-5]\d$/.test(v || "");
+  return {from: ok(st.supFrom) ? st.supFrom : "12:00", to: ok(st.supTo) ? st.supTo : "21:00"}; };
+const supHourTxt = t => { const [a, b] = t.split(":").map(Number), hr = a % 12 || 12;
+  return arDigits(hr) + ":" + arDigits(String(b).padStart(2, "0")) + " " + (a === 12 && !b ? "ظهرًا" : a < 12 ? "صباحًا" : a < 15 ? "ظهرًا" : a < 18 ? "عصرًا" : "مساءً"); };
+function supWelcome(){
+  const hs = supHours(), first = String((S.profile && S.profile.name) || (S.account && S.account.name) || "").replace(/^(أبونا|ابونا|القس|القمص)\s+/, "").split(/\s+/)[0];
+  const now = new Date().getHours() * 60 + new Date().getMinutes(), a = hmOf(hs.from), b = hmOf(hs.to), open = a <= b ? now >= a && now < b : now >= a || now < b;
+  return h("span",{class:"sup-welcome"}, "أهلًا بك" + (first ? " يا " + first : "") + " في الدعم الفني لبرنامج ⲙⲉⲛⲣⲓⲧ.", h("br"),
+    "مواعيد الدعم من ", h("b",null, supHourTxt(hs.from)), " إلى ", h("b",null, supHourTxt(hs.to)), ".", h("br"),
+    "اترك رسالتك، وسنقوم بحلها في أقرب وقت.", open ? null : [h("br"), h("span",{class:"sup-closed"}, "نحن الآن خارج مواعيد الدعم، وسنرد عليك في أول المواعيد.")]);
+}
+function supHoursRow(){
+  const hs = supHours();
+  return h("div",{class:"sup-hours row", id:"supHours"}, h("span",{class:"small", style:"font-weight:700"}, "⏱️ مواعيد الدعم:"),
+    h("label",{class:"small"}, "من ", h("input",{type:"time", id:"supFrom", value:hs.from})), h("label",{class:"small"}, "إلى ", h("input",{type:"time", id:"supTo", value:hs.to})),
+    h("button",{type:"button", class:"btn sm ghost", id:"supHoursSave", onclick:async()=>{ const f = $("#supFrom").value, t = $("#supTo").value; if (!f || !t || f === t){ toast("اختر وقت البداية والنهاية"); return; }
+      await editDoc("settings/app", cur => Object.assign(cur, {supFrom:f, supTo:t})); toast("تم حفظ مواعيد الدعم، وتظهر لكل من يفتح الدعم الفني"); }}, "حفظ"));
+}
 // the admin's inbox, in «الملخص»
 function supInbox(){
   if (!supOn() || !supIsAdmin()) return null;
@@ -6480,7 +6511,7 @@ function supInbox(){
       h("div",{class:"who"}, h("strong",null, t.name, t.role === "priest" ? h("small",{class:"muted"}," · أب") : t.role === "supervisor" ? h("small",{class:"muted"}," · مشرف") : null),
         h("span",{class:"small muted"}, (t.topic ? t.topic + " · " : "") + (t.last_admin ? "أنت: " : "") + String(t.last_text || "").replace(/\s+/g, " ").slice(0, 70))),
       h("div",{class:"sup-meta"}, pill(t), h("span",{class:"small muted"}, supAgo(t.last_at)), t.unread ? h("span",{class:"badge"}, arDigits(t.unread)) : null))))
-    : h("p",{class:"small muted", style:"margin:0"}, "لا توجد طلبات دعم. عندما يكتب أحد يظهر هنا، ويصلك تنبيه على الموبايل."));
+    : h("p",{class:"small muted", style:"margin:0"}, "لا توجد طلبات دعم. عندما يكتب أحد يظهر هنا، ويصلك تنبيه على الموبايل."), supHoursRow());
 }
 function supMount(){
   if (document.getElementById("supPanel")) return document.getElementById("supPanel");
@@ -6511,16 +6542,39 @@ const supBot = (...kids) => h("div",{class:"chat-msg sup-bot"}, h("span",{class:
 const supMine = text => h("div",{class:"chat-msg mine"}, h("div",{class:"bub"}, h("div",{class:"txt"}, text)));
 function supNode(){ const f = SUP.flow; if (!f) return null; let n = SUP_FLOW[f.topic]; for (const a of f.path) n = (n.o.find(o => o[0] === a) || [null, {ask:true}])[1]; return n; }
 function supTipText(n){ return typeof n.tip === "function" ? n.tip() : n.tip; }
+function supShrink(file){
+  return new Promise((ok, no) => { const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); let side = 1600, q = .85, out = "";
+      for (let i = 0; i < 4; i++){ const k = Math.min(1, side / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+        const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        out = c.toDataURL("image/jpeg", q); if (out.length <= 1300000) break; side = Math.round(side * .8); q = Math.max(.7, q - .05); }
+      ok(out); };
+    img.onerror = () => { URL.revokeObjectURL(url); no(new Error("bad image")); }; img.src = url; });
+}
+// a picture of the conversation: fetched once, kept while the app is open
+function supImg(id){
+  SUP.imgs = SUP.imgs || new Map();
+  const el = h("button",{type:"button", class:"sup-img", "data-id":String(id), "aria-label":"عرض الصورة"});
+  const show = src => { el.replaceChildren(h("img",{src, alt:"صورة", loading:"lazy"})); el.onclick = () => showPhoto(src); };
+  const have = SUP.imgs.get(id);
+  if (typeof have === "string") show(have);
+  else { el.append(h("span",{class:"small muted"},"📷 جارٍ تحميل الصورة…"));
+    if (!have){ SUP.imgs.set(id, supApi.img(id).then(src => { SUP.imgs.set(id, src || ""); if (src){ const box = document.querySelector('.sup-img[data-id="'+id+'"]'); if (box) show(src); } })
+      .catch(() => SUP.imgs.delete(id))); } }
+  return el;
+}
 async function supSend(text){
-  text = String(text || "").trim(); if (!text) return false;
+  text = String(text || "").trim(); const img = SUP.pendImg || null; if (!text && !img) return false;
   if (!SUP.uid && SUP_OFF.test(text)){ SUP.offTopic = (SUP.offTopic || 0) + 1; supPaint(true); return false; }
   SUP.offTopic = 0;
   try {
-    if (SUP.uid) await supApi.reply(SUP.uid, text);
+    if (SUP.uid) await supApi.reply(SUP.uid, text, img);
     else if (SUP.flow){ const f = SUP.flow, top = SUP_FLOW[f.topic]; let n = top; const lines = [];
       for (const a of f.path){ lines.push("• " + n.q + " " + a); n = n.o.find(o => o[0] === a)[1]; }
-      await supApi.send("📌 " + top.t + (lines.length ? "\n" + lines.join("\n") : "") + "\n\n" + text, top.t, supInfo()); SUP.flow = null; }
-    else await supApi.send(text, null, SUP.reopen ? supInfo() : null);
+      await supApi.send("📌 " + top.t + (lines.length ? "\n" + lines.join("\n") : "") + (text ? "\n\n" + text : ""), top.t, supInfo(), img); SUP.flow = null; }
+    else await supApi.send(text, null, SUP.reopen ? supInfo() : null, img);
+    SUP.pendImg = null;
     SUP.reopen = false; SUP.scrolled = false; SUP.dsig = ""; await supPoll(); return true;
   } catch(e){ toast(/too many/.test(e.message || "") ? "برجاء الانتظار قليلًا قبل إرسال رسائل أخرى." : "لم تُرسل الرسالة. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."); return false; }
 }
@@ -6534,7 +6588,7 @@ function supPaint(force){
   const box0 = panel.querySelector(".chat-msgs"), nearBottom = box0 ? box0.scrollHeight - box0.scrollTop - box0.clientHeight < 90 : true;
   const in0 = document.getElementById("supInput"), draft = in0 ? in0.value : "", hadFocus = document.activeElement === in0;
   const head = h("div",{class:"chat-head"}, h("div",{class:"chat-hrow"},
-    adm ? h("div",{class:"chat-title"}, h("b",null, "🛟 " + ((r && r.name) || "…")), h("small",null, th && th.topic ? th.topic : "الدعم الفني"))
+    adm ? h("div",{class:"chat-title sup-title"}, avatar({name:(r && r.name) || "", photo:supPhoto(SUP.uid)}, "sm"), h("span",null, h("b",null, (r && r.name) || "…"), h("small",null, th && th.topic ? th.topic : "الدعم الفني")))
         : h("div",{class:"chat-title sup-title"}, h("span",{class:"sup-av lg"}, h("img",{src:APP_MARK, alt:""})), h("span",null, h("b",null, SUP_NAME), h("small",{class:"on"}, h("i"), "نرد عليك هنا في أقرب وقت"))),
     !adm && th && th.status !== "done" ? h("button",{type:"button", class:"btn sm ghost", id:"supMyDone", onclick:async()=>{ try { await supApi.close(null, null); SUP.dsig = ""; await supPoll(); } catch(e){ toast("تعذّر الحفظ"); } }}, "✅ تم الحل") : null,
     adm && th && th.status !== "done" ? h("button",{type:"button", class:"btn sm ghost", id:"supDone", onclick:async()=>{ try { await supApi.close(SUP.uid, null); SUP.dsig = ""; toast("✅ تم إغلاق الطلب"); await supPoll(); supList(); } catch(e){ toast("تعذّر الإغلاق"); } }}, "✅ تم الحل") : null,
@@ -6557,11 +6611,12 @@ function supPaint(force){
       box.append(h("div",{class:"sup-sys"}, m.text === "done" ? (adm ? "✅ أغلقت هذا الطلب" : "✅ أغلق فريق الدعم هذا الطلب") : rt ? "⭐ التقييم: " + "★".repeat(+rt[1]) + "☆".repeat(5 - rt[1]) : "✅ تم حل المشكلة"));
       continue;
     }
-    const mine = adm ? m.admin : !m.admin;
-    if (mine){ const el = supMine(m.text); el.querySelector(".bub").append(h("div",{class:"tm"}, chatTime(m.at))); box.append(el); }
-    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), h("div",{class:"txt", style:"white-space:pre-wrap"}, m.text), h("div",{class:"tm"}, chatTime(m.at))))); }
-    else { const el = supBot(m.text); el.querySelector(".bub").append(h("div",{class:"tm"}, chatTime(m.at))); box.append(el); }
+    const mine = adm ? m.admin : !m.admin, pic = m.img ? supImg(m.id) : null;
+    if (mine){ const el = supMine(m.text); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
+    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, m.text) : null, pic, h("div",{class:"tm"}, chatTime(m.at))))); }
+    else { const el = supBot(m.text); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
   }
+  if (!adm && r) box.prepend(supBot(supWelcome()));
   // the person: the guided questions when nothing is open
   let foot = null;
   const active = th && th.status !== "done";
@@ -6572,7 +6627,7 @@ function supPaint(force){
     }
     if (!active && !SUP.reopen){
       const f = SUP.flow;
-      if (!f) box.append(supBot(msgs.length ? "هل تحتاج إلى مساعدة أخرى؟ اختر الموضوع:" : "مرحبًا بك 👋 كيف يمكننا مساعدتك؟ اختر الموضوع:",
+      if (!f) box.append(supBot(msgs.length ? "هل تحتاج إلى مساعدة أخرى؟ اختر الموضوع:" : "كيف يمكننا مساعدتك؟ اختر الموضوع:",
         h("div",{class:"sup-opts"}, Object.entries(SUP_FLOW).map(([k, t]) => h("button",{type:"button", class:"chip-btn sup-topic", "data-k":k, onclick:()=>{ SUP.flow = {topic:k, path:[]}; supPaint(true); }}, t.ic + " " + t.t)))));
       else {
         const top = SUP_FLOW[f.topic]; box.append(supMine(top.ic + " " + top.t));
@@ -6595,9 +6650,20 @@ function supPaint(force){
   if (r && canWrite){
     const input = h("textarea",{id:"supInput", rows:"1", maxlength:"1500", placeholder:adm ? "اكتب الرد… (يظهر له باسم ⲙⲉⲛⲣⲓⲧ)" : "اكتب رسالتك…", oninput:e=>{ e.target.style.height = "auto"; e.target.style.height = Math.min(120, e.target.scrollHeight) + "px"; }});
     input.value = draft;
-    const form = h("form",{class:"chat-form", onsubmit:async e=>{ e.preventDefault(); const t = input.value.trim(); if (!t) return; input.value = ""; if (!(await supSend(t))){ const i = document.getElementById("supInput"); if (i && !i.value) i.value = t; } }},
-      input, h("button",{type:"submit", class:"btn chat-send", id:"supSend", "aria-label":"إرسال"}, "➤"));
-    foot = [adm ? h("div",{class:"chat-quick"}, SUP_QUICK.map(t => h("button",{type:"button", class:"chip-btn", onclick:()=>{ const i = document.getElementById("supInput"); i.value = t; i.focus(); }}, t))) : null, form];
+    const send = h("button",{type:"submit", class:"btn chat-send", id:"supSend", "aria-label":"إرسال"}, "➤");
+    const form = h("form",{class:"chat-form", onsubmit:async e=>{ e.preventDefault(); const t = input.value.trim(); if (!t && !SUP.pendImg) return; input.value = ""; send.disabled = true;
+        const okk = await supSend(t); send.disabled = false; if (!okk){ const i = document.getElementById("supInput"); if (i && !i.value) i.value = t; } }},
+      h("label",{class:"btn chat-pic", for:"supImgIn", title:"إرفاق صورة", "aria-label":"إرفاق صورة"}, "📷"),
+      h("input",{type:"file", id:"supImgIn", accept:"image/*", hidden:true, onchange:async e=>{ const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+        try { SUP.pendImg = await supShrink(f); supPaint(true); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); } catch(x){ toast("هذه الصورة غير مناسبة. جرّب صورة أخرى."); } }}),
+      input, send);
+    const pend = SUP.pendImg ? h("div",{class:"sup-pend", id:"supPend"}, h("img",{src:SUP.pendImg, alt:"الصورة التي ستُرسل"}),
+      h("span",{class:"small"},"ستُرسل الصورة مع رسالتك. يمكنك كتابة وصف لها أو الإرسال مباشرة."),
+      h("button",{type:"button", class:"chat-x sm", id:"supPendX", "aria-label":"إلغاء الصورة", onclick:()=>{ SUP.pendImg = null; supPaint(true); }}, "✕")) : null;
+    const quick = adm ? h("div",{class:"sup-quick" + (SUP.quickOpen ? " on" : "")},
+      h("button",{type:"button", class:"chip-btn sup-quick-t", id:"supQuickT", "aria-expanded":SUP.quickOpen ? "true" : "false", onclick:()=>{ SUP.quickOpen = !SUP.quickOpen; supPaint(true); }}, (SUP.quickOpen ? "▾" : "▸") + " ردود جاهزة"),
+      SUP.quickOpen ? h("div",{class:"sup-quick-l"}, SUP_QUICK.map(t => h("button",{type:"button", class:"sup-q", onclick:()=>{ const i = document.getElementById("supInput"); i.value = t; SUP.quickOpen = false; supPaint(true); const j = document.getElementById("supInput"); if (j){ j.value = t; j.focus(); } }}, t))) : null) : null;
+    foot = [quick, pend, form];
   }
   panel.replaceChildren(...[head, box].concat(foot || []).filter(Boolean));
   if (hadFocus){ const i = document.getElementById("supInput"); if (i) i.focus(); }
@@ -7702,8 +7768,11 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-11a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-11b", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["📷","الصور في الدعم الفني","يمكن للشخص إرسال صورة (مثل صورة من الشاشة) مع رسالته، ويمكنك أنت أيضًا إرسال صورة في ردك. اضغط على الصورة لعرضها بحجم كبير. وتظهر صورة الشخص بجوار رسائله."],
+    ["⏱️","مواعيد الدعم","عند فتح الدعم الفني تظهر رسالة ترحيب بمواعيد الدعم. يمكنك تعديل المواعيد من كارت الدعم الفني في «الملخص»."],
+    ["💬","الردود الجاهزة","تظهر الردود الجاهزة كاملة في قائمة عند الضغط على «ردود جاهزة»."],
     ["❌","إلغاء الموعد المؤكد","يمكن للشخص ولأب اعترافه إلغاء الموعد بعد تأكيده، ويصل للطرف الآخر تنبيه ورسالة. يصبح الموعد متاحًا في الجدول، ويُحسب في «أُلغيت» في ملخص الطلبات."],
     ["⏱️","حجز أكثر من فترة","إذا كانت فترة الاعتراف قصيرة (مثلًا ١٠ دقائق)، يمكن للشخص اختيار مدة أطول إذا كانت الفترات التالية متاحة، حتى ساعتين، ويؤكدها أبونا."],
     ["🛟","الدعم الفني","عند الضغط على «✅ تم الحل» يصل للشخص تنبيه وطلب تقييم الخدمة. وإذا تعذّر تحميل محادثة تظهر رسالة بذلك مع زر «إعادة المحاولة»."],
@@ -7716,6 +7785,7 @@ const NEWS = {id:"2026-11-11a", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["📷","صورة في الدعم الفني","يمكنك الآن إرسال صورة (مثل صورة من الشاشة) في الدعم الفني بزر 📷 بجوار مكان الكتابة، لتوضيح المشكلة."],
     ["⏱️","حجز أكثر من فترة","يمكن لمن يحتاج وقتًا أطول حجز عدة فترات متتالية حتى ساعتين. يظهر هذا الطلب لك بإطار ذهبي مع المدة (مثلًا «حجز ساعة · ٦ فترات متتالية») ووقت البداية والنهاية، وتؤكده بضغطة واحدة."],
     ["❌","إلغاء الموعد المؤكد","في «مواعيد قادمة» زر «إلغاء الموعد» مع رسالة اعتذار اختيارية، ويصل للشخص تنبيه ويمكنه الحجز مرة أخرى. وإذا ألغى الشخص موعده، يظهر لك في «الطلبات» اسمه وسبب الإلغاء، ويصبح الموعد متاحًا في جدولك."],
     ["📅","تقويم جوجل","في «الإعدادات» ← «مواعيدك في تقويم الموبايل»: زر «📅 الربط بتقويم جوجل» ينسخ الرابط ويفتح صفحة جوجل «إضافة تقويم من رابط» مع خطوات قصيرة، وزر «🔍 اختبار الرابط» يوضح أن الرابط يعمل وعدد المواعيد فيه."],
@@ -7726,6 +7796,7 @@ const NEWS = {id:"2026-11-11a", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["📷","صورة في الدعم الفني","يمكنك الآن إرسال صورة (مثل صورة من الشاشة) في الدعم الفني بزر 📷 بجوار مكان الكتابة، لتوضيح المشكلة."],
     ["❌","إلغاء الموعد","بعد تأكيد أبونا لموعدك، يمكنك إلغاؤه من «المواعيد» بزر «إلغاء الموعد» مع كتابة السبب إن أردت، ويصل الإلغاء إلى أبونا. وبعدها يمكنك حجز موعد آخر."],
     ["⏱️","وقت أطول للاعتراف","إذا كنت تحتاج وقتًا أطول مع أبونا، اختر بعد الموعد «المدة التي تحتاجها» إذا كانت الفترات التالية متاحة."],
     ["🛟","الدعم الفني","في «بياناتي» زر «🛟 الدعم الفني» لأي مشكلة في استخدام البرنامج: أسئلة قصيرة تحدد المشكلة وتقترح الحل، وإن لم تُحل يصل طلبك إلى فريق الدعم ويرد عليك هنا."],
@@ -8110,7 +8181,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-2";
+const APP_VERSION = "2026.11.11-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8959,6 +9030,8 @@ function cloudMsg(e){
   if (/already booked/.test(m)) return "عندك حجز لسه. لو عاوز تغيّره الغيه الأول.";
   if (/too fast/.test(m)) return "انتظر قليلًا ثم جرّب مرة أخرى.";
   if (/bad time|day closed/.test(m)) return "الميعاد ده مش متاح. اختار ميعاد تاني.";
+  if (/too many images/.test(m)) return "وصلت لأقصى عدد من الصور اليوم (١٠ صور). يمكنك الكتابة، أو إرسال الصور غدًا.";
+  if (/bad image/.test(m)) return "هذه الصورة غير مناسبة. جرّب صورة أخرى.";
   if (/no appt/.test(m)) return "لا يوجد موعد قادم مؤكد لإلغائه.";
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
@@ -9554,8 +9627,9 @@ onlineApi = { list: () => Cloud.rpc("online_list") };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
 // «🛟 الدعم الفني» (2026-11-10)
 supApi = { feed: uid => Cloud.rpc("support_feed", {p_uid:uid || null}),
-  send: (text, topic, info) => Cloud.rpc("support_send", {p_text:text, p_topic:topic || null, p_info:info || null}),
-  reply: (uid, text) => Cloud.rpc("support_reply", {p_uid:uid, p_text:text}),
+  send: (text, topic, info, img) => Cloud.rpc("support_send", Object.assign({p_text:text, p_topic:topic || null, p_info:info || null}, img ? {p_img:img} : {})),
+  reply: (uid, text, img) => Cloud.rpc("support_reply", Object.assign({p_uid:uid, p_text:text}, img ? {p_img:img} : {})),
+  img: id => Cloud.rpc("support_img", {p_id:id}),
   close: (uid, rating) => Cloud.rpc("support_close", {p_uid:uid || null, p_rating:rating || null}),
   seen: uid => Cloud.rpc("support_seen", {p_uid:uid || null}),
   list: () => Cloud.rpc("support_list") };
