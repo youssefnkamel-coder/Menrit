@@ -395,6 +395,7 @@ body.chat-open .chat-fab{display:none}
 .sto-bar{display:flex;gap:2px;height:14px;border-radius:8px;overflow:hidden;background:var(--line);margin:6px 0 10px} .sto-bar i{display:block;min-width:4px}
 .sto-list{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:7px}
 .sto-list li{display:flex;align-items:center;gap:8px} .sto-l{flex:1} .sto-dot{width:11px;height:11px;border-radius:50%;flex:none}
+.sto-shrink{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}
 .sto-all{border-top:1px dashed var(--line);padding-top:8px;margin-bottom:8px}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
 .chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
@@ -1248,7 +1249,9 @@ body.one-tab{--nav-h:0px}
 .act-sums4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
 .act-dash{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;margin-bottom:12px}
 @media (max-width:860px){.act-dash{grid-template-columns:1fr}}
-.act-dash-a,.act-dash-b{display:grid;gap:12px;align-content:start}
+.act-dash-a,.act-dash-b{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-content:start;min-width:0}
+.act-dash .act-box,.act-dash .act-kpis,.act-dash .act-chart{min-width:0}
+.act-dash .act-box{overflow:hidden}
 .act-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 @media (max-width:560px){.act-kpis{grid-template-columns:repeat(2,1fr)}}
 .act-kpi{display:grid;gap:1px;text-align:start;padding:10px 12px;border-radius:14px;border:1px solid transparent;color:#fff;cursor:pointer;font:inherit;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s, box-shadow .15s}
@@ -1268,7 +1271,8 @@ body.one-tab{--nav-h:0px}
 .act-face{display:grid;justify-items:center;gap:2px;border:0;background:none;cursor:pointer;font:inherit;padding:2px;width:58px}
 .act-face small{font-size:.7rem;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .act-face.more b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--line)}
-.act-feed{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.act-feed{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.act-feed li small{flex:none;white-space:nowrap}
 .act-feed li{display:flex;align-items:center;gap:8px;font-size:.85rem;animation:actIn .4s ease-out both}
 .act-feed li.fresh{background:color-mix(in srgb,var(--gold) 14%,transparent);border-radius:8px;padding:2px 4px}
 .act-fw{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -6575,7 +6579,40 @@ function storageCard(){
     h("div",{class:"sto-all"}, h("span",{class:"small"}, "مساحة البرنامج كله: مستخدم ", h("b",{class:"num"}, stoSize(r.used)), " من ", h("b",{class:"num"}, stoSize(r.limit)), " · متاح ", h("b",{class:"num"}, stoSize(Math.max(0, r.limit - r.used)))),
       h("div",{class:"db-bar"}, h("i",{style:"width:" + Math.min(100, pc) + "%"}))),
     h("div",{class:"row between", style:"align-items:center"}, h("span",{class:"small muted"}, "آخر حساب: " + atTxt),
-      h("button",{type:"button", class:"btn sm ghost", id:"stoAgain", onclick:()=>load()}, "🔄 احسب مرة أخرى")));
+      h("button",{type:"button", class:"btn sm ghost", id:"stoAgain", onclick:()=>load()}, "🔄 احسب مرة أخرى")),
+    shrinkRow(load));
+}
+function shrinkRow(reload){
+  const st = S.shrink;
+  if (st && st.run) return h("div",{class:"sto-shrink", id:"shrinkBox"}, h("b",null, "🗜️ جارٍ تصغير الصور… ", h("span",{class:"num"}, arDigits(st.i) + " من " + arDigits(st.n))),
+    h("div",{class:"db-bar"}, h("i",{style:"width:" + Math.round(st.i / Math.max(1, st.n) * 100) + "%"})), h("small",{class:"muted"}, "لا تغلق البرنامج حتى ينتهي."));
+  return h("div",{class:"sto-shrink", id:"shrinkBox"},
+    st && st.done ? h("p",{class:"small", id:"shrinkDone", style:"margin:0 0 6px"}, "✅ تم تصغير " + arDigits(st.saved) + " صورة، ووفّرنا " + stoSize(st.freed) + ".") : null,
+    h("button",{type:"button", class:"btn sm", id:"shrinkGo", onclick:()=>shrinkAll(reload)}, "🗜️ تصغير الصور الحالية"),
+    h("small",{class:"muted", style:"display:block;margin-top:4px"}, "تُضغط الصور على جهازك وتُحفظ أخف، دون فرق ظاهر في الشكل."));
+}
+async function shrinkAll(reload){
+  if (S.shrink && S.shrink.run) return;
+  // people's own photos first (240 px), then the accounts' copies (small for confessees, 240 px for fathers and admins)
+  const jobs = [];
+  for (const m of S.members || []) if (m.id && /^data:image\//.test(m.photo || "")) jobs.push({kind:"m", id:m.id, src:m.photo, max:240});
+  for (const a of S.accounts || []) if (a.id && /^data:image\//.test(a.photo || "")) jobs.push({kind:"a", acc:a, src:a.photo, max:a.role === "user" || a.role === "pending" ? THUMB_PX : 240});
+  if (!jobs.length){ toast("لا توجد صور لتصغيرها"); return; }
+  S.shrink = {run:true, i:0, n:jobs.length, saved:0, freed:0}; render();
+  for (const j of jobs){
+    try { const out = await shrinkPhoto(j.src, j.max);
+      if (out){
+        if (j.kind === "m") await Store.update("members/" + j.id, {photo:out});
+        else { const acc = (S.accounts || []).find(x => x.id === j.acc.id) || j.acc, cur = acc.photo || j.src;
+          const o2 = cur === j.src ? out : await shrinkPhoto(cur, j.max);   // a members photo just above may have replaced it
+          if (o2){ await saveAccount(acc, {photo:o2}); acc.photo = o2; } }
+        S.shrink.saved++; S.shrink.freed += j.src.length - out.length; }
+    } catch(e){ console.warn("shrink", e && e.message); }
+    S.shrink.i++; if (S.shrink.i % 5 === 0 || S.shrink.i === S.shrink.n) scheduleRender();
+  }
+  S.shrink = {done:true, saved:S.shrink.saved, freed:S.shrink.freed};
+  if (typeof logAct === "function") logAct("صغّر الصور (" + S.shrink.saved + " صورة)");
+  render(); setTimeout(() => reload && reload(), 1500);
 }
 function supportView(){
   return h("div",{style:"display:grid;gap:18px"}, sectionHead("الدعم الفني"), h("div",{class:"sup-screen"}, supInbox() || h("div",{class:"card"},"الدعم الفني غير متاح."), storageCard()));
@@ -7172,6 +7209,17 @@ function alertDaysCard(church){
 // «ضبط الصورة» (2026-11-07, user): every chosen photo opens inside a circle exactly as it will show; drag to move it,
 // pinch, the slider, the − / + buttons or the mouse wheel to zoom, a button to turn it. «حفظ» keeps a square picture of
 // what is inside the circle (white behind a transparent logo); «إلغاء» or Esc keeps the old one.
+const PHOTO_Q = .72, THUMB_PX = 160;
+// a photo again at a smaller size / lighter quality; "" when it would not be smaller (or is not a photo)
+function shrinkPhoto(src, max, q){
+  return new Promise(ok => { if (!/^data:image\//.test(src || "")){ ok(""); return; }
+    const img = new Image();
+    img.onload = () => { const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      const out = c.toDataURL("image/jpeg", q || PHOTO_Q); ok(out.length < src.length * .9 ? out : ""); };
+    img.onerror = () => ok(""); img.src = src; });
+}
 function resizeImage(file, max, cb){
   const img = new Image(), url = URL.createObjectURL(file);
   img.onload = () => { URL.revokeObjectURL(url); cropDialog(img, max, cb); };
@@ -7221,7 +7269,7 @@ function cropDialog(img, max, cb){
         h("button",{type:"button", class:"btn sm quiet", "aria-label":"تكبير", onclick:() => zoomBy(1.2)},"+")),
       h("div",{class:"row crop-btns"},
         h("button",{type:"button", class:"btn", id:"cropSave", onclick:() => { const c = document.createElement("canvas"); c.width = c.height = max;
-          paint(c.getContext("2d"), max); close(); cb(c.toDataURL("image/jpeg", .85)); }},"حفظ"),
+          paint(c.getContext("2d"), max); close(); cb(c.toDataURL("image/jpeg", PHOTO_Q)); }},"حفظ"),
         h("button",{type:"button", class:"btn sm quiet", id:"cropTurn", onclick:() => { st.r = (st.r + 1) % 4; st.x = st.y = 0; draw(); }},"↻ تدوير"),
         h("button",{type:"button", class:"btn sm quiet", id:"cropCancel", onclick:close},"إلغاء"))));
   document.body.append(ov); document.body.classList.add("crop-open");
@@ -7485,6 +7533,7 @@ function memberConfession(){
 // the photo chosen in «بياناتي» is shown outside too (top of the page, the admin's lists, «متصل الآن») (2026-11-08)
 async function syncAccPhoto(url){
   if (Store.mode !== "cloud" || Store.preview || !S.account) return;
+  if (url) url = (await shrinkPhoto(url, THUMB_PX)) || url;
   try { await saveAccount(S.account, {photo:url}); } catch(e){}
   S.account.photo = url; render();
 }
@@ -7849,8 +7898,10 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-11c", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-11d", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🗜️","تصغير مساحة الصور","تُحفظ الصور الجديدة الآن بحجم أخف دون فرق ظاهر في الشكل. وفي «الدعم الفني» داخل «المساحة المستخدمة» زر «تصغير الصور الحالية» لتصغير الصور المحفوظة من قبل."],
+    ["📊","تحسين شاشة النشاط","أصبح رسم الدخول في آخر ١٤ يومًا يُحسب من السجل كاملًا، ولم تعد الأجزاء العلوية تخرج عن إطار الشاشة."],
     ["🛟","شاشة الدعم الفني","أصبح للدعم الفني شاشة مستقلة بالأسفل، فيها كل الطلبات والمحادثات ومواعيد الدعم، و«المساحة المستخدمة» مفصّلة حسب نوع البيانات مع زر «احسب مرة أخرى». ويبقى في «الملخص» كارت صغير بأعداد الطلبات ومتوسط التقييم."],
     ["📊","شاشة النشاط","أصبحت شاشة النشاط ملخصة: أربعة مربعات بالأرقام تُصفّي الجدول عند الضغط عليها، ورسم للدخول في آخر ١٤ يومًا، ومن يحتاجون متابعة، وآخر ما حدث، ويعرض الجدول أول ١٠ أسماء مع زر «عرض الكل»."],
     ["📷","الصور في الدعم الفني","يمكن للشخص إرسال صورة (مثل صورة من الشاشة) مع رسالته، ويمكنك أنت أيضًا إرسال صورة في ردك. اضغط على الصورة لعرضها بحجم كبير. وتظهر صورة الشخص بجوار رسائله."],
@@ -8094,7 +8145,7 @@ const IC = {
   finger:"M12 10a2 2 0 0 0-2 2c0 1 0 3.3-.4 5.3M14 13.1c0 2.4 0 6.4-1 8.9M17.3 21.1c.1-.6.4-2.3.5-3.1M2 12a10 10 0 0 1 18-6M2 16h.01M21.8 16c.2-2 .1-5.4 0-6M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .3-2M8.7 22c.2-.7.5-1.3.6-2M9 6.8a6 6 0 0 1 9 5.2v2",
   gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"};
 // emoji → [icon, colour]
-const EMO = {"🎨":["palette","#db2777"],"🖌️":["palette","#0891b2"],"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
+const EMO = {"🗜️":["image","#0d9488"],"🎨":["palette","#db2777"],"🖌️":["palette","#0891b2"],"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
   "🏠":["home","#f97316"],"🏡":["visit","#a855f7"],"📅":["calendar","#f43f5e"],"🗓️":["calcheck","#f43f5e"],"🎂":["cake","#f97316"],"📞":["phone","#2563eb"],"📵":["phoneoff","#64748b"],
   "✨":["sparkles","#eab308"],"🔄":["refresh","#0ea5e9"],"💬":["chat","#16a34a"],"💼":["work","#78716c"],"💍":["ring","#ec4899"],"🎒":["school","#0ea5e9"],
   "👨‍👩‍👧‍👦":["users","#3b82f6"],"👧":["child","#ec4899"],"👦":["child","#3b82f6"],"💑":["heart","#ef4444"],"🤍":["heart","#ef4444"],"⛪":["church","#0f766e"],"✅":["ok","#16a34a"],"❌":["no","#ef4444"],
@@ -8266,7 +8317,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-4";
+const APP_VERSION = "2026.11.11-5";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8530,10 +8581,14 @@ function activityCard(logs, accs){
   const byDay = new Map(days.map(x => [x.k, x]));
   for (const l of logs) if (/^دخل البرنامج/.test(l.action)){ const x = byDay.get(ymd(new Date(l.at))); if (x) x.set.add(l.who); }
   for (const p of live) if (p.last){ const x = byDay.get(ymd(new Date(p.last))); if (x) x.set.add(p.name); }
-  const mx = Math.max(1, ...days.map(x => x.set.size)), wd = ["ح","ن","ث","ر","خ","ج","س"];
+  // the server's count per day (the whole log), refreshed every 5 minutes; the app's own lines can only add to it
+  if (dbApi && dbApi.loginDays && accRole() === "admin" && !Store.preview && (!activityCard.ldAt || Date.now() - activityCard.ldAt > 3e5)){
+    activityCard.ldAt = Date.now(); dbApi.loginDays().then(r => { S.loginDays = r || {}; scheduleRender(); }).catch(() => {}); }
+  const srv = S.loginDays || {}, cnt = x => Math.max(x.set.size, +srv[x.k] || 0);
+  const mx = Math.max(1, ...days.map(cnt)), wd = ["ح","ن","ث","ر","خ","ج","س"];
   const chart = h("div",{class:"act-box act-chart-box"}, h("h4",null,"📊 الدخول في آخر ١٤ يومًا"),
-    h("div",{class:"act-chart", role:"img", "aria-label":"عدد من دخلوا في كل يوم"}, days.map((x, i) => h("div",{class:"act-col" + (i === 13 ? " today" : ""), title:fmtShort(x.k) + ": " + arDigits(x.set.size)},
-      h("span",{class:"act-n num"}, x.set.size ? arDigits(x.set.size) : ""), h("i",{style:"height:" + Math.max(3, Math.round(x.set.size / mx * 100)) + "%"}), h("small",null, wd[x.dt.getDay()])))));
+    h("div",{class:"act-chart", role:"img", "aria-label":"عدد من دخلوا في كل يوم"}, days.map((x, i) => h("div",{class:"act-col" + (i === 13 ? " today" : ""), title:fmtShort(x.k) + ": " + arDigits(cnt(x))},
+      h("span",{class:"act-n num"}, cnt(x) ? arDigits(cnt(x)) : ""), h("i",{style:"height:" + Math.max(3, Math.round(cnt(x) / mx * 100)) + "%"}), h("small",null, wd[x.dt.getDay()])))));
   // who needs following up
   const late = live.filter(p => p.role !== "admin" && (!p.last || dayOf(p.last) >= 30)).map(p => Object.assign({}, p.acc, {name:p.name, lastLogin:p.last})).sort((x, y) => (x.lastLogin || "").localeCompare(y.lastLogin || ""));
   const follow = h("div",{class:"act-box"}, h("h4",null,"⚠️ يحتاجون متابعة", late.length ? h("span",{class:"badge num"}, arDigits(late.length)) : null),
@@ -9744,7 +9799,7 @@ renameApi = {
 // «📣 إبلاغ الكل» on a visit day (2026-11-07): a message with his time to each confessee on the app, and a phone notification
 visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_items:items}); return n; } };
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
-dbApi = { usage: () => Cloud.rpc("db_usage"), detail: () => Cloud.rpc("storage_usage") };
+dbApi = { usage: () => Cloud.rpc("db_usage"), detail: () => Cloud.rpc("storage_usage"), loginDays: () => Cloud.rpc("login_days", {p_days:14}) };
 onlineApi = { list: () => Cloud.rpc("online_list") };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
 // «🛟 الدعم الفني» (2026-11-10)
