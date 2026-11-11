@@ -1255,16 +1255,17 @@ body.one-tab{--nav-h:0px}
 .act-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 @media (max-width:560px){.act-kpis{grid-template-columns:repeat(2,1fr)}}
 .act-kpi{display:grid;gap:1px;text-align:start;padding:10px 12px;border-radius:14px;border:1px solid transparent;color:#fff;cursor:pointer;font:inherit;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s, box-shadow .15s}
-.act-kpi:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.14)}
+.act-kpi:hover{box-shadow:0 6px 16px rgba(0,0,0,.18);filter:brightness(1.05)}
 .act-kpi b{font-size:1.6rem;line-height:1.1} .act-kpi span{font-size:.82rem;font-weight:700} .act-kpi small{font-size:.72rem;opacity:.85}
 .act-kpi.k1{background:linear-gradient(135deg,#059669,#10b981)} .act-kpi.k2{background:linear-gradient(135deg,#1d4ed8,#0ea5e9)}
 .act-kpi.k3{background:linear-gradient(135deg,#64748b,#94a3b8)} .act-kpi.k3.hot{background:linear-gradient(135deg,#ea580c,#f59e0b)} .act-kpi.k4{background:linear-gradient(135deg,#7c3aed,#a855f7)}
 .act-kpi.on{outline:3px solid var(--gold);outline-offset:2px}
 .act-box{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface-2)}
 .act-box h4{margin:0 0 8px;display:flex;align-items:center;gap:6px;font-size:.92rem}
-.act-chart{display:flex;align-items:flex-end;gap:4px;height:96px}
+.act-chart{display:flex;align-items:flex-end;gap:4px;height:100px}
 .act-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}
-.act-col i{display:block;width:100%;max-width:22px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#0ea5e9,#1d4ed8);animation:actGrow .5s ease-out both}
+.act-col i{display:block;width:100%;max-width:22px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#0ea5e9,#1d4ed8);flex:none}
+.act-chart.grow .act-col i{animation:actGrow .5s ease-out both}
 .act-col.today i{background:linear-gradient(180deg,#f5c84c,#c9a227)} .act-col small{font-size:.66rem;color:var(--ink-2)} .act-n{font-size:.66rem;color:var(--ink-2);min-height:.9em}
 @keyframes actGrow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
 .act-faces{display:flex;flex-wrap:wrap;gap:8px}
@@ -1273,7 +1274,7 @@ body.one-tab{--nav-h:0px}
 .act-face.more b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--line)}
 .act-feed{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .act-feed li small{flex:none;white-space:nowrap}
-.act-feed li{display:flex;align-items:center;gap:8px;font-size:.85rem;animation:actIn .4s ease-out both}
+.act-feed li{display:flex;align-items:center;gap:8px;font-size:.85rem} .act-feed li.in{animation:actIn .4s ease-out both}
 .act-feed li.fresh{background:color-mix(in srgb,var(--gold) 14%,transparent);border-radius:8px;padding:2px 4px}
 .act-fw{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes actIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
@@ -8317,7 +8318,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-5";
+const APP_VERSION = "2026.11.11-6";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8586,9 +8587,11 @@ function activityCard(logs, accs){
     activityCard.ldAt = Date.now(); dbApi.loginDays().then(r => { S.loginDays = r || {}; scheduleRender(); }).catch(() => {}); }
   const srv = S.loginDays || {}, cnt = x => Math.max(x.set.size, +srv[x.k] || 0);
   const mx = Math.max(1, ...days.map(cnt)), wd = ["ح","ن","ث","ر","خ","ج","س"];
+  const grow = !activityCard.grown; activityCard.grown = true;
+  const seenL = activityCard.seenL || (activityCard.seenL = new Set()), firstFeed = !seenL.size;
   const chart = h("div",{class:"act-box act-chart-box"}, h("h4",null,"📊 الدخول في آخر ١٤ يومًا"),
-    h("div",{class:"act-chart", role:"img", "aria-label":"عدد من دخلوا في كل يوم"}, days.map((x, i) => h("div",{class:"act-col" + (i === 13 ? " today" : ""), title:fmtShort(x.k) + ": " + arDigits(cnt(x))},
-      h("span",{class:"act-n num"}, cnt(x) ? arDigits(cnt(x)) : ""), h("i",{style:"height:" + Math.max(3, Math.round(cnt(x) / mx * 100)) + "%"}), h("small",null, wd[x.dt.getDay()])))));
+    h("div",{class:"act-chart" + (grow ? " grow" : ""), role:"img", "aria-label":"عدد من دخلوا في كل يوم"}, days.map((x, i) => h("div",{class:"act-col" + (i === 13 ? " today" : ""), title:fmtShort(x.k) + ": " + arDigits(cnt(x))},
+      h("span",{class:"act-n num"}, cnt(x) ? arDigits(cnt(x)) : ""), h("i",{style:"height:" + Math.max(3, Math.round(cnt(x) / mx * 64)) + "px"}), h("small",null, wd[x.dt.getDay()])))));
   // who needs following up
   const late = live.filter(p => p.role !== "admin" && (!p.last || dayOf(p.last) >= 30)).map(p => Object.assign({}, p.acc, {name:p.name, lastLogin:p.last})).sort((x, y) => (x.lastLogin || "").localeCompare(y.lastLogin || ""));
   const follow = h("div",{class:"act-box"}, h("h4",null,"⚠️ يحتاجون متابعة", late.length ? h("span",{class:"badge num"}, arDigits(late.length)) : null),
@@ -8598,8 +8601,9 @@ function activityCard(logs, accs){
     : h("p",{class:"small muted", style:"margin:0"}, "كل الناس دخلوا خلال آخر ٣٠ يومًا."));
   // the latest events
   const feed = h("div",{class:"act-box"}, h("h4",null,"🕒 آخر ما حدث", h("span",{class:"act-live", title:"يتحدّث تلقائيًا"})),
-    logs.length ? h("ul",{class:"act-feed"}, logs.slice(0, 6).map(l => h("li",{class:d.logSeen && l.at > d.logSeen && l.who !== me ? "fresh" : "", "data-at":l.at},
-      h("span",{class:"act-ic", "aria-hidden":"true"}, actIcon(l.action)), h("span",{class:"act-fw"}, h("b",null, l.who || "—"), " ", h("span",{class:"muted"}, l.action)), h("small",{class:"muted num"}, timeAgo(l.at)))))
+    logs.length ? h("ul",{class:"act-feed"}, logs.slice(0, 6).map(l => { const k = l.id || (l.at + l.who), isNew = !firstFeed && !seenL.has(k); seenL.add(k);
+      return h("li",{class:(d.logSeen && l.at > d.logSeen && l.who !== me ? "fresh" : "") + (isNew ? " in" : ""), "data-at":l.at},
+      h("span",{class:"act-ic", "aria-hidden":"true"}, actIcon(l.action)), h("span",{class:"act-fw"}, h("b",null, l.who || "—"), " ", h("span",{class:"muted"}, l.action)), h("small",{class:"muted num"}, timeAgo(l.at))); }))
     : h("p",{class:"small muted", style:"margin:0"}, "لا يوجد نشاط بعد."));
   const fName = {today:"دخلوا اليوم", week:"نشطون هذا الأسبوع", asleep:"لم يدخلوا منذ ٣٠ يومًا", edits:"من عملوا تعديلات"}[flt];
   const more = rows.length > 10 && !d.actAll ? h("div",{class:"row", style:"justify-content:center"}, h("button",{type:"button", class:"btn sm ghost", id:"actAll", onclick:()=>{ d.actAll = true; render(); }}, "عرض الكل (" + arDigits(rows.length) + ")")) : null;
