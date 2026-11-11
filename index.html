@@ -367,6 +367,12 @@ body.chat-open .chat-fab{display:none}
 .cal-steps{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:.86rem}
 .cal-steps ol{margin:4px 0;padding-inline-start:20px;display:grid;gap:2px} .cal-steps.on{border-color:var(--gold,#c9a227)}
 .cal-test.ok{color:#15803d;font-weight:700} .cal-test.bad{color:#b91c1c;font-weight:700}
+.req-card.multi{border:2px solid var(--gold,#c9a227);box-shadow:0 0 0 4px rgba(201,162,39,.18)}
+.multi-banner{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;background:linear-gradient(90deg,rgba(201,162,39,.28),rgba(201,162,39,.08));border:1px solid var(--gold,#c9a227);border-radius:12px;padding:8px 12px}
+.multi-banner b{font-size:1.05rem} .multi-line{color:var(--gold-d,#a16207);font-weight:700;margin:2px 0}
+.pill.multi-pill{background:rgba(201,162,39,.2);color:inherit;border:1px solid var(--gold,#c9a227);font-weight:800} li.bk-multi{border-inline-start:4px solid var(--gold,#c9a227);padding-inline-start:8px}
+.ap-cx{display:grid;gap:6px;width:100%;background:var(--surface-2);border:1px dashed #dc2626;border-radius:12px;padding:8px 10px}
+.ap-cx-note{border:1.5px solid #dc2626} .ap-was{opacity:.75} .pill.ap-was-pill{background:rgba(220,38,38,.12);color:#b91c1c;font-weight:800}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
 .chat-day{align-self:center;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:2px 12px;font-size:.74rem;margin:6px 0}
 .chat-new{align-self:stretch;text-align:center;color:var(--gold-d);font-size:.76rem;font-weight:800;border-top:1.5px dashed var(--gold);padding-top:3px;margin:4px 0}
@@ -4865,21 +4871,27 @@ function schedTimes(sc, ds){
 const bookKey = (father, ds, t, kind) => "book/"+father+"/"+bookSeg(kind)+"/"+ds+"_"+t.replace(":","");
 // the single-file version keeps bookings on this device
 async function takenLocal(father, from, to, kind){ return (await Store.list("book/"+father+"/"+bookSeg(kind))).map(d => d.id).filter(k => k >= from && k <= to+"_9999"); }
-async function bookLocal(date, time, note, kind, address){
+async function bookLocal(date, time, note, kind, address, count){
   kind = kind === "visit" ? "visit" : "confession";
-  const f = schedId(), k = bookKey(f, date, time, kind);
-  if (await Store.get(k)){ toast("تم حجز هذا الموعد للتو. اختر موعدًا آخر."); return false; }
+  const f = schedId(), k = bookKey(f, date, time, kind), n = Math.max(1, Math.min(12, Number(count) || 1));
+  const len = Math.max(5, Math.min(120, Number((schedOf(S.sched, kind) || {}).len) || 15)), more = [];
+  for (let i = 1; i < n; i++) more.push(bookKey(f, date, hmStr(hmOf(time) + i * len), kind));
+  for (const x of [k, ...more]) if (await Store.get(x)){ toast("تم حجز هذا الموعد للتو. اختر موعدًا آخر."); return false; }
   const mine = (await Store.list("book/"+f+"/"+bookSeg(kind))).find(d => d.uid === S.uid && d.id >= TODAY_S);
   if (mine){ toast("لديك حجز قائم. لتغييره، ألغِه أولًا."); return false; }
-  await Store.set(k, {uid:S.uid, name:(S.profile&&S.profile.name)||(S.account&&S.account.name)||"", at:new Date().toISOString()});
-  const r = {id:newId(), kind, date, time, slot:"", note:(note||"").slice(0,600), booking:k, at:TODAY_S};
+  const nm = (S.profile&&S.profile.name)||(S.account&&S.account.name)||"", at = new Date().toISOString();
+  await Store.set(k, Object.assign({uid:S.uid, name:nm, at}, n > 1 ? {n, mins:n*len} : {}));
+  for (const x of more) await Store.set(x, {uid:S.uid, name:nm, at, of:k});
+  const r = Object.assign({id:newId(), kind, date, time, slot:"", note:(note||"").slice(0,600), booking:k, at:TODAY_S}, n > 1 ? {n, mins:n*len} : {});
   if (kind === "visit") r.address = (address||"").slice(0,300);
   await Store.update("members/"+S.uid, {[REQ_KINDS[kind].field]: r});
   return true;
 }
 async function cancelLocal(key){
-  const d = await Store.get(key); if (!d) return true;
+  let d = await Store.get(key); if (!d) return true;
+  if (d.of){ key = d.of; d = (await Store.get(key)) || d; }
   await Store.del(key);
+  for (const x of await Store.list(key.split("/").slice(0, 3).join("/"))) if (x.of === key) await Store.del(key.split("/").slice(0, 3).join("/")+"/"+x.id);
   const m = await Store.get("members/"+d.uid);
   // the person cancels: his request goes; the father frees it: the request stays (his answer still shows), without the time
   const fld = REQ_KINDS[kindOfKey(key)].field;
@@ -4887,8 +4899,48 @@ async function cancelLocal(key){
   return true;
 }
 async function takenSlots(father, from, to, kind){ return takenLocal(father, from, to, kind); }
-async function bookSlot(date, time, note, kind, address){ return bookLocal(date, time, note, kind, address); }
+async function bookSlot(date, time, note, kind, address, count){ return bookLocal(date, time, note, kind, address, count); }
 async function cancelBooking(key){ return cancelLocal(key); }
+// a confirmed appointment, cancelled by the person or by his father (2026-11-11, user: «اعمل ايه علشان ألغي ميعاد تم تأكيده» → both can).
+// The time leaves the father's list, the booked periods are free, the request goes (he can book again), the confirmed message
+// says «أُلغي» and a new message says who cancelled. The cloud does all of it on the server (cancel_appt), with a phone notification.
+async function cancelApptLocal(uid, kind, reason){
+  const K = REQ_KINDS[kind], key = PP()+"/"+uid, pr = await Store.get(key), w = pr && pr[K.next];
+  if (!w || new Date(w) < new Date()){ toast("لا يوجد موعد قادم لإلغائه."); return false; }
+  const byf = isFatherView(), why = String(reason || "").trim().slice(0, 300);
+  delete pr[K.next]; delete pr[K.next+"Mins"]; delete pr[K.next+"Cancel"];
+  if (!byf) pr[K.next+"Cancel"] = {when:w, reason:why, at:new Date().toISOString()};
+  await Store.set(key, pr);
+  const seg = "book/"+schedId()+"/"+bookSeg(kind);
+  for (const b of await Store.list(seg)) if (b.uid === uid && b.id >= TODAY_S) await Store.del(seg+"/"+b.id);
+  const m = await Store.get("members/"+uid); if (m && m[K.field]){ delete m[K.field]; await Store.set("members/"+uid, m); }
+  for (const x of await Store.list("members/"+uid+"/inbox")) if (x.type === K.inbox && String(x.when||"").slice(0,16) === w.slice(0,16))
+    await Store.update("members/"+uid+"/inbox/"+x.id, {cancelled:true, cancelBy: byf ? "father" : "self"});
+  await Store.set("members/"+uid+"/inbox/"+newId(), {type:"cancel", kind, when:w, text:why, by: byf ? "father" : "self", at:new Date().toISOString(),
+    title: byf ? "اعتذار أبونا عن "+K.title : "تم إلغاء "+K.title});
+  return true;
+}
+async function cancelAppt(uid, kind, reason){ return cancelApptLocal(uid, kind, reason); }
+// «من ٦:٠٠ م إلى ٧:٠٠ م» and «ساعة» for a booking of several periods
+const durTxt = m => { m = Number(m) || 0; const hr = Math.floor(m / 60), mn = m % 60;
+  const H = hr === 1 ? "ساعة" : hr === 2 ? "ساعتين" : hr ? arDigits(hr)+" ساعات" : "";
+  const M = n => arDigits(n)+(n >= 3 && n <= 10 ? " دقائق" : " دقيقة");
+  if (!hr) return M(mn); if (!mn) return H; if (mn === 30) return H+" ونصف"; if (mn === 15) return H+" وربع"; return H+" و"+M(mn); };
+const spanTxt = (time, mins) => "من "+timeAr(time)+" إلى "+timeAr(hmStr(hmOf(time) + Number(mins)));
+// the «إلغاء الموعد» button and its small form (the person: «self», his father: «father»)
+function apptCancelBox(kind, uid, who){
+  const d = S.draft, k = "cx"+kind+uid;
+  if (d.apCx !== k) return h("button",{type:"button", class:"btn sm quiet ap-cx-btn", "data-cx":k, onclick:()=>{ d.apCx = k; d.apCxWhy = ""; render(); }}, "إلغاء الموعد");
+  return h("div",{class:"ap-cx", id:"apCx"},
+    h("p",{class:"small", style:"margin:0;font-weight:700"}, who === "self" ? "هل تريد إلغاء هذا الموعد؟ سيصل الإلغاء إلى أبونا، ويمكنك حجز موعد آخر." : "هل تريد إلغاء هذا الموعد؟ ستصله رسالة اعتذار وتنبيه، ويمكنه حجز موعد آخر."),
+    h("input",{id:"apCxWhy", maxlength:"300", value:d.apCxWhy||"", placeholder: who === "self" ? "السبب (اختياري)" : "رسالة الاعتذار (اختياري)", oninput:e=>{ d.apCxWhy = e.target.value; }}),
+    h("div",{class:"row"},
+      h("button",{type:"button", class:"btn sm danger", id:"apCxGo", onclick:async e=>{ const b = e.currentTarget; b.disabled = true;
+        if (await cancelAppt(uid, kind, (d.apCxWhy||"").trim())){ d.apCx = null; d.apCxWhy = ""; S.reqSum = null;
+          toast(who === "self" ? "تم إلغاء الموعد، ووصل الإلغاء إلى أبونا" : "تم إلغاء الموعد، ووصلته رسالة الاعتذار"); } else b.disabled = false;
+        render(); }}, "تأكيد الإلغاء"),
+      h("button",{type:"button", class:"btn sm quiet", onclick:()=>{ d.apCx = null; render(); }}, "رجوع")));
+}
 
 // the morning and evening periods of one day: each can be on or off, with its own hours
 function periodRows(o, key){
@@ -4929,7 +4981,7 @@ function schedCard(){
     toast(wins.length || d.extra.length ? "تم حفظ "+(vis ? "مواعيد الافتقاد" : "مواعيد الاعتراف")+"، ويمكن لأولادك الحجز فيها." : "تم الحفظ. سيرسل أولادك طلباتهم كالمعتاد حتى تحدد أيامًا.");
   };
   const order = [6,0,1,2,3,4,5], seg = bookSeg(kind);
-  const up = ((vis ? S.vbookings : S.bookings)||[]).filter(b => b.id >= TODAY_S).sort((a,b)=>a.id.localeCompare(b.id));
+  const up = ((vis ? S.vbookings : S.bookings)||[]).filter(b => b.id >= TODAY_S && !b.of).sort((a,b)=>a.id.localeCompare(b.id));
   return h("div",{class:"card form sched-card"}, h("h3",null,"🗓️ مواعيدي"),
     h("div",{class:"seg", role:"tablist"}, [["confession","🙏 الاعتراف"],["visit","🏡 الافتقاد"]].map(([k,l]) =>
       h("button",{type:"button", role:"tab", class:"k-"+k, "aria-selected": k===kind ? "true" : "false", onclick:()=>{ S.draft.scKind = k; S.draft.bkAsk = null; render(); }}, l))),
@@ -4971,7 +5023,8 @@ function schedCard(){
     h("div",{class:"row"}, h("button",{class:"btn", type:"button", onclick:save},"حفظ المواعيد")),
     h("h4",null,"الحجوزات القادمة"),
     up.length ? h("ul",{class:"list"}, up.map(b => { const [ds, t] = b.id.split("_"); const tm = t.slice(0,2)+":"+t.slice(2);
-      return h("li",null, h("div",{class:"who"}, h("strong",null, b.name||"؟"), h("span",{class:"small muted num"}, WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)+" · "+timeAr(tm))),
+      return h("li",{class: b.n > 1 ? "bk-multi" : null}, h("div",{class:"who"}, h("strong",null, b.name||"؟"), h("span",{class:"small muted num"}, WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)+" · "+(b.n > 1 && b.mins > 0 ? spanTxt(tm, b.mins) : timeAr(tm))),
+          b.n > 1 && b.mins > 0 ? h("span",{class:"pill multi-pill"}, "⏱️ "+durTxt(b.mins)+" · "+arDigits(b.n)+" فترات") : null),
         h("button",{class:"btn sm quiet", "data-keep":"", onclick:async()=>{ if (S.draft.bkAsk !== b.id){ S.draft.bkAsk = b.id; toast("اضغط مرة أخرى للتأكيد: سيُخلى الموعد ويُزال الطلب"); return; }
           if (await cancelBooking("book/"+id+"/"+seg+"/"+b.id)){ S.draft.bkAsk = null; toast("تم إخلاء الموعد"); } }},"إخلاء الموعد")); }))
       : h("p",{class:"small muted", style:"margin:0"},"مفيش حجوزات لسه."));
@@ -5021,20 +5074,28 @@ function priestRequests(all){
     h("p",{style:"margin:0"}, "✅ الميعاد وصل لـ "+wa.name+" في البرنامج. تحب تبعتهوله واتساب كمان؟"),
     h("div",{class:"row"}, h("a",{class:"btn wa", href:waLink(wa.phone, wa.text), target:"_blank", rel:"noopener", onclick:()=>{ S.draft.waAfter = null; setTimeout(render, 300); }},"💬 إرسال عبر واتساب"),
       h("button",{class:"btn quiet", onclick:()=>{ S.draft.waAfter = null; render(); }},"غير ضروري"))));
+  for (const p of all) for (const k of ["confession","visit"]){ const K = REQ_KINDS[k], c = p.pr && p.pr[K.next+"Cancel"]; if (!c || !c.when) continue;
+    wrap.append(h("div",{class:"card ap-cx-note"}, h("div",{class:"person-line"}, avatar(p), h("h3",null, "❌ "+p.name+" ألغى "+K.title)),
+      h("p",{class:"num", style:"margin:0"}, h("s",null, fmtWhen(c.when))), c.reason ? h("p",{class:"muted", style:"margin:0"}, "السبب: "+c.reason) : null,
+      h("p",{class:"small muted", style:"margin:0"}, "الموعد أصبح متاحًا لغيره في جدولك."),
+      h("div",{class:"row"}, h("button",{type:"button", class:"btn sm", onclick:async()=>{ await editDoc(PP()+"/"+p.id, cur => { delete cur[K.next+"Cancel"]; return cur; }); render(); }}, "تمام")))); }
   if (!items.length) wrap.append(h("div",{class:"empty"},"مفيش طلبات مستنية. لما حد يطلب ميعاد اعتراف أو افتقاد هيظهر هنا."));
   for (const {p, r, k} of items){
     const K = REQ_KINDS[k], idT = "t_"+k+p.id, idN = "n_"+k+p.id, sl = slotOf(r.slot);
     const def = r.date ? r.date+"T"+(r.time || (sl ? sl[2] : "18:00")) : "";
     const done = async (when, note) => {
       if (when && p.phone) S.draft.waAfter = {name:p.name, phone:p.phone, text:apptText(p, k, when, note)};
-      const patch = {[K.handled]: r.id, onApp:true}; if (when) patch[K.next] = when;
+      const mins = when && r.mins > 0 && when === def ? r.mins : 0;
+      const patch = {[K.handled]: r.id, onApp:true, [K.next+"Cancel"]: undefined}; if (when){ patch[K.next] = when; patch[K.next+"Mins"] = mins || undefined; }
       await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, patch));
       S.reqSum = null;
-      await Store.set("members/"+p.id+"/inbox/"+newId(), when ? {type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()}
+      await Store.set("members/"+p.id+"/inbox/"+newId(), when ? Object.assign({type:K.inbox, title:K.title, when, text:note||"", reqId:r.id, at:new Date().toISOString()}, mins ? {mins} : {})
         : {type:"seen", title:"أبونا شاف طلب ال"+K.label, text:"هيكلمك بنفسه يتفق معاك.", reqId:r.id, at:new Date().toISOString()});
     };
-    wrap.append(h("div",{class:"card req-card"},
+    const multi = r.booking && r.n > 1 && r.mins > 0;
+    wrap.append(h("div",{class:"card req-card"+(multi ? " multi" : "")},
       h("div",{class:"row between"}, h("div",{class:"person-line"}, avatar(p), h("h3",null,p.name)), h("span",{class:"pill acc"}, K.emo+" "+K.label)),
+      multi ? h("div",{class:"multi-banner"}, h("b",null, "⏱️ حجز "+durTxt(r.mins)), h("span",null, arDigits(r.n)+" فترات متتالية · "+spanTxt(r.time, r.mins))) : null,
       r.booking ? h("p",null,"🗓️ حجز من جدولك: ", h("strong",null, reqWhen(r))) : r.date || r.preferred ? h("p",null,"📅 يناسبه: ", h("strong",null, reqWhen(r))) : null,
       r.address || locOk(p.loc) ? h("div",{class:"row", style:"align-items:center;gap:8px"}, r.address ? h("span",{class:"small"},"📍 "+r.address) : null,
         mapBtn({address:r.address || p.address, area:p.area, loc:p.loc}, "🗺️ الخريطة")) : null,
@@ -5057,7 +5118,9 @@ function priestRequests(all){
   const up = all.flatMap(p => [p.pr && p.pr.nextConfession && new Date(p.pr.nextConfession) >= TODAY ? {p, when:p.pr.nextConfession, k:"confession"} : null,
     p.pr && p.pr.nextVisit && new Date(p.pr.nextVisit) >= TODAY ? {p, when:p.pr.nextVisit, k:"visit"} : null]).filter(Boolean).sort((a,b)=>a.when.localeCompare(b.when));
   if (up.length) wrap.append(h("section",null, sectionHead("مواعيد قادمة"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
-    h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when))),
+    h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when)),
+      p.pr[REQ_KINDS[k].next+"Mins"] > 0 ? h("span",{class:"pill multi-pill"}, "⏱️ "+durTxt(p.pr[REQ_KINDS[k].next+"Mins"])+" · "+spanTxt(String(when).slice(11,16), p.pr[REQ_KINDS[k].next+"Mins"])) : null),
+    new Date(when) >= new Date() ? apptCancelBox(k, p.id, "father") : null,
     contactBtns(p, "🔔 تذكير\n"+apptText(p, k, when)),
     icsBtn({id:"p"+p.id.replace(/[^A-Za-z0-9-]/g,"")+k[0]+String(when).replace(/\D/g,""), when, len: k === "visit" ? 45 : 20, title: REQ_KINDS[k].emo+" "+REQ_KINDS[k].label+": "+p.name,
       where: k === "visit" ? [p.address, p.area].filter(Boolean).join("، ") : "", note: k === "visit" && mapUrl(p) ? mapUrl(p) : ""}, "📅"),
@@ -6392,7 +6455,7 @@ async function supList(){
   if (!supOn()) return;
   try { const r = await supApi.list(); if (!r) return;
     const sig = JSON.stringify(r); if (sig === SUP.sig) return; SUP.sig = sig;
-    SUP.unread = Number(r.unread) || 0; SUP.threads = r.threads || []; scheduleRender(); } catch(e){ console.warn("support", e.message); }
+    SUP.unread = Number(r.unread) || 0; SUP.rate = !!r.rate; SUP.threads = r.threads || []; scheduleRender(); } catch(e){ console.warn("support", e.message); }
 }
 const supWaiting = () => SUP.threads.filter(t => t.status === "new" || t.unread > 0).length;
 // a person's card: «🛟 الدعم الفني» (in «بياناتي», «الإعدادات», and on the first screen while an answer waits)
@@ -6402,8 +6465,8 @@ function supCard(compact){
   return h("div",{class:"card sup-card" + (SUP.unread ? " live" : ""), id:compact ? "supNotice" : "supCard"},
     h("div",{class:"sup-card-ic", "aria-hidden":"true"}, "🛟"),
     h("div",{class:"sup-card-t"}, h("h3",null, "الدعم الفني"),
-      h("p",{class:"small muted"}, SUP.unread ? (SUP.unread === 1 ? "وصلك رد جديد من فريق الدعم." : "وصلتك " + arDigits(SUP.unread) + " ردود جديدة من فريق الدعم.") : "تواجه مشكلة في استخدام البرنامج؟ اسألنا وسنساعدك.")),
-    h("button",{class:"btn sm", type:"button", id:compact ? "supNoticeOpen" : "supOpenBtn", onclick:()=>supOpen(null)}, SUP.unread ? "اقرأ الرد" : "تواصل معنا"));
+      h("p",{class:"small muted"}, SUP.unread && SUP.rate ? "✅ تم حل طلبك. يسعدنا تقييمك للخدمة." : SUP.unread ? (SUP.unread === 1 ? "وصلك رد جديد من فريق الدعم." : "وصلتك " + arDigits(SUP.unread) + " ردود جديدة من فريق الدعم.") : "تواجه مشكلة في استخدام البرنامج؟ اسألنا وسنساعدك.")),
+    h("button",{class:"btn sm", type:"button", id:compact ? "supNoticeOpen" : "supOpenBtn", onclick:()=>supOpen(null)}, SUP.unread && SUP.rate ? "⭐ قيّم الخدمة" : SUP.unread ? "اقرأ الرد" : "تواصل معنا"));
 }
 // the admin's inbox, in «الملخص»
 function supInbox(){
@@ -6427,18 +6490,22 @@ async function supOpen(uid){
   if (!supOn()) return; if (supIsAdmin() && !uid) return;
   if (typeof chatOpen === "function" && CH.open) chatOpen(false);
   SUP.open = true; SUP.uid = supIsAdmin() ? uid : null; SUP.data = null; SUP.flow = null; SUP.reopen = false; SUP.rated = false; SUP.scrolled = false;
+  SUP.seq = (SUP.seq || 0) + 1; SUP.busy = 0; SUP.err = null; SUP.dsig = ""; SUP.painted = false;
   const p = supMount(); p.hidden = false; document.body.classList.add("chat-open"); supPaint(); await supPoll();
 }
 function supClose(){ SUP.open = false; clearTimeout(SUP.timer); const p = document.getElementById("supPanel"); if (p) p.hidden = true; document.body.classList.remove("chat-open"); supList(); }
 async function supPoll(){
-  clearTimeout(SUP.timer); if (!SUP.open || SUP.busy) return; SUP.busy = true;
-  try { const r = await supApi.feed(SUP.uid); if (!SUP.open) return;
+  clearTimeout(SUP.timer); const my = SUP.seq; if (!SUP.open || SUP.busy === my) return; SUP.busy = my;
+  try { const r = await Promise.race([supApi.feed(SUP.uid), new Promise((ok, no) => setTimeout(() => no(new Error("timeout")), 15000))]);
+    if (!SUP.open || my !== SUP.seq) return; if (!r || !Array.isArray(r.msgs)) throw new Error("empty");
+    if (SUP.err){ SUP.err = null; SUP.painted = false; }
     const sig = JSON.stringify([r.msgs.length, r.msgs.length && r.msgs[r.msgs.length - 1].id, r.thread && r.thread.status, r.thread && r.thread.rating]);
     const changed = sig !== SUP.dsig; SUP.dsig = sig; SUP.data = r; if (changed || !SUP.painted) supPaint();
     const lastAdmin = r.msgs.filter(m => SUP.uid ? !m.admin : m.admin).pop();
     if (lastAdmin && changed) supApi.seen(SUP.uid).then(() => { if (!SUP.uid && SUP.unread){ SUP.unread = 0; SUP.sig = ""; scheduleRender(); } }).catch(() => {});
-  } catch(e){ console.warn("support", e.message); }
-  finally { SUP.busy = false; if (SUP.open) SUP.timer = setTimeout(() => { if (!document.hidden) supPoll(); else SUP.timer = setTimeout(supPoll, 4000); }, 4000); }
+  } catch(e){ console.warn("support", e.message); if (my === SUP.seq && SUP.open && !SUP.data){ SUP.err = String(e.message || "error").slice(0, 80); supPaint(true); } }
+  finally { if (SUP.busy === my) SUP.busy = 0;
+    if (SUP.open && my === SUP.seq) SUP.timer = setTimeout(() => { if (!document.hidden) supPoll(); else SUP.timer = setTimeout(supPoll, 4000); }, SUP.err ? 8000 : 4000); }
 }
 const supBot = (...kids) => h("div",{class:"chat-msg sup-bot"}, h("span",{class:"sup-av"}, h("img",{src:APP_MARK, alt:""})), h("div",{class:"bub"}, h("div",{class:"by"}, SUP_NAME), h("div",{class:"txt"}, ...kids)));
 const supMine = text => h("div",{class:"chat-msg mine"}, h("div",{class:"bub"}, h("div",{class:"txt"}, text)));
@@ -6473,7 +6540,10 @@ function supPaint(force){
     adm && th && th.status !== "done" ? h("button",{type:"button", class:"btn sm ghost", id:"supDone", onclick:async()=>{ try { await supApi.close(SUP.uid, null); SUP.dsig = ""; toast("✅ تم إغلاق الطلب"); await supPoll(); supList(); } catch(e){ toast("تعذّر الإغلاق"); } }}, "✅ تم الحل") : null,
     h("button",{type:"button", class:"chat-x", id:"supX", "aria-label":"إغلاق", onclick:supClose}, "✕")));
   const box = h("div",{class:"chat-msgs sup-msgs"});
-  if (!r) box.append(h("div",{class:"chat-empty"}, "جارٍ التحميل…"));
+  if (!r) box.append(SUP.err ? h("div",{class:"chat-empty", id:"supErr"}, h("p",null,"تعذّر تحميل المحادثة. تأكد من الإنترنت، ثم حاول مرة أخرى."),
+      h("button",{type:"button", class:"btn sm", id:"supRetry", onclick:()=>{ SUP.err = null; SUP.busy = 0; supPaint(true); supPoll(); }},"إعادة المحاولة"),
+      h("small",{class:"muted", dir:"ltr"}, SUP.err))
+    : h("div",{class:"chat-empty"}, "جارٍ التحميل…"));
   if (adm && r){
     const rows = supInfoRows(th && th.info);
     box.append(h("div",{class:"sup-info"}, h("b",null, "📱 بيانات جهازه (تظهر لك وحدك)"), rows.length ? h("dl",null, rows.map(([k, v]) => [h("dt",null, k), h("dd",{dir:"auto"}, String(v))])) : h("span",{class:"small muted"}, "لا توجد بيانات."),
@@ -7029,11 +7099,12 @@ function memberToday(){
   { const sc = supCard(true); if (sc) wrap.append(sc); }
   { const lc = locCard(); if (lc) wrap.append(lc); }
   for (const [type, title] of [["appointment","🙏 ميعاد اعترافك"],["visit","🏡 ميعاد الافتقاد"]]){
-    const appt = S.inbox.find(m => m.type===type && m.when && new Date(m.when) >= TODAY);
-    if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,title), h("p",{class:"num"}, fmtWhen(appt.when)), appt.text ? h("p",{class:"muted"},appt.text) : null,
-      h("div",{class:"row"}, icsBtn({id:"m"+String(appt.when).replace(/\D/g,"")+type, when:appt.when, len: type === "visit" ? 45 : 20,
+    const appt = S.inbox.find(m => m.type===type && m.when && !m.cancelled && new Date(m.when) >= TODAY);
+    if (appt) wrap.append(h("div",{class:"card detail"}, h("h3",null,title), h("p",{class:"num"}, fmtWhen(appt.when)),
+      appt.mins > 0 ? h("p",{class:"small multi-line"}, "⏱️ "+durTxt(appt.mins)+" · "+spanTxt(String(appt.when).slice(11,16), appt.mins)) : null, appt.text ? h("p",{class:"muted"},appt.text) : null,
+      h("div",{class:"row"}, new Date(appt.when) >= new Date() ? apptCancelBox(type === "visit" ? "visit" : "confession", S.uid, "self") : null, icsBtn({id:"m"+String(appt.when).replace(/\D/g,"")+type, when:appt.when, len: type === "visit" ? 45 : 20,
         title: type === "visit" ? "🏡 ميعاد الافتقاد" : "🙏 ميعاد الاعتراف", note: appt.text || ""})))); }
-  if (S.inbox.some(m => (m.type==="appointment" || m.type==="visit") && m.when && new Date(m.when) >= TODAY)) { const pc = pushCard(true); if (pc) wrap.prepend(pc); }
+  if (S.inbox.some(m => (m.type==="appointment" || m.type==="visit") && m.when && !m.cancelled && new Date(m.when) >= TODAY)) { const pc = pushCard(true); if (pc) wrap.prepend(pc); }
   const med = S.meditations[0], personal = S.inbox.find(m=>m.type==="meditation");
   const pick = personal && (!med || personal.at > med.at) ? personal : med;
   wrap.append(h("section",{class:"half"}, sectionHead("تأمل اليوم"), pick ? h("div",{class:"card"}, meditationBlock(pick), pick===personal ? h("span",{class:"pill acc", style:"width:max-content"},"مبعوت ليك مخصوص") : null) : h("div",{class:"empty"},"أبونا لسه ما بعتش تأمل النهارده.")));
@@ -7182,9 +7253,12 @@ function memberConfession(){
       continue;
     }
     wrap.append(h("div",{class:"card detail"}, ans
-      ? (ans.when ? [h("h3",null, REQ_KINDS[k].emo+" "+REQ_KINDS[k].title), h("p",{class:"num"}, h("strong",null, fmtWhen(ans.when))), ans.text ? h("p",{class:"muted"}, ans.text) : null]
+      ? (ans.when ? [h("h3",null, REQ_KINDS[k].emo+" "+REQ_KINDS[k].title), h("p",{class:"num"}, h("strong",null, fmtWhen(ans.when))),
+          ans.mins > 0 ? h("p",{class:"small multi-line"}, "⏱️ "+durTxt(ans.mins)+" · "+spanTxt(String(ans.when).slice(11,16), ans.mins)) : null,
+          ans.text ? h("p",{class:"muted"}, ans.text) : null, !ans.cancelled && new Date(ans.when) >= new Date() ? apptCancelBox(k, S.uid, "self") : null]
         : [h("h3",null, REQ_KINDS[k].emo+" "+(ans.title||"أبونا شاف طلبك")), ans.text ? h("p",{class:"muted"}, ans.text) : null])
-      : r.booking ? [h("h3",null,"⏳ تم حجز موعد "+REQ_KINDS[k].label), h("p",{class:"num"}, h("strong",null, reqWhen(r))), h("p",{class:"muted"},"في انتظار تأكيد أبونا. عند التأكيد يصلك الموعد هنا وفي الرسائل."),
+      : r.booking ? [h("h3",null,"⏳ تم حجز موعد "+REQ_KINDS[k].label), h("p",{class:"num"}, h("strong",null, reqWhen(r))),
+          r.mins > 0 ? h("p",{class:"small multi-line"}, "⏱️ "+durTxt(r.mins)+" · "+spanTxt(r.time, r.mins)) : null, h("p",{class:"muted"},"في انتظار تأكيد أبونا. عند التأكيد يصلك الموعد هنا وفي الرسائل."),
           h("div",{class:"row"}, h("button",{class:"btn sm quiet", onclick:async()=>{ if (S.draft.bkCancel !== r.booking){ S.draft.bkCancel = r.booking; toast("اضغط مرة أخرى للتأكيد"); return; }
             if (await cancelBooking(r.booking)){ S.draft.bkCancel = null; toast("تم إلغاء الحجز"); } }},"إلغاء الحجز"))]
       : [h("h3",null, REQ_KINDS[k].emo+" طلب ال"+REQ_KINDS[k].label+" وصل لأبونا"), h("p",{class:"muted"}, "يناسبك: "+reqWhen(r)+". أبونا هيحدد الميعاد ويبعتهولك هنا وفي الرسائل.")]));
@@ -7202,6 +7276,12 @@ function memberConfession(){
         .catch(() => { if (S.draft.taken && S.draft.taken.key === tk) S.draft.taken = null; toast("تعذّر تحميل المواعيد. حاول مرة أخرى"); }); }
     const taken = ds && d.taken && d.taken.key === tk ? d.taken.list : null;
     const times = ds && taken ? schedTimes(sc, ds).filter(t => !taken.includes(t.replace(":",""))) : [];
+    // (2026-11-11, user: «أبونا عمل ١٠ق وهو عاوز ساعة … لو متاح يحجز أكتر من فترة») how many free periods follow the chosen one, 2 hours at most
+    const plen = Math.max(5, Math.min(120, Number(sc && sc.len) || 15)), durs = [];
+    if (d.reqTime && times.includes(d.reqTime)){ const t0 = hmOf(d.reqTime), wins = schedWindows(sc, ds);
+      for (let n = 1; n <= 12 && (n === 1 || n * plen <= 120); n++){
+        if (!times.includes(hmStr(t0 + (n - 1) * plen)) || !wins.some(w => t0 >= hmOf(w.from) && t0 + n * plen <= hmOf(w.to))) break; durs.push(n); } }
+    const nPick = durs.includes(d.reqN) ? d.reqN : 1;
     const book = h("div",{class:"card form req-form "+kind+" book-form"},
       vis ? h("div",{class:"visit-banner"}, h("span",{"aria-hidden":"true"},"🏡"), h("span",null,"أبونا هيزورك في البيت ويصلّي معاكم")) : null,
       h("h3",null, vis ? "اختار يوم من أيام افتقاد أبونا" : "اختار يوم من أيام أبونا"),
@@ -7209,8 +7289,12 @@ function memberConfession(){
       ds ? h("p",{class:"pick-day"}, "📅 "+WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)) : h("p",{class:"small muted", style:"margin:0"}, vis ? "الأيام اللي تقدر تدوس عليها هي أيام افتقاد أبونا." : "الأيام اللي تقدر تدوس عليها هي أيام اعتراف أبونا."),
       ds ? h("div",{class:"form", style:"gap:6px"}, h("span",{class:"small", style:"font-weight:700"},"المواعيد الفاضية"),
         taken === null ? h("p",{class:"small muted"},"بدوّر على المواعيد الفاضية…")
-          : times.length ? h("div",{class:"row time-row"}, times.map(t => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqTime===t ? "true" : "false", onclick:()=>{ S.draft.reqTime = t; render(); }}, timeAr(t))))
+          : times.length ? h("div",{class:"row time-row"}, times.map(t => h("button",{type:"button", class:"chip-btn", "aria-pressed": d.reqTime===t ? "true" : "false", onclick:()=>{ S.draft.reqTime = t; S.draft.reqN = 1; render(); }}, timeAr(t))))
           : h("p",{class:"small muted"},"اليوم ده اتحجز كله. اختار يوم تاني.")) : null,
+      durs.length > 1 ? h("div",{class:"form dur-pick", id:"durPick", style:"gap:6px"}, h("span",{class:"small", style:"font-weight:700"},"⏱️ المدة التي تحتاجها"),
+        h("div",{class:"row time-row"}, durs.map(n => h("button",{type:"button", class:"chip-btn dur-btn", "data-n":String(n), "aria-pressed": nPick===n ? "true" : "false",
+          onclick:()=>{ S.draft.reqN = n; render(); }}, durTxt(n * plen)))),
+        nPick > 1 ? h("p",{class:"small multi-line", style:"margin:0"}, "ستُحجز "+arDigits(nPick)+" فترات متتالية "+spanTxt(d.reqTime, nPick * plen)+"، وأبونا يؤكدها.") : null) : null,
       vis ? h("label",null,"العنوان", h("input",{id:"rAddr", value: d.reqAddr != null ? d.reqAddr : (p.address||""), placeholder:"الشارع والعمارة والدور", oninput:e=>{ S.draft.reqAddr = e.target.value; }})) : null,
       vis ? hereRow("rHere", saveHomeLoc) : null,
       h("label",null,"ملاحظة لأبونا (اختياري)", h("textarea",{id:"rNote", rows:"3", placeholder: vis ? "مثلاً: ماما تعبانة وعايزين أبونا يصلّي لها" : "أي حاجة تحب أبونا يعرفها قبل الميعاد", oninput:e=>{ S.draft.reqNote = e.target.value; }}, d.reqNote||"")),
@@ -7219,9 +7303,9 @@ function memberConfession(){
         const addr = vis ? ($("#rAddr").value||"").trim() : "";
         if (vis && !addr){ toast("اكتب العنوان ليعرف أبونا مكان الزيارة"); return; }
         if (Store.mode === "cloud"){ await refreshFather(); if (!S.account.father){ toast("اختر أب اعترافك أولًا"); render(); return; } }
-        const okk = await bookSlot(ds, d.reqTime, ($("#rNote").value||"").trim(), kind, addr);
+        const okk = await bookSlot(ds, d.reqTime, ($("#rNote").value||"").trim(), kind, addr, nPick);
         S.draft.taken = null;
-        if (okk){ Object.assign(S.draft, {reqDate:"", reqTime:"", reqNote:"", reqAddr:null, calMonth:null}); toast("تم إرسال الحجز إلى أبونا 🙏 في انتظار تأكيده"); }
+        if (okk){ Object.assign(S.draft, {reqDate:"", reqTime:"", reqN:1, reqNote:"", reqAddr:null, calMonth:null}); toast("تم إرسال الحجز إلى أبونا 🙏 في انتظار تأكيده"); }
         render(); }}, "حجز الموعد")));
     wrap.append(seg, book); if (!vis) wrap.append(prepBlock());
     return wrap;
@@ -7259,12 +7343,17 @@ async function syncAccPhoto(url){
 }
 function memberInbox(){
   if (S.inbox[0]){ S.draft.seen = S.inbox[0].at; lsSet("ruhiya_seen_"+S.uid, S.inbox[0].at); }
-  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك", admin:"من الإدارة"};
+  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك", admin:"من الإدارة", cancel:"إلغاء ميعاد"};
   return h("div",{style:"display:grid;gap:14px"}, sectionHead("رسائل أبونا"),
     S.inbox.length ? S.inbox.map(m => h("div",{class:"card"},
       h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(ymd(new Date(m.at))) : "")),
       m.type==="seen" || m.type==="admin" ? h("div",null, h("h3",null, m.title), m.text ? h("p",{class:"muted", style:"white-space:pre-wrap"}, m.text) : null) :
-      m.type==="appointment" || m.type==="visit" ? h("div",null, h("h3",null, m.title || "ميعاد الاعتراف"), h("p",{class:"num"}, fmtWhen(m.when)), m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
+      m.type==="cancel" ? h("div",{class:"ap-cancelled-msg"}, h("h3",null, "❌ "+(m.title || "تم إلغاء الموعد")), m.when ? h("p",{class:"num"}, h("s",null, fmtWhen(m.when))) : null,
+        m.text ? h("p",{class:"muted", style:"white-space:pre-wrap"}, (m.by === "father" ? "رسالة أبونا: " : "السبب: ")+m.text) : null,
+        h("p",{class:"small muted", style:"margin:0"}, m.by === "father" ? "يمكنك حجز موعد آخر من «المواعيد»." : "وصل الإلغاء إلى أبونا. يمكنك حجز موعد آخر من «المواعيد».")) :
+      m.type==="appointment" || m.type==="visit" ? h("div",{class: m.cancelled ? "ap-was" : null}, h("h3",null, m.title || "ميعاد الاعتراف"), h("p",{class:"num"}, m.cancelled ? h("s",null, fmtWhen(m.when)) : fmtWhen(m.when)),
+        m.mins > 0 && !m.cancelled ? h("p",{class:"small multi-line"}, "⏱️ "+durTxt(m.mins)+" · "+spanTxt(String(m.when).slice(11,16), m.mins)) : null,
+        m.cancelled ? h("span",{class:"pill ap-was-pill"}, "❌ أُلغي هذا الموعد") : null, m.text ? h("p",{class:"muted"},m.text) : null) : meditationBlock(m)))
     : h("div",{class:"empty"},"مفيش رسائل لسه. أي تأمل أو ميعاد أو تهنئة من أبونا هيوصلك هنا."));
 }
 function memberMe(){
@@ -7613,8 +7702,11 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-10d", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-11a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["❌","إلغاء الموعد المؤكد","يمكن للشخص ولأب اعترافه إلغاء الموعد بعد تأكيده، ويصل للطرف الآخر تنبيه ورسالة. يصبح الموعد متاحًا في الجدول، ويُحسب في «أُلغيت» في ملخص الطلبات."],
+    ["⏱️","حجز أكثر من فترة","إذا كانت فترة الاعتراف قصيرة (مثلًا ١٠ دقائق)، يمكن للشخص اختيار مدة أطول إذا كانت الفترات التالية متاحة، حتى ساعتين، ويؤكدها أبونا."],
+    ["🛟","الدعم الفني","عند الضغط على «✅ تم الحل» يصل للشخص تنبيه وطلب تقييم الخدمة. وإذا تعذّر تحميل محادثة تظهر رسالة بذلك مع زر «إعادة المحاولة»."],
     ["🛟","الدعم الفني","في «الملخص» صندوق «🛟 الدعم الفني»: كل شخص يكتب مشكلته بعد أسئلة قصيرة تحدد الموضوع، ويصلك طلبه ومعه ملخص وبيانات جهازه (النسخة، ونوع الجهاز، والتنبيهات). ردك يظهر له باسم «ⲙⲉⲛⲣⲓⲧ · الدعم الفني» ولا يظهر اسمك أبدًا، ومعك ردود جاهزة وزر «✅ تم الحل»، ثم يقيّم الخدمة."],
     ["📊","Excel بشعار الكنيسة","ملف Excel والطباعة فيهما شعار الكنيسة على اليمين وشعار ⲙⲉⲛⲣⲓⲧ على اليسار، واسم ⲙⲉⲛⲣⲓⲧ يظهر صحيحًا بدل المربعات."],
     ["🔑","اسم الدخول مثل الاسم في البيانات","لو اسم الدخول لشخص مختلف عن اسمه في البيانات (اسم تعدّل قبل التحديث ده)، يظهر في كارته زر «🔑 اسم الدخول مثل الاسم في البيانات». بالضغط عليه يتغير اسم الدخول، ويظهر لك زر «📲 إبلاغه على واتساب»، وتظهر له رسالة كبيرة أول ما يفتح البرنامج."],
@@ -7624,6 +7716,8 @@ const NEWS = {id:"2026-11-10d", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["⏱️","حجز أكثر من فترة","يمكن لمن يحتاج وقتًا أطول حجز عدة فترات متتالية حتى ساعتين. يظهر هذا الطلب لك بإطار ذهبي مع المدة (مثلًا «حجز ساعة · ٦ فترات متتالية») ووقت البداية والنهاية، وتؤكده بضغطة واحدة."],
+    ["❌","إلغاء الموعد المؤكد","في «مواعيد قادمة» زر «إلغاء الموعد» مع رسالة اعتذار اختيارية، ويصل للشخص تنبيه ويمكنه الحجز مرة أخرى. وإذا ألغى الشخص موعده، يظهر لك في «الطلبات» اسمه وسبب الإلغاء، ويصبح الموعد متاحًا في جدولك."],
     ["📅","تقويم جوجل","في «الإعدادات» ← «مواعيدك في تقويم الموبايل»: زر «📅 الربط بتقويم جوجل» ينسخ الرابط ويفتح صفحة جوجل «إضافة تقويم من رابط» مع خطوات قصيرة، وزر «🔍 اختبار الرابط» يوضح أن الرابط يعمل وعدد المواعيد فيه."],
     ["🛟","الدعم الفني","في «الإعدادات» زر «🛟 الدعم الفني» لأي مشكلة في استخدام البرنامج: أسئلة قصيرة تحدد المشكلة وتقترح الحل، وإن لم تُحل يصل طلبك إلى فريق الدعم ويرد عليك هنا."],
     ["📊","Excel بشعار الكنيسة","ملف Excel والطباعة فيهما شعار الكنيسة، واسم ⲙⲉⲛⲣⲓⲧ يظهر صحيحًا بدل المربعات."],
@@ -7632,6 +7726,8 @@ const NEWS = {id:"2026-11-10d", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["❌","إلغاء الموعد","بعد تأكيد أبونا لموعدك، يمكنك إلغاؤه من «المواعيد» بزر «إلغاء الموعد» مع كتابة السبب إن أردت، ويصل الإلغاء إلى أبونا. وبعدها يمكنك حجز موعد آخر."],
+    ["⏱️","وقت أطول للاعتراف","إذا كنت تحتاج وقتًا أطول مع أبونا، اختر بعد الموعد «المدة التي تحتاجها» إذا كانت الفترات التالية متاحة."],
     ["🛟","الدعم الفني","في «بياناتي» زر «🛟 الدعم الفني» لأي مشكلة في استخدام البرنامج: أسئلة قصيرة تحدد المشكلة وتقترح الحل، وإن لم تُحل يصل طلبك إلى فريق الدعم ويرد عليك هنا."],
     ["🔑","اسم الدخول","لو اسمك اتعدّل في «بياناتي»، اسم الدخول بيتغير معاه، وهتظهر لك رسالة بالاسم الجديد. كلمة السر زي ما هي."]
   ]
@@ -8014,7 +8110,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.10-5";
+const APP_VERSION = "2026.11.11-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8862,6 +8958,7 @@ function cloudMsg(e){
   if (/already booked/.test(m)) return "عندك حجز لسه. لو عاوز تغيّره الغيه الأول.";
   if (/too fast/.test(m)) return "انتظر قليلًا ثم جرّب مرة أخرى.";
   if (/bad time|day closed/.test(m)) return "الميعاد ده مش متاح. اختار ميعاد تاني.";
+  if (/no appt/.test(m)) return "لا يوجد موعد قادم مؤكد لإلغائه.";
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
   if (/name taken/.test(m)) return "الاسم ده مستخدم لشخص تاني في الكنيسة. اكتبه بشكل مختلف (مثلًا زوّد اسم الجد).";
@@ -9124,12 +9221,15 @@ pickMyFather = async (uid) => { const okk = await accTry(() => Cloud.rpc("update
 const kindArgs = (kind, address) => kind === "visit" ? {p_kind:"visit", p_address:address||""} : {};
 takenSlots = async (father, from, to, kind) => { if (Store.preview) return takenLocal(father, from, to, kind);
   return await Cloud.rpc("taken_slots", Object.assign({p_father:father, p_from:from, p_to:to}, kind === "visit" ? {p_kind:"visit"} : {})) || []; };
-bookSlot = async (date, time, note, kind, address) => { if (Store.preview) return bookLocal(date, time, note, kind, address);
-  try { await Cloud.rpc("book_slot", Object.assign({p_date:date, p_time:time, p_note:note}, kindArgs(kind, address))); } catch(e){ toast(cloudMsg(e)); return false; }
+bookSlot = async (date, time, note, kind, address, count) => { if (Store.preview) return bookLocal(date, time, note, kind, address, count);
+  try { await Cloud.rpc("book_slot", Object.assign({p_date:date, p_time:time, p_note:note}, kindArgs(kind, address), count > 1 ? {p_count:count} : {})); } catch(e){ toast(cloudMsg(e)); return false; }
   Cloud.refresh("members/"+S.uid); return true; };
 cancelBooking = async (key) => { if (Store.preview) return cancelLocal(key);
   try { await Cloud.rpc("cancel_booking", {p_key:key}); } catch(e){ toast(cloudMsg(e)); return false; }
   Cloud.refresh("members/x"); Cloud.refresh("members/"+S.uid); Cloud.refresh(key); return true; };
+cancelAppt = async (uid, kind, reason) => { if (Store.preview) return cancelApptLocal(uid, kind, reason);
+  try { await Cloud.rpc("cancel_appt", {p_uid:uid, p_kind:kind, p_reason:reason||""}); } catch(e){ toast(cloudMsg(e)); return false; }
+  Cloud.refresh("members/x"); Cloud.refresh("members/"+uid); Cloud.refresh("members/"+uid+"/inbox/x"); if (isFatherView()) Cloud.refresh(PP()+"/"+uid); return true; };
 listAccounts = async () => { try { return await Cloud.list("accounts"); } catch(e){ return []; } };
 
 function cloudAccount(me){
