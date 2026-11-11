@@ -3973,7 +3973,7 @@ function subscribe(){
     L("book/"+schedId()+"/v", null, r => { S.vbookings=r||[]; scheduleRender(); }); }
   else if (S.role === "member" && schedId()) L("sched/"+schedId(), null, r => { S.sched=r; scheduleRender(); });
   if (S.role === "priest" || S.role === "admin"){
-    L("members", null, r => { S.members=r; scheduleRender(); });
+    L("members", null, r => { S.members=r; S.membersReady = true; scheduleRender(); });
     L(PP(), null, r => { S.people=r; scheduleRender(); });
     L("priest/meta", null, r => { S.meta=r||{}; scheduleRender(); });
   } else if (S.uid){
@@ -8110,7 +8110,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-1";
+const APP_VERSION = "2026.11.11-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8214,7 +8214,7 @@ function navFixSoon(){ [0, 120, 400, 900].forEach(t => setTimeout(navFix, t)); }
 window.addEventListener("orientationchange", navFixSoon); window.addEventListener("resize", navFixSoon); window.addEventListener("pageshow", navFixSoon);
 if (window.visualViewport){ visualViewport.addEventListener("resize", navFixSoon); visualViewport.addEventListener("scroll", navFix); }
 { const r0 = render; render = function(){ const r = r0.apply(this, arguments); navFix(); return r; }; }
-function logout(){ clearTimeout(idleTimer); chatStop(); { const hero = document.querySelector(".band .hero"); if (hero) OCCASION.dress(hero, ""); OCCASION.snow(false); } if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ clearTimeout(idleTimer); chatStop(); { const hero = document.querySelector(".band .hero"); if (hero) OCCASION.dress(hero, ""); OCCASION.snow(false); } if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.membersReady=false; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -8725,7 +8725,7 @@ function adminView(all, part){
   const cloudAdm = isAdmin && Store.mode === "cloud";
   const accCard = a => {
     const open = S.draft.accOpen === a.id, manage = canManage(a), self = a.id === S.account.id;
-    const miss = cloudAdm && ["user","pending"].includes(a.role) ? profileMissing(memberOf(a.id), a.photo) : [];
+    const miss = cloudAdm && S.membersReady && ["user","pending"].includes(a.role) ? profileMissing(memberOf(a.id), a.photo) : [];
     const li = h("li",{class:"acc-row"+(open ? " open" : ""), "data-name":arKey(a.name+" "+((memberOf(a.id)||{}).name||"")), "data-miss":miss.length ? "1" : ""},
       h("div",{class:"person-line", style:"cursor:pointer", onclick:()=>{ S.draft.accOpen = open ? null : a.id; render(); }},
         cloudAdm ? avatar({name:a.name, photo:a.photo || (memberOf(a.id)||{}).photo}) : h("span",{class:"prep-emo"}, (ROLES[a.role]||ROLES.user).emo),
@@ -8809,7 +8809,7 @@ function adminView(all, part){
   // «دليل الأسماء» (2026-11-05): on the server the admin gets one A-to-Z list with a letter rail; a tap shows the full card
   // beside the list (computer) or as a sheet from the bottom (phone). The local build keeps the cards in groups.
   const dirRow = a => {
-    const m = memberOf(a.id) || {}, miss = ["user","pending"].includes(a.role) ? profileMissing(m, a.photo) : [], on = S.draft.accOpen === a.id;
+    const m = memberOf(a.id) || {}, miss = S.membersReady && ["user","pending"].includes(a.role) ? profileMissing(m, a.photo) : [], on = S.draft.accOpen === a.id;
     const sub = a.role === "priest" ? "⛪ أب اعتراف · "+arDigits(accs.filter(x => x.id !== a.id && x.role !== "priest" && x.father === a.id && !x.pending).length)+" معترف"
       : a.role === "user" || a.father ? (a.father ? h("span",{class:"fa-line"}, "أب الاعتراف: ", h("bdi",null,(accs.find(x => x.id === a.father)||{}).name||"؟")) : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
     return h("li",{class:"dir-row"+(on ? " on" : ""), role:"button", tabindex:"0", "aria-pressed":on ? "true" : "false", "data-id":a.id,
@@ -8852,11 +8852,12 @@ function adminView(all, part){
     return h("div",{class:"acc-group", "data-group":k}, h("h4",{class:"acc-group-h"}, label+" ("+arDigits(rows.length)+")"),
       rows.length ? h("ul",{class:"list acc-grid"}, rows.map(accCard)) : h("p",{class:"small muted"},"مفيش حد هنا."));
   }));
-  const missN = cloudAdm ? accs.filter(a => ["user","pending"].includes(a.role) && profileMissing(memberOf(a.id), a.photo).length).length : 0;
+  const missN = cloudAdm && S.membersReady ? accs.filter(a => ["user","pending"].includes(a.role) && profileMissing(memberOf(a.id), a.photo).length).length : 0;
   wrap.append(h("section",{id:"admPeople"}, h("div",{class:"sec-head"}, part ? null : h("h3",null,"👥 الناس"), h("span",{class:"small muted"}, cloudAdm ? "مرتبة أبجديًا · اضغط على أي اسم لعرض بياناته" : "اضغط على أي كارت لتغيير كلمة السر أو الصلاحية")),
     h("div",{class:"acc-filter row", role:"tablist", "aria-label":"الأقسام"},
       [["all","الكل", accs.length], ...GROUPS.map(([k, l, f]) => [k, l, accs.filter(f).length])].map(([k, l, n]) =>
         h("button",{type:"button", role:"tab", class:"chip-btn acc-tab", "aria-selected":grp === k ? "true" : "false", "aria-pressed":grp === k ? "true" : "false", "data-group":k, onclick:()=>{ S.draft.accGroup = k; render(); }}, l+" · "+arDigits(n))),
+      cloudAdm && !S.membersReady ? h("span",{class:"chip-btn acc-miss-wait", id:"accMissWait"},"⏳ جارٍ تحميل البيانات…") : null,
       missN ? h("button",{type:"button", class:"chip-btn acc-miss-btn", "aria-pressed":onlyMiss ? "true" : "false", onclick:()=>{ S.draft.accMiss = !onlyMiss; render(); }},"📝 بياناته ناقصة · "+arDigits(missN)) : null),
     ff ? h("div",{class:"row father-on", style:"margin-top:8px;align-items:center"}, h("span",{class:"pill ok"}, ff === "none" ? "اللي من غير أب بس" : "أولاد "+((fathers.find(f => f.id === ff)||{}).name||"")+" بس"),
       h("button",{type:"button", class:"btn sm quiet father-clear", onclick:()=>{ S.draft.accFather = ""; S.draft.accGroup = "all"; render(); }},"✕ عرض الكل")) : null,
