@@ -4741,6 +4741,43 @@ function priestFamilies(all){
 }
 /* calling and WhatsApp straight from the father's screens (WhatsApp opens with the message written; he presses send) */
 const telOf = ph => String(ph||"").replace(/[^\d+]/g,"");
+// WhatsApp on a computer (2026-11-12, user): every «واتساب» button opened a new tab each time. Now, on a computer, all of them
+// share one tab named "menrit_wa" (straight to web.whatsapp.com, without the wa.me page), or, when chosen on this computer,
+// open the WhatsApp computer app (whatsapp://send). Phones keep wa.me, which opens the WhatsApp app.
+const WA_MODE_KEY = "menrit_wamode";
+const waIsPhone = () => { const ua = navigator.userAgent || ""; return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua)); };
+const waMode = () => { try { return localStorage.getItem(WA_MODE_KEY) === "app" ? "app" : "web"; } catch(e){ return "web"; } };
+function waTarget(href){
+  let u; try { u = new URL(href); } catch(e){ return null; }
+  if (u.hostname !== "wa.me") return null;
+  const phone = u.pathname.replace(/\D/g, ""), text = u.searchParams.get("text") || "";
+  const q = [phone ? "phone="+phone : "", text ? "text="+encodeURIComponent(text) : ""].filter(Boolean).join("&");
+  if (waMode() === "app") return {app:true, url:"whatsapp://send?"+q};
+  return {app:false, url: phone ? "https://web.whatsapp.com/send?"+q : href};
+}
+function waOpen(href){
+  const t = waTarget(href); if (!t) return false;
+  if (t.app){ const a = document.createElement("a"); a.href = t.url; document.body.append(a); a.click(); a.remove();
+    toast("إذا لم يُفتح تطبيق واتساب، اختر «واتساب ويب» من «💬 رسائل واتساب على هذا الكمبيوتر» في الإعدادات."); return true; }
+  const w = window.open(t.url, "menrit_wa"); if (!w) return false;
+  try { w.focus(); } catch(e){}
+  return true;
+}
+document.addEventListener("click", e => {
+  if (e.defaultPrevented || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || waIsPhone()) return;
+  const a = e.target.closest && e.target.closest('a[href^="https://wa.me/"]'); if (!a) return;
+  if (waOpen(a.href)) e.preventDefault();
+}, true);
+function waCard(){
+  if (waIsPhone()) return null;
+  const cur = waMode();
+  const pick = v => { try { localStorage.setItem(WA_MODE_KEY, v); } catch(e){} toast(v === "app" ? "ستُفتح رسائل واتساب في تطبيق واتساب على هذا الكمبيوتر." : "ستُفتح رسائل واتساب في نافذة واتساب ويب واحدة."); render(); };
+  return h("div",{class:"card form wa-card"}, h("h3",null,"💬 رسائل واتساب على هذا الكمبيوتر"),
+    h("p",{class:"small muted", style:"margin:0"},"مع «واتساب ويب» تُفتح كل الرسائل في نافذة واحدة بدلًا من نافذة جديدة كل مرة. وإذا كان تطبيق واتساب مثبتًا على هذا الكمبيوتر، اختر «تطبيق واتساب» فتُفتح الرسالة فيه مباشرة."),
+    h("div",{class:"row"},
+      h("button",{class:"chip-btn wa-mode", type:"button", "data-wa":"web", "aria-pressed": String(cur==="web"), onclick:()=>pick("web")},"🌐 واتساب ويب"),
+      h("button",{class:"chip-btn wa-mode", type:"button", "data-wa":"app", "aria-pressed": String(cur==="app"), onclick:()=>pick("app")},"📲 تطبيق واتساب")));
+}
 const waLink = (ph, text) => "https://wa.me/"+waNum(ph)+(text ? "?text="+encodeURIComponent(text) : "");
 const fatherSign = () => S.account && accRole() === "priest" ? S.account.name : ((S.settings||{}).priestName || "أبونا");
 function whenAr(s){ const d = new Date(s); return WDAYS[d.getDay()]+" "+fmtG(d)+" الساعة "+timeAr(pad(d.getHours())+":"+pad(d.getMinutes())); }
@@ -7353,7 +7390,7 @@ function calCard(){
 }
 function priestSettings(){
   const st = S.settings || {};
-  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), newsRow(), supCard(false), pushCard(false), calCard());
+  const wrap = h("div",{style:"display:grid;gap:18px"}, sectionHead("الإعدادات"), newsRow(), supCard(false), pushCard(false), waCard(), calCard());
   const admScreen = S.role === "admin" && accRole() === "admin";
   if (admScreen){ const inv = inviteCard(), ppc = passportCard(); if (inv) wrap.append(inv); if (ppc) wrap.append(ppc); }
   const manyFathers = Store.mode === "cloud";
@@ -8171,8 +8208,9 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-12a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-12b", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["💬","واتساب في نافذة واحدة","على الكمبيوتر تُفتح كل رسائل واتساب من البرنامج في نافذة واحدة بدلًا من نافذة جديدة كل مرة. وإذا كان تطبيق واتساب مثبتًا على الكمبيوتر، اختر «📲 تطبيق واتساب» من كارت «💬 رسائل واتساب على هذا الكمبيوتر» في «الإعدادات» فتُفتح الرسالة فيه مباشرة."],
     ["🎬","فيديوهات الشرح","في «الدعم الفني» كارت «🎬 فيديوهات الشرح»: فيديوهات التسجيل وإضافة الأيقونة ومميزات البرنامج وحجز موعد الاعتراف والنوتة الروحية وتشغيل التنبيهات، بالعربية والإنجليزية، يشاهدها الجميع من الدعم الفني بعد الدخول، وفي شاشة الدخول يظهر فيديو التسجيل فقط. يمكنك إخفاء أي فيديو، وإضافة فيديوهات أخرى برابط من يوتيوب، وفي الرد على أي طلب زر «🎬 إرسال فيديو» يصل للشخص فيشاهده داخل البرنامج."],
     ["🖼️","مخزن الصور","تُحفظ كل صورة الآن مرة واحدة ملفًا في مخزن الصور، وتظهر منه في كل مكان، فتخف بيانات الكنيسة كثيرًا. في «الدعم الفني» داخل «المساحة المستخدمة» زر «📦 نقل الصور الحالية إلى مخزن الصور» لنقل الصور القديمة مرة واحدة، ويظهر تحته حجم مخزن الصور."],
     ["🕊️","تشجيع على النوتة الروحية","يستطيع أب الاعتراف أن يترك 👍 أو كلمة تشجيع قصيرة على أي يوم في نوتة ابنه، فيصله تنبيه ورسالة. ويصل لكل شخص تذكير بالليل إذا لم يسجّل نوتة اليوم، وفي أول أسبوع من كل شهر يظهر له ملخص «رحلتك في شهر …». ولا تظهر كلمات الآباء للأدمن."],
@@ -8195,6 +8233,7 @@ const NEWS = {id:"2026-11-12a", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["💬","واتساب في نافذة واحدة","على الكمبيوتر تُفتح كل رسائل واتساب من البرنامج في نافذة واحدة بدلًا من نافذة جديدة كل مرة. وإذا كان تطبيق واتساب مثبتًا على الكمبيوتر، اختر «📲 تطبيق واتساب» من كارت «💬 رسائل واتساب على هذا الكمبيوتر» في «الإعدادات» فتُفتح الرسالة فيه مباشرة."],
     ["🎬","فيديوهات الشرح","في «الإعدادات» داخل كارت «الدعم الفني» زر «🎬 فيديوهات الشرح»: فيديوهات قصيرة بالعربية والإنجليزية عن التسجيل وإضافة أيقونة البرنامج، وحجز موعد الاعتراف، والنوتة الروحية، وتشغيل التنبيهات، يمكنك مشاهدتها ومشاركتها مع أبنائك."],
     ["🕊️","«أبونا شاف نوتتك»","افتح كارت أحد أبنائك، وتحت «النوتة الروحية» اضغط 👍 أو «✍️ كلمة تشجيع» على أي يوم سجّله، فتصله رسالة وتنبيه بأنك رأيت نوتته. ولا يرى أحد غيره ما كتبته."],
     ["📷","صورة في الدعم الفني","يمكنك الآن إرسال صورة (مثل صورة من الشاشة) في الدعم الفني بزر 📷 بجوار مكان الكتابة، لتوضيح المشكلة."],
@@ -8603,7 +8642,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.12-1";
+const APP_VERSION = "2026.11.12-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
