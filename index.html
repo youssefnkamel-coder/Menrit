@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://bchxqstesohcsdczvvvv.supabase.co https://api.katameros.app https://api.open-meteo.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://bchxqstesohcsdczvvvv.supabase.co; connect-src 'self' https://bchxqstesohcsdczvvvv.supabase.co https://api.katameros.app https://api.open-meteo.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
 <title>ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -395,6 +395,13 @@ body.chat-open .chat-fab{display:none}
 .sto-bar{display:flex;gap:2px;height:14px;border-radius:8px;overflow:hidden;background:var(--line);margin:6px 0 10px} .sto-bar i{display:block;min-width:4px}
 .sto-list{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:7px}
 .sto-list li{display:flex;align-items:center;gap:8px} .sto-l{flex:1} .sto-dot{width:11px;height:11px;border-radius:50%;flex:none}
+.nb-cheer{display:grid;gap:4px;margin-top:6px} .nb-cheer .row{gap:6px} .nb-like.on{background:color-mix(in srgb,var(--gold) 22%,transparent);border-color:var(--gold)}
+.nb-said{color:var(--gold-ink)} .nb-word-box input{flex:1;min-width:160px}
+.nb-fword{border-color:var(--gold)!important;background:color-mix(in srgb,var(--gold) 10%,var(--surface))}
+.nb-sum{border-color:var(--gold)!important;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 12%,var(--surface)),var(--surface))}
+.nb-sum-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:10px 0}
+.nb-sum-t{display:grid;gap:2px;text-align:center;padding:10px 6px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)} .nb-sum-t b{font-size:1.4rem;color:var(--gold-ink)} .nb-sum-t span{font-size:.8rem}
+.nb-verse{margin:0;font-family:var(--f-scripture,inherit);color:var(--ink-2);text-align:center}
 .sto-shrink{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}
 .sto-all{border-top:1px dashed var(--line);padding-top:8px;margin-bottom:8px}
 .chat-empty{margin:auto;color:var(--ink-2);font-size:.9rem;text-align:center}
@@ -4115,7 +4122,24 @@ function photoPickerSized(id, label, size, onPick){
 }
 function photoPicker(id, label, onPick){
   return [h("label",{class:"btn sm ghost", for:id, style:"cursor:pointer"}, label),
-    h("input",{id, type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 240, onPick); e.target.value=""; }})];
+    h("input",{id, type:"file", accept:"image/*", hidden:true, onchange:e=>{ const f=e.target.files[0]; if(f) resizeImage(f, 240, u => photoUp(u).then(onPick)); e.target.value=""; }})];
+}
+// (2026-11-11) on the server a picture is saved once, as a file, and its link is used everywhere; elsewhere it stays as it is
+const photoOld = u => /^data:image\//.test(u || "");
+function photoUp(u){ return photoApi && Store.mode === "cloud" && !Store.preview && photoOld(u) ? photoApi.keep(u) : Promise.resolve(u); }
+// his own older pictures move to files by themselves, a little after he opens the app
+async function photoMoveMine(){
+  if (!photoApi || Store.mode !== "cloud" || Store.preview || !S.account || photoMoveMine.busy) return;
+  photoMoveMine.busy = true;
+  const move = async src => photoApi.up((await shrinkPhoto(src, 240)) || src);
+  try {
+    if (S.role === "member"){ if (S.profile && photoOld(S.profile.photo)){ const u = await move(S.profile.photo); await Store.update("members/" + S.uid, {photo:u}); S.account.photo = u; } }
+    else if (photoOld(S.account.photo)){ const u = await move(S.account.photo); await saveAccount(S.account, {photo:u}); S.account.photo = u; }
+    // a father's own notes: only he may open them, so only his device moves their pictures
+    if (accRole() === "priest") for (const x of (S.people || []).filter(x => x.id && photoOld(x.photo)).slice(0, 60)){
+      const u = await move(x.photo); await editDoc(PP() + "/" + x.id, cur => Object.assign(cur, {photo:u})); }
+  } catch(e){ console.warn("photo move", e && e.message); }
+  finally { photoMoveMine.busy = false; }
 }
 const P2 = n => String(n).padStart(2,"0");
 // the church day starts with the evening prayers: from 6 pm the readings are the next day's (2026-11-06)
@@ -4401,7 +4425,7 @@ async function routeNotify(stops, r, etas){
     toast("تم إبلاغ "+arDigits(items.length)+" بمواعيدهم في البرنامج.");
   } catch(e){ toast(typeof cloudMsg === "function" ? cloudMsg(e) : "تعذّر الإبلاغ، برجاء المحاولة مرة أخرى."); }
 }
-let visitApi = null;
+let visitApi = null, nbApi = null, photoApi = null;
 // who was not visited goes first next time; whoever was visited leaves that list
 function routeCarry(stops, r){
   const missed = stops.filter(p => !visitedOn(p, r.date)).map(p => p.id), inTrip = new Set(stops.map(p => p.id));
@@ -4861,12 +4885,30 @@ function personDetail(all){
     const pick = (ds, r) => { S.draft.nbPick = pk && pk.date === ds ? null : {uid:p.id, date:ds, r}; render(); };
     card.append(h("h3",null,"النوتة الروحية"), notebookMonth(p.id, S.selNotebook, pick, pk && pk.date));
     const last = pk ? [Object.assign({date:pk.date}, pk.r || {})] : S.selNotebook.slice(0,5);
-    card.append(last.length ? h("ul",{class:"list"}, last.map(n => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(n.date)),
+    const ask = nbApi && !Store.preview && accRole() === "priest" && isMyChild(p.id);
+    if (ask && (!S.nbNotes || S.nbNotes.uid !== p.id)){ S.nbNotes = {uid:p.id, m:{}, ok:false}; nbApi.notes(p.id).then(m => { if (S.nbNotes && S.nbNotes.uid === p.id){ S.nbNotes.m = m || {}; S.nbNotes.ok = true; scheduleRender(); } }).catch(() => {}); }
+    const cheer = ask && S.nbNotes && S.nbNotes.uid === p.id && S.nbNotes.ok;
+    card.append(last.length ? h("ul",{class:"list nb-father"}, last.map(n => h("li",{"data-date":n.date}, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(n.date)),
       h("span",{class:"small muted"}, NOTE_ITEMS.filter(([k])=>n.items&&n.items[k]).map(([,l])=>l).join("، ") || "ما سجلش حاجة"),
-      n.portion ? h("span",{class:"small"},"القراءة: "+n.portion) : null, n.reflection ? h("span",{class:"small"}, "«"+n.reflection+"»") : null),
+      n.portion ? h("span",{class:"small"},"القراءة: "+n.portion) : null, n.reflection ? h("span",{class:"small"}, "«"+n.reflection+"»") : null,
+      cheer && n.items ? nbCheerRow(p, n.date) : null),
       n.metanias ? h("span",{class:"pill"}, arDigits(n.metanias)+" ميطانية") : null))) : h("div",{class:"empty"},"لسه ما سجلش في النوتة."));
   }
   return card;
+}
+// «أبونا شاف نوتتك» (2026-11-11): 👍 and/or a short word on one day; the confessee gets a message and a notification
+const isMyChild = id => { const a = (S.accounts || []).find(x => x.id === id); return !!S.account && (!a || !a.father || a.father === S.account.id); };
+function nbCheerRow(p, date){
+  const cur = (S.nbNotes && S.nbNotes.uid === p.id && S.nbNotes.m[date]) || null, open = S.draft.nbCheer === p.id + "|" + date;
+  const send = async (like, text) => { try { await nbApi.note(p.id, date, like, text); S.nbNotes.m[date] = like || text ? {like, text} : null; S.draft.nbCheer = null;
+      toast(like || text ? "تم الإرسال، ووصل له تنبيه" : "تم الحذف"); render(); } catch(e){ toast("تعذّر الإرسال"); } };
+  return h("div",{class:"nb-cheer"},
+    cur && cur.text ? h("span",{class:"nb-said small"}, "🕊️ كتبت له: «" + cur.text + "»") : null,
+    h("div",{class:"row"},
+      h("button",{type:"button", class:"btn sm ghost nb-like" + (cur && cur.like ? " on" : ""), "aria-pressed":String(!!(cur && cur.like)), onclick:()=>send(!(cur && cur.like), cur ? cur.text : "")}, "👍"),
+      h("button",{type:"button", class:"btn sm ghost nb-word", onclick:()=>{ S.draft.nbCheer = open ? null : p.id + "|" + date; render(); }}, cur && cur.text ? "✏️ تعديل الكلمة" : "✍️ كلمة تشجيع")),
+    open ? h("div",{class:"row nb-word-box"}, h("input",{id:"nbWord", maxlength:"300", value:(cur && cur.text) || "", placeholder:"مثلًا: ربنا يقويك، استمر 🌿"}),
+      h("button",{type:"button", class:"btn sm", id:"nbWordSend", onclick:()=>send(!!(cur && cur.like), ($("#nbWord").value || "").trim())}, "إرسال")) : null);
 }
 function selectPersonClear(){ S.selUnsubs.forEach(u=>u()); S.selUnsubs=[]; S.sel=null; render(); }
 
@@ -6581,38 +6623,48 @@ function storageCard(){
       h("div",{class:"db-bar"}, h("i",{style:"width:" + Math.min(100, pc) + "%"}))),
     h("div",{class:"row between", style:"align-items:center"}, h("span",{class:"small muted"}, "آخر حساب: " + atTxt),
       h("button",{type:"button", class:"btn sm ghost", id:"stoAgain", onclick:()=>load()}, "🔄 احسب مرة أخرى")),
-    shrinkRow(load));
+    r.files_limit ? h("div",{class:"sto-all sto-files", id:"stoFiles"}, h("span",{class:"small"}, "🖼️ مخزن الصور: ", h("b",{class:"num"}, stoSize(+r.files || 0)), " من ", h("b",{class:"num"}, stoSize(r.files_limit)),
+      r.files_n ? h("small",{class:"muted"}, " (" + arDigits(r.files_n) + " صورة)") : null),
+      h("div",{class:"db-bar"}, h("i",{style:"width:" + Math.min(100, Math.max(+r.files ? 1 : 0, Math.round((+r.files || 0) / r.files_limit * 100))) + "%"}))) : null,
+    shrinkRow(load, r));
 }
-function shrinkRow(reload){
+function shrinkRow(reload, r){
   const st = S.shrink;
-  if (st && st.run) return h("div",{class:"sto-shrink", id:"shrinkBox"}, h("b",null, "🗜️ جارٍ تصغير الصور… ", h("span",{class:"num"}, arDigits(st.i) + " من " + arDigits(st.n))),
+  if (st && st.run) return h("div",{class:"sto-shrink", id:"shrinkBox"}, h("b",null, "📦 جارٍ نقل الصور إلى مخزن الصور… ", h("span",{class:"num"}, arDigits(st.i) + " من " + arDigits(st.n))),
     h("div",{class:"db-bar"}, h("i",{style:"width:" + Math.round(st.i / Math.max(1, st.n) * 100) + "%"})), h("small",{class:"muted"}, "لا تغلق البرنامج حتى ينتهي."));
+  const left = r && +r.old_n || 0;
   return h("div",{class:"sto-shrink", id:"shrinkBox"},
-    st && st.done ? h("p",{class:"small", id:"shrinkDone", style:"margin:0 0 6px"}, "✅ تم تصغير " + arDigits(st.saved) + " صورة، ووفّرنا " + stoSize(st.freed) + ".") : null,
-    h("button",{type:"button", class:"btn sm", id:"shrinkGo", onclick:()=>shrinkAll(reload)}, "🗜️ تصغير الصور الحالية"),
-    h("small",{class:"muted", style:"display:block;margin-top:4px"}, "تُضغط الصور على جهازك وتُحفظ أخف، دون فرق ظاهر في الشكل."));
+    st && st.done ? h("p",{class:"small", id:"shrinkDone", style:"margin:0 0 6px"}, st.noStore ? "⚠️ مخزن الصور غير جاهز بعد. شغّل ملف SQL الجديد في Supabase ثم حاول مرة أخرى."
+      : "✅ تم نقل " + arDigits(st.saved) + " صورة إلى مخزن الصور، ووفّرنا " + stoSize(st.freed) + " من مساحة البيانات.") : null,
+    left || !(st && st.done) ? h("button",{type:"button", class:"btn sm", id:"shrinkGo", onclick:()=>shrinkAll(reload)}, "📦 نقل الصور الحالية إلى مخزن الصور" + (left ? " (" + arDigits(left) + ")" : "")) : null,
+    h("small",{class:"muted", style:"display:block;margin-top:4px"}, left || !r ? "تُحفظ كل صورة مرة واحدة ملفًا في مخزن الصور، وتظهر منه في كل مكان، فتخف بيانات الكنيسة." : "كل الصور محفوظة في مخزن الصور. الصور الجديدة تُحفظ فيه تلقائيًا."));
 }
 async function shrinkAll(reload){
   if (S.shrink && S.shrink.run) return;
-  // people's own photos first (240 px), then the accounts' copies (small for confessees, 240 px for fathers and admins)
-  const jobs = [];
-  for (const m of S.members || []) if (m.id && /^data:image\//.test(m.photo || "")) jobs.push({kind:"m", id:m.id, src:m.photo, max:240});
-  for (const a of S.accounts || []) if (a.id && /^data:image\//.test(a.photo || "")) jobs.push({kind:"a", acc:a, src:a.photo, max:a.role === "user" || a.role === "pending" ? THUMB_PX : 240});
-  if (!jobs.length){ toast("لا توجد صور لتصغيرها"); return; }
+  // people's own pictures first, then the accounts' (fathers, admins, and any copy left), then the support pictures.
+  // The fathers' private notes are not here: only each father's own device moves those (photoMoveMine).
+  const jobs = [], moved = new Map();
+  for (const m of S.members || []) if (m.id && photoOld(m.photo)) jobs.push({kind:"m", id:m.id, src:m.photo});
+  for (const a of S.accounts || []) if (a.id && photoOld(a.photo)) jobs.push({kind:"a", acc:a, src:a.photo});
+  if (photoOld(S.settings && S.settings.priestPhoto)) jobs.push({kind:"st", src:S.settings.priestPhoto});
+  let sup = []; try { sup = supOn() ? (await supApi.old()) || [] : []; } catch(e){}
+  for (const id of sup) jobs.push({kind:"sup", id});
+  if (!jobs.length){ toast("كل الصور محفوظة في مخزن الصور"); return; }
   S.shrink = {run:true, i:0, n:jobs.length, saved:0, freed:0}; render();
+  const file = async (src, max) => photoApi.up(max ? (await shrinkPhoto(src, max)) || src : src);
   for (const j of jobs){
-    try { const out = await shrinkPhoto(j.src, j.max);
-      if (out){
-        if (j.kind === "m") await Store.update("members/" + j.id, {photo:out});
-        else { const acc = (S.accounts || []).find(x => x.id === j.acc.id) || j.acc, cur = acc.photo || j.src;
-          const o2 = cur === j.src ? out : await shrinkPhoto(cur, j.max);   // a members photo just above may have replaced it
-          if (o2){ await saveAccount(acc, {photo:o2}); acc.photo = o2; } }
-        S.shrink.saved++; S.shrink.freed += j.src.length - out.length; }
-    } catch(e){ console.warn("shrink", e && e.message); }
+    try {
+      if (j.kind === "m"){ const u = await file(j.src, 240); await Store.update("members/" + j.id, {photo:u}); moved.set(j.id, u); S.shrink.freed += j.src.length; }
+      else if (j.kind === "a"){ const u = moved.get(j.acc.id) || await file(j.src, 240); await saveAccount(j.acc, {photo:u}); j.acc.photo = u; S.shrink.freed += j.src.length; }
+      else if (j.kind === "st"){ const u = await file(j.src, 240); await editDoc("settings/app", cur => Object.assign(cur, {priestPhoto:u})); S.shrink.freed += j.src.length; }
+      else { const src = await supApi.img(j.id); if (photoOld(src)){ const u = await file(src); if (await supApi.move(j.id, u)){ S.shrink.freed += src.length; if (SUP.imgs) SUP.imgs.set(j.id, u); } } }
+      S.shrink.saved++;
+    } catch(e){ console.warn("photo move", e && e.message);
+      if (!S.shrink.saved && /bucket|not found|404|no church/i.test((e && e.message) || "")){ S.shrink = {done:true, noStore:true}; render(); return; } }
     S.shrink.i++; if (S.shrink.i % 5 === 0 || S.shrink.i === S.shrink.n) scheduleRender();
   }
   S.shrink = {done:true, saved:S.shrink.saved, freed:S.shrink.freed};
-  if (typeof logAct === "function") logAct("صغّر الصور (" + S.shrink.saved + " صورة)");
+  if (typeof logAct === "function") logAct("نقل الصور إلى مخزن الصور (" + S.shrink.saved + " صورة)");
   render(); setTimeout(() => reload && reload(), 1500);
 }
 function supportView(){
@@ -7304,6 +7356,7 @@ function memberToday(){
   const med = S.meditations[0], personal = S.inbox.find(m=>m.type==="meditation");
   const pick = personal && (!med || personal.at > med.at) ? personal : med;
   wrap.append(h("section",{class:"half"}, sectionHead("تأمل اليوم"), pick ? h("div",{class:"card"}, meditationBlock(pick), pick===personal ? h("span",{class:"pill acc", style:"width:max-content"},"مبعوت ليك مخصوص") : null) : h("div",{class:"empty"},"أبونا لسه ما بعتش تأمل النهارده.")));
+  { const ms = nbMonthSum(true); if (ms) wrap.append(ms); }
   const todayNote = S.notebook.find(n=>n.date===TODAY_S);
   wrap.append(h("section",{class:"half"}, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), notebookGrid(S.notebook)));
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(false)));
@@ -7364,6 +7417,9 @@ function memberNotebook(){
   const wrap = h("div",{style:"display:grid;gap:16px"}, sectionHead("النوتة الروحية",
     h("input",{id:"nbDate", type:"date", value:date, max:TODAY_S, style:"width:auto", onchange:e=>{ S.draft.nbDate=e.target.value; S.draft.nb=null; render(); }})));
   wrap.append(h("p",{class:"small muted"}, "سجّل ممارساتك كل يوم. أب اعترافك بيقدر يشوف النوتة عشان يتابعك."));
+  { const fw = (S.inbox || []).find(m => m.type === "nbnote" && m.date === date);
+    if (fw) wrap.append(h("div",{class:"card nb-fword", id:"nbFword"}, h("b",null, "🕊️ أبونا شاف نوتتك"), fw.text ? h("p",{style:"margin:4px 0 0"}, "«" + fw.text + "»") : h("p",{style:"margin:4px 0 0"}, "👍 ربنا يقويك، كمّل"))); }
+  { const ms = nbMonthSum(); if (ms) wrap.append(ms); }
   wrap.append(h("div",{class:"checks"}, NOTE_ITEMS.map(([k,l]) => h("label",{class:"check"},
     h("input",{type:"checkbox", id:"nb_"+k, checked:!!nb.items[k], onchange:e=>{ nb.items[k]=e.target.checked; }}), l))));
   wrap.append(h("div",{class:"card form"},
@@ -7379,7 +7435,46 @@ function memberNotebook(){
   const pick = ds => { S.draft.nbDate = ds; S.draft.nb = null; render(); const t = $("#nbDate"); if (t) t.scrollIntoView({block:"center", behavior:"smooth"}); };
   pick.any = true;
   wrap.append(h("section",null, h("h3",null,"متابعتك"), notebookMonth(S.uid, S.notebook, pick, date)));
+  wrap.append(nbRemindRow());
   return wrap;
+}
+// «🌙 تذكير بالليل» (2026-11-11): at the chosen time, when today's notebook is still empty (server job nb_nudge)
+function nbRemindRow(){
+  if (Store.mode !== "cloud" || Store.preview || !S.profile) return h("span");
+  const v = S.profile.nbRemind === undefined ? "21:00" : S.profile.nbRemind, on = v !== "off";
+  const save = async val => { try { await Store.update("members/" + S.uid, {nbRemind:val}); S.profile.nbRemind = val; toast(val === "off" ? "تم إيقاف التذكير" : "سيصلك التذكير الساعة " + arDigits(val) + " إذا كانت نوتة اليوم فارغة"); render(); } catch(e){ toast("تعذّر الحفظ"); } };
+  return h("div",{class:"card nb-remind", id:"nbRemind"}, h("div",{class:"row between", style:"align-items:center"},
+      h("b",null, "🌙 تذكير بالليل"), h("label",{class:"switch small"}, h("input",{type:"checkbox", id:"nbRemOn", checked:on, onchange:e=>save(e.target.checked ? "21:00" : "off")}), on ? " مفعّل" : " متوقف")),
+    on ? h("div",{class:"row", style:"align-items:center;gap:8px;margin-top:6px"}, h("span",{class:"small"}, "إذا كانت نوتة اليوم فارغة، ذكّرني الساعة"),
+      h("input",{type:"time", id:"nbRemAt", value:v, style:"max-width:130px", onchange:e=>{ if (e.target.value) save(e.target.value); }})) : null,
+    on && S.push && S.push.ready && !S.push.on ? h("p",{class:"small muted", style:"margin:6px 0 0"}, "لتصلك التذكيرات فعّل الإشعارات على هذا الجهاز من «بياناتي».") : null);
+}
+// «📊 رحلتك هذا الشهر» (2026-11-11): in the first week of a month, what the last month held
+const NB_VERSES = ["«لاَ نَفْشَلْ فِي عَمَلِ الْخَيْرِ لأَنَّنَا سَنَحْصُدُهُ فِي وَقْتِهِ إِنْ كُنَّا لاَ نَكِلُّ» (غل ٦: ٩)", "«اقْتَرِبُوا إِلَى اللهِ فَيَقْتَرِبَ إِلَيْكُمْ» (يع ٤: ٨)",
+  "«أَسْتَطِيعُ كُلَّ شَيْءٍ فِي الْمَسِيحِ الَّذِي يُقَوِّينِي» (في ٤: ١٣)", "«كُنْ أَمِينًا إِلَى الْمَوْتِ فَسَأُعْطِيكَ إِكْلِيلَ الْحَيَاةِ» (رؤ ٢: ١٠)"];
+function nbMonthSum(home){
+  if (!S.uid || Store.preview) return null;
+  const d = new Date(TODAY); if (d.getDate() > 7) return null;
+  const pm = new Date(d.getFullYear(), d.getMonth() - 1, 1), mon = pm.getFullYear() + "-" + P2(pm.getMonth() + 1), key = "menrit_nbsum_" + S.uid + "_" + mon;
+  if (lsGet(key) === "1") return null;
+  const days = new Date(pm.getFullYear(), pm.getMonth() + 1, 0).getDate(), from = mon + "-01", to = mon + "-" + P2(days);
+  let rows = (S.notebook || []).filter(r => (r.date || "") >= from && (r.date || "") <= to);
+  const C = S.nbMonths || (S.nbMonths = {}), ck = S.uid + "|" + mon, oldest = (S.notebook || []).length ? S.notebook[S.notebook.length - 1].date : "9999";
+  if (oldest > from && S.notebook.length >= 60){ if (!C[ck]){ C[ck] = {loading:true, rows:[]}; Store.range("members/" + S.uid + "/notebook", from, to).then(r => { C[ck] = {rows:r || []}; scheduleRender(); }).catch(() => { delete C[ck]; }); }
+    if (C[ck].loading) return null; rows = C[ck].rows; }
+  const cnt = k => rows.filter(r => r.items && r.items[k]).length, met = rows.reduce((a, r) => a + (+r.metanias || 0), 0), read = rows.filter(r => (r.portion || "").trim()).length;
+  const top = NOTE_ITEMS.map(([k, l]) => [l, cnt(k)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const mName = arDigits(pm.toLocaleDateString(timeLoc(), {month:"long"}));
+  const close = h("button",{type:"button", class:"chat-x sm", id:"nbSumX", "aria-label":"إغلاق", onclick:()=>{ lsSet(key, "1"); render(); }}, "✕");
+  if (!rows.length) return h("div",{class:"card nb-sum", id:"nbSum"}, h("div",{class:"row between"}, h("h3",{style:"margin:0"}, "📊 رحلتك في شهر " + mName), close),
+    h("p",null, "لم تُسجَّل النوتة في الشهر الماضي. هذا شهر جديد، ابدأ اليوم ولو ببند واحد 🌱"), home ? h("button",{class:"btn sm", onclick:()=>{ S.tab = "notebook"; render(); }}, "سجّل نوتة اليوم") : null);
+  return h("div",{class:"card nb-sum", id:"nbSum"}, h("div",{class:"row between"}, h("h3",{style:"margin:0"}, "📊 رحلتك في شهر " + mName), close),
+    h("div",{class:"nb-sum-g"},
+      h("div",{class:"nb-sum-t"}, h("b",{class:"num"}, arDigits(rows.length)), h("span",null, "يوم سجّلت فيه من " + arDigits(days))),
+      ...top.map(([l, n]) => h("div",{class:"nb-sum-t"}, h("b",{class:"num"}, arDigits(n)), h("span",null, l))),
+      met ? h("div",{class:"nb-sum-t"}, h("b",{class:"num"}, arDigits(met)), h("span",null, "ميطانية")) : null,
+      read ? h("div",{class:"nb-sum-t"}, h("b",{class:"num"}, arDigits(read)), h("span",null, "يوم قراءة في الكتاب")) : null),
+    h("p",{class:"nb-verse"}, NB_VERSES[pm.getMonth() % NB_VERSES.length]));
 }
 const PREP_GUIDE = [
   ["🕯️","صلّي قبل الاعتراف واطلب من ربنا ينوّر قلبك ويكشف لك أخطاءك."],
@@ -7540,7 +7635,7 @@ async function syncAccPhoto(url){
 }
 function memberInbox(){
   if (S.inbox[0]){ S.draft.seen = S.inbox[0].at; lsSet("ruhiya_seen_"+S.uid, S.inbox[0].at); }
-  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك", admin:"من الإدارة", cancel:"إلغاء ميعاد"};
+  const kind = {appointment:"ميعاد اعتراف", visit:"ميعاد افتقاد", greeting:"تهنئة", meditation:"تأمل", seen:"طلبك", admin:"من الإدارة", cancel:"إلغاء ميعاد", nbnote:"على النوتة"};
   return h("div",{style:"display:grid;gap:14px"}, sectionHead("رسائل أبونا"),
     S.inbox.length ? S.inbox.map(m => h("div",{class:"card"},
       h("div",{class:"row between"}, h("span",{class:"pill acc"}, kind[m.type]||"رسالة"), h("span",{class:"small muted"}, m.at ? fmtShort(ymd(new Date(m.at))) : "")),
@@ -7899,8 +7994,10 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-11d", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-11f", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🖼️","مخزن الصور","تُحفظ كل صورة الآن مرة واحدة ملفًا في مخزن الصور، وتظهر منه في كل مكان، فتخف بيانات الكنيسة كثيرًا. في «الدعم الفني» داخل «المساحة المستخدمة» زر «📦 نقل الصور الحالية إلى مخزن الصور» لنقل الصور القديمة مرة واحدة، ويظهر تحته حجم مخزن الصور."],
+    ["🕊️","تشجيع على النوتة الروحية","يستطيع أب الاعتراف أن يترك 👍 أو كلمة تشجيع قصيرة على أي يوم في نوتة ابنه، فيصله تنبيه ورسالة. ويصل لكل شخص تذكير بالليل إذا لم يسجّل نوتة اليوم، وفي أول أسبوع من كل شهر يظهر له ملخص «رحلتك في شهر …». ولا تظهر كلمات الآباء للأدمن."],
     ["🗜️","تصغير مساحة الصور","تُحفظ الصور الجديدة الآن بحجم أخف دون فرق ظاهر في الشكل. وفي «الدعم الفني» داخل «المساحة المستخدمة» زر «تصغير الصور الحالية» لتصغير الصور المحفوظة من قبل."],
     ["📊","تحسين شاشة النشاط","أصبح رسم الدخول في آخر ١٤ يومًا يُحسب من السجل كاملًا، ولم تعد الأجزاء العلوية تخرج عن إطار الشاشة."],
     ["🛟","شاشة الدعم الفني","أصبح للدعم الفني شاشة مستقلة بالأسفل، فيها كل الطلبات والمحادثات ومواعيد الدعم، و«المساحة المستخدمة» مفصّلة حسب نوع البيانات مع زر «احسب مرة أخرى». ويبقى في «الملخص» كارت صغير بأعداد الطلبات ومتوسط التقييم."],
@@ -7920,6 +8017,7 @@ const NEWS = {id:"2026-11-11d", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🕊️","«أبونا شاف نوتتك»","افتح كارت أحد أبنائك، وتحت «النوتة الروحية» اضغط 👍 أو «✍️ كلمة تشجيع» على أي يوم سجّله، فتصله رسالة وتنبيه بأنك رأيت نوتته. ولا يرى أحد غيره ما كتبته."],
     ["📷","صورة في الدعم الفني","يمكنك الآن إرسال صورة (مثل صورة من الشاشة) في الدعم الفني بزر 📷 بجوار مكان الكتابة، لتوضيح المشكلة."],
     ["⏱️","حجز أكثر من فترة","يمكن لمن يحتاج وقتًا أطول حجز عدة فترات متتالية حتى ساعتين. يظهر هذا الطلب لك بإطار ذهبي مع المدة (مثلًا «حجز ساعة · ٦ فترات متتالية») ووقت البداية والنهاية، وتؤكده بضغطة واحدة."],
     ["❌","إلغاء الموعد المؤكد","في «مواعيد قادمة» زر «إلغاء الموعد» مع رسالة اعتذار اختيارية، ويصل للشخص تنبيه ويمكنه الحجز مرة أخرى. وإذا ألغى الشخص موعده، يظهر لك في «الطلبات» اسمه وسبب الإلغاء، ويصبح الموعد متاحًا في جدولك."],
@@ -7931,6 +8029,9 @@ const NEWS = {id:"2026-11-11d", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["🕊️","«أبونا شاف نوتتك»","عندما يرى أب اعترافك نوتتك ويترك 👍 أو كلمة تشجيع يصلك تنبيه، وتظهر كلمته فوق اليوم في «النوتة» وفي «الرسائل»."],
+    ["🌙","تذكير بالليل","إذا لم تسجّل نوتة اليوم يصلك تنبيه الساعة ٩ مساءً. يمكنك تغيير الوقت أو إيقاف التذكير من أسفل شاشة «النوتة»."],
+    ["📊","رحلتك في الشهر","في أول أسبوع من كل شهر يظهر لك في «اليوم» ملخص للشهر الماضي: عدد الأيام التي سجّلت فيها، وأكثر ما واظبت عليه، مع آية تشجيع."],
     ["📷","صورة في الدعم الفني","يمكنك الآن إرسال صورة (مثل صورة من الشاشة) في الدعم الفني بزر 📷 بجوار مكان الكتابة، لتوضيح المشكلة."],
     ["❌","إلغاء الموعد","بعد تأكيد أبونا لموعدك، يمكنك إلغاؤه من «المواعيد» بزر «إلغاء الموعد» مع كتابة السبب إن أردت، ويصل الإلغاء إلى أبونا. وبعدها يمكنك حجز موعد آخر."],
     ["⏱️","وقت أطول للاعتراف","إذا كنت تحتاج وقتًا أطول مع أبونا، اختر بعد الموعد «المدة التي تحتاجها» إذا كانت الفترات التالية متاحة."],
@@ -8146,7 +8247,7 @@ const IC = {
   finger:"M12 10a2 2 0 0 0-2 2c0 1 0 3.3-.4 5.3M14 13.1c0 2.4 0 6.4-1 8.9M17.3 21.1c.1-.6.4-2.3.5-3.1M2 12a10 10 0 0 1 18-6M2 16h.01M21.8 16c.2-2 .1-5.4 0-6M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .3-2M8.7 22c.2-.7.5-1.3.6-2M9 6.8a6 6 0 0 1 9 5.2v2",
   gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"};
 // emoji → [icon, colour]
-const EMO = {"🗜️":["image","#0d9488"],"🎨":["palette","#db2777"],"🖌️":["palette","#0891b2"],"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
+const EMO = {"🗜️":["image","#0d9488"],"📦":["image","#7c3aed"],"🎨":["palette","#db2777"],"🖌️":["palette","#0891b2"],"🪪":["idcard","#0891b2"],"☀️":["sun","#f59e0b"],"☁️":["cloud","#64748b"],"🌧️":["drop","#3b82f6"],"⛈️":["drop","#6366f1"],"❄️":["cloud","#38bdf8"],"☀":["sun","#f59e0b"],"🌤️":["cloudsun","#f59e0b"],"🌙":["moon","#6366f1"],"🙏":["cross","#0f766e"],"✝️":["cross","#0f766e"],
   "🏠":["home","#f97316"],"🏡":["visit","#a855f7"],"📅":["calendar","#f43f5e"],"🗓️":["calcheck","#f43f5e"],"🎂":["cake","#f97316"],"📞":["phone","#2563eb"],"📵":["phoneoff","#64748b"],
   "✨":["sparkles","#eab308"],"🔄":["refresh","#0ea5e9"],"💬":["chat","#16a34a"],"💼":["work","#78716c"],"💍":["ring","#ec4899"],"🎒":["school","#0ea5e9"],
   "👨‍👩‍👧‍👦":["users","#3b82f6"],"👧":["child","#ec4899"],"👦":["child","#3b82f6"],"💑":["heart","#ef4444"],"🤍":["heart","#ef4444"],"⛪":["church","#0f766e"],"✅":["ok","#16a34a"],"❌":["no","#ef4444"],
@@ -8318,7 +8419,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-6";
+const APP_VERSION = "2026.11.11-8";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -8393,7 +8494,7 @@ async function showGate(){
   };
   draw();
 }
-function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); document.body.classList.remove("locked"); S.ready = true; subscribe(); render(); startWelcome(); bumpIdle(); }
+function unlock(){ $("#gate").hidden = true; $("#gate").replaceChildren(); document.body.classList.remove("locked"); S.ready = true; subscribe(); render(); startWelcome(); bumpIdle(); setTimeout(photoMoveMine, 8000); }
 const IDLE_MS = 3*60*1000; let idleTimer = null;
 // coming back to the app after more than 3 minutes away signs out at once, before anything shows (2026-11-07):
 // a phone pauses timers while the app is in the background, so the 3-minute timer alone could leave the screen open
@@ -9712,6 +9813,7 @@ async function showCloudGate(){
       const prev = h("div",{class:"gate-photo"}, newPhoto ? h("img",{src:newPhoto, alt:"صورتك"}) : h("span",null,"📷"));
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         if (!newPhoto) fail("اختار صورتك الأول.");
+        if (Cloud.me.role !== "pending") newPhoto = await photoApi.keep(newPhoto);   // one file in the pictures' storage (2026-11-11)
         await Cloud.rpc("update_account", {p_uid:Cloud.me.uid, p_patch:{photo:newPhoto}});
         if (["user","pending"].includes(Cloud.me.role)) { try { await Store.update("members/"+Cloud.me.uid, {photo:newPhoto, name:S.account.name}); } catch(x){} }
         S.account.photo = newPhoto; Cloud.me.photo = newPhoto; await logAct("حط صورته");
@@ -9802,14 +9904,34 @@ renameApi = {
 };
 // «📣 إبلاغ الكل» on a visit day (2026-11-07): a message with his time to each confessee on the app, and a phone notification
 visitApi = { async notify(items){ const n = await Cloud.rpc("visit_notify", {p_items:items}); return n; } };
+nbApi = { note: (uid, date, like, text) => Cloud.rpc("nb_note", {p_uid:uid, p_date:date, p_like:!!like, p_text:text || ""}), notes: uid => Cloud.rpc("nb_notes", {p_uid:uid}) };
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
 dbApi = { usage: () => Cloud.rpc("db_usage"), detail: () => Cloud.rpc("storage_usage"), loginDays: () => Cloud.rpc("login_days", {p_days:14}) };
 onlineApi = { list: () => Cloud.rpc("online_list") };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
 // «🛟 الدعم الفني» (2026-11-10)
+// pictures as files (2026-11-11): one file in this project's storage, in the church's folder, under a random name;
+// the data keeps only its link. When the storage is not ready the picture stays inside the data as before.
+photoApi = {
+  base: () => SB + "/storage/v1/object/public/menrit-photos/",
+  isFile: u => typeof u === "string" && u.startsWith(SB + "/storage/v1/object/public/menrit-photos/"),
+  async up(dataUrl){
+    const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(dataUrl || ""); if (!m) return dataUrl;
+    const c = Cloud.church(); if (!c || !Cloud.me || Cloud.me.pending) throw new Error("no church");
+    const rnd = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
+    const name = c + "/" + rnd + "." + (m[2] === "jpeg" ? "jpg" : m[2]);
+    await Cloud.req("/storage/v1/object/menrit-photos/" + name, {method:"POST", body:Uint8Array.from(atob(m[3]), ch => ch.charCodeAt(0)),
+      headers:{"Content-Type":m[1], "cache-control":"max-age=31536000", "x-upsert":"false"}});
+    return this.base() + name;
+  },
+  async keep(u){ if (!/^data:image\//.test(u || "")) return u; try { return await this.up(u); } catch(e){ console.warn("photo file", e && e.message); return u; } },
+  // only a file this person added himself can be removed (the storage refuses the rest)
+  drop(u){ if (!this.isFile(u)) return Promise.resolve(); return Cloud.req("/storage/v1/object/menrit-photos", {method:"DELETE", body:JSON.stringify({prefixes:[u.slice(this.base().length)]})}).catch(() => {}); }
+};
 supApi = { feed: uid => Cloud.rpc("support_feed", {p_uid:uid || null}),
-  send: (text, topic, info, img) => Cloud.rpc("support_send", Object.assign({p_text:text, p_topic:topic || null, p_info:info || null}, img ? {p_img:img} : {})),
-  reply: (uid, text, img) => Cloud.rpc("support_reply", Object.assign({p_uid:uid, p_text:text}, img ? {p_img:img} : {})),
+  send: async (text, topic, info, img) => { img = img ? await photoApi.keep(img) : img; return Cloud.rpc("support_send", Object.assign({p_text:text, p_topic:topic || null, p_info:info || null}, img ? {p_img:img} : {})); },
+  reply: async (uid, text, img) => { img = img ? await photoApi.keep(img) : img; return Cloud.rpc("support_reply", Object.assign({p_uid:uid, p_text:text}, img ? {p_img:img} : {})); },
+  old: () => Cloud.rpc("support_img_old"), move: (id, url) => Cloud.rpc("support_img_move", {p_id:id, p_url:url}),
   img: id => Cloud.rpc("support_img", {p_id:id}),
   close: (uid, rating) => Cloud.rpc("support_close", {p_uid:uid || null, p_rating:rating || null}),
   seen: uid => Cloud.rpc("support_seen", {p_uid:uid || null}),
