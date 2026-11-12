@@ -6732,14 +6732,15 @@ function vidAll(gate){
 }
 const vidShareUrl = (v, lang) => v.kind === "yt" ? "https://youtu.be/" + v.yt : vidFile(v.id, lang);
 // the player: the app's own file (with the Arabic / English switch) or a YouTube video
-function vidShow(v, lang){
+// gate = shown on the sign-in screen: no share button and no download there (2026-11-12, user: only signed-in people share)
+function vidShow(v, lang, gate){
   lang = lang || vidLang();
   document.querySelectorAll(".vid-zoom").forEach(x => x.remove());
   const close = () => { box.remove(); removeEventListener("keydown", esc); };
   const esc = e => { if (e.key === "Escape") close(); };
   const media = v.kind === "yt"
     ? h("iframe",{class:"vid-frame yt", src:"https://www.youtube-nocookie.com/embed/" + v.yt + "?rel=0&playsinline=1&autoplay=1", title:v.t, allow:"autoplay; encrypted-media; picture-in-picture; fullscreen", allowfullscreen:true, referrerpolicy:"strict-origin-when-cross-origin"})
-    : h("video",{class:"vid-frame", id:"vidPlayer", src:vidFile(v.id, lang), poster:vidPoster(v.id, lang), controls:true, autoplay:true, playsinline:true, preload:"metadata"});
+    : h("video",{class:"vid-frame", id:"vidPlayer", src:vidFile(v.id, lang), poster:vidPoster(v.id, lang), controls:true, autoplay:true, playsinline:true, preload:"metadata", controlslist:gate ? "nodownload" : null, oncontextmenu:gate ? (e => e.preventDefault()) : null});
   if (media.tagName === "VIDEO") media.addEventListener("error", () => { const n = box.querySelector(".vid-err"); if (n) n.hidden = false; });
   const share = async () => { const url = vidShareUrl(v, lang);
     try { if (navigator.share){ await navigator.share({title:v.t, text:"🎬 " + v.t, url}); return; } } catch(e){ if (e && e.name === "AbortError") return; }
@@ -6748,10 +6749,10 @@ function vidShow(v, lang){
     h("div",{class:"vid-box"},
       h("div",{class:"vid-head"}, h("b",null, v.ic + " " + v.t), h("button",{type:"button", class:"chat-x", id:"vidX", "aria-label":"إغلاق", onclick:close}, "✕")),
       v.kind === "file" ? h("div",{class:"vid-langs", role:"group", "aria-label":"لغة الفيديو"}, VID_LANGS.map(([k, label]) =>
-        h("button",{type:"button", class:"chip-btn" + (k === lang ? " on" : ""), "data-lang":k, "aria-pressed":k === lang ? "true" : "false", onclick:()=>{ vidSetLang(k); vidShow(v, k); }}, "🌐 " + label))) : null,
+        h("button",{type:"button", class:"chip-btn" + (k === lang ? " on" : ""), "data-lang":k, "aria-pressed":k === lang ? "true" : "false", onclick:()=>{ vidSetLang(k); vidShow(v, k, gate); }}, "🌐 " + label))) : null,
       media,
       h("p",{class:"small vid-err", hidden:true}, "تعذّر تشغيل الفيديو. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."),
-      h("div",{class:"row vid-foot"}, h("button",{type:"button", class:"btn sm ghost", id:"vidShare", onclick:share}, "📤 مشاركة الفيديو"))));
+      gate ? null : h("div",{class:"row vid-foot"}, h("button",{type:"button", class:"btn sm ghost", id:"vidShare", onclick:share}, "📤 مشاركة الفيديو"))));
   addEventListener("keydown", esc);
   document.body.append(box);
   return box;
@@ -6770,7 +6771,7 @@ function vidList(gate){
       h("p",{class:"small muted", style:"margin:0"}, "اختر لغة الشرح، ثم الفيديو الذي تريد مشاهدته."),
       h("div",{class:"vid-langs", role:"group", "aria-label":"لغة الفيديو"}, VID_LANGS.map(([k, label]) =>
         h("button",{type:"button", class:"chip-btn" + (k === lang ? " on" : ""), "data-lang":k, "aria-pressed":k === lang ? "true" : "false", onclick:()=>{ lang = k; vidSetLang(k); draw(); }}, "🌐 " + label))),
-      list.length ? h("ul",{class:"vid-items"}, list.map(v => h("li",null, h("button",{type:"button", class:"vid-item", "data-id":v.id, onclick:()=>{ close(); vidShow(v, lang); }},
+      list.length ? h("ul",{class:"vid-items"}, list.map(v => h("li",null, h("button",{type:"button", class:"vid-item", "data-id":v.id, onclick:()=>{ close(); vidShow(v, lang, gate); }},
         h("img",{class:"vid-thumb", alt:"", loading:"lazy", src:v.kind === "yt" ? "https://i.ytimg.com/vi/" + v.yt + "/mqdefault.jpg" : vidPoster(v.id, lang)}),
         h("span",{class:"vid-t"}, h("b",null, v.t), h("small",{class:"muted"}, v.kind === "yt" ? "يوتيوب" : arDigits(v.d[lang]) + " دقيقة")),
         h("span",{class:"vid-play", "aria-hidden":"true"})))))
@@ -6823,7 +6824,7 @@ function vidAdminCard(){
   const err = h("p",{class:"small gate-err", role:"alert", style:"margin:0"});
   return h("div",{class:"card vid-admin", id:"vidAdmin"},
     h("h3",null, "🎬 فيديوهات الشرح"),
-    h("p",{class:"small muted", style:"margin:0"}, "تظهر هذه الفيديوهات للجميع في «الدعم الفني»، وفيديوهات التسجيل تظهر أيضًا في شاشة الدخول. ويمكنك إرسال أي فيديو في الرد على أي طلب من زر «إرسال فيديو»."),
+    h("p",{class:"small muted", style:"margin:0"}, "تظهر هذه الفيديوهات للجميع في «الدعم الفني» بعد الدخول، وفي شاشة الدخول يظهر فيديو «إنشاء حساب جديد» فقط. ويمكنك إرسال أي فيديو في الرد على أي طلب من زر «إرسال فيديو»."),
     h("ul",{class:"vid-adm-l"}, VID_BUILTIN.map(v => { const off = hide.includes(v.id);
       return h("li",{class:"vid-adm-row" + (off ? " off" : ""), "data-id":v.id},
         h("div",{class:"vid-adm-t"}, h("button",{type:"button", class:"linkish", onclick:()=>vidShow(Object.assign({kind:"file"}, v))}, v.ic + " " + v.t),
@@ -8172,7 +8173,7 @@ function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsW
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
 const NEWS = {id:"2026-11-12a", title:"الجديد في آخر تحديث", items:{
   admin:[
-    ["🎬","فيديوهات الشرح","في «الدعم الفني» كارت «🎬 فيديوهات الشرح»: فيديوهات التسجيل وإضافة الأيقونة ومميزات البرنامج وحجز موعد الاعتراف والنوتة الروحية وتشغيل التنبيهات، بالعربية والإنجليزية، يشاهدها الجميع من الدعم الفني، وتظهر فيديوهات التسجيل في شاشة الدخول. يمكنك إخفاء أي فيديو، وإضافة فيديوهات أخرى برابط من يوتيوب، وفي الرد على أي طلب زر «🎬 إرسال فيديو» يصل للشخص فيشاهده داخل البرنامج."],
+    ["🎬","فيديوهات الشرح","في «الدعم الفني» كارت «🎬 فيديوهات الشرح»: فيديوهات التسجيل وإضافة الأيقونة ومميزات البرنامج وحجز موعد الاعتراف والنوتة الروحية وتشغيل التنبيهات، بالعربية والإنجليزية، يشاهدها الجميع من الدعم الفني بعد الدخول، وفي شاشة الدخول يظهر فيديو التسجيل فقط. يمكنك إخفاء أي فيديو، وإضافة فيديوهات أخرى برابط من يوتيوب، وفي الرد على أي طلب زر «🎬 إرسال فيديو» يصل للشخص فيشاهده داخل البرنامج."],
     ["🖼️","مخزن الصور","تُحفظ كل صورة الآن مرة واحدة ملفًا في مخزن الصور، وتظهر منه في كل مكان، فتخف بيانات الكنيسة كثيرًا. في «الدعم الفني» داخل «المساحة المستخدمة» زر «📦 نقل الصور الحالية إلى مخزن الصور» لنقل الصور القديمة مرة واحدة، ويظهر تحته حجم مخزن الصور."],
     ["🕊️","تشجيع على النوتة الروحية","يستطيع أب الاعتراف أن يترك 👍 أو كلمة تشجيع قصيرة على أي يوم في نوتة ابنه، فيصله تنبيه ورسالة. ويصل لكل شخص تذكير بالليل إذا لم يسجّل نوتة اليوم، وفي أول أسبوع من كل شهر يظهر له ملخص «رحلتك في شهر …». ولا تظهر كلمات الآباء للأدمن."],
     ["🗜️","تصغير مساحة الصور","تُحفظ الصور الجديدة الآن بحجم أخف دون فرق ظاهر في الشكل. وفي «الدعم الفني» داخل «المساحة المستخدمة» زر «تصغير الصور الحالية» لتصغير الصور المحفوظة من قبل."],
@@ -9856,7 +9857,7 @@ async function showCloudGate(){
         mode = "login"; draw(); }); }},
         h("label",null,"كود الكنيسة", h("input",{id:"gChurch", dir:"ltr", autocomplete:"organization", placeholder:"mar-mina", value:slug||""})),
         err, btn("متابعة"));
-      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "activate"; draw(); }},"🔑 تفعيل كنيسة جديدة بكود رخصة"), h("button",{class:"linkish vid-gate", type:"button", onclick:()=>vidList(true)},"🎬 شاهد طريقة التسجيل وإضافة الأيقونة")];
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "activate"; draw(); }},"🔑 تفعيل كنيسة جديدة بكود رخصة"), h("button",{class:"linkish vid-gate", type:"button", onclick:()=>vidShow(Object.assign({kind:"file"}, VID_BUILTIN.find(x => x.id === "signup")), null, true)},"🎬 شاهد طريقة التسجيل")];
     } else if (mode === "login"){
       sub = "أهلاً بيك. ادخل باسمك وكلمة السر.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
@@ -9893,7 +9894,7 @@ async function showCloudGate(){
       }}, "👆 ادخل بالبصمة أو الوش · "+bio.name));
       extra = [...extra, info && info.claimed !== false && info.signup !== "off" ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
         h("div",{class:"gate-links"}, h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
-        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")), h("button",{class:"linkish vid-gate", type:"button", onclick:()=>vidList(true)},"🎬 شاهد طريقة التسجيل وإضافة الأيقونة")];
+        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")), h("button",{class:"linkish vid-gate", type:"button", onclick:()=>vidShow(Object.assign({kind:"file"}, VID_BUILTIN.find(x => x.id === "signup")), null, true)},"🎬 شاهد طريقة التسجيل")];
     } else if (mode === "register"){
       if (info && info.signup === "off"){ mode = "login"; S.gateNote = "التسجيل الجديد مقفول دلوقتي. كلّم أدمن الكنيسة."; draw(); return; }
       // since 2026-11-07 everything required is written here, and the account is made only when all of it is correct
