@@ -7,6 +7,8 @@ self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Pr
 self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);
   if (e.request.method !== "GET" || u.origin !== location.origin) return;
+  // the help videos (2026-11-12) play straight from the site: they are big, played in parts, and never saved on the phone
+  if (u.pathname.includes("/videos/")) return;
   // one saved copy per file: the church link (?c=…) does not make a new copy each time
   const key = u.origin + u.pathname;
   const saved = () => caches.match(key).then(r => r || caches.match(new URL("./", self.registration.scope).href));

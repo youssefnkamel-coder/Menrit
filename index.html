@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://bchxqstesohcsdczvvvv.supabase.co; connect-src 'self' https://bchxqstesohcsdczvvvv.supabase.co https://api.katameros.app https://api.open-meteo.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://bchxqstesohcsdczvvvv.supabase.co https://i.ytimg.com; media-src 'self'; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://bchxqstesohcsdczvvvv.supabase.co https://api.katameros.app https://api.open-meteo.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
 <title>ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -641,6 +641,29 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .news-list li{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
 .news-list li .ne{font-size:1.4rem;line-height:1}.news-list li b{display:block}.news-list li span{font-size:.92rem;color:var(--ink-2,#5b6680)}
 .news-adm{display:grid;gap:8px;padding:10px 12px;border:1px dashed var(--gold,#c9a227);border-radius:14px}
+.sup-card-b{display:grid;gap:6px;justify-items:stretch}
+.vid-zoom{position:fixed;inset:0;z-index:1000;background:rgba(5,15,30,.82);display:grid;place-items:center;padding:12px}
+.vid-box{width:min(96vw,460px);max-height:96vh;overflow-y:auto;display:grid;gap:10px;background:var(--surface);color:var(--ink);border:2px solid var(--gold,#c9a227);border-radius:20px;padding:12px 12px 14px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.vid-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.vid-head b{font-family:var(--f-head);font-size:1rem;line-height:1.4}
+.vid-langs{display:flex;gap:6px;flex-wrap:wrap}.vid-langs .chip-btn{padding:5px 14px;font-weight:700}
+.vid-frame{width:100%;max-height:70vh;aspect-ratio:9/16;background:#000;border-radius:14px;border:0;display:block;object-fit:contain}
+.vid-frame.yt{aspect-ratio:16/9;max-height:none}
+.vid-err{margin:0;color:var(--bad,#b91c1c);font-weight:700}.vid-foot{justify-content:center}
+.vid-items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.vid-item{width:100%;display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;text-align:start;padding:8px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface-2);cursor:pointer;color:inherit;font:inherit}
+.vid-item:hover,.vid-item:focus-visible{border-color:var(--gold,#c9a227)}
+.vid-thumb{width:56px;height:76px;object-fit:cover;border-radius:10px;background:#0b2a52;border:1.5px solid var(--gold,#c9a227)}
+.vid-t{display:grid;gap:2px;min-width:0}.vid-t b{font-size:.95rem;line-height:1.4}
+.vid-play{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--brand-grad);color:#fff;font-size:.9rem;box-shadow:0 0 0 2px var(--gold,#c9a227);flex:none}
+.vid-play::before{content:"";width:0;height:0;border-style:solid;border-width:7px 0 7px 12px;border-color:transparent transparent transparent #fff;margin-left:3px}
+.vid-msg{display:flex;align-items:center;gap:10px;width:100%;margin-top:6px;padding:8px 10px;border:1.5px solid var(--gold,#c9a227);border-radius:14px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:start;font:inherit}
+.vid-msg span:last-child{display:grid;gap:2px}.vid-msg small{opacity:.75}
+.vid-admin{display:grid;gap:10px}.vid-admin h3{margin:0}
+.vid-adm-l{list-style:none;margin:0;padding:0;display:grid;gap:6px}.vid-adm-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.vid-adm-t{flex:1;min-width:0;display:grid;gap:2px}.vid-adm-row .linkish{text-align:start;font-weight:700;padding:0}.vid-adm-row .btn{flex:none}
+.vid-adm-row.off{opacity:.6;border-style:dashed}
+.vid-add summary{cursor:pointer;font-weight:700}.vid-add .form{display:grid;gap:8px}
+.gate-links + .vid-gate,.vid-gate{display:block;margin:10px auto 0;font-weight:700}
 .photo-zoom{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.82);display:grid;place-items:center;align-content:center;gap:12px;padding:16px;cursor:zoom-out}
 .photo-zoom img{max-width:min(92vw,560px);max-height:78vh;border-radius:18px;border:3px solid var(--gold,#c9a227)}
 .menrit{display:grid;justify-items:center;gap:2px;line-height:1}
@@ -6507,11 +6530,12 @@ const SUP_FLOW = {
     ["شيء آخر", {ask:true}]]},
   push:{ic:"🔔", t:"التنبيهات", q:"هل فعّلت التنبيهات من البرنامج؟", o:[
     ["نعم، ولا تصلني", {q:"ما نوع جهازك؟", o:[
-      ["آيفون", {tip:"على الآيفون يجب إضافة البرنامج إلى الشاشة الرئيسية أولًا: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»، وافتح البرنامج من هناك وفعّل التنبيهات."}],
-      ["أندرويد", {tip:"افتح إعدادات الموبايل ثم التطبيقات ثم المتصفح، وتأكد أن الإشعارات مسموحة. بعد ذلك اضغط «📨 تجربة التنبيه» في البرنامج."}],
+      ["آيفون", {tip:"على الآيفون يجب إضافة البرنامج إلى الشاشة الرئيسية أولًا: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»، وافتح البرنامج من هناك وفعّل التنبيهات.", vid:"icon"}],
+      ["أندرويد", {tip:"افتح إعدادات الموبايل ثم التطبيقات ثم المتصفح، وتأكد أن الإشعارات مسموحة. بعد ذلك اضغط «📨 تجربة التنبيه» في البرنامج.", vid:"push"}],
       ["كمبيوتر", {tip:"اسمح بالإشعارات لموقع البرنامج من علامة القفل بجوار العنوان في المتصفح، ثم اضغط «📨 تجربة التنبيه»."}]]}],
-    ["لا، لا أعرف كيف", {tip:() => "افتح «"+supWhere()+"» واضغط «تفعيل التنبيهات»، ثم اختر «سماح» عندما يسألك الجهاز."}]]},
+    ["لا، لا أعرف كيف", {tip:() => "افتح «"+supWhere()+"» واضغط «تشغيل التنبيهات»، ثم اختر «سماح» عندما يسألك الجهاز.", vid:"push"}]]},
   booking:{ic:"📅", t:"المواعيد والحجز", q:"ما الذي تحتاجه؟", o:[
+    ["كيف أحجز موعدًا؟", {tip:"افتح «المواعيد»، واختر «اعتراف»، ثم اختر اليوم والساعة من المواعيد الفارغة، واضغط «حجز الموعد». يصل طلبك إلى أب اعترافك ليؤكده. شاهد الفيديو للخطوات كاملة.", vid:"booking"}],
     ["لا أجد مواعيد متاحة", {tip:"المواعيد يحددها أب الاعتراف، وتظهر عندما يفتح فترة جديدة، وتصلك رسالة بذلك."}],
     ["حجزت ولم يصلني تأكيد", {ask:true, hint:"اكتب اليوم والساعة اللذين حجزتهما."}],
     ["شيء آخر", {ask:true}]]},
@@ -6519,6 +6543,10 @@ const SUP_FLOW = {
     ["بطيء في الفتح", {tip:"تأكد من الاتصال بالإنترنت، ثم أغلق البرنامج تمامًا وافتحه مرة أخرى."}],
     ["تظهر رسالة خطأ", {ask:true, hint:"اكتب الرسالة التي ظهرت لك كما هي."}],
     ["الصفحة بيضاء أو لا يفتح", {tip:"أغلق البرنامج تمامًا وافتحه مرة أخرى."}]]},
+  install:{ic:"📲", t:"التسجيل وإضافة الأيقونة", q:"ما الذي تحتاجه؟", o:[
+    ["إضافة أيقونة البرنامج إلى الشاشة الرئيسية", {tip:"على أندرويد: افتح البرنامج من Chrome، واضغط ⋮ ثم «إضافة إلى الشاشة الرئيسية». وعلى الآيفون: افتحه من Safari، واضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية». شاهد الفيديو للخطوات كاملة.", vid:"icon"}],
+    ["إنشاء حساب لشخص آخر", {tip:"من شاشة الدخول اضغط «🆕 أول مرة؟ اعمل حساب جديد»، واكتب بياناته كاملة، ثم اختر أب اعترافه. شاهد الفيديو للخطوات كاملة.", vid:"signup"}],
+    ["شيء آخر", {ask:true}]]},
   idea:{ic:"💡", t:"اقتراح", ask:true, hint:"اكتب اقتراحك، ويسعدنا سماعه."},
   other:{ic:"❓", t:"شيء آخر", ask:true}
 };
@@ -6568,7 +6596,8 @@ function supCard(compact){
     h("div",{class:"sup-card-ic", "aria-hidden":"true"}, "🛟"),
     h("div",{class:"sup-card-t"}, h("h3",null, "الدعم الفني"),
       h("p",{class:"small muted"}, SUP.unread && SUP.rate ? "✅ تم حل طلبك. يسعدنا تقييمك للخدمة." : SUP.unread ? (SUP.unread === 1 ? "وصلك رد جديد من فريق الدعم." : "وصلتك " + arDigits(SUP.unread) + " ردود جديدة من فريق الدعم.") : "تواجه مشكلة في استخدام البرنامج؟ اسألنا وسنساعدك.")),
-    h("button",{class:"btn sm", type:"button", id:compact ? "supNoticeOpen" : "supOpenBtn", onclick:()=>supOpen(null)}, SUP.unread && SUP.rate ? "⭐ قيّم الخدمة" : SUP.unread ? "اقرأ الرد" : "تواصل معنا"));
+    h("div",{class:"sup-card-b"}, h("button",{class:"btn sm", type:"button", id:compact ? "supNoticeOpen" : "supOpenBtn", onclick:()=>supOpen(null)}, SUP.unread && SUP.rate ? "⭐ قيّم الخدمة" : SUP.unread ? "اقرأ الرد" : "تواصل معنا"),
+      compact ? null : h("button",{class:"btn sm ghost", type:"button", id:"supVidBtn", onclick:()=>vidList(false)}, "🎬 فيديوهات الشرح")));
 }
 const supPhoto = uid => { const t = (SUP.threads || []).find(x => x.uid === uid); return (t && t.photo) || chatPhoto(uid) || ""; };
 const supHours = () => { const st = S.settings || {}, ok = v => /^([01]\d|2[0-3]):[0-5]\d$/.test(v || "");
@@ -6668,7 +6697,152 @@ async function shrinkAll(reload){
   render(); setTimeout(() => reload && reload(), 1500);
 }
 function supportView(){
-  return h("div",{style:"display:grid;gap:18px"}, sectionHead("الدعم الفني"), h("div",{class:"sup-screen"}, supInbox() || h("div",{class:"card"},"الدعم الفني غير متاح."), storageCard()));
+  return h("div",{style:"display:grid;gap:18px"}, sectionHead("الدعم الفني"), h("div",{class:"sup-screen"}, supInbox() || h("div",{class:"card"},"الدعم الفني غير متاح."), vidAdminCard(), storageCard()));
+}
+/* ---------- «🎬 فيديوهات الشرح» (2026-11-12, user): the sign-up / icon / features videos, Arabic or English, kept on the app's
+   own site (folder videos/, nothing in the church's storage), shown in the support screen, on the sign-in screen and sent in a
+   support reply. The admin may hide any of them, and add more as YouTube links (kept in settings/app → videos). ---------- */
+const VID_BUILTIN = [
+  {id:"full", ic:"🎬", t:"الشرح الكامل: المميزات والتسجيل وإضافة الأيقونة", d:{ar:"3:39", en:"2:45"}},
+  {id:"signup-icon", ic:"📝", t:"التسجيل وإضافة الأيقونة", d:{ar:"2:51", en:"2:04"}},
+  {id:"signup", ic:"🆕", t:"إنشاء حساب جديد", d:{ar:"1:49", en:"1:24"}},
+  {id:"icon", ic:"📲", t:"إضافة أيقونة البرنامج إلى الشاشة الرئيسية", d:{ar:"0:48", en:"0:31"}},
+  {id:"features", ic:"✨", t:"مميزات البرنامج", d:{ar:"0:47", en:"0:40"}},
+  {id:"booking", ic:"📅", t:"حجز موعد الاعتراف", d:{ar:"1:36", en:"1:09"}},
+  {id:"notebook", ic:"📔", t:"النوتة الروحية", d:{ar:"1:34", en:"1:14"}},
+  {id:"push", ic:"🔔", t:"تشغيل التنبيهات", d:{ar:"1:14", en:"1:00"}}
+];
+const VID_LANGS = [["ar","عربي"],["en","English"]];
+const vidBase = () => location.origin + location.pathname.replace(/[^/]*$/, "") + "videos/";
+const vidFile = (id, lang) => vidBase() + lang + "-" + id + ".mp4";
+const vidPoster = (id, lang) => vidBase() + lang + "-" + id + ".jpg";
+// a YouTube link → its 11-letter id (watch, youtu.be, shorts, embed, live); anything else → ""
+function ytId(u){
+  const m = /^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#\s]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])/.exec(String(u || "").trim());
+  return m ? m[1] : "";
+}
+const vidLang = () => { try { const l = localStorage.getItem("menrit_vidlang"); if (l === "ar" || l === "en") return l; } catch(e){} return "ar"; };
+const vidSetLang = l => { try { localStorage.setItem("menrit_vidlang", l); } catch(e){} };
+// what this church shows: the built-in ones it did not hide, then the admin's YouTube links
+function vidAll(gate){
+  const st = (!gate && S.settings) || {}, hide = Array.isArray(st.vidHide) ? st.vidHide : [];
+  const own = !gate && Array.isArray(st.videos) ? st.videos.filter(v => v && ytId("https://youtu.be/" + v.yt) && v.t) : [];
+  return VID_BUILTIN.filter(v => !hide.includes(v.id)).map(v => Object.assign({kind:"file"}, v))
+    .concat(own.map(v => ({kind:"yt", id:"yt-" + v.yt, yt:v.yt, t:String(v.t).slice(0, 80), lang:v.lang === "en" || v.lang === "ar" ? v.lang : "", ic:"🎬"})));
+}
+const vidShareUrl = (v, lang) => v.kind === "yt" ? "https://youtu.be/" + v.yt : vidFile(v.id, lang);
+// the player: the app's own file (with the Arabic / English switch) or a YouTube video
+function vidShow(v, lang){
+  lang = lang || vidLang();
+  document.querySelectorAll(".vid-zoom").forEach(x => x.remove());
+  const close = () => { box.remove(); removeEventListener("keydown", esc); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  const media = v.kind === "yt"
+    ? h("iframe",{class:"vid-frame yt", src:"https://www.youtube-nocookie.com/embed/" + v.yt + "?rel=0&playsinline=1&autoplay=1", title:v.t, allow:"autoplay; encrypted-media; picture-in-picture; fullscreen", allowfullscreen:true, referrerpolicy:"strict-origin-when-cross-origin"})
+    : h("video",{class:"vid-frame", id:"vidPlayer", src:vidFile(v.id, lang), poster:vidPoster(v.id, lang), controls:true, autoplay:true, playsinline:true, preload:"metadata"});
+  if (media.tagName === "VIDEO") media.addEventListener("error", () => { const n = box.querySelector(".vid-err"); if (n) n.hidden = false; });
+  const share = async () => { const url = vidShareUrl(v, lang);
+    try { if (navigator.share){ await navigator.share({title:v.t, text:"🎬 " + v.t, url}); return; } } catch(e){ if (e && e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(url); toast("تم نسخ رابط الفيديو"); } catch(e){ prompt("انسخ رابط الفيديو:", url); } };
+  const box = h("div",{class:"vid-zoom", role:"dialog", "aria-modal":"true", "aria-label":v.t, onclick:e => { if (e.target === box) close(); }},
+    h("div",{class:"vid-box"},
+      h("div",{class:"vid-head"}, h("b",null, v.ic + " " + v.t), h("button",{type:"button", class:"chat-x", id:"vidX", "aria-label":"إغلاق", onclick:close}, "✕")),
+      v.kind === "file" ? h("div",{class:"vid-langs", role:"group", "aria-label":"لغة الفيديو"}, VID_LANGS.map(([k, label]) =>
+        h("button",{type:"button", class:"chip-btn" + (k === lang ? " on" : ""), "data-lang":k, "aria-pressed":k === lang ? "true" : "false", onclick:()=>{ vidSetLang(k); vidShow(v, k); }}, "🌐 " + label))) : null,
+      media,
+      h("p",{class:"small vid-err", hidden:true}, "تعذّر تشغيل الفيديو. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."),
+      h("div",{class:"row vid-foot"}, h("button",{type:"button", class:"btn sm ghost", id:"vidShare", onclick:share}, "📤 مشاركة الفيديو"))));
+  addEventListener("keydown", esc);
+  document.body.append(box);
+  return box;
+}
+// the list (support screen, sign-in screen): choose the language once, then any video
+function vidList(gate){
+  document.querySelectorAll(".vid-zoom").forEach(x => x.remove());
+  let lang = vidLang();
+  const box = h("div",{class:"vid-zoom", role:"dialog", "aria-modal":"true", "aria-label":"فيديوهات الشرح", onclick:e => { if (e.target === box) close(); }});
+  const esc = e => { if (e.key === "Escape") close(); };
+  const close = () => { box.remove(); removeEventListener("keydown", esc); };
+  const draw = () => {
+    const list = vidAll(gate).filter(v => v.kind === "file" || !v.lang || v.lang === lang);
+    box.replaceChildren(h("div",{class:"vid-box vid-listbox", id:"vidList"},
+      h("div",{class:"vid-head"}, h("b",null, "🎬 فيديوهات الشرح"), h("button",{type:"button", class:"chat-x", id:"vidListX", "aria-label":"إغلاق", onclick:close}, "✕")),
+      h("p",{class:"small muted", style:"margin:0"}, "اختر لغة الشرح، ثم الفيديو الذي تريد مشاهدته."),
+      h("div",{class:"vid-langs", role:"group", "aria-label":"لغة الفيديو"}, VID_LANGS.map(([k, label]) =>
+        h("button",{type:"button", class:"chip-btn" + (k === lang ? " on" : ""), "data-lang":k, "aria-pressed":k === lang ? "true" : "false", onclick:()=>{ lang = k; vidSetLang(k); draw(); }}, "🌐 " + label))),
+      list.length ? h("ul",{class:"vid-items"}, list.map(v => h("li",null, h("button",{type:"button", class:"vid-item", "data-id":v.id, onclick:()=>{ close(); vidShow(v, lang); }},
+        h("img",{class:"vid-thumb", alt:"", loading:"lazy", src:v.kind === "yt" ? "https://i.ytimg.com/vi/" + v.yt + "/mqdefault.jpg" : vidPoster(v.id, lang)}),
+        h("span",{class:"vid-t"}, h("b",null, v.t), h("small",{class:"muted"}, v.kind === "yt" ? "يوتيوب" : arDigits(v.d[lang]) + " دقيقة")),
+        h("span",{class:"vid-play", "aria-hidden":"true"})))))
+      : h("p",{class:"small muted"}, "لا توجد فيديوهات بهذه اللغة.")));
+  };
+  draw(); addEventListener("keydown", esc); document.body.append(box);
+  return box;
+}
+// a support reply that carries a video link shows a ▶ button that opens it here (only this app's own files, or YouTube)
+const VID_LINK_RE = /(https?:\/\/[^\s]+?\/videos\/(ar|en)-([a-z-]+)\.mp4|https?:\/\/(?:www\.|m\.)?(?:youtube\.com|youtu\.be)\/[^\s]+)/g;
+function vidFromUrl(u){
+  const f = /^(https?:\/\/[^\s]+?\/)videos\/(ar|en)-([a-z-]+)\.mp4$/.exec(u);
+  if (f){ const v = VID_BUILTIN.find(x => x.id === f[3]); if (!v) return null; try { if (new URL(u).origin !== location.origin) return null; } catch(e){ return null; }
+    return {v:Object.assign({kind:"file"}, v), lang:f[2]}; }
+  const id = ytId(u); if (!id) return null;
+  const own = ((S.settings && S.settings.videos) || []).find(x => x && x.yt === id);
+  return {v:{kind:"yt", id:"yt-" + id, yt:id, t:own && own.t ? String(own.t).slice(0, 80) : "فيديو الشرح", ic:"🎬"}, lang:""};
+}
+function supRich(text){
+  text = String(text || ""); VID_LINK_RE.lastIndex = 0; if (!VID_LINK_RE.test(text)) return text; VID_LINK_RE.lastIndex = 0;
+  const out = []; let at = 0, m;
+  while ((m = VID_LINK_RE.exec(text))){
+    const hit = vidFromUrl(m[0]); if (!hit) continue;
+    if (m.index > at){ let before = text.slice(at, m.index).replace(/\s+$/, ""); const tl = "🎬 " + hit.v.t;
+      if (before.endsWith(tl)) before = before.slice(0, -tl.length).replace(/\s+$/, ""); if (before) out.push(before); }
+    out.push(h("button",{type:"button", class:"vid-msg", onclick:()=>vidShow(hit.v, hit.lang || undefined)}, h("span",{class:"vid-play", "aria-hidden":"true"}),
+      h("span",null, h("b",null, hit.v.t), h("small",null, hit.v.kind === "yt" ? "اضغط للمشاهدة" : "اضغط للمشاهدة · " + (hit.lang === "en" ? "English" : "عربي")))));
+    at = m.index + m[0].length;
+  }
+  if (at < text.length) out.push(text.slice(at));
+  return out.length ? out : text;
+}
+// the admin, in a support reply: «🎬 إرسال فيديو» puts the video's link (and its name) into the reply
+function vidPickRow(){
+  const all = vidAll(false);
+  return h("div",{class:"sup-quick" + (SUP.vidOpen ? " on" : "")},
+    h("button",{type:"button", class:"chip-btn sup-quick-t", id:"supVidT", "aria-expanded":SUP.vidOpen ? "true" : "false", onclick:()=>{ SUP.vidOpen = !SUP.vidOpen; SUP.quickOpen = false; supPaint(true); }}, (SUP.vidOpen ? "▾" : "▸") + " 🎬 إرسال فيديو"),
+    SUP.vidOpen ? h("div",{class:"sup-quick-l", id:"supVidL"}, all.flatMap(v => (v.kind === "file" ? VID_LANGS : [[v.lang || "", v.lang === "en" ? "English" : v.lang === "ar" ? "عربي" : "يوتيوب"]]).map(([lang, label]) =>
+      h("button",{type:"button", class:"sup-q", "data-v":v.id + (lang ? ":" + lang : ""), onclick:()=>{ const t = "🎬 " + v.t + "\n" + vidShareUrl(v, lang || "ar"); SUP.vidOpen = false; supPaint(true);
+        const j = document.getElementById("supInput"); if (j){ j.value = (j.value.trim() ? j.value.trim() + "\n\n" : "") + t; j.focus(); } }}, v.ic + " " + v.t + " · " + label)))) : null);
+}
+// the admin, in «الدعم الفني»: show or hide each video, and add YouTube links
+function vidAdminCard(){
+  if (!supIsAdmin()) return null;
+  const st = S.settings || {}, hide = Array.isArray(st.vidHide) ? st.vidHide : [], own = Array.isArray(st.videos) ? st.videos : [];
+  const save = async (patch, done) => { await editDoc("settings/app", cur => Object.assign(cur, patch)); S.settings = Object.assign({}, S.settings, patch); toast(done); render(); };
+  const tName = h("input",{id:"vidNewT", maxlength:"80", placeholder:"مثال: طريقة حجز موعد الاعتراف"});
+  const tUrl = h("input",{id:"vidNewU", dir:"ltr", inputmode:"url", placeholder:"https://youtu.be/…"});
+  const tLang = h("select",{id:"vidNewL"}, h("option",{value:"ar"},"عربي"), h("option",{value:"en"},"English"), h("option",{value:""},"كل اللغات"));
+  const err = h("p",{class:"small gate-err", role:"alert", style:"margin:0"});
+  return h("div",{class:"card vid-admin", id:"vidAdmin"},
+    h("h3",null, "🎬 فيديوهات الشرح"),
+    h("p",{class:"small muted", style:"margin:0"}, "تظهر هذه الفيديوهات للجميع في «الدعم الفني»، وفيديوهات التسجيل تظهر أيضًا في شاشة الدخول. ويمكنك إرسال أي فيديو في الرد على أي طلب من زر «إرسال فيديو»."),
+    h("ul",{class:"vid-adm-l"}, VID_BUILTIN.map(v => { const off = hide.includes(v.id);
+      return h("li",{class:"vid-adm-row" + (off ? " off" : ""), "data-id":v.id},
+        h("div",{class:"vid-adm-t"}, h("button",{type:"button", class:"linkish", onclick:()=>vidShow(Object.assign({kind:"file"}, v))}, v.ic + " " + v.t),
+          h("span",{class:"small muted"}, (off ? "مخفي · " : "") + "عربي " + arDigits(v.d.ar) + " دقيقة، وإنجليزي " + arDigits(v.d.en) + " دقيقة")),
+        h("button",{type:"button", class:"btn sm ghost vid-hide", onclick:()=>save({vidHide: off ? hide.filter(x => x !== v.id) : hide.concat(v.id)}, off ? "سيظهر الفيديو للجميع" : "تم إخفاء الفيديو")}, off ? "👁️ إظهار" : "🙈 إخفاء")); }),
+      own.map((v, i) => h("li",{class:"vid-adm-row yt", "data-yt":v.yt},
+        h("div",{class:"vid-adm-t"}, h("button",{type:"button", class:"linkish", onclick:()=>vidShow({kind:"yt", yt:v.yt, t:v.t, ic:"🎬"})}, "🎬 " + v.t),
+          h("span",{class:"small muted"}, "يوتيوب · " + (v.lang === "en" ? "إنجليزي" : v.lang === "ar" ? "عربي" : "كل اللغات"))),
+        h("button",{type:"button", class:"btn sm ghost vid-del", onclick:()=>{ if (!confirm("حذف فيديو «" + v.t + "»؟")) return; return save({videos: own.filter((x, j) => j !== i)}, "تم حذف الفيديو"); }}, "🗑 حذف")))),
+    h("details",{class:"vid-add", open:own.length ? null : true}, h("summary",null, "➕ إضافة فيديو من يوتيوب"),
+      h("p",{class:"small muted"}, "ارفع الفيديو على يوتيوب (يُفضّل «غير مُدرج Unlisted»)، ثم انسخ رابطه والصقه هنا."),
+      h("div",{class:"form"}, h("label",null, "اسم الفيديو", tName), h("label",null, "رابط يوتيوب", tUrl), h("label",null, "لغة الفيديو", tLang), err,
+        h("button",{type:"button", class:"btn sm", id:"vidAdd", onclick:()=>{ err.textContent = "";
+          const t = tName.value.trim(), id = ytId(tUrl.value);
+          if (!t){ err.textContent = "اكتب اسم الفيديو."; return; }
+          if (!id){ err.textContent = "هذا ليس رابط فيديو من يوتيوب. انسخ الرابط من زر «مشاركة» في يوتيوب."; return; }
+          if (own.some(x => x.yt === id)){ err.textContent = "هذا الفيديو مضاف من قبل."; return; }
+          if (own.length >= 30){ err.textContent = "الحد الأقصى ٣٠ فيديو. احذف فيديو قديمًا أولًا."; return; }
+          return save({videos: own.concat({yt:id, t:t.slice(0, 80), lang:tLang.value})}, "تمت إضافة الفيديو"); }}, "➕ إضافة الفيديو"))));
 }
 // the admin's inbox, in «الدعم الفني»
 function supInbox(){
@@ -6783,11 +6957,11 @@ function supPaint(force){
       continue;
     }
     const mine = adm ? m.admin : !m.admin, pic = m.img ? supImg(m.id) : null;
-    if (mine){ const el = supMine(m.text); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
-    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, m.text) : null, pic, h("div",{class:"tm"}, chatTime(m.at))))); }
-    else { const el = supBot(m.text); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
+    if (mine){ const el = supMine(supRich(m.text)); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
+    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, supRich(m.text)) : null, pic, h("div",{class:"tm"}, chatTime(m.at))))); }
+    else { const el = supBot(supRich(m.text)); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
   }
-  if (!adm && r) box.prepend(supBot(supWelcome()));
+  if (!adm && r) box.prepend(supBot(supWelcome(), h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supVids", onclick:()=>vidList(false)}, "🎬 فيديوهات الشرح"))));
   // the person: the guided questions when nothing is open
   let foot = null;
   const active = th && th.status !== "done";
@@ -6805,7 +6979,9 @@ function supPaint(force){
         let n = top;
         for (const a of f.path){ box.append(supBot(n.q), supMine(a)); n = n.o.find(o => o[0] === a)[1]; }
         if (n.tip && !f.ask){
+          const tv = n.vid && vidAll(false).find(v => v.id === n.vid);
           box.append(supBot(supTipText(n), h("div",{class:"sup-opts"},
+            tv ? h("button",{type:"button", class:"chip-btn", id:"supTipVid", onclick:()=>vidShow(tv)}, "🎬 شاهد الفيديو") : null,
             h("button",{type:"button", class:"chip-btn ok", id:"supSolved", onclick:()=>{ SUP.flow = null; SUP.thanks = true; supPaint(true); }}, "✅ تم الحل، شكرًا"),
             h("button",{type:"button", class:"chip-btn", id:"supNotSolved", onclick:()=>{ f.ask = true; supPaint(true); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); }}, "✉️ لم تُحل، أريد مراسلة الدعم"))));
         } else if (n.o && !n.ask && !f.ask){
@@ -6832,9 +7008,9 @@ function supPaint(force){
       h("span",{class:"small"},"ستُرسل الصورة مع رسالتك. يمكنك كتابة وصف لها أو الإرسال مباشرة."),
       h("button",{type:"button", class:"chat-x sm", id:"supPendX", "aria-label":"إلغاء الصورة", onclick:()=>{ SUP.pendImg = null; supPaint(true); }}, "✕")) : null;
     const quick = adm ? h("div",{class:"sup-quick" + (SUP.quickOpen ? " on" : "")},
-      h("button",{type:"button", class:"chip-btn sup-quick-t", id:"supQuickT", "aria-expanded":SUP.quickOpen ? "true" : "false", onclick:()=>{ SUP.quickOpen = !SUP.quickOpen; supPaint(true); }}, (SUP.quickOpen ? "▾" : "▸") + " ردود جاهزة"),
+      h("button",{type:"button", class:"chip-btn sup-quick-t", id:"supQuickT", "aria-expanded":SUP.quickOpen ? "true" : "false", onclick:()=>{ SUP.quickOpen = !SUP.quickOpen; SUP.vidOpen = false; supPaint(true); }}, (SUP.quickOpen ? "▾" : "▸") + " ردود جاهزة"),
       SUP.quickOpen ? h("div",{class:"sup-quick-l"}, SUP_QUICK.map(t => h("button",{type:"button", class:"sup-q", onclick:()=>{ const i = document.getElementById("supInput"); i.value = t; SUP.quickOpen = false; supPaint(true); const j = document.getElementById("supInput"); if (j){ j.value = t; j.focus(); } }}, t))) : null) : null;
-    foot = [quick, pend, form];
+    foot = [adm ? vidPickRow() : null, quick, pend, form];
   }
   panel.replaceChildren(...[head, box].concat(foot || []).filter(Boolean));
   if (hadFocus){ const i = document.getElementById("supInput"); if (i) i.focus(); }
@@ -7994,8 +8170,9 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-11f", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-12a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🎬","فيديوهات الشرح","في «الدعم الفني» كارت «🎬 فيديوهات الشرح»: فيديوهات التسجيل وإضافة الأيقونة ومميزات البرنامج وحجز موعد الاعتراف والنوتة الروحية وتشغيل التنبيهات، بالعربية والإنجليزية، يشاهدها الجميع من الدعم الفني، وتظهر فيديوهات التسجيل في شاشة الدخول. يمكنك إخفاء أي فيديو، وإضافة فيديوهات أخرى برابط من يوتيوب، وفي الرد على أي طلب زر «🎬 إرسال فيديو» يصل للشخص فيشاهده داخل البرنامج."],
     ["🖼️","مخزن الصور","تُحفظ كل صورة الآن مرة واحدة ملفًا في مخزن الصور، وتظهر منه في كل مكان، فتخف بيانات الكنيسة كثيرًا. في «الدعم الفني» داخل «المساحة المستخدمة» زر «📦 نقل الصور الحالية إلى مخزن الصور» لنقل الصور القديمة مرة واحدة، ويظهر تحته حجم مخزن الصور."],
     ["🕊️","تشجيع على النوتة الروحية","يستطيع أب الاعتراف أن يترك 👍 أو كلمة تشجيع قصيرة على أي يوم في نوتة ابنه، فيصله تنبيه ورسالة. ويصل لكل شخص تذكير بالليل إذا لم يسجّل نوتة اليوم، وفي أول أسبوع من كل شهر يظهر له ملخص «رحلتك في شهر …». ولا تظهر كلمات الآباء للأدمن."],
     ["🗜️","تصغير مساحة الصور","تُحفظ الصور الجديدة الآن بحجم أخف دون فرق ظاهر في الشكل. وفي «الدعم الفني» داخل «المساحة المستخدمة» زر «تصغير الصور الحالية» لتصغير الصور المحفوظة من قبل."],
@@ -8017,6 +8194,7 @@ const NEWS = {id:"2026-11-11f", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🎬","فيديوهات الشرح","في «الإعدادات» داخل كارت «الدعم الفني» زر «🎬 فيديوهات الشرح»: فيديوهات قصيرة بالعربية والإنجليزية عن التسجيل وإضافة أيقونة البرنامج، وحجز موعد الاعتراف، والنوتة الروحية، وتشغيل التنبيهات، يمكنك مشاهدتها ومشاركتها مع أبنائك."],
     ["🕊️","«أبونا شاف نوتتك»","افتح كارت أحد أبنائك، وتحت «النوتة الروحية» اضغط 👍 أو «✍️ كلمة تشجيع» على أي يوم سجّله، فتصله رسالة وتنبيه بأنك رأيت نوتته. ولا يرى أحد غيره ما كتبته."],
     ["📷","صورة في الدعم الفني","يمكنك الآن إرسال صورة (مثل صورة من الشاشة) في الدعم الفني بزر 📷 بجوار مكان الكتابة، لتوضيح المشكلة."],
     ["⏱️","حجز أكثر من فترة","يمكن لمن يحتاج وقتًا أطول حجز عدة فترات متتالية حتى ساعتين. يظهر هذا الطلب لك بإطار ذهبي مع المدة (مثلًا «حجز ساعة · ٦ فترات متتالية») ووقت البداية والنهاية، وتؤكده بضغطة واحدة."],
@@ -8029,6 +8207,7 @@ const NEWS = {id:"2026-11-11f", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["🎬","فيديوهات الشرح","في «بياناتي» داخل كارت «الدعم الفني» زر «🎬 فيديوهات الشرح»: فيديوهات قصيرة بالعربية والإنجليزية عن التسجيل وإضافة أيقونة البرنامج، وحجز موعد الاعتراف، والنوتة الروحية، وتشغيل التنبيهات، ويمكنك مشاركتها مع غيرك."],
     ["🕊️","«أبونا شاف نوتتك»","عندما يرى أب اعترافك نوتتك ويترك 👍 أو كلمة تشجيع يصلك تنبيه، وتظهر كلمته فوق اليوم في «النوتة» وفي «الرسائل»."],
     ["🌙","تذكير بالليل","إذا لم تسجّل نوتة اليوم يصلك تنبيه الساعة ٩ مساءً. يمكنك تغيير الوقت أو إيقاف التذكير من أسفل شاشة «النوتة»."],
     ["📊","رحلتك في الشهر","في أول أسبوع من كل شهر يظهر لك في «اليوم» ملخص للشهر الماضي: عدد الأيام التي سجّلت فيها، وأكثر ما واظبت عليه، مع آية تشجيع."],
@@ -8158,6 +8337,9 @@ const ICONS = {
 /* drawn icons instead of emoji: the same look on every phone and computer (white line icon in a coloured circle).
    Emoji written anywhere on the screen are swapped for these as they appear; WhatsApp texts keep their emoji. */
 const IC = {
+  video:"M15 10l4.6-2.3a1 1 0 0 1 1.4.9v6.8a1 1 0 0 1-1.4.9L15 14M4 6h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z",
+  play:"M8 5v14l11-7z",
+  globe:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20",
   support:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.9 4.9l4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3",
   help:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01",
   bulb:"M15 14c.2-1 .7-1.7 1.5-2.5A6 6 0 1 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4",
@@ -8263,7 +8445,8 @@ const EMO = {"🗜️":["image","#0d9488"],"📦":["image","#7c3aed"],"🎨":["p
   "⭐":["star","#eab308"],"↩️":["reply","#0e7490"],"👋":["hand","#f59e0b"],"✉️":["mail","#2563eb"],"📌":["pin","#ef4444"],"🔴":["dot","#dc2626"],"🟡":["dot","#eab308"],
   "📊":["chart","#16a34a"],"✏️":["pen","#0891b2"],"✍️":["pen","#7c3aed"],"🔍":["search","#0891b2"],"🛂":["idcard","#7c3aed"],"🗺️":["map","#16a34a"],"📣":["megaphone","#ea580c"],
   "🖨️":["printer","#475569"],"❤️":["heart","#e11d48"],"🔁":["refresh","#0891b2"],"🔀":["shuffle","#7c3aed"],"⏭️":["skip","#f59e0b"],"✔️":["ok","#16a34a"],"🍎":["mobile","#475569"],
-  "🔢":["hash","#0891b2"],"🔓":["unlock","#16a34a"],"⏱️":["clock","#f59e0b"],"🛠️":["gear","#475569"]};
+  "🔢":["hash","#0891b2"],"🔓":["unlock","#16a34a"],"⏱️":["clock","#f59e0b"],"🛠️":["gear","#475569"],
+  "🎬":["video","#e11d48"],"▶":["play","#16a34a"],"▶️":["play","#16a34a"],"🌐":["globe","#0891b2"]};
 const icSvg = name => '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="'+(IC[name]||IC.cross)+'"/></svg>';
 const EMO_RE = new RegExp("(?:"+Object.keys(EMO).sort((a,b)=>b.length-a.length).map(k=>k.replace(/\uFE0F/g,"")).filter((k,i,a)=>a.indexOf(k)===i)
   .map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?", "gu");
@@ -8419,7 +8602,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.11-8";
+const APP_VERSION = "2026.11.12-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -9673,7 +9856,7 @@ async function showCloudGate(){
         mode = "login"; draw(); }); }},
         h("label",null,"كود الكنيسة", h("input",{id:"gChurch", dir:"ltr", autocomplete:"organization", placeholder:"mar-mina", value:slug||""})),
         err, btn("متابعة"));
-      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "activate"; draw(); }},"🔑 تفعيل كنيسة جديدة بكود رخصة")];
+      extra = [h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "activate"; draw(); }},"🔑 تفعيل كنيسة جديدة بكود رخصة"), h("button",{class:"linkish vid-gate", type:"button", onclick:()=>vidList(true)},"🎬 شاهد طريقة التسجيل وإضافة الأيقونة")];
     } else if (mode === "login"){
       sub = "أهلاً بيك. ادخل باسمك وكلمة السر.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
@@ -9710,7 +9893,7 @@ async function showCloudGate(){
       }}, "👆 ادخل بالبصمة أو الوش · "+bio.name));
       extra = [...extra, info && info.claimed !== false && info.signup !== "off" ? h("button",{class:"btn ghost", type:"button", style:"width:100%", onclick:()=>{ mode = "register"; draw(); }},"🆕 أول مرة؟ اعمل حساب جديد") : null,
         h("div",{class:"gate-links"}, h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "forgot"; draw(); }},"نسيت كلمة السر؟"),
-        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود"))];
+        h("button",{class:"linkish", type:"button", onclick:()=>{ mode = "church"; draw(); }},"مش دي كنيستك؟ غيّر الكود")), h("button",{class:"linkish vid-gate", type:"button", onclick:()=>vidList(true)},"🎬 شاهد طريقة التسجيل وإضافة الأيقونة")];
     } else if (mode === "register"){
       if (info && info.signup === "off"){ mode = "login"; S.gateNote = "التسجيل الجديد مقفول دلوقتي. كلّم أدمن الكنيسة."; draw(); return; }
       // since 2026-11-07 everything required is written here, and the account is made only when all of it is correct
