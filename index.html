@@ -332,6 +332,13 @@ body.chat-open .chat-fab{display:none}
 .chat-online .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stk{display:inline-flex}
 .stk .avatar{margin-inline-start:-7px;border:2px solid var(--surface)} .stk .avatar:first-child{margin-inline-start:0}
+.up-row{align-items:center}
+.up-av{position:relative;flex:none;padding:0;border:0;background:none;cursor:pointer;border-radius:50%;align-self:center}
+.up-av .avatar{width:48px;height:48px}
+.up-kind{position:absolute;bottom:-3px;inset-inline-end:-5px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.up-kind .ei{width:18px;height:18px;margin:0}
+.up-name{padding:0;border:0;background:none;font:inherit;color:inherit;text-align:start;cursor:pointer}
+.up-name:hover strong{text-decoration:underline;text-decoration-color:var(--gold)}
 .avatar.xs{width:24px;height:24px;font-size:.7rem} .avatar.xxs{width:16px;height:16px;font-size:.55rem;border-width:1px!important} .avatar.sm{width:32px;height:32px;font-size:.85rem;flex:none}
 .chat-search{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line)}
 .chat-search input{flex:1;min-width:0}
@@ -1278,6 +1285,31 @@ body.one-tab{--nav-h:0px}
 .act-facts>div{background:var(--surface-2);border-radius:10px;padding:7px 9px}.act-facts small{display:block;color:var(--ink-2)}
 .act-sums4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
 .act-dash{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;margin-bottom:12px}
+.st-top label{margin:0} .st-top select{width:auto;min-width:180px;max-width:min(100%,320px);flex:0 1 auto}
+.st-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.st-kpi{display:grid;gap:2px;padding:12px 14px;border-radius:16px;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.1);min-width:0}
+.st-kpi b{font-size:1.6rem;line-height:1.1} .st-kpi span:last-child{font-size:.82rem;opacity:.95}
+.st-kpi .st-ke .ei{background:rgba(255,255,255,.22)!important;box-shadow:none!important}
+.st-kpi.k1{background:linear-gradient(135deg,#0f766e,#0ea5e9)} .st-kpi.k2{background:linear-gradient(135deg,#7c3aed,#a855f7)} .st-kpi.k3{background:linear-gradient(135deg,#0369a1,#38bdf8)}
+.st-kpi.k4{background:linear-gradient(135deg,#be185d,#f472b6)} .st-kpi.k5{background:linear-gradient(135deg,#047857,#34d399)} .st-kpi.k6{background:linear-gradient(135deg,#b45309,#fbbf24)}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px;align-items:start}
+.st-card{min-width:0} .st-card h3{margin:0 0 8px}
+.st-bars{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.st-bar{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 2.6em 3.2em;align-items:center;gap:8px;width:100%;padding:4px 6px;border:0;border-radius:10px;background:none;font:inherit;color:inherit;text-align:start;cursor:pointer}
+.st-bar:hover:not(:disabled),.st-bar.on{background:color-mix(in oklab,var(--gold) 14%,transparent)} .st-bar:disabled{cursor:default;opacity:.6} .st-bar.static{cursor:default}
+.st-l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem}
+.st-track{height:12px;border-radius:99px;background:color-mix(in oklab,var(--ink, #334) 8%,transparent);overflow:hidden}
+.st-track i{display:block;height:100%;border-radius:99px}
+.st-bar b{text-align:end} .st-bar small{text-align:end}
+.st-sex{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.st-donut{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#0ea5e9 calc(var(--m)*1%),#ec4899 0)}
+.st-donut span{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-weight:800}
+.st-tips ul{margin:0;padding-inline-start:4px;list-style:none;display:grid;gap:6px} .st-tips li{line-height:1.6}
+.st-names{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.st-names button{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:99px;border:1px solid var(--line, #e5e7eb);background:var(--surface);font:inherit;cursor:pointer}
+.st-ftable{overflow-x:auto} .st-ftable table{width:100%;border-collapse:collapse;font-size:.88rem} .st-ftable th,.st-ftable td{padding:6px 8px;border-bottom:1px solid var(--line, #e5e7eb);text-align:start;white-space:nowrap}
+.st-ftable tbody tr{cursor:pointer} .st-ftable tbody tr:hover{background:color-mix(in oklab,var(--gold) 10%,transparent)}
+@media (max-width:480px){.st-bar{grid-template-columns:minmax(0,7.5em) minmax(0,1fr) 2.2em 2.8em;gap:6px}}
 @media (max-width:860px){.act-dash{grid-template-columns:1fr}}
 .act-dash-a,.act-dash-b{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-content:start;min-width:0}
 .act-dash .act-box,.act-dash .act-kpis,.act-dash .act-chart{min-width:0}
@@ -4258,7 +4290,7 @@ function meditationBlock(m){
   return h("div",{class:"medit"}, m.title ? h("h3",null,m.title) : null, h("div",{class:"text"}, m.text||""),
     h("span",{class:"small muted"}, m.date ? fmtShort(m.date) : ""));
 }
-const HEAD_ICONS = [["الأدمن","admin"],["الملخص","admin"],["الآباء","afathers"],["الناس","apeople"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أبنائي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
+const HEAD_ICONS = [["الإحصائيات","astats"],["الأدمن","admin"],["الملخص","admin"],["الآباء","afathers"],["الناس","apeople"],["المتابعة","admin"],["استعداد","confession"],["جديدة","newuser"],["أعياد","cake"],["سؤال","bell"],["قراءات","readings"],["أبنائي","people"],["طلبات","confession"],["حجز","confession"],["مواعيد","requests"],["تأمل","meditations"],["النوتة","notebook"],["رسائل","inbox"],["بياناتي","me"],["أهلاً","me"],["الإعدادات","settings"],["الاعترافات","confession"]];
 function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.includes(w)); return h("div",{class:"sec-head"}, h("h2",null, m ? icon(m[1]) : null, title), extra||null); }
 
 /* ---------- PRIEST ---------- */
@@ -4448,7 +4480,7 @@ async function routeNotify(stops, r, etas){
     toast("تم إبلاغ "+arDigits(items.length)+" بمواعيدهم في البرنامج.");
   } catch(e){ toast(typeof cloudMsg === "function" ? cloudMsg(e) : "تعذّر الإبلاغ، برجاء المحاولة مرة أخرى."); }
 }
-let visitApi = null, nbApi = null, photoApi = null;
+let visitApi = null, nbApi = null, photoApi = null, statsApi = null;
 // who was not visited goes first next time; whoever was visited leaves that list
 function routeCarry(stops, r){
   const missed = stops.filter(p => !visitedOn(p, r.date)).map(p => p.id), inTrip = new Set(stops.map(p => p.id));
@@ -5279,8 +5311,10 @@ function priestRequests(all){
   }
   const up = all.flatMap(p => [p.pr && p.pr.nextConfession && new Date(p.pr.nextConfession) >= TODAY ? {p, when:p.pr.nextConfession, k:"confession"} : null,
     p.pr && p.pr.nextVisit && new Date(p.pr.nextVisit) >= TODAY ? {p, when:p.pr.nextVisit, k:"visit"} : null]).filter(Boolean).sort((a,b)=>a.when.localeCompare(b.when));
-  if (up.length) wrap.append(h("section",null, sectionHead("مواعيد قادمة"), h("ul",{class:"list"}, up.map(({p, when, k}) => h("li",null,
-    h("div",{class:"who"}, h("strong",null, REQ_KINDS[k].emo+" "+p.name), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when)),
+  const openUp = p => () => { selectPerson(p.id); render(); window.scrollTo({top:0}); };
+  if (up.length) wrap.append(h("section",null, sectionHead("مواعيد قادمة"), h("ul",{class:"list up-list"}, up.map(({p, when, k}) => h("li",{class:"up-row", "data-id":p.id},
+    h("button",{type:"button", class:"up-av", "aria-label":"افتح بيانات "+p.name, onclick:openUp(p)}, avatar(p), h("span",{class:"up-kind k-"+k, "aria-hidden":"true"}, REQ_KINDS[k].emo)),
+    h("div",{class:"who"}, h("button",{type:"button", class:"up-name", onclick:openUp(p)}, h("strong",null, p.name)), h("span",{class:"small muted num"}, REQ_KINDS[k].label+" · "+fmtWhen(when)),
       p.pr[REQ_KINDS[k].next+"Mins"] > 0 ? h("span",{class:"pill multi-pill"}, "⏱️ "+durTxt(p.pr[REQ_KINDS[k].next+"Mins"])+" · "+spanTxt(String(when).slice(11,16), p.pr[REQ_KINDS[k].next+"Mins"])) : null),
     new Date(when) >= new Date() ? apptCancelBox(k, p.id, "father") : null,
     contactBtns(p, "🔔 تذكير\n"+apptText(p, k, when)),
@@ -8208,8 +8242,9 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-12b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-12c", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["📊","شاشة الإحصائيات","شاشة جديدة بالأسفل باسم «الإحصائيات»: أعمار المعترفين ونوعهم ووظائفهم ومناطقهم ومحافظة الميلاد، ونسبة من اعترفوا ومن كتبوا في النوتة ومن يستخدمون البرنامج، مع ملاحظات تشرح الأرقام. يمكن اختيار أب اعتراف معيّن، والضغط على أي سطر لعرض الأسماء، وتنزيل الإحصائيات في ملف Excel. أرقام المتابعة أعداد فقط، دون أي ملاحظات للآباء."],
     ["💬","واتساب في نافذة واحدة","على الكمبيوتر تُفتح كل رسائل واتساب من البرنامج في نافذة واحدة بدلًا من نافذة جديدة كل مرة. وإذا كان تطبيق واتساب مثبتًا على الكمبيوتر، اختر «📲 تطبيق واتساب» من كارت «💬 رسائل واتساب على هذا الكمبيوتر» في «الإعدادات» فتُفتح الرسالة فيه مباشرة."],
     ["🎬","فيديوهات الشرح","في «الدعم الفني» كارت «🎬 فيديوهات الشرح»: فيديوهات التسجيل وإضافة الأيقونة ومميزات البرنامج وحجز موعد الاعتراف والنوتة الروحية وتشغيل التنبيهات، بالعربية والإنجليزية، يشاهدها الجميع من الدعم الفني بعد الدخول، وفي شاشة الدخول يظهر فيديو التسجيل فقط. يمكنك إخفاء أي فيديو، وإضافة فيديوهات أخرى برابط من يوتيوب، وفي الرد على أي طلب زر «🎬 إرسال فيديو» يصل للشخص فيشاهده داخل البرنامج."],
     ["🖼️","مخزن الصور","تُحفظ كل صورة الآن مرة واحدة ملفًا في مخزن الصور، وتظهر منه في كل مكان، فتخف بيانات الكنيسة كثيرًا. في «الدعم الفني» داخل «المساحة المستخدمة» زر «📦 نقل الصور الحالية إلى مخزن الصور» لنقل الصور القديمة مرة واحدة، ويظهر تحته حجم مخزن الصور."],
@@ -8233,6 +8268,7 @@ const NEWS = {id:"2026-11-12b", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🖼️","الصور في «مواعيد قادمة»","تظهر صورة كل شخص بجوار ميعاده، وعليها علامة صغيرة لنوع الميعاد (اعتراف أو افتقاد). اضغط على الصورة أو الاسم لفتح بياناته."],
     ["💬","واتساب في نافذة واحدة","على الكمبيوتر تُفتح كل رسائل واتساب من البرنامج في نافذة واحدة بدلًا من نافذة جديدة كل مرة. وإذا كان تطبيق واتساب مثبتًا على الكمبيوتر، اختر «📲 تطبيق واتساب» من كارت «💬 رسائل واتساب على هذا الكمبيوتر» في «الإعدادات» فتُفتح الرسالة فيه مباشرة."],
     ["🎬","فيديوهات الشرح","في «الإعدادات» داخل كارت «الدعم الفني» زر «🎬 فيديوهات الشرح»: فيديوهات قصيرة بالعربية والإنجليزية عن التسجيل وإضافة أيقونة البرنامج، وحجز موعد الاعتراف، والنوتة الروحية، وتشغيل التنبيهات، يمكنك مشاهدتها ومشاركتها مع أبنائك."],
     ["🕊️","«أبونا شاف نوتتك»","افتح كارت أحد أبنائك، وتحت «النوتة الروحية» اضغط 👍 أو «✍️ كلمة تشجيع» على أي يوم سجّله، فتصله رسالة وتنبيه بأنك رأيت نوتته. ولا يرى أحد غيره ما كتبته."],
@@ -8514,7 +8550,7 @@ function startIcons(){ iconize(document.body);
     .observe(document.body, {childList:true, subtree:true, characterData:true}); }
 if (document.body) startIcons(); else document.addEventListener("DOMContentLoaded", startIcons);
 const ICON_COLORS = {support:"#e11d48", activity:"#0ea5e9", families:"#f97316", admin:"#c9a227", today:"#f59e0b", people:"#3b82f6", requests:"#f43f5e", confession:"#f43f5e", meditations:"#8b5cf6", readings:"#14b8a6", notebook:"#22c55e", inbox:"#ec4899", me:"#0ea5e9", cake:"#f97316", bell:"#ef4444", newuser:"#06b6d4", visit:"#a855f7", settings:"#64748b", afathers:"#0f766e", apeople:"#3b82f6"};
-const EMOJI = {support:"🛟", activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️", afathers:"⛪", apeople:"👥"};
+const EMOJI = {astats:"📊", support:"🛟", activity:"🕒", families:"🏠", admin:"👑", today:"☀️", people:"👨‍👩‍👧‍👦", requests:"📅", confession:"🙏", meditations:"🕊️", readings:"📖", notebook:"📔", inbox:"💌", me:"🙋", cake:"🎂", bell:"🔔", newuser:"✨", visit:"🏡", settings:"⚙️", afathers:"⛪", apeople:"👥"};
 function icon(k, size){
   const e = emoKey(EMOJI[k]||"✝️") || ["cross","#0f766e"], s = h("span",{class:"ico"+(size?" "+size:""), style:"--c:"+(ICON_COLORS[k]||e[1]), "aria-hidden":"true"});
   s.innerHTML = icSvg(e[0]); return s; }
@@ -8525,6 +8561,7 @@ function admTabs(){
   const t = [["admin","الملخص", (S.pwreqs||[]).length + (S.pending||[]).length]];
   if (Store.mode === "cloud") t.push(["afathers","الآباء"]);
   t.push(["apeople","الناس"],["activity","النشاط"]);
+  if (Store.mode === "cloud") t.push(["astats","الإحصائيات"]);
   if (supOn() && supIsAdmin()) t.push(["support","الدعم الفني", supWaiting()]);
   t.push(["settings","الإعدادات"]);
   return t;
@@ -8544,7 +8581,7 @@ function render(){
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
   else if (waiting) view = pendingView();
-  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : S.tab === "support" ? supportView() : adminView(all, {afathers:"fathers", apeople:"people"}[S.tab] || "sum");
+  else if (adm) view = S.tab === "settings" ? priestSettings() : S.tab === "activity" ? activityView() : S.tab === "astats" ? statsView(all) : S.tab === "support" ? supportView() : adminView(all, {afathers:"fathers", apeople:"people"}[S.tab] || "sum");
   else if (priest) view = ({today:priestToday, people:priestPeople, families:priestToday, requests:priestRequests, meditations:priestMeditations, settings:priestSettings, admin:adminView}[S.tab])(all);
   else if (sup) view = adminView([]);
   else view = ({today:memberToday, notebook:memberNotebook, confession:memberConfession, inbox:memberInbox, me:memberMe}[S.tab])();
@@ -8642,7 +8679,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.12-2";
+const APP_VERSION = "2026.11.12-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -9142,6 +9179,135 @@ function myPasswordCard(){
     }},"تغيير كلمة السر")));
 }
 const isFatherAcc = a => a.active !== false && !a.pending && a.role === "priest";
+// ===== «📊 الإحصائيات» (2026-11-12, user: «عاوز إحصا … السن النوع التخصصات» → «إحصائيات عند الأدمن») =====
+// Who the confessees are (age, sex, work, area, birthplace from the national ID) from their own data, and how the follow-up goes
+// (confession, notebook, the app) as counts from the server. The admin may pick one confession father.
+const ST_AGES = [["أقل من ١٢", 0, 11], ["١٢–١٧", 12, 17], ["١٨–٢٥", 18, 25], ["٢٦–٤٠", 26, 40], ["٤١–٦٠", 41, 60], ["أكثر من ٦٠", 61, 200]];
+const ST_AGE_NAMES = ["الأطفال", "طلبة الإعدادي والثانوي", "الشباب والجامعيين", "من ٢٦ إلى ٤٠ سنة", "من ٤١ إلى ٦٠ سنة", "الكبار فوق ٦٠ سنة"];
+const ST_JOBS = [["طالب", /طالب|طلبة|تلميذ|دارس|جامع[ةه]|كلي[ةه]|ثانوي|اعدادي|إعدادي|ابتدائي/], ["مهندس", /مهندس|هندس/], ["طبيب", /طبيب|دكتور|د\.|اطباء|أطباء/],
+  ["صيدلي", /صيدل/], ["تمريض", /ممرض|تمريض/], ["مدرس", /مدرس|معلم|مُعلم|استاذ|أستاذ|تدريس/], ["محاسب", /محاسب|حسابات/], ["محامي", /محام|قانون/],
+  ["موظف", /موظف|اداري|إداري|سكرتير|خدمة عملاء/], ["تاجر وأعمال حرة", /تاجر|تجار|اعمال حر|أعمال حر|صاحب|بيزنس/], ["حرفي وفني", /فني|عامل|نجار|سباك|كهربائي|ميكانيكي|سائق|سواق|حداد|ترزي|خياط/],
+  ["ربة منزل", /ربة منزل|ربه منزل|ست بيت|منزل/], ["بالمعاش", /معاش|متقاعد/], ["لا يعمل", /لا يعمل|مش بيشتغل|بدون عمل|عاطل/]];
+const stNorm = v => String(v || "").replace(/[ًٌٍَُِّْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ى/g, "ي").replace(/\s+/g, " ").trim();
+function stJob(v){
+  const t = stNorm(v); if (!t) return "";
+  for (const [k, re] of ST_JOBS) if (re.test(t) || re.test(String(v))) return k;
+  return t.split(/[،,\/\-–(]/)[0].trim().replace(/^ال/, "").replace(/ة$/, "").slice(0, 24) || "";
+}
+const stArea = v => { const t = String(v || "").split(/[،,\-–\n]/)[0].replace(/^\s*(شارع|ش\.|ش)\s+/, "").trim(); return t.length > 1 && t.length <= 30 && !/^\d+$/.test(t) ? t : ""; };
+function stPerson(m, acc){
+  const id = nidDigits(m.nid || ""), x = id && id.length === 14 ? parseNid(id) : {}, nidOk = x && !x.error && x.birthday;
+  const bd = /^\d{4}-\d{2}-\d{2}/.test(m.birthday || "") ? m.birthday.slice(0, 10) : nidOk ? x.birthday : "";
+  let age = null; if (bd){ const b = parseYmd(bd); age = TODAY.getFullYear() - b.getFullYear() - ((TODAY.getMonth() < b.getMonth() || (TODAY.getMonth() === b.getMonth() && TODAY.getDate() < b.getDate())) ? 1 : 0); if (age < 0 || age > 120) age = null; }
+  const last = acc && acc.lastLogin ? new Date(acc.lastLogin) : null, dAgo = last ? (Date.now() - last) / 864e5 : null;
+  return {id:m.id, name:m.name || (acc && acc.name) || "", photo:m.photo || (acc && acc.photo) || "", father:(acc && acc.father) || "",
+    age, sex:m.sex === "m" || m.sex === "f" ? m.sex : nidOk ? x.sex : "", job:stJob(m.job), area:stArea(m.address), gov:nidOk ? x.gov : "",
+    app:dAgo == null ? "never" : dAgo <= 7 ? "w" : dAgo <= 30 ? "m" : "old", phone:!!m.phone, hasPhoto:!!(m.photo || (acc && acc.photo))};
+}
+function statsPeople(){
+  const accs = new Map((S.accounts || []).map(a => [a.id, a]));
+  return (S.members || []).filter(m => { const a = accs.get(m.id); return a && a.role === "user" && a.active !== false && !a.pending; }).map(m => stPerson(m, accs.get(m.id)));
+}
+const stPct = (n, all) => all ? Math.round(n / all * 100) : 0;
+const ST_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#ec4899", "#14b8a6", "#6366f1", "#84cc16", "#f97316"];
+function statsView(){
+  const fid = S.draft.stF || "", every = statsPeople(), ppl = fid ? every.filter(x => x.father === (fid === "none" ? "" : fid)) : every, N = ppl.length;
+  const fathers = (S.accounts || []).filter(a => a.role === "priest" && !a.pending && every.some(x => x.father === a.id)).sort((a, b) => a.name.localeCompare(b.name, "ar"));
+  const days = confDays();
+  if (statsApi && !Store.preview && (!S.stats || S.stats.days !== days || Date.now() - S.stats.at > 120000) && !(S.stats && S.stats.busy)){
+    S.stats = Object.assign(S.stats || {}, {busy:true, days});
+    statsApi.church(days).then(r => { S.stats = {rows:r || [], at:Date.now(), days}; scheduleRender(); }).catch(() => { S.stats = {rows:null, at:Date.now(), days, err:true}; scheduleRender(); });
+  }
+  const fr = S.stats && S.stats.rows ? S.stats.rows.filter(r => !fid || r.father === (fid === "none" ? "" : fid)) : null;
+  const sum = k => fr ? fr.reduce((a, r) => a + (+r[k] || 0), 0) : 0, fn = fr ? sum("n") : 0;
+  const pick = (title, list) => () => { S.draft.stPick = S.draft.stPick && S.draft.stPick.title === title ? null : {title, ids:list.map(x => x.id)}; render(); };
+  const bars = (key, rows, total) => h("ul",{class:"st-bars", "data-k":key}, rows.map(([label, list, color], i) => h("li",null,
+    h("button",{type:"button", class:"st-bar" + (S.draft.stPick && S.draft.stPick.title === label ? " on" : ""), "aria-label":label + ": " + list.length, onclick:pick(label, list), disabled:!list.length},
+      h("span",{class:"st-l"}, label), h("span",{class:"st-track"}, h("i",{style:"width:" + Math.max(list.length ? 3 : 0, stPct(list.length, total)) + "%;background:" + (color || ST_COLORS[i % ST_COLORS.length])})),
+      h("b",{class:"num"}, arDigits(list.length)), h("small",{class:"muted num"}, arDigits(stPct(list.length, total)) + "٪")))));
+  const card = (title, emo, ...kids) => h("div",{class:"card st-card"}, h("h3",null, emo + " " + title), ...kids);
+  const group = (fn2, order) => { const m = new Map(); for (const x of ppl){ const k = fn2(x); if (!k) continue; if (!m.has(k)) m.set(k, []); m.get(k).push(x); }
+    return [...m.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], "ar")).slice(0, order || 10).map(([k, v]) => [k, v]); };
+  // age, sex, work, area, birthplace
+  const withAge = ppl.filter(x => x.age != null), ages = ST_AGES.map(([l, a, b], i) => [l, withAge.filter(x => x.age >= a && x.age <= b), ST_COLORS[i]]);
+  const men = ppl.filter(x => x.sex === "m"), women = ppl.filter(x => x.sex === "f"), sexN = men.length + women.length, mp = stPct(men.length, sexN);
+  const jobs = group(x => x.job), jobN = ppl.filter(x => x.job).length, areas = group(x => x.area, 8), areaN = ppl.filter(x => x.area).length, govs = group(x => x.gov, 6), govN = ppl.filter(x => x.gov).length;
+  const app = [["خلال آخر ٧ أيام", ppl.filter(x => x.app === "w"), "#10b981"], ["خلال آخر ٣٠ يومًا", ppl.filter(x => x.app === "m"), "#0ea5e9"], ["منذ أكثر من شهر", ppl.filter(x => x.app === "old"), "#f59e0b"], ["لم يدخل بعد", ppl.filter(x => x.app === "never"), "#ef4444"]];
+  const miss = [["بدون سن", ppl.filter(x => x.age == null)], ["بدون نوع", ppl.filter(x => !x.sex)], ["بدون وظيفة", ppl.filter(x => !x.job)], ["بدون عنوان", ppl.filter(x => !x.area)], ["بدون تليفون", ppl.filter(x => !x.phone)], ["بدون صورة", ppl.filter(x => !x.hasPhoto)]];
+  // a few sentences that say what the numbers mean
+  const tips = [];
+  const big = ages.reduce((a, r, i) => r[1].length > (a ? a[1].length : 0) ? Object.assign(r.slice(), {i}) : a, null);
+  if (big && withAge.length >= 3) tips.push("🎯 أكبر فئة هي " + ST_AGE_NAMES[big.i] + " (" + big[0] + " سنة): " + arDigits(stPct(big[1].length, withAge.length)) + "٪ ممن عُرف سنهم.");
+  if (sexN >= 3) tips.push("👥 " + arDigits(mp) + "٪ ذكور و" + arDigits(100 - mp) + "٪ إناث.");
+  if (jobs[0] && jobN >= 3) tips.push("💼 أكثر وظيفة: «" + jobs[0][0] + "» (" + arDigits(jobs[0][1].length) + " " + (jobs[0][1].length === 1 ? "شخص" : "أشخاص") + ")" + (jobs[1] ? "، ثم «" + jobs[1][0] + "»." : "."));
+  const young = withAge.filter(x => x.age >= 12 && x.age <= 25).length; if (withAge.length >= 5 && young / withAge.length >= .3) tips.push("🌱 " + arDigits(stPct(young, withAge.length)) + "٪ بين ١٢ و٢٥ سنة: قد يناسبهم اجتماع أو تأمل موجّه للشباب.");
+  if (fr && fn){ const late = sum("late") + sum("never"); if (late) tips.push("⏰ " + arDigits(stPct(late, fn)) + "٪ لم يعترفوا خلال آخر " + arDigits(days) + " يومًا أو ليس لهم تاريخ اعتراف مسجّل.");
+    tips.push("📔 " + arDigits(stPct(sum("nb7"), fn)) + "٪ كتبوا في النوتة الروحية خلال آخر أسبوع."); }
+  if (areas[0] && areaN >= 3) tips.push("📍 أكثر منطقة: «" + areas[0][0] + "» (" + arDigits(areas[0][1].length) + "): يمكن ترتيب الافتقاد فيها في يوم واحد.");
+  const asleep = app[2][1].length + app[3][1].length; if (N >= 3 && asleep / N >= .25) tips.push("💤 " + arDigits(asleep) + " لم يفتحوا البرنامج منذ أكثر من شهر أو لم يدخلوا أبدًا: رسالة تذكير قد تفيد.");
+  const pk = S.draft.stPick, pkList = pk ? pk.ids.map(id => ppl.find(x => x.id === id) || every.find(x => x.id === id)).filter(Boolean) : [];
+  const openP = id => () => { S.draft.accOpen = id; S.draft.accFather = ""; S.draft.accGroup = "all"; S.tab = "apeople"; render();
+    setTimeout(() => { const t = document.querySelector('#accLists li.dir-row[data-id="' + id + '"]'); if (t) t.scrollIntoView({behavior:"smooth", block:"center"}); }, 60); };
+  const kpi = (emo, n, label, cls) => h("div",{class:"st-kpi " + (cls || "")}, h("span",{class:"st-ke"}, emo), h("b",{class:"num"}, n), h("span",null, label));
+  const confRows = fr ? [["اعترفوا خلال " + arDigits(days) + " يومًا", sum("conf"), "#10b981"], ["متأخرون عن الاعتراف", sum("late"), "#f59e0b"], ["بدون تاريخ اعتراف", sum("never"), "#ef4444"]] : [];
+  return h("div",{class:"st-screen", style:"display:grid;gap:18px"}, sectionHead("الإحصائيات"),
+    h("div",{class:"row st-top", style:"align-items:center;gap:8px;flex-wrap:wrap"},
+      h("label",{class:"small", for:"stFather"}, "أب الاعتراف:"),
+      h("select",{id:"stFather", onchange:e => { S.draft.stF = e.target.value; S.draft.stPick = null; render(); }},
+        h("option",{value:""}, "كل الكنيسة"), fathers.map(a => h("option",{value:a.id, selected:fid === a.id}, a.name)),
+        every.some(x => !x.father) ? h("option",{value:"none", selected:fid === "none"}, "بدون أب اعتراف") : null),
+      h("button",{type:"button", class:"btn sm ghost", id:"stXlsx", onclick:() => statsExcel()}, "📊 Excel")),
+    N ? h("div",{class:"st-kpis"}, kpi("🙋", arDigits(N), "معترف على البرنامج", "k1"), kpi("🎂", withAge.length ? arDigits(Math.round(withAge.reduce((a, x) => a + x.age, 0) / withAge.length)) : "—", "متوسط السن", "k2"),
+      kpi("👨", arDigits(mp) + "٪", "ذكور", "k3"), kpi("👩", arDigits(sexN ? 100 - mp : 0) + "٪", "إناث", "k4"),
+      kpi("🙏", fr && fn ? arDigits(stPct(sum("conf"), fn)) + "٪" : "…", "اعترفوا خلال " + arDigits(days) + " يومًا", "k5"), kpi("📔", fr && fn ? arDigits(stPct(sum("nb7"), fn)) + "٪" : "…", "كتبوا في النوتة هذا الأسبوع", "k6"))
+      : h("div",{class:"empty"}, "لا يوجد معترفون على البرنامج بعد."),
+    N && tips.length ? h("div",{class:"card st-tips", id:"stTips"}, h("h3",null, "💡 ملاحظات"), h("ul",null, tips.map(t => h("li",null, t)))) : null,
+    pk ? h("div",{class:"card st-pick", id:"stPick"}, h("div",{class:"row between", style:"align-items:center"}, h("h3",{style:"margin:0"}, pk.title + " · " + arDigits(pkList.length)),
+        h("button",{type:"button", class:"chat-x sm", id:"stPickX", "aria-label":"إغلاق", onclick:() => { S.draft.stPick = null; render(); }}, "✕")),
+      h("ul",{class:"st-names"}, pkList.map(x => h("li",null, h("button",{type:"button", onclick:openP(x.id)}, avatar(x, "sm"), h("span",null, x.name)))))) : null,
+    N ? h("div",{class:"st-grid"},
+      card("السن", "🎂", bars("age", ages, withAge.length), h("small",{class:"muted"}, "من تاريخ الميلاد، أو من الرقم القومي إن لم يُكتب. معروف لـ " + arDigits(withAge.length) + " من " + arDigits(N) + ".")),
+      card("النوع", "👥", h("div",{class:"st-sex"}, h("div",{class:"st-donut", role:"img", "aria-label":"ذكور " + mp + "٪ وإناث " + (100 - mp) + "٪", style:"--m:" + (sexN ? mp : 0)}, h("span",{class:"num"}, arDigits(sexN))),
+        bars("sex", [["ذكور", men, "#0ea5e9"], ["إناث", women, "#ec4899"]], sexN)), h("small",{class:"muted"}, "من بيانات الشخص، أو من الرقم القومي.")),
+      card("المتابعة الروحية", "🙏", fr ? h("ul",{class:"st-bars", "data-k":"conf"}, confRows.map(([l, n, c]) => h("li",null, h("div",{class:"st-bar static"}, h("span",{class:"st-l"}, l),
+          h("span",{class:"st-track"}, h("i",{style:"width:" + Math.max(n ? 3 : 0, stPct(n, fn)) + "%;background:" + c})), h("b",{class:"num"}, arDigits(n)), h("small",{class:"muted num"}, arDigits(stPct(n, fn)) + "٪")))))
+        : h("p",{class:"small muted"}, S.stats && S.stats.err ? "تعذّر تحميل أرقام المتابعة." : "جارٍ التحميل…"),
+        fr ? h("p",{class:"small", style:"margin:6px 0 0"}, "📔 النوتة: " + arDigits(sum("nb7")) + " كتبوا هذا الأسبوع، و" + arDigits(sum("nb30")) + " خلال الشهر.") : null,
+        h("small",{class:"muted"}, "أرقام فقط من سجلات الآباء، دون أي أسماء أو ملاحظات.")),
+      card("استخدام البرنامج", "📱", bars("app", app, N)),
+      jobs.length ? card("الوظائف والتخصصات", "💼", bars("job", jobs, jobN), h("small",{class:"muted"}, "تُجمع الكتابات المتشابهة معًا (مثل مهندس ومهندسة).")) : null,
+      areas.length ? card("المناطق", "📍", bars("area", areas, areaN), h("small",{class:"muted"}, "من أول جزء في العنوان.")) : null,
+      govs.length ? card("محافظة الميلاد", "🗺️", bars("gov", govs, govN), h("small",{class:"muted"}, "من الرقم القومي.")) : null,
+      card("اكتمال البيانات", "🧩", bars("miss", miss.map(([l, v]) => [l, v, "#94a3b8"]), N), h("small",{class:"muted"}, "اضغط على أي سطر لعرض الأسماء، ثم افتح بيانات الشخص وأكملها."))) : null,
+    !fid && fr && fathers.length > 1 ? card("حسب أب الاعتراف", "⛪", h("div",{class:"st-ftable"}, h("table",null,
+      h("thead",null, h("tr",null, ["أب الاعتراف", "المعترفون", "اعترفوا", "متأخرون", "النوتة هذا الأسبوع"].map(x => h("th",null, x)))),
+      h("tbody",null, fathers.map(a => { const r = S.stats.rows.find(x => x.father === a.id) || {}; return h("tr",{onclick:() => { S.draft.stF = a.id; render(); window.scrollTo({top:0}); }},
+        h("td",null, a.name), h("td",{class:"num"}, arDigits(+r.n || 0)), h("td",{class:"num"}, arDigits(stPct(+r.conf || 0, +r.n || 0)) + "٪"),
+        h("td",{class:"num"}, arDigits((+r.late || 0) + (+r.never || 0))), h("td",{class:"num"}, arDigits(stPct(+r.nb7 || 0, +r.n || 0)) + "٪")); }))))) : null);
+}
+async function statsExcel(){
+  if (!window.XLSX && Store.mode === "cloud"){ toast("جارٍ تجهيز ملف Excel…");
+    await new Promise(res => { const sc = document.createElement("script"); sc.src = "xlsx.full.min.js"; sc.onload = sc.onerror = res; document.head.append(sc); }); }
+  if (!window.XLSX || !XLSX.CFB){ toast("مكتبة Excel لم تُحمَّل بعد، حاول مرة أخرى"); return; }
+  const fid = S.draft.stF || "", every = statsPeople(), ppl = fid ? every.filter(x => x.father === (fid === "none" ? "" : fid)) : every, N = ppl.length;
+  const rows = [], add = (sec, label, n, all) => rows.push([sec, label, n, all ? stPct(n, all) + "%" : ""]);
+  const wa = ppl.filter(x => x.age != null); ST_AGES.forEach(([l, a, b]) => add("السن", l + " سنة", wa.filter(x => x.age >= a && x.age <= b).length, wa.length));
+  const sx = ppl.filter(x => x.sex); add("النوع", "ذكور", sx.filter(x => x.sex === "m").length, sx.length); add("النوع", "إناث", sx.filter(x => x.sex === "f").length, sx.length);
+  const cnt = (f, sec, top) => { const m = new Map(); ppl.forEach(x => { const k = f(x); if (k) m.set(k, (m.get(k) || 0) + 1); }); const tot = [...m.values()].reduce((a, b) => a + b, 0);
+    [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, top).forEach(([k, v]) => add(sec, k, v, tot)); };
+  cnt(x => x.job, "الوظيفة", 30); cnt(x => x.area, "المنطقة", 20); cnt(x => x.gov, "محافظة الميلاد", 27);
+  [["w", "دخل خلال ٧ أيام"], ["m", "دخل خلال ٣٠ يومًا"], ["old", "منذ أكثر من شهر"], ["never", "لم يدخل بعد"]].forEach(([k, l]) => add("استخدام البرنامج", l, ppl.filter(x => x.app === k).length, N));
+  const fr = S.stats && S.stats.rows ? S.stats.rows.filter(r => !fid || r.father === (fid === "none" ? "" : fid)) : null;
+  if (fr){ const s = k => fr.reduce((a, r) => a + (+r[k] || 0), 0), n = s("n");
+    add("المتابعة الروحية", "اعترفوا خلال " + confDays() + " يومًا", s("conf"), n); add("المتابعة الروحية", "متأخرون", s("late"), n); add("المتابعة الروحية", "بدون تاريخ اعتراف", s("never"), n);
+    add("المتابعة الروحية", "كتبوا في النوتة خلال أسبوع", s("nb7"), n); add("المتابعة الروحية", "كتبوا في النوتة خلال شهر", s("nb30"), n); }
+  const fa = fid && fid !== "none" ? ((S.accounts || []).find(a => a.id === fid) || {}).name : fid === "none" ? "بدون أب اعتراف" : "كل الكنيسة";
+  const m = exportMeta(N), cols = [{h:"البيان", w:20}, {h:"التفصيل", w:30}, {h:"العدد", w:10, kind:"num"}, {h:"النسبة", w:10}];
+  const buf = XLB.build({sheet:"الإحصائيات", title:m.title, church:m.church ? "كنيسة " + m.church.replace(/^كنيسة\s+/, "") : "",
+    sub:"الإحصائيات · " + fa + " · " + m.when + " · " + arDigits(N) + " معترف", cols, rows, foot:m.foot, pageHead:"الإحصائيات", author:"ⲙⲉⲛⲣⲓⲧ · Pinshti Solutions & Software",
+    ...(() => { const cl = XLB.dataUrlBytes(S.settings && S.settings.logo), mk = XLB.dataUrlBytes(APP_MARK); return cl ? {logo:cl, logo2:mk} : {logo:mk}; })()});
+  if (await saveFile("إحصائيات-المعترفين-" + TODAY_S + ".xlsx", buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) toast("تم تنزيل الملف");
+}
 function activityView(){
   const accs = (S.accounts||[]).slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"ar"));
   return h("div",{style:"display:grid;gap:18px"}, sectionHead("النشاط"), activityCard(S.log || [], accs));
@@ -10131,6 +10297,7 @@ nbApi = { note: (uid, date, like, text) => Cloud.rpc("nb_note", {p_uid:uid, p_da
 // «إزالة من أولادي» (2026-11-07): the father lets go of a confessee; his notes about him are deleted
 dbApi = { usage: () => Cloud.rpc("db_usage"), detail: () => Cloud.rpc("storage_usage"), loginDays: () => Cloud.rpc("login_days", {p_days:14}) };
 onlineApi = { list: () => Cloud.rpc("online_list") };
+statsApi = { church: days => Cloud.rpc("church_stats", {p_days:days}) };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
 // «🛟 الدعم الفني» (2026-11-10)
 // pictures as files (2026-11-11): one file in this project's storage, in the church's folder, under a random name;
