@@ -209,6 +209,24 @@ ul.list li.click:hover{background:var(--surface-2)}
 .sched-range.on{border-color:var(--gold)}
 .renew-card{border-color:var(--gold)!important;background:linear-gradient(180deg,var(--surface),var(--surface-2))}
 .sched-hours{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#gate .gm-wrap{width:100%;max-width:980px;display:grid;gap:14px;text-align:start;align-self:start}
+.gm-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 18px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#0f766e,#1e40af);border:2px solid #d4a630;box-shadow:var(--shadow)}
+.gm-head h1{margin:0;font-size:1.35rem;letter-spacing:.02em}.gm-head p{margin:0;opacity:.9;font-size:.85rem}
+.gm-head .btn.quiet{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.35)}
+.gm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.gm-stat{text-align:center;padding:10px;border-radius:16px;background:var(--surface);border:1.5px solid #d4a630;box-shadow:var(--shadow)}
+.gm-stat b{display:block;font-size:1.5rem;line-height:1.3}
+.gm-card{background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#f2d06b,#d4a630 45%,#a8741a 70%,#f2d06b) border-box;border:1.5px solid transparent;border-radius:18px;padding:14px 16px;display:grid;gap:10px}
+.gm-card h2{margin:0;font-size:1.05rem}.gm-card summary{cursor:pointer;font-weight:800}
+.gm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}.gm-grid label{display:grid;gap:4px;font-weight:600;font-size:.86rem}
+.gm-ch{display:grid;gap:8px;padding:12px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)}
+.gm-ch.here{border:2px solid #d4a630}
+.gm-ch h3{margin:0;font-size:1.02rem}.gm-ch .row{gap:8px;flex-wrap:wrap;align-items:center}
+.gm-ch details{border-top:1px dashed var(--line);padding-top:6px}.gm-ch details summary{font-weight:700;color:var(--ink-2);font-size:.88rem;cursor:pointer}
+.gm-ch details[open] > .gm-tools{display:grid;gap:8px;margin-top:8px}
+.gm-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.45rem;font-weight:800;letter-spacing:.12em;text-align:center;padding:10px;border-radius:12px;background:var(--surface-2);direction:ltr}
+.gm-share{white-space:pre-wrap;background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:.88rem;border:1px dashed #d4a630}
+.gm-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gm-bar strong{letter-spacing:.02em}
 .sched-pl{max-width:200px}.sched-places{display:grid;gap:6px}.sched-places .row{align-items:center;gap:6px;flex-wrap:nowrap}.sched-places input{flex:1;min-width:0}
 .place-line{margin:0;font-weight:700;color:var(--a)}.idle-card .chip-btn[aria-pressed=true],.wa-card .chip-btn[aria-pressed=true]{outline:2px solid var(--gold)}
 .sched-hours input{max-width:120px}
@@ -8682,7 +8700,7 @@ function renderNotice(){
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
       : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn-ink);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
     const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 شاشة أب تجريبية ببيانات وهمية: لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), S.account && S.account.role === "admin" ? admSwitch() : null));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 شاشة أب تجريبية ببيانات وهمية: لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), isGM() ? gmBar() : S.account && S.account.role === "admin" ? admSwitch() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"العودة إلى البيانات الحقيقية") : null)));
@@ -8745,7 +8763,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.13-2";
+const APP_VERSION = "2026.11.13-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -9050,6 +9068,7 @@ function activityCard(logs, accs){
     more, rows.length ? h("p",{class:"small muted act-hint"},"دوس على أي اسم يفتح تفاصيله، ودوس على عنوان أي عمود يرتّب بيه.") : null);
 }
 async function logAct(action, who){
+  if (Store.mode === "cloud" && isGM()) return;
   const a = S.account || {};
   try { await Store.set("log/"+newId(), {at:new Date().toISOString(), who: who || a.name || "", role: a.role || "", action}); } catch(e){}
   if (Store.mode === "local"){ const logs = [...Mem.data.entries()].filter(([k])=>k.startsWith("log/"));
@@ -9565,7 +9584,10 @@ function adminView(all, part){
       li.append(h("div",{class:"acc-tools"},
         // on the server a supervisor makes a new password only for a new account or when its owner asked for one
         // (otherwise he could sign in as the person and read their notebook)
-        Store.mode === "cloud" && !self && a.role === "priest" ? h("p",{class:"small muted", style:"margin:0"},"🔒 كلمة سر أبونا محدش في الكنيسة يقدر يغيّرها، عشان ملاحظاته تفضل سر. لو نسيها يكلّم المطوّر على "+DEV.phone+".")
+        Store.mode === "cloud" && !self && a.role === "priest" && isGM() ? h("div",{class:"row"}, h("button",{class:"btn sm", id:"gmFatherPw", onclick:async e => {
+          if (!confirm("إنشاء كلمة سر جديدة لـ "+a.name+"؟")) return; const b = e.currentTarget; b.disabled = true;
+          try { const r = await Cloud.rpc("dev_admin_password", {p_id:S.church.id, p_uid:a.id}); newPwDialog(a, r.password); } catch(x){ toast(cloudMsg(x)); } finally { if (b.isConnected) b.disabled = false; } }},"🔑 كلمة سر جديدة لأب الاعتراف"))
+        : Store.mode === "cloud" && !self && a.role === "priest" ? h("p",{class:"small muted", style:"margin:0"},"🔒 كلمة سر أبونا محدش في الكنيسة يقدر يغيّرها، عشان ملاحظاته تفضل سر. لو نسيها يكلّم المطوّر على "+DEV.phone+".")
         : isAdmin || Store.mode !== "cloud" || a.mustChange || a.pending ? h("div",{class:"row"}, custom,
           h("button",{class:"btn sm", onclick:async()=>{ const pw = (custom.value||"").trim() || genPassword(); { const pe = pwProblem(pw, a); if (pe){ toast(pe); return; } } await setPassword(a, pw); newPwDialog(a, pw); }},"🔑 كلمة سر جديدة"))
           : h("p",{class:"small muted", style:"margin:0"}, Store.mode === "cloud" ? "طلبات «نسيت كلمة السر» بيرد عليها الأدمن." : "كلمة سر جديدة بتتعمل لما صاحب الحساب يطلبها من «نسيت كلمة السر»."),
@@ -10058,6 +10080,129 @@ function cloudAccount(me){
   return {id:me.uid, name:me.name, role:me.role, active:me.active, mustChange:me.must_change, photo:me.photo||"", lastLogin:me.last_login, logins:me.logins,
     father:me.father||"", fatherName:me.father_name||"", fatherPhoto:me.father_photo||"", confessor:!!me.confessor, pwDue:me.pw_due||"", renamedFrom:me.renamed_from||""};
 }
+// «ⲁⲣⲭⲏ ⲙⲉⲛⲣⲓⲧ» (2026-11-13, user: «عاوز اعمل دمج بين الادمن والمطور»): the developer signs in once with his e-mail
+// (typed in the name box) and sees every church: the licence tools of licences.html, the fathers' passwords, and
+// «📂 إدارة الكنيسة», which moves his one hidden admin seat there (gm_enter) and opens that church's admin screen.
+// The church's own admin sees nothing of it (user: «أنا أشوفهم وهم لا»): no news item, no activity lines, not in any list.
+const GM_NAME = "ⲁⲣⲭⲏ ⲙⲉⲛⲣⲓⲧ";
+const isGM = () => !!(Cloud.me && Cloud.me.gm);
+let gmShown = null, gmQ = "";
+async function gmSignIn(email, pw){
+  try { await Cloud.signIn(email.trim().toLowerCase(), pw); }
+  catch(e){ if (!e.offline) lockFail(); if ($("#gPw")) $("#gPw").value = ""; throw e; }
+  let g = null; try { g = await Cloud.rpc("gm_me"); } catch(e){ if (e.offline){ await Cloud.signOut(); throw e; } }
+  if (!g || !g.dev){ await Cloud.signOut(); lockFail(); if ($("#gPw")) $("#gPw").value = ""; const x = new Error("الاسم أو كلمة السر مش صح."); x.ui = true; throw x; }
+  lockOk(); await gmHome();
+}
+async function gmHome(){
+  clearTimeout(idleTimer);
+  document.body.classList.add("locked"); document.body.dataset.gate = "1";
+  const gate = $("#gate"); gate.hidden = false; window.scrollTo({top:0});
+  const wrap = h("div",{class:"gm-wrap", id:"gmHome"}); gate.replaceChildren(wrap);
+  const inApp = S.ready && isGM() && S.church;
+  const out = h("button",{class:"btn sm quiet", id:"gmOut", onclick:()=>{ gmShown = null; if (S.ready && S.account) logout(); else { Cloud.signOut(); showGate(); } }},"🚪 خروج");
+  const back = inApp ? h("button",{class:"btn sm quiet", id:"gmBack", onclick:()=>{ gate.hidden = true; gate.replaceChildren(); document.body.classList.remove("locked"); render(); bumpIdle(); }},"↩️ رجوع إلى "+S.church.name) : null;
+  wrap.append(h("div",{class:"gm-head"}, h("div",null, h("h1",null,"🏛️ "+GM_NAME), h("p",null,"الكنائس والرخص وإدارة كل كنيسة من مكان واحد")), h("div",{class:"row"}, back, out)));
+  const body = h("div",{style:"display:grid;gap:14px"}, h("p",{class:"muted"},"جارٍ التحميل…")); wrap.append(body, devBlock());
+  let list, g = null;
+  try { [list, g] = await Promise.all([Cloud.rpc("dev_churches"), Cloud.rpc("gm_me")]); }
+  catch(e){ body.replaceChildren(h("p",{class:"gate-err"}, cloudMsg(e))); return; }
+  if (!g || !g.dev){ body.replaceChildren(h("p",{class:"gate-err"},"هذا الحساب ليس له هذه الصلاحية.")); return; }
+  list = list || []; body.replaceChildren();
+  const today = new Date(TODAY_S), left = d => Math.round((new Date(d) - today) / 864e5);
+  const plusYear = d => { const x = d ? new Date(d) : new Date(TODAY_S); x.setFullYear(x.getFullYear() + 1); return x.toISOString().slice(0,10); };
+  const appUrl = location.origin + location.pathname.replace(/index\.html$/, "");
+  const share = (c, code) => "السلام والنعمة 🌿\nرخصة برنامج ⲙⲉⲛⲣⲓⲧ لـ "+c.name+"\n\n🔗 رابط البرنامج: "+appUrl+"?c="+c.slug+"\n🔑 كود الرخصة: "+code+"\n⛪ كود الكنيسة: "+c.slug+"\n📅 الرخصة حتى: "+c.expires+
+    "\n\nأول مرة: افتح الرابط، ثم «تفعيل كنيسة جديدة بكود رخصة»، واكتب الكود، ثم أنشئ حساب الأدمن.\n"+DEV.name+" · "+DEV.phone;
+  const pwText = (r) => "كلمة السر الجديدة لـ "+r.name+" في برنامج ⲙⲉⲛⲣⲓⲧ: "+r.password+"\nسيُطلب منك تغييرها عند أول دخول.";
+  const run = async (btn, err, fn) => { btn.disabled = true; err.textContent = ""; try { await fn(); } catch(e){ err.textContent = /bad max/.test(e.message||"") ? "أقصى عدد للحسابات رقم من ١ إلى ١٠٠٠٠." : /duplicate key.*slug|churches_slug/.test(e.message||"") ? "كود الكنيسة هذا مستخدم لكنيسة أخرى." : /not claimed/.test(e.message||"") ? "هذه الكنيسة لم تُفعَّل بعد." : /no admin/.test(e.message||"") ? "لا يوجد أدمن لهذه الكنيسة." : cloudMsg(e); } finally { if (btn.isConnected) btn.disabled = false; } };
+  const live = list.filter(c => c.active && left(c.expires_at) >= 0);
+  body.append(h("div",{class:"gm-stats"},
+    h("div",{class:"gm-stat"}, h("b",null, arDigits(list.length)), "كنيسة"),
+    h("div",{class:"gm-stat"}, h("b",{style:"color:var(--ok-ink)"}, arDigits(live.length)), "رخصة سارية"),
+    h("div",{class:"gm-stat"}, h("b",{style:"color:var(--warn-ink)"}, arDigits(live.filter(c => left(c.expires_at) <= 30).length)), "تنتهي خلال شهر"),
+    h("div",{class:"gm-stat"}, h("b",null, arDigits(list.reduce((n,c) => n + Number(c.accounts||0), 0))), "حساب")));
+  if (gmShown){ const sh = gmShown;
+    body.append(h("div",{class:"gm-card", id:"gmShown"}, h("h2",null,"✅ "+sh.title), h("div",{class:"gm-code"}, sh.code),
+      h("p",{class:"small muted", style:"margin:0"},"لن يظهر هذا مرة أخرى. أرسله الآن."), h("div",{class:"gm-share"}, sh.text),
+      h("div",{class:"row"}, h("button",{class:"btn sm", onclick:async e => { try { await navigator.clipboard.writeText(sh.text); e.target.textContent = "تم النسخ ✓"; } catch(x){} }},"📋 نسخ الرسالة"),
+        h("a",{class:"btn sm quiet", href:"https://wa.me/?text="+encodeURIComponent(sh.text), target:"_blank", rel:"noopener", style:"text-decoration:none"},"💬 واتساب"),
+        h("button",{class:"btn sm quiet", onclick:()=>{ gmShown = null; gmHome(); }},"تم"))));
+  }
+  // the churches, with a search box when there are many
+  const box = h("div",{class:"gm-card"}, h("h2",null,"⛪ الكنائس"));
+  const q = h("input",{type:"search", id:"gmQ", placeholder:"🔍 بحث باسم الكنيسة أو كودها", value:gmQ, style:"max-width:340px"});
+  const rows = h("div",{style:"display:grid;gap:10px"});
+  if (list.length > 4) box.append(q);
+  box.append(rows);
+  const draw = () => { gmQ = q.value; const k = nameKey(gmQ); rows.replaceChildren();
+    const shownList = list.filter(c => !k || nameKey(c.name).includes(k) || String(c.slug).includes(k));
+    if (!shownList.length) rows.append(h("p",{class:"muted"}, list.length ? "لا توجد كنيسة بهذا الاسم." : "لا توجد رخص بعد."));
+    for (const c of shownList) rows.append(churchRow(c)); };
+  q.addEventListener("input", draw);
+  const churchRow = (c) => {
+    const d = left(c.expires_at), e2 = h("p",{class:"gate-err", style:"margin:0"}), here = !!(g.church && g.church === c.id);
+    const st = !c.active ? h("span",{class:"pill bad"},"موقوفة") : d < 0 ? h("span",{class:"pill bad"},"انتهت") : d <= 30 ? h("span",{class:"pill warn"},"باقي "+arDigits(d)+" يوم") : h("span",{class:"pill ok"},"سارية");
+    const upd = (patch, btn) => run(btn, e2, async () => { await Cloud.rpc("dev_update", {p_id:c.id, p_patch:patch}); await gmHome(); });
+    const enter = c.claimed_at ? h("button",{class:"btn sm gm-enter", onclick:e => run(e.currentTarget, e2, async () => {
+      if (here && S.ready && S.church && S.church.id === c.id){ $("#gmBack").click(); return; }
+      const me = await Cloud.rpc("gm_enter", {p_church:c.id});
+      ssSet(okKey(), me.uid); try { localStorage.setItem(CHURCH_KEY, me.slug); } catch(x){}
+      location.href = location.pathname + "?c=" + encodeURIComponent(me.slug) + "&tab=admin"; })}, "📂 إدارة الكنيسة") : h("span",{class:"small muted"},"لم تُفعَّل بعد");
+    const date = h("input",{type:"date", value:c.expires_at, style:"max-width:170px"});
+    const bDate = h("button",{class:"btn sm quiet", onclick:e => upd({expires_at:date.value}, e.currentTarget)},"حفظ التاريخ");
+    const bExt = h("button",{class:"btn sm", onclick:e => upd({expires_at:plusYear(d < 0 ? null : c.expires_at)}, e.currentTarget)},"➕ سنة");
+    const used = Number(c.accounts||0), cap = Number(c.max_accounts||300);
+    const maxIn = h("input",{type:"number", min:"1", max:"10000", value:String(cap), inputmode:"numeric", style:"max-width:110px"});
+    const bMax = h("button",{class:"btn sm quiet", onclick:e => { const n = Math.round(Number(maxIn.value));
+      if (!(n >= 1 && n <= 10000)){ e2.textContent = "أقصى عدد للحسابات رقم من ١ إلى ١٠٠٠٠."; return; }
+      if (n < used && !confirm("هذه الكنيسة بها "+arDigits(used)+" حسابًا، وهذا أكثر من "+arDigits(n)+". ستبقى الحسابات الحالية، ولن يُنشأ حساب جديد. هل تريد المتابعة؟")) return;
+      upd({max_accounts:n}, e.currentTarget); }},"حفظ العدد");
+    const bAct = h("button",{class:"btn sm quiet", onclick:e => { if (c.active && !confirm("إيقاف "+c.name+"؟ سيصبح البرنامج للقراءة فقط.")) return; upd({active:!c.active}, e.currentTarget); }}, c.active ? "⏸️ إيقاف" : "▶️ تشغيل");
+    const bName = h("button",{class:"btn sm quiet", onclick:e => { const v = prompt("الاسم الجديد للكنيسة:", c.name); if (v === null) return; const n = v.trim().replace(/\s+/g, " ");
+      if (n.length < 3 || n.length > 120){ e2.textContent = "اسم الكنيسة من ٣ إلى ١٢٠ حرفًا."; return; } if (n !== c.name) upd({name:n}, e.currentTarget); }},"✏️ تغيير الاسم");
+    const bCode = !c.claimed_at ? h("button",{class:"btn sm quiet", onclick:e => run(e.currentTarget, e2, async () => { const code = await Cloud.rpc("dev_new_code", {p_id:c.id});
+      gmShown = {title:"كود جديد لـ "+c.name, code, text:share({name:c.name, slug:c.slug, expires:c.expires_at}, code)}; await gmHome(); })},"🔁 كود رخصة جديد") : null;
+    const bPw = c.claimed_at ? h("button",{class:"btn sm quiet", onclick:e => run(e.currentTarget, e2, async () => { if (!confirm("إنشاء كلمة سر جديدة لأدمن "+c.name+"؟")) return;
+      const r = await Cloud.rpc("dev_admin_password", {p_id:c.id}); gmShown = {title:"كلمة سر جديدة لـ "+r.name+" (أدمن "+c.name+")", code:r.password, text:pwText(r)}; await gmHome(); })},"🔑 كلمة سر الأدمن") : null;
+    const fathers = Array.isArray(c.fathers) ? c.fathers : [];
+    const fSel = fathers.length ? h("select",{style:"max-width:220px"}, h("option",{value:""},"🙏 اختر أب الاعتراف…"), fathers.map(f => h("option",{value:f.uid}, f.name))) : null;
+    const bFp = fSel ? h("button",{class:"btn sm quiet", onclick:e => run(e.currentTarget, e2, async () => { const f = fathers.find(x => x.uid === fSel.value);
+      if (!f){ e2.textContent = "اختر أب الاعتراف أولًا."; return; } if (!confirm("إنشاء كلمة سر جديدة لـ "+f.name+" في "+c.name+"؟")) return;
+      const r = await Cloud.rpc("dev_admin_password", {p_id:c.id, p_uid:f.uid}); gmShown = {title:"كلمة سر جديدة لـ "+r.name, code:r.password, text:pwText(r)}; await gmHome(); })},"🔑 كلمة سر أب الاعتراف") : null;
+    return h("div",{class:"gm-ch"+(here ? " here" : ""), "data-slug":c.slug},
+      h("div",{class:"row", style:"justify-content:space-between"}, h("h3",null, c.name), h("div",{class:"row"}, here ? h("span",{class:"pill acc"},"أنت هنا") : null, st)),
+      h("div",{class:"small muted"}, "كود الكنيسة: ", h("b",{dir:"ltr"}, c.slug), " · ", h("span",{class:used >= cap ? "pill bad" : used >= cap*0.9 ? "pill warn" : ""}, arDigits(used)+" من "+arDigits(cap)+" حساب"),
+        " · الرخصة حتى "+fmtShort(c.expires_at), c.last_login ? " · آخر دخول "+fmtShort(String(c.last_login).slice(0,10)) : "", c.note ? " · "+c.note : ""),
+      h("div",{class:"row"}, enter, bPw, fSel, bFp),
+      h("details",null, h("summary",null,"⚙️ الرخصة والإعدادات"),
+        h("div",{class:"gm-tools"},
+          h("div",{class:"row"}, h("span",{class:"small muted"},"الرخصة حتى"), date, bDate, bExt),
+          h("div",{class:"row"}, h("span",{class:"small muted"},"أقصى عدد للحسابات"), maxIn, bMax),
+          h("div",{class:"row"}, bName, bAct, bCode))),
+      e2);
+  };
+  draw(); body.append(box);
+  // a new licence
+  const f = {slug:h("input",{dir:"ltr", placeholder:"mar-mina", id:"gmSlug"}), name:h("input",{placeholder:"كنيسة الشهيد مارمينا", id:"gmName"}), priest:h("input",{placeholder:"أبونا …"}),
+    exp:h("input",{type:"date", value:plusYear()}), max:h("input",{type:"number", min:"1", max:"10000", value:"300", inputmode:"numeric"}), note:h("input",{placeholder:"هاتف، ملاحظات…"})};
+  const err = h("p",{class:"gate-err", style:"margin:0"});
+  const make = h("button",{class:"btn", id:"gmMake", onclick:() => run(make, err, async () => {
+    const c = {slug:f.slug.value.trim().toLowerCase(), name:f.name.value.trim().replace(/\s+/g, " "), expires:f.exp.value};
+    if (!slugOk(c.slug)) throw Object.assign(new Error("كود الكنيسة حروف إنجليزية صغيرة وأرقام وشَرطة (من ٣ إلى ٣٠)، مثل mar-mina."), {ui:true});
+    if (c.name.length < 3 || !c.expires) throw Object.assign(new Error("اكتب اسم الكنيسة وتاريخ انتهاء الرخصة."), {ui:true});
+    const max = Math.round(Number(f.max.value)); if (!(max >= 1 && max <= 10000)) throw new Error("bad max");
+    const code = await Cloud.rpc("dev_create", Object.assign({p_slug:c.slug, p_name:c.name, p_priest:f.priest.value.trim(), p_expires:c.expires, p_note:f.note.value.trim()}, max !== 300 ? {p_max:max} : {}));
+    gmShown = {title:"رخصة جديدة لـ "+c.name, code, text:share(c, code)}; await gmHome(); })},"إنشاء الرخصة");
+  body.append(h("details",{class:"gm-card", id:"gmNew"}, h("summary",null,"➕ رخصة جديدة"),
+    h("div",{class:"gm-grid"}, h("label",null,"كود الكنيسة (إنجليزي)", f.slug), h("label",null,"اسم الكنيسة", f.name), h("label",null,"اسم أب الاعتراف", f.priest),
+      h("label",null,"الرخصة حتى", f.exp), h("label",null,"أقصى عدد للحسابات", f.max), h("label",null,"ملاحظات (تظهر لك فقط)", f.note)),
+    h("div",{class:"row"}, make), err));
+}
+function gmBar(){
+  return h("div",{class:"gm-bar"}, h("strong",null,"🏛️ "+GM_NAME),
+    h("button",{class:"btn sm", id:"gmAll", onclick:()=>gmHome()},"🏛️ كل الكنائس"));
+}
 async function restoreCloudSession(){
   const s = Cloud.loadSess(); if (!s || !ssGet(okKey())) return false;
   Cloud.sess = s;
@@ -10131,7 +10276,9 @@ async function showCloudGate(){
     if (mode === "church"){
       sub = "اكتب كود الكنيسة اللي أخدته من الأدمن.";
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
-        const s = v("gChurch").trim().toLowerCase(); if (!slugOk(s)) fail("كود الكنيسة حروف إنجليزي صغيرة وأرقام وشَرطة، زي mar-mina.");
+        const s = v("gChurch").trim().toLowerCase();
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)){ mode = "login"; draw(); const n = $("#gName"), p = $("#gPw"); if (n) n.value = s; if (p) p.focus(); return; }
+        if (!slugOk(s)) fail("كود الكنيسة حروف إنجليزي صغيرة وأرقام وشَرطة، زي mar-mina.");
         slug = s; await loadInfo(); if (!info) { slug = ""; fail("مفيش كنيسة بالكود ده."); } if (info.error) fail(info.error);
         mode = "login"; draw(); }); }},
         h("label",null,"كود الكنيسة", h("input",{id:"gChurch", dir:"ltr", autocomplete:"organization", placeholder:"mar-mina", value:slug||""})),
@@ -10142,6 +10289,7 @@ async function showCloudGate(){
       form = h("form",{class:"form", onsubmit:e => { e.preventDefault(); busy(e.target, async () => {
         const w = lockWait(); if (w) fail(waitMsg(w));
         const name = v("gName").trim(), pw = v("gPw"); if (!name || !pw) fail("اكتب الاسم وكلمة السر.");
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name)){ await gmSignIn(name, pw); return; }
         try { await Cloud.signIn(await mailFor(slug, name), pw); }
         catch(e){ if (!e.offline) lockFail(); if ($("#gPw")) $("#gPw").value = ""; throw e; }
         lockOk();
