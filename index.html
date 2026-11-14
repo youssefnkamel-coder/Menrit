@@ -5218,6 +5218,29 @@ async function apptDoneLocal(uid, kind){
   return true;
 }
 async function apptDone(uid, kind){ return apptDoneLocal(uid, kind); }
+// the father frees a booked time and the person is told (2026-11-14): the periods, a confirmed appointment at that time,
+// his request; an apology message (and, on the server, a phone notification). Returns {uid, name, when} or false.
+async function bookFreeLocal(key, reason){
+  let d = await Store.get(key); if (!d) return {gone:true};
+  const base = key.split("/").slice(0, 3).join("/");
+  if (d.of){ key = d.of; d = await Store.get(key); if (!d) return {gone:true}; }
+  const kind = kindOfKey(key), K = REQ_KINDS[kind], id4 = key.split("/")[3], w = id4.slice(0,10)+"T"+id4.slice(11,13)+":"+id4.slice(13,15);
+  await Store.del(key); for (const x of await Store.list(base)) if (x.of === key) await Store.del(base+"/"+x.id);
+  const uid = d.uid; if (!uid) return {when:w};
+  const pk = PP()+"/"+uid, pr = await Store.get(pk);
+  if (pr && String(pr[K.next]||"").slice(0,16) === w){ for (const f of ["", "Mins", "Cancel", "Place"]) delete pr[K.next+f]; await Store.set(pk, pr);
+    for (const x of await Store.list("members/"+uid+"/inbox")) if (x.type === K.inbox && String(x.when||"").slice(0,16) === w) await Store.update("members/"+uid+"/inbox/"+x.id, {cancelled:true, cancelBy:"father"}); }
+  const m = await Store.get("members/"+uid); if (m && m[K.field] && m[K.field].booking === key){ delete m[K.field]; await Store.set("members/"+uid, m); }
+  await Store.set("members/"+uid+"/inbox/"+newId(), {type:"cancel", kind, when:w, text:String(reason||"").slice(0,300), by:"father", at:new Date().toISOString(), title:"اعتذار أبونا عن "+K.title});
+  return {uid, name:d.name||"", when:w};
+}
+async function bookFree(key, reason){ return bookFreeLocal(key, reason); }
+// after freeing: one WhatsApp button for each person who has a phone number
+function freedWa(list){
+  return list.filter(x => x && x.uid).map(x => { const p = (merged().find(y => y.id === x.uid)) || {name:x.name}, k = x.kind || "confession";
+    const txt = apptCancelText(Object.assign({name:x.name}, p), k, x.when, x.reason || "", k === "visit" ? "" : placeAt(S.sched, x.when));
+    return p.phone ? h("a",{class:"btn sm wa", href:waLink(p.phone, txt), target:"_blank", rel:"noopener"}, "💬 "+(p.name || x.name)) : h("p",{class:"small muted", style:"margin:0"}, (p.name || x.name)+": لا يوجد رقم موبايل"); });
+}
 // asks first: «هل اعترف بالفعل قبل موعده؟», then records and frees the time
 async function apptDoneAsk(p, kind, when){
   const vis = kind === "visit", t = when ? fmtWhen(when) : "";
@@ -5281,6 +5304,7 @@ function schedMsg(o){
       h("div",{class:"news-box"}, h("div",{class:"sc-msg-ic", "aria-hidden":"true"}, o.icon || (o.info ? "💡" : "⚠️")), h("h2",null,o.title),
         ...[].concat(o.text||[]).map(t => h("p",null,t)),
         o.list && o.list.length ? h("ul",null, o.list.map(t => h("li",null,t))) : null,
+        ...[].concat(o.nodes||[]),
         ...[].concat(o.after||[]).map(t => h("p",null,t)),
         h("div",{class:"row"}, btns.map(([k,l,c]) => h("button",{type:"button", class:"btn"+(c ? " "+c : ""), "data-k":k, onclick:()=>done(k)}, l)))));
     box.addEventListener("click", e => { if (e.target === box) done(null); });
@@ -5328,6 +5352,24 @@ function schedCard(){
   const dayName = x => x.date ? WDAYS[parseYmd(x.date).getDay()]+" "+fmtShort(x.date) : x.wd === undefined ? "كل ١٠ أيام" : WDAYS[x.wd];
   const save = async () => {
     const tenD = d.rep === "10d", len = Number(d.len) || (vis ? 45 : 15);
+    { const xd = ($("#scXd") || {}).value || "";
+      if (xd && !d.extra.some(x => x.date === xd)){
+        const k = await schedMsg({title:"لم تتم إضافة اليوم الإضافي",
+          text:["اخترت يومًا إضافيًا ("+WDAYS[parseYmd(xd).getDay()]+" "+fmtShort(xd)+" من "+timeAr($("#scXf").value||"00:00")+" إلى "+timeAr($("#scXt").value||"00:00")+")، ولكنك لم تضغط «+ إضافة» بجواره.",
+            "لذلك لن يظهر هذا اليوم لأبنائك إذا حفظت الآن."],
+          buttons:[["add","إضافة اليوم ثم الحفظ",""],["skip","الحفظ بدون هذا اليوم","ghost"],["back","رجوع","quiet"]]});
+        if (k === "add"){ if (!(await scAddX())) return false; }
+        else if (k === "skip") scClear("scXd");
+        else return false; }
+      const cd = ($("#scClosed") || {}).value || "";
+      if (cd && cd >= TODAY_S && !d.closed.includes(cd)){
+        const k = await schedMsg({title:"لم تتم إضافة اليوم المُغلق",
+          text:["اخترت يومًا لن "+(vis ? "تزور" : "تعرّف")+" فيه ("+WDAYS[parseYmd(cd).getDay()]+" "+fmtShort(cd)+")، ولكنك لم تضغط «+ إضافة» بجواره.",
+            "لذلك سيبقى هذا اليوم متاحًا للحجز إذا حفظت الآن."],
+          buttons:[["add","إغلاق اليوم ثم الحفظ",""],["skip","الحفظ بدون إغلاقه","ghost"],["back","رجوع","quiet"]]});
+        if (k === "add"){ d.closed.push(cd); d.closed.sort(); }
+        else if (k === "skip") scClear("scClosed");
+        else return false; } }
     const places = vis ? [] : d.places.map(x => String(x||"").trim().slice(0, 60)).filter(Boolean).slice(0, 6), many = places.length > 1;
     if (!vis && d.places.some(x => !String(x||"").trim()) && d.places.length > 1)
       return stop("توجد خانة مكان فارغة في «أماكن الاعتراف». برجاء كتابة اسم كل مكان أو حذف الخانة الفارغة بزر ✕، ثم الضغط على «حفظ المواعيد» مرة أخرى.");
@@ -5387,6 +5429,17 @@ function schedCard(){
         buttons:[["save","حفظ كما هو",""],["back","رجوع","quiet"]]});
       if (k !== "save") return false;
     }
+    const wasClosed = (schedOf(S.sched, kind) || {}).closed || [], NA = "أبونا غير متاح في هذا اليوم.";
+    const hit = up.filter(b => d.closed.includes(b.id.slice(0, 10)) && !wasClosed.includes(b.id.slice(0, 10)));
+    let freeNow = false;
+    if (hit.length){
+      const k = await schedMsg({title:"توجد حجوزات في الأيام المُغلقة",
+        text:"في الأيام التي أغلقتها "+(hit.length === 1 ? "حجز واحد" : arDigits(hit.length)+" حجوزات")+"، ولن تُلغى تلقائيًا:",
+        list:hit.map(b => { const [ds, t] = b.id.split("_"); return (b.name||"؟")+" · "+WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)+" · "+timeAr(t.slice(0,2)+":"+t.slice(2)); }),
+        after:"إذا اخترت الإلغاء، يصل لكل منهم اعتذار وتنبيه، ويستطيع حجز موعد آخر.",
+        buttons:[["cx","إلغاء هذه المواعيد وإبلاغهم",""],["keep","الإبقاء عليها","ghost"],["back","رجوع","quiet"]]});
+      if (k === "cx") freeNow = true; else if (k !== "keep") return false;
+    }
     const obj = {rep:d.rep, len, days:wins, closed:d.closed, extra:d.extra.map(x => { const y = {date:x.date, from:x.from, to:x.to}; if (many && x.pl) y.pl = Number(x.pl); return y; })};
     if (!vis) obj.places = places;
     if (d.rep === "2w" || tenD) obj.start = d.start; if (d.rep === "m") obj.nth = Number(d.nth) || 1;
@@ -5398,6 +5451,18 @@ function schedCard(){
       return stop(["تعذّر الحفظ: "+cloudMsg(e), "لم يتغيّر شيء عند أبنائك. برجاء التأكد من الاتصال بالإنترنت، ثم الضغط على «حفظ المواعيد» مرة أخرى."]);
     }
     d.base = scSnap(d); render();
+    if (freeNow){
+      const done = [], bad = [];
+      for (const b of hit){ const r = await bookFree("book/"+id+"/"+seg+"/"+b.id, NA);
+        if (r && r.err) bad.push(b.name||"؟"); else if (r && r.uid) done.push(Object.assign({kind, reason:NA}, r)); }
+      render();
+      await schedMsg({title: bad.length ? "تم الحفظ، وتعذّر إلغاء بعض المواعيد" : "تم الحفظ وإلغاء المواعيد", info:!bad.length, icon: bad.length ? "⚠️" : "✅",
+        text:[done.length ? "أُلغيت "+(done.length === 1 ? "موعد واحد" : arDigits(done.length)+" مواعيد")+"، ووصل لكل منهم اعتذار وتنبيه في البرنامج." : "",
+          bad.length ? "تعذّر إلغاء مواعيد: "+bad.join("، ")+". برجاء التأكد من الاتصال بالإنترنت، ثم الضغط على «إخلاء الموعد» بجوار كل منها." : ""].filter(Boolean),
+        after: done.length ? "يمكنك أيضًا إرسال الاعتذار على واتساب:" : [], nodes: done.length ? [h("div",{class:"row", style:"justify-content:center;gap:6px;flex-wrap:wrap"}, freedWa(done))] : [],
+        buttons:[["ok","تم",""]]});
+      return true;
+    }
     if (!wins.length && !d.extra.length)
       await schedMsg({title:"تم الحفظ بدون أيام", info:true,
         text:"لم تُحدَّد أي أيام أو ساعات في "+KN+"، فلن تظهر لأبنائك مواعيد للحجز، وسيرسلون طلباتهم كالمعتاد حتى تحدد أيامًا."});
@@ -5412,6 +5477,22 @@ function schedCard(){
       buttons:[["save","حفظ المواعيد الآن",""],["later","سأكمل التعديل ثم أحفظ","quiet"]]});
     if (k === "save") await save();
   };
+  // the day in the boxes of «يوم إضافي» goes into the list (false: a box said why not); {had} when it replaced the hours of that date
+  const scAddX = async () => { const date = $("#scXd").value, from = $("#scXf").value, to = $("#scXt").value, len = Number(d.len) || (vis ? 45 : 15);
+    const no = text => schedMsg({title:"لم تتم إضافة اليوم", text}).then(() => false);
+    if (!date || !from || !to) return no("برجاء اختيار التاريخ، وساعة «من»، وساعة «إلى»، ثم الضغط على «+ إضافة».");
+    if (date < TODAY_S) return no("هذا التاريخ قد مضى. برجاء اختيار اليوم أو تاريخ لاحق.");
+    if (hmOf(to) - hmOf(from) < len) return no("الوقت من "+timeAr(from)+" إلى "+timeAr(to)+" أقل من مدة "+ONE+" واحدة ("+arDigits(len)+" دقيقة)، فلن يظهر فيه أي موعد. برجاء تعديل الساعات.");
+    if (date === TODAY_S && !scLeft(from, to, len)) return no("الساعة الآن "+scNowTxt()+"، وهذه الساعات انتهت بالفعل اليوم، فلن يظهر فيها أي موعد لأبنائك. برجاء اختيار ساعات لاحقة.");
+    if (d.closed.includes(date)){
+      const k = await schedMsg({title:"هذا اليوم مُغلق", text:"هذا التاريخ موجود في «الأيام التي لن "+(vis ? "تزور" : "تعرّف")+" فيها»، واليوم المُغلق يمنع كل مواعيده، فلن يظهر اليوم الإضافي لأبنائك. هل تريد إتاحة هذا اليوم؟",
+        buttons:[["open","نعم، أتِح هذا اليوم",""],["back","رجوع","quiet"]]});
+      if (k !== "open") return false; d.closed = d.closed.filter(c => c !== date); }
+    const pl = $("#scXp") ? Number($("#scXp").value) || 0 : 0, had = d.extra.some(x => x.date === date);
+    d.extra = d.extra.filter(x=>x.date!==date).concat([Object.assign({date, from, to}, pl ? {pl} : {})]).sort((a,b)=>a.date.localeCompare(b.date)); render();
+    return {had}; };
+  // a box emptied on purpose stays empty after a redraw
+  const scClear = id => { const i = $("#"+id); if (i){ i.value = ""; delete i.dataset.dirty; } };
   const order = [6,0,1,2,3,4,5], seg = bookSeg(kind);
   const up = ((vis ? S.vbookings : S.bookings)||[]).filter(b => b.id >= TODAY_S && !b.of).sort((a,b)=>a.id.localeCompare(b.id));
   const card = h("div",{class:"card form sched-card"}, h("h3",null,"🗓️ مواعيدي"),
@@ -5457,28 +5538,17 @@ function schedCard(){
         if (v < TODAY_S) return void schedMsg({title:"لم تتم الإضافة", text:"هذا التاريخ قد مضى. برجاء اختيار اليوم أو تاريخ لاحق."});
         if (d.closed.includes(v)) return void schedMsg({title:"اليوم موجود بالفعل", info:true, text:"هذا اليوم موجود بالفعل في القائمة."});
         const bk = up.filter(b => b.id.slice(0, 10) === v), more = [];
-        if (bk.length) more.push("يوجد في هذا اليوم "+(bk.length === 1 ? "حجز واحد" : arDigits(bk.length)+" حجوزات")+"، ولن يُلغى تلقائيًا. إذا أردت إلغاءه، اضغط «إخلاء الموعد» بجواره في «الحجوزات القادمة».");
+        if (bk.length) more.push("يوجد في هذا اليوم "+(bk.length === 1 ? "حجز واحد" : arDigits(bk.length)+" حجوزات")+". عند الضغط على «حفظ المواعيد» ستختار: إلغاء المواعيد وإبلاغ أصحابها، أو الإبقاء عليها.");
         if (d.extra.some(x => x.date === v)) more.push("ويوجد يوم إضافي في نفس التاريخ، وسيُغلق هو أيضًا.");
         d.closed.push(v); d.closed.sort(); render(); await scLater("تمت إضافة اليوم، ولم يُحفظ بعد", more); }},"+ إضافة")),
-    d.closed.length ? h("div",{class:"chips"}, d.closed.map(c => h("button",{class:"chip-btn", type:"button", title:"إزالة", onclick:async()=>{ d.closed = d.closed.filter(x=>x!==c); render(); await scLater("تم حذف اليوم، ولم يُحفظ بعد"); }}, WDAYS[parseYmd(c).getDay()]+" "+fmtShort(c)+" ✕"))) : null,
+    d.closed.length ? h("div",{class:"chips"}, d.closed.map(c => h("button",{class:"chip-btn", type:"button", title:"إزالة", onclick:async()=>{ d.closed = d.closed.filter(x=>x!==c); if ($("#scClosed") && $("#scClosed").value === c) scClear("scClosed"); render(); await scLater("تم حذف اليوم، ولم يُحفظ بعد"); }}, WDAYS[parseYmd(c).getDay()]+" "+fmtShort(c)+" ✕"))) : null,
     h("h4",null,"يوم إضافي (مرة واحدة)"),
     h("div",{class:"row"}, h("input",{type:"date", id:"scXd", min:TODAY_S, style:"max-width:170px"}),
       h("input",{type:"time", id:"scXf", value:"18:00", style:"max-width:120px"}), h("input",{type:"time", id:"scXt", value:"20:00", style:"max-width:120px"}),
       !vis && d.places.length > 1 ? plSelect("scXp", d.places, 0, () => {}) : null,
-      h("button",{class:"btn sm ghost", id:"scXAdd", type:"button", onclick:async()=>{ const date = $("#scXd").value, from = $("#scXf").value, to = $("#scXt").value, len = Number(d.len) || (vis ? 45 : 15);
-        const no = text => schedMsg({title:"لم تتم إضافة اليوم", text});
-        if (!date || !from || !to) return void no("برجاء اختيار التاريخ، وساعة «من»، وساعة «إلى»، ثم الضغط على «+ إضافة».");
-        if (date < TODAY_S) return void no("هذا التاريخ قد مضى. برجاء اختيار اليوم أو تاريخ لاحق.");
-        if (hmOf(to) - hmOf(from) < len) return void no("الوقت من "+timeAr(from)+" إلى "+timeAr(to)+" أقل من مدة "+ONE+" واحدة ("+arDigits(len)+" دقيقة)، فلن يظهر فيه أي موعد. برجاء تعديل الساعات.");
-        if (date === TODAY_S && !scLeft(from, to, len)) return void no("الساعة الآن "+scNowTxt()+"، وهذه الساعات انتهت بالفعل اليوم، فلن يظهر فيها أي موعد لأبنائك. برجاء اختيار ساعات لاحقة.");
-        if (d.closed.includes(date)){
-          const k = await schedMsg({title:"هذا اليوم مُغلق", text:"هذا التاريخ موجود في «الأيام التي لن "+(vis ? "تزور" : "تعرّف")+" فيها»، واليوم المُغلق يمنع كل مواعيده، فلن يظهر اليوم الإضافي لأبنائك. هل تريد إتاحة هذا اليوم؟",
-            buttons:[["open","نعم، أتِح هذا اليوم",""],["back","رجوع","quiet"]]});
-          if (k !== "open") return; d.closed = d.closed.filter(c => c !== date); }
-        const pl = $("#scXp") ? Number($("#scXp").value) || 0 : 0, had = d.extra.some(x => x.date === date);
-        d.extra = d.extra.filter(x=>x.date!==date).concat([Object.assign({date, from, to}, pl ? {pl} : {})]).sort((a,b)=>a.date.localeCompare(b.date)); render();
-        await scLater("تمت إضافة اليوم، ولم يُحفظ بعد", had ? "كان لهذا التاريخ يوم إضافي من قبل، فاستُبدلت ساعاته بالساعات الجديدة." : []); }},"+ إضافة")),
-    d.extra.length ? h("div",{class:"chips"}, d.extra.map(x => h("button",{class:"chip-btn", type:"button", title:"إزالة", onclick:async()=>{ d.extra = d.extra.filter(y=>y!==x); render(); await scLater("تم حذف اليوم، ولم يُحفظ بعد"); }},
+      h("button",{class:"btn sm ghost", id:"scXAdd", type:"button", onclick:async()=>{ const r = await scAddX(); if (!r) return;
+        await scLater("تمت إضافة اليوم، ولم يُحفظ بعد", r.had ? "كان لهذا التاريخ يوم إضافي من قبل، فاستُبدلت ساعاته بالساعات الجديدة." : []); }},"+ إضافة")),
+    d.extra.length ? h("div",{class:"chips"}, d.extra.map(x => h("button",{class:"chip-btn", type:"button", title:"إزالة", onclick:async()=>{ d.extra = d.extra.filter(y=>y!==x); if ($("#scXd") && $("#scXd").value === x.date) scClear("scXd"); render(); await scLater("تم حذف اليوم، ولم يُحفظ بعد"); }},
       WDAYS[parseYmd(x.date).getDay()]+" "+fmtShort(x.date)+" · "+timeAr(x.from)+" – "+timeAr(x.to)+(!vis && d.places.length > 1 && d.places[x.pl||0] ? " · "+d.places[x.pl||0] : "")+" ✕"))) : null,
     h("p",{class:"sc-dirty", id:"scDirty", role:"status", hidden:!scDirty()}, "⚠️ توجد تعديلات لم تُحفظ بعد. اضغط «حفظ المواعيد» حتى تظهر لأبنائك."),
     h("div",{class:"row"}, h("button",{class:"btn", id:"scSave", type:"button", onclick:save},"حفظ المواعيد")),
@@ -5487,8 +5557,18 @@ function schedCard(){
       const bpl = vis || placesOf(S.sched).length < 2 ? "" : placeAt(S.sched, ds+"T"+tm);
       return h("li",{class: b.n > 1 ? "bk-multi" : null}, h("div",{class:"who"}, h("strong",null, b.name||"؟"), h("span",{class:"small muted num"}, WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)+" · "+(b.n > 1 && b.mins > 0 ? spanTxt(tm, b.mins) : timeAr(tm))+(bpl ? " · 📍 "+bpl : "")),
           b.n > 1 && b.mins > 0 ? h("span",{class:"pill multi-pill"}, "⏱️ "+durTxt(b.mins)+" · "+arDigits(b.n)+" فترات") : null),
-        h("button",{class:"btn sm quiet", "data-keep":"", onclick:async()=>{ if (S.draft.bkAsk !== b.id){ S.draft.bkAsk = b.id; toast("اضغط مرة أخرى للتأكيد: سيُخلى الموعد ويُزال الطلب"); return; }
-          if (await cancelBooking("book/"+id+"/"+seg+"/"+b.id)){ S.draft.bkAsk = null; toast("تم إخلاء الموعد"); } }},"إخلاء الموعد")); }))
+        h("button",{class:"btn sm quiet bk-free", "data-keep":"", onclick:async()=>{
+          const k = await schedMsg({title:"إخلاء الموعد", info:true, icon:"🗓️",
+            text:"هل تريد إلغاء موعد "+(b.name||"؟")+"؟", list:[WDAYS[parseYmd(ds).getDay()]+" "+fmtShort(ds)+" · "+timeAr(tm)],
+            after:"يصبح الموعد متاحًا لغيره، ويصله اعتذار وتنبيه في البرنامج، ويستطيع حجز موعد آخر.",
+            buttons:[["yes","نعم، أخلِ الموعد",""],["back","رجوع","quiet"]]});
+          if (k !== "yes") return;
+          const r = await bookFree("book/"+id+"/"+seg+"/"+b.id, "");
+          if (r && r.err) return void schedMsg({title:"لم يتم إخلاء الموعد", text:["تعذّر الإخلاء: "+r.err, "برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."]});
+          render();
+          await schedMsg({title:"تم إخلاء الموعد", info:true, icon:"✅", text:"وصل الاعتذار إلى "+(b.name||"صاحب الموعد")+" في البرنامج.",
+            after: r && r.uid ? "يمكنك أيضًا إرسال الاعتذار على واتساب:" : [], nodes: r && r.uid ? [h("div",{class:"row", style:"justify-content:center"}, freedWa([Object.assign({kind}, r)]))] : [],
+            buttons:[["ok","تم",""]]}); }},"إخلاء الموعد")); }))
       : h("p",{class:"small muted", style:"margin:0"},"مفيش حجوزات لسه."));
   const upd = () => { const b = card.querySelector("#scDirty"); if (b) b.hidden = !scDirty(); };
   card.addEventListener("change", upd); card.addEventListener("input", upd);
@@ -8558,8 +8638,10 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-13h", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🗓️","إغلاق يوم فيه حجوزات","إذا أغلق أب الاعتراف يومًا فيه حجوزات، تظهر أسماء أصحابها ومواعيدهم، ويختار: «إلغاء هذه المواعيد وإبلاغهم» (يصل لكل منهم اعتذار وتنبيه، مع زر واتساب لكل واحد) أو «الإبقاء عليها». وأصبح «إخلاء الموعد» يرسل الاعتذار أيضًا."],
+    ["📌","تنبيه عند نسيان «+ إضافة»","إذا اختار أب الاعتراف تاريخ يوم إضافي (أو يوم مُغلق) في «🗓️ مواعيدي» وضغط «حفظ المواعيد» دون أن يضغط «+ إضافة»، تظهر رسالة: «إضافة اليوم ثم الحفظ» أو «الحفظ بدون هذا اليوم»، حتى لا يضيع اليوم دون أن يعرف."],
     ["🙏","«اعترف بالفعل» قبل الموعد","إذا قابل أب الاعتراف شخصًا له موعد أو حجز قادم واعترف بالفعل، يضغط «اعترف» في «مواعيد قادمة»، أو «🙏 اعترف بالفعل» في الطلب، أو «اعترف اليوم» في كارته. يُسجَّل الاعتراف اليوم، ويصبح الموعد متاحًا لغيره، ويستطيع الشخص الحجز من جديد، وتصله رسالة وتنبيه. وكذلك الافتقاد."],
     ["💡","رسائل واضحة في «مواعيدي»","إذا أضاف أب الاعتراف يومًا أو غيّر المواعيد ولم يضغط «حفظ المواعيد»، أو اختار شيئًا لن يظهر لأبنائه (مثل يوم إضافي في يوم مُغلق، أو ساعات انتهت، أو مواعيد تبدأ في تاريخ لاحق)، تظهر له رسالة في وسط الشاشة تشرح السبب وتعرض الحل. لا تزيد هذه الرسائل أي استهلاك على السيرفر."],
     ["📲","حساب المعترف بلينك واتساب","يستطيع أب الاعتراف من «أبنائي» إنشاء حساب لمعترف («📲 حساب جديد لمعترف») وإرسال لينك الدخول له على واتساب، فيفتحه ويختار كلمة السر بنفسه. اللينك صالح لمرة واحدة ولمدة ٤٨ ساعة، ولا تُكتب كلمة السر في أي رسالة. يصلك تنبيه بكل حساب جديد، ويمكنك أيضًا إرسال لينك دخول من كارت أي شخص في «الناس» بدلًا من كلمة سر جديدة."],
@@ -8591,6 +8673,8 @@ const NEWS = {id:"2026-11-13h", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🗓️","إغلاق يوم فيه حجوزات","إذا أغلق أب الاعتراف يومًا فيه حجوزات، تظهر أسماء أصحابها ومواعيدهم، ويختار: «إلغاء هذه المواعيد وإبلاغهم» (يصل لكل منهم اعتذار وتنبيه، مع زر واتساب لكل واحد) أو «الإبقاء عليها». وأصبح «إخلاء الموعد» يرسل الاعتذار أيضًا."],
+    ["📌","تنبيه عند نسيان «+ إضافة»","إذا اختار أب الاعتراف تاريخ يوم إضافي (أو يوم مُغلق) في «🗓️ مواعيدي» وضغط «حفظ المواعيد» دون أن يضغط «+ إضافة»، تظهر رسالة: «إضافة اليوم ثم الحفظ» أو «الحفظ بدون هذا اليوم»، حتى لا يضيع اليوم دون أن يعرف."],
     ["🙏","«اعترف بالفعل» قبل الموعد","إذا قابل أب الاعتراف شخصًا له موعد أو حجز قادم واعترف بالفعل، يضغط «اعترف» في «مواعيد قادمة»، أو «🙏 اعترف بالفعل» في الطلب، أو «اعترف اليوم» في كارته. يُسجَّل الاعتراف اليوم، ويصبح الموعد متاحًا لغيره، ويستطيع الشخص الحجز من جديد، وتصله رسالة وتنبيه. وكذلك الافتقاد."],
     ["💡","رسائل واضحة في «مواعيدي»","إذا أضاف أب الاعتراف يومًا أو غيّر المواعيد ولم يضغط «حفظ المواعيد»، أو اختار شيئًا لن يظهر لأبنائه (مثل يوم إضافي في يوم مُغلق، أو ساعات انتهت، أو مواعيد تبدأ في تاريخ لاحق)، تظهر له رسالة في وسط الشاشة تشرح السبب وتعرض الحل. لا تزيد هذه الرسائل أي استهلاك على السيرفر."],
     ["📲","حساب جديد لمعترف بلينك واتساب","من «أبنائي» اضغط «📲 حساب جديد لمعترف»، واكتب الاسم الثلاثي ورقم الموبايل، ثم أرسل لينك الدخول على واتساب. يفتح المعترف اللينك ويختار كلمة السر بنفسه ويبدأ استخدام البرنامج، ويصلك تنبيه عند دخوله. اللينك صالح لمرة واحدة ولمدة ٤٨ ساعة. ويمكنك أيضًا إنشاء حساب لشخص «غير مسجّل في البرنامج» من كارته، فتنتقل ملاحظاتك عنه إلى حسابه."],
@@ -8614,6 +8698,7 @@ const NEWS = {id:"2026-11-13h", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["❌","اعتذار أبونا عن الموعد","إذا أغلق أبونا يوم موعدك أو أخلاه، يصلك تنبيه ورسالة اعتذار، ويمكنك حجز موعد آخر من «المواعيد»."],
     ["✅","تسجيل الاعتراف قبل الموعد","إذا اعترفت عند أبونا قبل موعدك المحجوز، يسجّل أبونا ذلك، فيصلك تنبيه ورسالة «تم تسجيل اعترافك»، ويُلغى الموعد القديم، ويمكنك حجز موعد جديد في أي وقت."],
     ["📶","استهلاك أقل للإنترنت","أصبح البرنامج يحمّل ما تغيّر فقط، فيقلّ استهلاك باقة الإنترنت على موبايلك."],
     ["📍","مكان الاعتراف","إذا كان أب اعترافك يخدم في أكثر من كنيسة، يظهر لك مكان الاعتراف عند اختيار الموعد، وفي رسالة تأكيد الموعد."],
@@ -9085,7 +9170,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.14-1";
+const APP_VERSION = "2026.11.14-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -10494,6 +10579,10 @@ apptDone = async (uid, kind) => { if (Store.preview) return apptDoneLocal(uid, k
 apptNoShow = async (uid, kind) => { if (Store.preview) return noShowLocal(uid, kind);
   try { await Cloud.rpc("appt_noshow", {p_uid:uid, p_kind:kind}); } catch(e){ toast(cloudMsg(e)); return false; }
   Cloud.refresh(PP()+"/"+uid); return true; };
+bookFree = async (key, reason) => { if (Store.preview) return bookFreeLocal(key, reason);
+  let r; try { r = await Cloud.rpc("book_free", {p_key:key, p_reason:reason||""}); } catch(e){ return {err:cloudMsg(e)}; }
+  Cloud.refresh(key); Cloud.refresh("members/x"); if (r && r.uid){ Cloud.refresh("members/"+r.uid); Cloud.refresh(PP()+"/"+r.uid); }
+  return r || {}; };
 cancelAppt = async (uid, kind, reason) => { if (Store.preview) return cancelApptLocal(uid, kind, reason);
   try { await Cloud.rpc("cancel_appt", {p_uid:uid, p_kind:kind, p_reason:reason||""}); } catch(e){ toast(cloudMsg(e)); return false; }
   Cloud.refresh("members/x"); Cloud.refresh("members/"+uid); Cloud.refresh("members/"+uid+"/inbox/x"); if (isFatherView()) Cloud.refresh(PP()+"/"+uid); return true; };
