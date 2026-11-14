@@ -216,6 +216,15 @@ ul.list li.click:hover{background:var(--surface-2)}
 .gm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .gm-stat{text-align:center;padding:10px;border-radius:16px;background:var(--surface);border:1.5px solid #d4a630;box-shadow:var(--shadow)}
 .gm-stat b{display:block;font-size:1.5rem;line-height:1.3}
+.eg-status{padding:12px 14px;border-radius:14px;font-weight:600;line-height:1.7}
+.eg-status.ok{background:var(--ok-bg,#e7f6ee);color:var(--ok-ink,#15803d)} .eg-status.warn{background:var(--warn-bg,#fff6e0);color:var(--warn-ink,#b45309)} .eg-status.bad{background:#fdecec;color:#b91c1c}
+.eg-bars{position:relative;display:flex;align-items:flex-end;gap:3px;height:140px;padding:6px 4px 0;border-bottom:1.5px solid var(--line,#ddd)}
+.eg-bar{flex:1;min-width:4px;border-radius:5px 5px 0 0;background:#0d9488;position:relative}
+.eg-bar.over{background:#dc2626} .eg-bar.none{background:transparent;border:1px dashed var(--line,#ccc);border-bottom:0;height:4px!important}
+.eg-line{position:absolute;inset-inline:0;border-top:2px dashed #d4a630;pointer-events:none}
+.eg-line span{position:absolute;inset-inline-start:4px;top:-1.4em;font-size:.72rem;color:#a8741a;background:var(--surface);padding:0 4px;border-radius:6px}
+.eg-axis{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted,#777);margin-top:4px}
+.eg-row{display:flex;align-items:center;gap:10px;font-size:.9rem} .eg-row .eg-fill{flex:1;height:8px;border-radius:6px;background:var(--line,#eee);overflow:hidden} .eg-row .eg-fill i{display:block;height:100%;background:#0d9488;border-radius:6px}
 .gm-card{background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,#f2d06b,#d4a630 45%,#a8741a 70%,#f2d06b) border-box;border:1.5px solid transparent;border-radius:18px;padding:14px 16px;display:grid;gap:10px}
 .gm-card h2{margin:0;font-size:1.05rem}.gm-card summary{cursor:pointer;font-weight:800}
 .gm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}.gm-grid label{display:grid;gap:4px;font-weight:600;font-size:.86rem}
@@ -9076,7 +9085,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.13-8";
+const APP_VERSION = "2026.11.14-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -10167,6 +10176,30 @@ const ACT = {at: Date.now()};
 function idleQuiet(last){ return Date.now() - ACT.at > 180000 && Date.now() - (last || 0) < 120000; }
 ["pointerdown","keydown","wheel","touchstart","scroll"].forEach(t => addEventListener(t, () => { const was = ACT.at; ACT.at = Date.now();
   if (Date.now() - was > 180000 && typeof Cloud !== "undefined" && Cloud.sess && Cloud.timer && !document.hidden && Date.now() - (Cloud.tickAt || 0) > 20000) Cloud.tick(); }, {passive:true, capture:true}));
+// «📊 استهلاك السيرفر» (2026-11-14): Supabase gives no program its Egress number, so this device counts what it downloads
+// (the answer plus about 500 bytes of headers) per UTC day, and sends the sum about once an hour; only ⲁⲣⲭⲏ ⲙⲉⲛⲣⲓⲧ reads it
+const EG = {
+  k:"menrit_eg", enc: typeof TextEncoder !== "undefined" ? new TextEncoder() : null,
+  size(t){ return this.enc ? this.enc.encode(t).length : t.length * 2; },
+  get(){ try { return JSON.parse(localStorage.getItem(this.k) || "null") || {}; } catch(e){ return {}; } },
+  put(o){ try { localStorage.setItem(this.k, JSON.stringify(o)); } catch(e){} },
+  add(n){ const o = this.get(), d = new Date().toISOString().slice(0, 10); o.days = o.days || {};
+    const x = o.days[d] || (o.days[d] = [0, 0]); x[0] += n + 500; x[1]++; this.put(o);
+    if (Date.now() - (o.sent || 0) > 3600e3) setTimeout(() => this.flush(), 0); },
+  async flush(){
+    if (this.busy || typeof Cloud === "undefined" || !Cloud.sess || !Cloud.me || (typeof Store !== "undefined" && Store.preview)) return;
+    const o = this.get(); if (Date.now() - (o.sent || 0) <= 3600e3) return;
+    o.sent = Date.now(); this.put(o); this.busy = true;
+    const old = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);
+    try { for (const d of Object.keys(o.days || {})){
+        const x = o.days[d], cur = this.get(); if (d < old){ delete cur.days[d]; this.put(cur); continue; }
+        await Cloud.rpc("egress_add", {p_day:d, p_bytes:x[0], p_reqs:x[1]});
+        const c2 = this.get(); const y = c2.days && c2.days[d];
+        if (y){ y[0] -= x[0]; y[1] -= x[1]; if (y[0] <= 0 && y[1] <= 0) delete c2.days[d]; this.put(c2); } } }
+    catch(e){ console.warn("egress", e && e.message); }
+    finally { this.busy = false; }
+  }
+};
 const LC = {
   db:null,
   open(){ if (!this.db) this.db = new Promise((ok, no) => { try { const r = indexedDB.open("menrit-copy", 1);
@@ -10190,6 +10223,7 @@ const Cloud = {
     try { r = await fetch(SB+path, Object.assign({}, opt, {headers:Object.assign({apikey:SB_KEY, "Content-Type":"application/json"}, bearer(token||SB_KEY), (opt&&opt.headers)||{})})); }
     catch(e){ const x = new Error("offline"); x.offline = true; throw x; }
     const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch(e){}
+    if (path.indexOf("/rpc/egress_") < 0) EG.add(t ? EG.size(t) : 0);
     if (!r.ok){ const x = new Error((j && (j.message || j.msg || j.error_description || j.error)) || ("HTTP "+r.status)); x.status = r.status; x.code = j && (j.code || j.error_code); throw x; }
     return j;
   },
@@ -10486,6 +10520,73 @@ async function gmSignIn(email, pw){
   if (!g || !g.dev){ await Cloud.signOut(); lockFail(); if ($("#gPw")) $("#gPw").value = ""; const x = new Error("الاسم أو كلمة السر مش صح."); x.ui = true; throw x; }
   lockOk(); await gmHome();
 }
+// «📊 استهلاك السيرفر» on ⲁⲣⲭⲏ ⲙⲉⲛⲣⲓⲧ's screen: the billing cycle starts on the same day each month (19 for this account)
+const EG_FREE = 5 * 1024 * 1024 * 1024, EG_CYCLE_KEY = "menrit_eg_cycle";
+function egCycle(){ let D = 19; try { D = Number(localStorage.getItem(EG_CYCLE_KEY)) || 19; } catch(e){} D = Math.min(28, Math.max(1, D));
+  const now = new Date(), y = now.getUTCFullYear(), m = now.getUTCMonth();
+  let a = new Date(Date.UTC(y, m, D)); if (now < a) a = new Date(Date.UTC(y, m - 1, D));
+  const b = new Date(Date.UTC(a.getUTCFullYear(), a.getUTCMonth() + 1, D)), ymd = x => x.toISOString().slice(0, 10);
+  const days = Math.round((b - a) / 864e5), done = Math.min(days, Math.floor((now - a) / 864e5) + 1);
+  return {D, from:ymd(a), to:ymd(b), days, done, list:[...Array(days)].map((_, i) => ymd(new Date(a.getTime() + i * 864e5)))}; }
+function egFmt(n){ n = Number(n) || 0; return n >= 1024 * 1024 * 1024 ? arDigits((n / 1073741824).toFixed(2)) + " جيجا" : n >= 1024 * 1024 ? arDigits((n / 1048576).toFixed(1)) + " ميجا" : arDigits(Math.round(n / 1024)) + " ك.ب"; }
+function egDay(d){ const x = new Date(d + "T00:00:00Z"); return arDigits(x.getUTCDate()) + " " + GMONTHS[x.getUTCMonth()]; }
+function egCard(){
+  const card = h("div",{class:"gm-card", id:"egCard"}, h("h2",null,"📊 استهلاك السيرفر (Egress)"), h("p",{class:"muted"},"جارٍ التحميل…"));
+  const cy = egCycle();
+  Cloud.rpc("egress_report", {p_from:cy.from}).then(r => egDraw(card, cy, r || {})).catch(e => {
+    card.replaceChildren(h("h2",null,"📊 استهلاك السيرفر (Egress)"), h("p",{class:"gate-err"}, /egress_report|function|schema cache|404/i.test((e && e.message) || "") ? "يلزم تشغيل ملف SQL الجديد في Supabase أولًا." : cloudMsg(e))); });
+  return card;
+}
+function egDraw(card, cy, r){
+  const byDay = new Map((r.days || []).map(x => [String(x.day).slice(0, 10), Number(x.bytes) || 0]));
+  const today = new Date().toISOString().slice(0, 10), budget = EG_FREE / cy.days;
+  const vals = cy.list.map(d => byDay.has(d) ? byDay.get(d) : null), used = vals.reduce((n, v) => n + (v || 0), 0);
+  const counted = cy.list.filter((d, i) => i < cy.done && byDay.has(d)), avg = counted.length ? counted.reduce((n, d) => n + byDay.get(d), 0) / counted.length : 0;
+  const estEnd = used + avg * (cy.days - cy.done);
+  // the real number from the Supabase dashboard (total of the cycle so far), when it was written
+  const real = (r.real || []).map(x => ({day:String(x.day).slice(0, 10), gb:Number(x.gb)})).filter(x => x.day >= cy.from && x.day < cy.to);
+  const last = real[real.length - 1], first = real[0];
+  let realEnd = null, realRate = null;
+  if (last){ const lastIdx = cy.list.indexOf(last.day) + 1;
+    // the daily rate: between two written numbers, else the program's own last three days, else the cycle's average
+    const recent = counted.filter(d => d < today).slice(-3), recentGb = recent.length ? recent.reduce((n, d) => n + byDay.get(d), 0) / recent.length / 1073741824 : null;
+    realRate = real.length >= 2 && last.day > first.day ? (last.gb - first.gb) / Math.round((new Date(last.day) - new Date(first.day)) / 864e5) : recentGb !== null ? recentGb : last.gb / Math.max(1, lastIdx);
+    realEnd = last.gb + Math.max(0, realRate) * (cy.days - lastIdx); }
+  const endBytes = realEnd !== null ? realEnd * 1073741824 : estEnd, pct = endBytes / EG_FREE;
+  const cls = pct < .7 ? "ok" : pct < 1 ? "warn" : "bad";
+  const statusTxt = (cls === "ok" ? "🟢 الاستهلاك جيد" : cls === "warn" ? "🟡 الاستهلاك قريب من الحد" : "🔴 الاستهلاك أعلى من الحد المجاني") +
+    ": المتوقع حتى نهاية الدورة (" + egDay(cy.to) + ") " + egFmt(endBytes) + " من " + arDigits(5) + " جيجا (" + arDigits(Math.round(pct * 100)) + "٪)" +
+    (realEnd !== null ? "، محسوبًا من أرقام Supabase التي كُتبت هنا." : "، محسوبًا من تقدير البرنامج.");
+  const max = Math.max(budget * 1.3, ...vals.map(v => v || 0)), hPct = v => Math.max(2, Math.round(v / max * 100));
+  const bars = h("div",{class:"eg-bars", role:"img", "aria-label":"استهلاك كل يوم في الدورة"},
+    h("div",{class:"eg-line", style:"bottom:" + Math.round(budget / max * 134 + 0) + "px"}, h("span",null,"الحد الآمن " + egFmt(budget) + " في اليوم")),
+    ...cy.list.map((d, i) => { const v = vals[i];
+      return v === null ? h("div",{class:"eg-bar none", title:egDay(d)}) : h("div",{class:"eg-bar" + (v > budget ? " over" : ""), style:"height:" + hPct(v) + "%", title:egDay(d) + ": " + egFmt(v)}); }));
+  const realIn = h("input",{type:"number", id:"egReal", min:"0", step:"0.01", inputmode:"decimal", placeholder:"مثال: 8.31", style:"max-width:140px", dir:"ltr"});
+  const realErr = h("span",{class:"small gate-err"});
+  const saveReal = h("button",{class:"btn sm", id:"egRealSave", onclick:async () => { const v = Number(realIn.value);
+    if (!realIn.value || !(v >= 0)){ realErr.textContent = "اكتب الرقم بالجيجا، مثل 8.31"; return; }
+    saveReal.disabled = true; try { await Cloud.rpc("egress_real_set", {p_day:today, p_gb:v}); const r2 = await Cloud.rpc("egress_report", {p_from:cy.from}); egDraw(card, cy, r2 || {}); }
+    catch(e){ realErr.textContent = cloudMsg(e); saveReal.disabled = false; } }},"حفظ");
+  const ch = (r.churches || []), chMax = Math.max(1, ...ch.map(c => Number(c.bytes) || 0));
+  card.replaceChildren(
+    h("h2",null,"📊 استهلاك السيرفر (Egress)"),
+    h("p",{class:"small muted", style:"margin:0"}, "الدورة من " + egDay(cy.from) + " إلى " + egDay(cy.to) + " · اليوم " + arDigits(cy.done) + " من " + arDigits(cy.days) + " · الحد المجاني " + arDigits(5) + " جيجا"),
+    h("div",{class:"eg-status " + cls, id:"egStatus"}, statusTxt),
+    h("div",{class:"gm-stats"},
+      h("div",{class:"gm-stat"}, h("b",{id:"egToday"}, egFmt(byDay.get(today) || 0)), "اليوم حتى الآن"),
+      h("div",{class:"gm-stat"}, h("b",null, egFmt(avg)), "متوسط اليوم"),
+      h("div",{class:"gm-stat"}, h("b",{style:"color:#a8741a"}, egFmt(budget)), "الحد الآمن لليوم"),
+      h("div",{class:"gm-stat"}, h("b",null, egFmt(used)), "تقدير البرنامج للدورة")),
+    bars, h("div",{class:"eg-axis"}, h("span",null, egDay(cy.from)), h("span",null, egDay(cy.list[cy.list.length - 1]))),
+    ch.length ? h("div",{style:"display:grid;gap:6px"}, h("b",null,"⛪ حسب الكنيسة في هذه الدورة"),
+      ...ch.map(c => h("div",{class:"eg-row"}, h("span",{style:"min-width:9em"}, c.name), h("span",{class:"eg-fill"}, h("i",{style:"width:" + Math.max(2, Math.round(Number(c.bytes) / chMax * 100)) + "%"})), h("span",{dir:"rtl"}, egFmt(c.bytes))))) : null,
+    h("div",{style:"display:grid;gap:6px"}, h("b",null,"الرقم الحقيقي من Supabase"),
+      last ? h("p",{class:"small", style:"margin:0", id:"egLast"}, "آخر رقم مكتوب: " + arDigits(String(last.gb)) + " جيجا يوم " + egDay(last.day) + (realRate > 0 ? " · بمعدل " + egFmt(Math.max(0, realRate) * 1073741824) + " في اليوم" : "")) : null,
+      h("p",{class:"small muted", style:"margin:0"}, "من Supabase: Usage ثم Egress، انسخ رقم «Used in period» واكتبه هنا (بالجيجا). يكفي مرة كل يوم أو يومين."),
+      h("div",{class:"row"}, realIn, saveReal, realErr)),
+    h("p",{class:"small muted", style:"margin:0"}, "تقدير البرنامج يحسبه كل جهاز مفتوح عليه البرنامج، وهو قريب من رقم Supabase وليس مطابقًا له. لا يشمل البرامج الأخرى على نفس حساب Supabase، ولا الصور التي يحسبها Supabase منفصلة (Cached Egress)."));
+}
 async function gmHome(){
   clearTimeout(idleTimer);
   document.body.classList.add("locked"); document.body.dataset.gate = "1";
@@ -10514,6 +10615,7 @@ async function gmHome(){
     h("div",{class:"gm-stat"}, h("b",{style:"color:var(--ok-ink)"}, arDigits(live.length)), "رخصة سارية"),
     h("div",{class:"gm-stat"}, h("b",{style:"color:var(--warn-ink)"}, arDigits(live.filter(c => left(c.expires_at) <= 30).length)), "تنتهي خلال شهر"),
     h("div",{class:"gm-stat"}, h("b",null, arDigits(list.reduce((n,c) => n + Number(c.accounts||0), 0))), "حساب")));
+  body.append(egCard());
   if (gmShown){ const sh = gmShown;
     body.append(h("div",{class:"gm-card", id:"gmShown"}, h("h2",null,"✅ "+sh.title), h("div",{class:"gm-code"}, sh.code),
       h("p",{class:"small muted", style:"margin:0"},"لن يظهر هذا مرة أخرى. أرسله الآن."), h("div",{class:"gm-share"}, sh.text),
