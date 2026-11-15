@@ -388,7 +388,13 @@ body.chat-open .chat-fab{display:none}
 .sup-list .sup-row.hot strong{color:var(--gold-d,#8a6414)}
 .sup-meta{display:grid;justify-items:end;gap:2px;flex:none}
 .sup-st{font-size:.74rem;font-weight:800;border-radius:99px;padding:1px 8px;background:var(--surface-2)}
-.sup-st.new{color:#b91c1c} .sup-st.open{color:#a16207} .sup-st.done{color:#15803d}
+.sup-st.new{color:#b91c1c} .sup-st.open{color:#a16207} .sup-st.done{color:#15803d} .sup-st.self{color:#0e7490}
+.sup-rate-box .sup-stars{justify-content:center;margin:8px 0}.sup-rate-box .sup-stars .star{font-size:2.4rem}.sup-rate-box{text-align:center}
+.sup-rate-ic{font-size:2.2rem}
+.sup-fwd-b{margin-top:6px;font-size:.8rem;padding:3px 10px}.sup-fwd-done{margin-top:6px;font-size:.78rem;color:var(--a);font-weight:700}
+.sup-fwd-f{display:grid;gap:6px;margin-top:8px}.sup-fwd-f textarea{width:100%;min-height:54px}
+.fwd-card{border-inline-start:4px solid #e11d48}.fwd-card .fwd-txt{white-space:pre-wrap;margin:0;background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.fwd-card .fwd-note{margin:0}.sup-row-rt{color:#f5b301;font-size:.8rem;letter-spacing:1px}
 .sup-av{width:30px;height:30px;flex:none;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1.5px var(--gold,#c9a227);background:#fff}
 .sup-av img{width:100%;height:100%;object-fit:cover;display:block} .sup-av.lg{width:38px;height:38px}
 .sup-title{display:flex;align-items:center;gap:10px} .sup-title > span:last-child{display:grid}
@@ -424,7 +430,7 @@ body.chat-open .chat-fab{display:none}
 .sup-q:hover{background:var(--surface-2)}
 .sup-welcome b{color:var(--gold-ink)} .sup-closed{color:var(--bad);font-weight:700}
 .sup-hours{gap:8px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:8px;margin-top:8px} .sup-hours input{max-width:120px}
-.sup-sum-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.sup-sum-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
 .sup-sum-t{display:grid;gap:2px;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2)}
 .sup-sum-t b{font-size:1.35rem} .sup-sum-t.new b{color:var(--bad)} .sup-sum-t.open b{color:var(--warn-ink)} .sup-sum-t.done b{color:var(--ok-ink)} .sup-sum-t.rate b{color:var(--gold-ink)}
 @media (max-width:560px){.sup-sum-g{grid-template-columns:repeat(2,1fr)}}
@@ -4331,7 +4337,7 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
-  const req = all.filter(p=>p.request||p.visitReq).length;
+  const req = all.filter(p=>p.request||p.visitReq).length + (accRole() === "priest" ? (SUP.fwd || []).filter(f => !f.seen_at).length : 0);
   const t = [["today","اليوم", (S.pending||[]).length],["people","أبنائي"],["requests","الطلبات", req],["meditations","التأملات"],["settings","الإعدادات"]];
   // on the server the admin has a screen of its own (شاشة الأدمن)
   if (accRole() === "admin" && Store.mode !== "cloud") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
@@ -5614,6 +5620,7 @@ function priestRequests(all){
     .sort((a,b)=>String(a.r.date||"9").localeCompare(String(b.r.date||"9")));
   const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف والافتقاد"));
   { const rs = reqSumPriestCard(); if (rs) wrap.append(rs); }
+  if (accRole() === "priest") wrap.append(...fwdCards(all));
   const wa = S.draft.waAfter;
   if (wa) wrap.append(h("div",{class:"card wa-after"},
     h("p",{style:"margin:0"}, wa.noshow ? "📋 تم تسجيل عدم حضور "+wa.name+" في الموعد. هل تريد إرسال رسالة له عبر واتساب لحجز موعد آخر؟" : wa.cancel ? "❌ تم إلغاء الموعد، ووصلت رسالة الاعتذار إلى "+wa.name+" في البرنامج. هل تريد إرسالها عبر واتساب أيضًا؟" : "✅ الميعاد وصل لـ "+wa.name+" في البرنامج. تحب تبعتهوله واتساب كمان؟"),
@@ -5823,7 +5830,18 @@ const cleanKids = kids => (kids||[]).filter(k => (k.name||"").trim()).map(k => c
 function ageOf(b){ const d = parseYmd(b); if (!d) return ""; let y = TODAY.getFullYear()-d.getFullYear(); if (TODAY < new Date(TODAY.getFullYear(), d.getMonth(), d.getDate())) y--; return y >= 0 ? arDigits(y)+" سنة" : ""; }
 function historyBlock(p, pr){
   const visits = [...(pr.visits||[])].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
-  const conf = [...(pr.confessions||[])].sort().reverse();
+  // older records may have only «آخر اعتراف» without the list
+  const conf = [...new Set([...(pr.confessions||[]), ...(pr.lastConfession && !(pr.confessions||[]).length ? [pr.lastConfession] : [])])].filter(Boolean).sort().reverse();
+  // (2026-11-15, user: «حسابي كان متسجل فيه اعترافات … ومش عارف ألغيها») the father can delete a confession written by mistake, like a visit
+  const dropConf = async d => {
+    if (!confirm("هل تريد حذف اعتراف يوم "+fmtShort(d)+"؟")) return;
+    try {
+      await editDoc(PP()+"/"+p.id, cur => { const cs = [...new Set([...(cur.confessions||[]), ...(cur.lastConfession && !(cur.confessions||[]).length ? [cur.lastConfession] : [])])].filter(x => x && x !== d).sort();
+        const last = cur.lastConfession === d || !cur.lastConfession ? (cs[cs.length - 1] || "") : cur.lastConfession;
+        return Object.assign(cur, {confessions:cs, lastConfession:last}); });
+      S.reqSum = null; toast("تم حذف الاعتراف");
+    } catch(x){ toast("تعذّر الحذف. حاول مرة أخرى."); }
+  };
   // one tap = one visit (2026-11-05: a slow save let the button be pressed again and the visit was saved several times)
   const addVisit = async e => {
     const btn = e && e.currentTarget; if (addVisit.busy) return;
@@ -5857,7 +5875,10 @@ function historyBlock(p, pr){
     visits.length ? h("ul",{class:"list"}, visits.slice(0,6).map(v => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(v.date)), v.note ? h("span",{class:"small muted"}, v.note) : null), h("div",{class:"row", style:"gap:6px;align-items:center"}, h("span",{class:"pill"}, v.type),
         h("button",{class:"btn sm quiet visit-del", type:"button", title:"امسح الافتقاد ده", "aria-label":"امسح "+v.type+" يوم "+fmtShort(v.date), onclick:()=>dropVisit(v)},"✕"))))) : h("p",{class:"small muted"},"لسه مفيش افتقاد متسجل."),
     h("h3",null,"سجل الاعتراف"),
-    conf.length ? h("p",{class:"small"}, "اعترف "+arDigits(conf.length)+" مرة متسجلة. آخر مرات: "+conf.slice(0,6).map(fmtShort).join("، ")) : h("p",{class:"small muted"},"لسه مفيش اعترافات متسجلة."),
+    conf.length ? h("p",{class:"small"}, "اعترف "+arDigits(conf.length)+" مرة متسجلة.") : h("p",{class:"small muted"},"لسه مفيش اعترافات متسجلة."),
+    conf.length ? h("ul",{class:"list conf-list"}, conf.slice(0, S.draft.confAll === p.id ? conf.length : 6).map(d => h("li",{"data-conf":d}, h("div",{class:"who"}, h("strong",{class:"num"}, WDAYS[parseYmd(d).getDay()]+" "+fmtShort(d))),
+        h("button",{class:"btn sm quiet conf-del", type:"button", title:"حذف هذا الاعتراف", "aria-label":"حذف اعتراف يوم "+fmtShort(d), onclick:()=>dropConf(d)},"✕")))) : null,
+    conf.length > 6 && S.draft.confAll !== p.id ? h("div",null, h("button",{class:"btn sm ghost", type:"button", id:"confAll", onclick:()=>{ S.draft.confAll = p.id; render(); }}, "عرض الكل ("+arDigits(conf.length)+")")) : null,
     noShowLine(pr));
 }
 // «لم يحضر» in his record: the father's own data, never shown to the admin
@@ -7045,7 +7066,7 @@ async function supList(){
   if (!supOn()) return;
   try { const r = await supApi.list(); if (!r) return;
     const sig = JSON.stringify(r); if (sig === SUP.sig) return; SUP.sig = sig;
-    SUP.unread = Number(r.unread) || 0; SUP.rate = !!r.rate; SUP.threads = r.threads || []; scheduleRender(); } catch(e){ console.warn("support", e.message); }
+    SUP.unread = Number(r.unread) || 0; SUP.rate = !!r.rate; SUP.rateTopic = r.topic || ""; SUP.fwd = Array.isArray(r.fwd) ? r.fwd : []; SUP.threads = r.threads || []; scheduleRender(); supRateCheck(); } catch(e){ console.warn("support", e.message); }
 }
 const supWaiting = () => SUP.threads.filter(t => t.status === "new" || t.unread > 0).length;
 // a person's card: «🛟 الدعم الفني» (in «بياناتي», «الإعدادات», and on the first screen while an answer waits)
@@ -7086,7 +7107,7 @@ function supSumCard(){
   const tile = (v, label, cls) => h("div",{class:"sup-sum-t " + cls}, h("b",{class:"num"}, v), h("span",{class:"small"}, label));
   return h("div",{class:"card sup-sum", id:"supSum"}, h("div",{class:"row between", style:"align-items:center"}, h("h3",{style:"margin:0"}, "🛟 الدعم الفني", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
       h("button",{type:"button", class:"btn sm", id:"supGo", onclick:()=>{ S.tab = "support"; render(); window.scrollTo({top:0}); }}, "فتح الدعم الفني")),
-    h("div",{class:"sup-sum-g"}, tile(arDigits(n("new")), "طلبات جديدة", "new"), tile(arDigits(n("open")), "جارٍ العمل عليها", "open"), tile(arDigits(n("done")), "تم حلها", "done"),
+    h("div",{class:"sup-sum-g"}, tile(arDigits(n("new")), "طلبات جديدة", "new"), tile(arDigits(n("open")), "جارٍ العمل عليها", "open"), tile(arDigits(n("done")), "تم حلها", "done"), tile(arDigits(th.reduce((a, t) => a + (+t.self_n || 0), 0)), "حلّوها بأنفسهم", "self"),
       tile(rated.length ? arDigits(avg.toFixed(1).replace(/\.0$/, "")) + " ★" : "—", rated.length ? "متوسط التقييم (" + arDigits(rated.length) + ")" : "لا توجد تقييمات بعد", "rate")));
 }
 // «المساحة المستخدمة» (2026-11-11, like the service program): what each kind of the church's data takes, sizes only
@@ -7309,14 +7330,14 @@ function vidAdminCard(){
 function supInbox(){
   if (!supOn() || !supIsAdmin()) return null;
   const th = SUP.threads, wait = supWaiting();
-  const pill = t => t.status === "done" ? h("span",{class:"sup-st done"},"✅ تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
+  const pill = t => t.status === "done" && t.self ? h("span",{class:"sup-st self"},"💡 حلّها بنفسه") : t.status === "done" ? h("span",{class:"sup-st done"},"✅ تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
   return h("div",{class:"card sup-inbox", id:"supInbox"},
     h("h3",null, "🛟 طلبات الدعم", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
     th.length ? h("ul",{class:"list sup-list"}, th.slice(0, 30).map(t => h("li",{class:"sup-row" + (t.unread || t.status === "new" ? " hot" : ""), "data-uid":t.uid, onclick:()=>supOpen(t.uid)},
       avatar({name:t.name, photo:t.photo}, "sm"),
       h("div",{class:"who"}, h("strong",null, t.name, t.role === "priest" ? h("small",{class:"muted"}," · أب") : t.role === "supervisor" ? h("small",{class:"muted"}," · مشرف") : null),
         h("span",{class:"small muted"}, (t.topic ? t.topic + " · " : "") + (t.last_admin ? "أنت: " : "") + String(t.last_text || "").replace(/\s+/g, " ").slice(0, 70))),
-      h("div",{class:"sup-meta"}, pill(t), h("span",{class:"small muted"}, supAgo(t.last_at)), t.unread ? h("span",{class:"badge"}, arDigits(t.unread)) : null))))
+      h("div",{class:"sup-meta"}, pill(t), t.status === "done" && t.rating > 0 ? h("span",{class:"sup-row-rt", "aria-label":"التقييم " + arDigits(t.rating) + " من ٥"}, "★".repeat(t.rating)) : null, h("span",{class:"small muted"}, supAgo(t.last_at)), t.unread ? h("span",{class:"badge"}, arDigits(t.unread)) : null))))
     : h("p",{class:"small muted", style:"margin:0"}, "لا توجد طلبات دعم. عندما يكتب أحد يظهر هنا، ويصلك تنبيه على الموبايل."), supHoursRow());
 }
 function supMount(){
@@ -7328,9 +7349,10 @@ async function supOpen(uid){
   if (typeof chatOpen === "function" && CH.open) chatOpen(false);
   SUP.open = true; SUP.uid = supIsAdmin() ? uid : null; SUP.data = null; SUP.flow = null; SUP.reopen = false; SUP.rated = false; SUP.scrolled = false;
   SUP.seq = (SUP.seq || 0) + 1; SUP.busy = 0; SUP.err = null; SUP.dsig = ""; SUP.painted = false;
-  const p = supMount(); p.hidden = false; document.body.classList.add("chat-open"); supPaint(); await supPoll();
+  const p = supMount(); p.hidden = false; document.body.classList.add("chat-open"); supRateCheck(); supPaint(); await supPoll();
 }
-function supClose(){ SUP.open = false; clearTimeout(SUP.timer); const p = document.getElementById("supPanel"); if (p) p.hidden = true; document.body.classList.remove("chat-open"); supList(); }
+function supClose(){ const due = supRateDue(); if (due && SUP.open){ toast(due); const st = document.querySelector("#supPanel .sup-stars"); if (st) st.scrollIntoView({block:"center", behavior:"smooth"}); return; }
+  SUP.open = false; setTimeout(supRateCheck, 300); clearTimeout(SUP.timer); const p = document.getElementById("supPanel"); if (p) p.hidden = true; document.body.classList.remove("chat-open"); supList(); }
 async function supPoll(){
   clearTimeout(SUP.timer); const my = SUP.seq; if (!SUP.open || SUP.busy === my) return; SUP.busy = my;
   try { const r = await Promise.race([supApi.feed(SUP.uid), new Promise((ok, no) => setTimeout(() => no(new Error("timeout")), 15000))]);
@@ -7384,9 +7406,67 @@ async function supSend(text){
     SUP.reopen = false; SUP.scrolled = false; SUP.dsig = ""; await supPoll(); return true;
   } catch(e){ toast(/too many/.test(e.message || "") ? "برجاء الانتظار قليلًا قبل إرسال رسائل أخرى." : "لم تُرسل الرسالة. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."); return false; }
 }
-function supStars(){
+// (2026-11-15) the admin sends one of the person's messages to his confession father; the person is not told
+function supFwdRow(m, r){
+  if (String(m.text || "").startsWith("💡 حلّها بنفسه")) return null;
+  const done = (r.fwd || []).find(x => x.msg_id === m.id);
+  if (done) return h("div",{class:"sup-fwd-done", "data-fwd":String(m.id)}, "↪️ حُوّلت إلى " + (done.father || "أب الاعتراف") + " · " + supAgo(done.at) + (done.seen_at ? " · ✅ اطّلع عليها" : " · لم يطّلع عليها بعد"));
+  if (!r.father) return null;
+  if (SUP.fwdFor !== m.id) return h("button",{type:"button", class:"chip-btn sup-fwd-b", "data-fwd":String(m.id), onclick:()=>{ SUP.fwdFor = m.id; SUP.fwdNote = ""; supPaint(true); }}, "↪️ تحويل إلى أب الاعتراف");
+  return h("div",{class:"sup-fwd-f", id:"supFwdF"},
+    h("span",{class:"small"}, "ستُرسل هذه الرسالة إلى " + r.father + " فقط، ولن يظهر للشخص أي شيء."),
+    h("textarea",{id:"supFwdNote", maxlength:"300", placeholder:"سطر منك مع الرسالة (اختياري)، مثلًا: برجاء التواصل معه", oninput:e=>{ SUP.fwdNote = e.target.value; }}, SUP.fwdNote || ""),
+    h("div",{class:"row"},
+      h("button",{type:"button", class:"btn sm", id:"supFwdGo", onclick:async e=>{ e.currentTarget.disabled = true;
+        try { await supApi.fwd(m.id, (SUP.fwdNote || "").trim()); SUP.fwdFor = null; SUP.fwdNote = ""; SUP.dsig = ""; toast("تم تحويل الرسالة إلى " + r.father); await supPoll(); }
+        catch(x){ e.currentTarget.disabled = false; toast(/no father/.test(x.message || "") ? "لا يوجد أب اعتراف لهذا الشخص." : /already/.test(x.message || "") ? "تم تحويل هذه الرسالة من قبل." : "تعذّر التحويل. حاول مرة أخرى."); } }}, "تحويل"),
+      h("button",{type:"button", class:"btn sm quiet", onclick:()=>{ SUP.fwdFor = null; supPaint(true); }}, "رجوع")));
+}
+// the father: what the support forwarded to him, in «الطلبات» until he presses «تم الاطلاع»
+function fwdCards(all){
+  return (SUP.fwd || []).filter(f => !f.seen_at).map(f => { const p = all.find(x => x.id === f.uid);
+    return h("div",{class:"card fwd-card", "data-fwd":String(f.id)},
+      h("div",{class:"person-line"}, avatar(p || {name:f.name, photo:f.photo}), h("h3",null, "📨 من الدعم الفني بخصوص " + f.name)),
+      f.text ? h("p",{class:"fwd-txt"}, f.text) : null,
+      f.img && f.msg_id ? supImg(f.msg_id) : null,
+      f.note ? h("p",{class:"fwd-note small"}, h("b",null,"ملاحظة الدعم الفني: "), f.note) : null,
+      h("span",{class:"small muted"}, supAgo(f.at)),
+      h("div",{class:"row"},
+        p ? h("button",{type:"button", class:"btn sm ghost", onclick:()=>{ selectPerson(p.id); S.tab = "people"; render(); window.scrollTo({top:0}); }}, "فتح بياناته") : null,
+        h("button",{type:"button", class:"btn sm", "data-seen":String(f.id), onclick:async e=>{ e.currentTarget.disabled = true;
+          try { await supApi.fwdSeen(f.id); f.seen_at = new Date().toISOString(); SUP.sig = ""; render(); } catch(x){ e.currentTarget.disabled = false; toast("تعذّر الحفظ. حاول مرة أخرى."); } }}, "تم الاطلاع"))); });
+}
+function supStars(pick){
+  pick = pick || (async n => { await supApi.close(null, n); SUP.rated = true; SUP.rate = false; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); supList(); });
+  let busy = false;
   return h("div",{class:"sup-stars", role:"group", "aria-label":"تقييم الخدمة"}, [1,2,3,4,5].map(n => h("button",{type:"button", class:"star", "data-n":String(n), "aria-label":arDigits(n) + " من ٥",
-    onclick:async()=>{ try { await supApi.close(null, n); SUP.rated = true; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); } catch(e){ toast("لم يُحفظ التقييم. حاول مرة أخرى."); } }}, "★")));
+    onclick:async()=>{ if (busy) return; busy = true; try { await pick(n); } catch(e){ toast("لم يُحفظ التقييم. حاول مرة أخرى."); } finally { busy = false; } }}, "★")));
+}
+// the rating is required (2026-11-15, user: «التقييم عاوز لازم يقيم»): a closed request (last 14 days) not rated yet keeps asking
+function supRateDue(){
+  if (SUP.uid) return "";
+  if (SUP.flow && SUP.flow.rate) return "برجاء تقييم الحل أولًا.";
+  const r = SUP.data, th = r && r.thread; if (!th || th.status !== "done" || th.rating || SUP.rated || SUP.reopen) return "";
+  const last = [...(r.msgs || [])].reverse().find(m => m.kind === "sys" && (m.text === "done" || m.text === "solved"));
+  return last && Date.now() - new Date(last.at).getTime() < 14 * 864e5 ? "برجاء تقييم الخدمة أولًا، أو اختيار «لا، ما زالت المشكلة قائمة»." : "";
+}
+async function supStill(){
+  try { await supApi.reopen(); } catch(e){ toast("تعذّر الحفظ. حاول مرة أخرى."); return false; }
+  SUP.rate = false; SUP.reopen = true; SUP.dsig = ""; return true;
+}
+function supRateCheck(){
+  const old = document.getElementById("supRateBox");
+  if (!SUP.rate || !supOn() || supIsAdmin() || SUP.open){ if (old) old.remove(); return; }
+  if (old || document.getElementById("renameBox")) return;
+  const box = h("div",{class:"news-wrap", id:"supRateBox", role:"alertdialog", "aria-modal":"true", "aria-label":"تقييم الدعم الفني"},
+    h("div",{class:"news-box sup-rate-box"},
+      h("div",{class:"sup-rate-ic", "aria-hidden":"true"}, "🛟"),
+      h("h2",null, "تقييم خدمة الدعم الفني"),
+      h("p",null, "تم حل طلبك" + (SUP.rateTopic ? " «" + SUP.rateTopic + "»" : "") + ". برجاء تقييم الخدمة للمتابعة."),
+      supStars(async n => { await supApi.close(null, n); SUP.rate = false; box.remove(); toast("شكرًا لتقييمك 🙏"); supList(); }),
+      h("div",{class:"row", style:"justify-content:center"}, h("button",{type:"button", class:"btn quiet", id:"supRateStill", onclick:async()=>{
+        if (await supStill()){ box.remove(); supOpen(null); } }}, "لا، ما زالت المشكلة قائمة"))));
+  document.body.append(box);
 }
 function supPaint(force){
   const panel = document.getElementById("supPanel"); if (!panel || !SUP.open) return; SUP.painted = true;
@@ -7414,12 +7494,13 @@ function supPaint(force){
     const day = chatDay(m.at); if (day !== lastDay){ box.append(h("div",{class:"chat-day"}, day)); lastDay = day; }
     if (m.kind === "sys"){
       const rt = /^rated:(\d)$/.exec(m.text);
-      box.append(h("div",{class:"sup-sys"}, m.text === "done" ? (adm ? "✅ أغلقت هذا الطلب" : "✅ أغلق فريق الدعم هذا الطلب") : rt ? "⭐ التقييم: " + "★".repeat(+rt[1]) + "☆".repeat(5 - rt[1]) : "✅ تم حل المشكلة"));
+      box.append(h("div",{class:"sup-sys"}, m.text === "done" ? (adm ? "✅ أغلقت هذا الطلب" : "✅ أغلق فريق الدعم هذا الطلب") : rt ? "⭐ التقييم: " + "★".repeat(+rt[1]) + "☆".repeat(5 - rt[1])
+        : m.text === "still" ? (adm ? "❗ أخبرك أن المشكلة ما زالت قائمة" : "❗ أخبرت فريق الدعم أن المشكلة ما زالت قائمة") : "✅ تم حل المشكلة"));
       continue;
     }
     const mine = adm ? m.admin : !m.admin, pic = m.img ? supImg(m.id) : null;
     if (mine){ const el = supMine(supRich(m.text)); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
-    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, supRich(m.text)) : null, pic, h("div",{class:"tm"}, chatTime(m.at))))); }
+    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, supRich(m.text)) : null, pic, h("div",{class:"tm"}, chatTime(m.at)), supFwdRow(m, r)))); }
     else { const el = supBot(supRich(m.text)); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
   }
   if (!adm && r) box.prepend(supBot(supWelcome(), h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supVids", onclick:()=>vidList(false)}, "🎬 فيديوهات الشرح"))));
@@ -7429,7 +7510,7 @@ function supPaint(force){
   if (!adm && r){
     if (th && th.status === "done" && !SUP.reopen && !SUP.flow){
       if (!th.rating && !SUP.rated) box.append(supBot("هل تم حل مشكلتك؟ يسعدنا تقييمك للخدمة.", supStars(),
-        h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supStill", onclick:()=>{ SUP.reopen = true; supPaint(true); }}, "لا، ما زالت المشكلة قائمة"))));
+        h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supStill", onclick:async()=>{ if (await supStill()){ supPaint(true); await supPoll(); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); } }}, "لا، ما زالت المشكلة قائمة"))));
     }
     if (!active && !SUP.reopen){
       const f = SUP.flow;
@@ -7439,11 +7520,16 @@ function supPaint(force){
         const top = SUP_FLOW[f.topic]; box.append(supMine(top.ic + " " + top.t));
         let n = top;
         for (const a of f.path){ box.append(supBot(n.q), supMine(a)); n = n.o.find(o => o[0] === a)[1]; }
-        if (n.tip && !f.ask){
+        if (n.tip && !f.ask && f.rate){
+          box.append(supMine("✅ تم الحل، شكرًا"), supBot("يسعدنا ذلك 🙏 برجاء تقييم الحل:", supStars(async v => {
+            let m = top; const lines = []; for (const a of f.path){ lines.push("• " + m.q + " " + a); m = m.o.find(o => o[0] === a)[1]; }
+            await supApi.self(top.ic + " " + top.t, lines.join("\n"), v);
+            SUP.flow = null; SUP.thanks = true; SUP.rated = true; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); })));
+        } else if (n.tip && !f.ask){
           const tv = n.vid && vidAll(false).find(v => v.id === n.vid);
           box.append(supBot(supTipText(n), h("div",{class:"sup-opts"},
             tv ? h("button",{type:"button", class:"chip-btn", id:"supTipVid", onclick:()=>vidShow(tv)}, "🎬 شاهد الفيديو") : null,
-            h("button",{type:"button", class:"chip-btn ok", id:"supSolved", onclick:()=>{ SUP.flow = null; SUP.thanks = true; supPaint(true); }}, "✅ تم الحل، شكرًا"),
+            h("button",{type:"button", class:"chip-btn ok", id:"supSolved", onclick:()=>{ f.rate = true; supPaint(true); }}, "✅ تم الحل، شكرًا"),
             h("button",{type:"button", class:"chip-btn", id:"supNotSolved", onclick:()=>{ f.ask = true; supPaint(true); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); }}, "✉️ لم تُحل، أريد مراسلة الدعم"))));
         } else if (n.o && !n.ask && !f.ask){
           box.append(supBot(n.q, h("div",{class:"sup-opts"}, n.o.map(([a]) => h("button",{type:"button", class:"chip-btn sup-ans", onclick:()=>{ f.path.push(a); supPaint(true); }}, a)))));
@@ -8638,8 +8724,11 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-15c", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["↪️","تحويل رسالة لأب الاعتراف","في محادثة الدعم الفني، تحت كل رسالة من الشخص زر «↪️ تحويل إلى أب الاعتراف» مع سطر منك إن أردت. تصل الرسالة إلى أب اعترافه فقط مع تنبيه، ولا يظهر للشخص أي شيء. ويظهر لك تحت الرسالة أنها حُوّلت، وهل اطّلع عليها أبونا."],
+    ["💡","«حلّها بنفسه» في الدعم الفني","عندما يحل شخص مشكلته من الحلول الجاهزة ويضغط «✅ تم الحل، شكرًا»، يظهر عندك في «الدعم الفني» سطر مغلق بعلامة «💡 حلّها بنفسه»، وفيه الموضوع والإجابات التي اختارها وتقييمه، بدون تنبيه على الموبايل. وفي «الملخص» رقم جديد «حلّوها بأنفسهم»."],
+    ["⭐","التقييم إجباري","بعد إغلاق أي طلب دعم، يظهر للشخص في وسط الشاشة طلب تقييم بالنجوم، ويتكرر عند كل فتح للبرنامج حتى يقيّم، أو يختار «ما زالت المشكلة قائمة» فيُفتح الطلب من جديد ويصلك تنبيه. ويظهر التقييم بجوار كل طلب."],
     ["🗓️","إغلاق يوم فيه حجوزات","إذا أغلق أب الاعتراف يومًا فيه حجوزات، تظهر أسماء أصحابها ومواعيدهم، ويختار: «إلغاء هذه المواعيد وإبلاغهم» (يصل لكل منهم اعتذار وتنبيه، مع زر واتساب لكل واحد) أو «الإبقاء عليها». وأصبح «إخلاء الموعد» يرسل الاعتذار أيضًا."],
     ["📌","تنبيه عند نسيان «+ إضافة»","إذا اختار أب الاعتراف تاريخ يوم إضافي (أو يوم مُغلق) في «🗓️ مواعيدي» وضغط «حفظ المواعيد» دون أن يضغط «+ إضافة»، تظهر رسالة: «إضافة اليوم ثم الحفظ» أو «الحفظ بدون هذا اليوم»، حتى لا يضيع اليوم دون أن يعرف."],
     ["🙏","«اعترف بالفعل» قبل الموعد","إذا قابل أب الاعتراف شخصًا له موعد أو حجز قادم واعترف بالفعل، يضغط «اعترف» في «مواعيد قادمة»، أو «🙏 اعترف بالفعل» في الطلب، أو «اعترف اليوم» في كارته. يُسجَّل الاعتراف اليوم، ويصبح الموعد متاحًا لغيره، ويستطيع الشخص الحجز من جديد، وتصله رسالة وتنبيه. وكذلك الافتقاد."],
@@ -8673,6 +8762,9 @@ const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🗑","حذف اعتراف مسجّل بالخطأ","في بيانات أي شخص من أبنائك، تحت «سجل الاعتراف» يظهر كل تاريخ في سطر وبجواره ✕ لحذفه بعد التأكيد، مثل سجل الافتقاد. وإذا حذفت آخر اعتراف يُحسب «آخر اعتراف» من التواريخ الباقية."],
+    ["📨","رسائل من الدعم الفني","إذا وصلت للدعم الفني رسالة تخص أحد أبنائك، قد تُحوَّل إليك، فيصلك تنبيه وتظهر في «الطلبات» بعنوان «📨 من الدعم الفني» مع زر «فتح بياناته» وزر «تم الاطلاع»."],
+    ["⭐","تقييم الدعم الفني","بعد حل طلبك في «الدعم الفني» يُطلب منك تقييم الخدمة بالنجوم، أو اختيار «ما زالت المشكلة قائمة» إذا لم تُحل."],
     ["🗓️","إغلاق يوم فيه حجوزات","إذا أغلق أب الاعتراف يومًا فيه حجوزات، تظهر أسماء أصحابها ومواعيدهم، ويختار: «إلغاء هذه المواعيد وإبلاغهم» (يصل لكل منهم اعتذار وتنبيه، مع زر واتساب لكل واحد) أو «الإبقاء عليها». وأصبح «إخلاء الموعد» يرسل الاعتذار أيضًا."],
     ["📌","تنبيه عند نسيان «+ إضافة»","إذا اختار أب الاعتراف تاريخ يوم إضافي (أو يوم مُغلق) في «🗓️ مواعيدي» وضغط «حفظ المواعيد» دون أن يضغط «+ إضافة»، تظهر رسالة: «إضافة اليوم ثم الحفظ» أو «الحفظ بدون هذا اليوم»، حتى لا يضيع اليوم دون أن يعرف."],
     ["🙏","«اعترف بالفعل» قبل الموعد","إذا قابل أب الاعتراف شخصًا له موعد أو حجز قادم واعترف بالفعل، يضغط «اعترف» في «مواعيد قادمة»، أو «🙏 اعترف بالفعل» في الطلب، أو «اعترف اليوم» في كارته. يُسجَّل الاعتراف اليوم، ويصبح الموعد متاحًا لغيره، ويستطيع الشخص الحجز من جديد، وتصله رسالة وتنبيه. وكذلك الافتقاد."],
@@ -8698,6 +8790,7 @@ const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["⭐","تقييم الدعم الفني","بعد حل طلبك في «الدعم الفني» يُطلب منك تقييم الخدمة بالنجوم، أو اختيار «ما زالت المشكلة قائمة» إذا لم تُحل."],
     ["❌","اعتذار أبونا عن الموعد","إذا أغلق أبونا يوم موعدك أو أخلاه، يصلك تنبيه ورسالة اعتذار، ويمكنك حجز موعد آخر من «المواعيد»."],
     ["✅","تسجيل الاعتراف قبل الموعد","إذا اعترفت عند أبونا قبل موعدك المحجوز، يسجّل أبونا ذلك، فيصلك تنبيه ورسالة «تم تسجيل اعترافك»، ويُلغى الموعد القديم، ويمكنك حجز موعد جديد في أي وقت."],
     ["📶","استهلاك أقل للإنترنت","أصبح البرنامج يحمّل ما تغيّر فقط، فيقلّ استهلاك باقة الإنترنت على موبايلك."],
@@ -9009,7 +9102,7 @@ const EMO = {"🗜️":["image","#0d9488"],"📦":["image","#7c3aed"],"🎨":["p
   "🟢":["active","#16a34a"],"⏸":["pause","#f59e0b"],"🗑":["trash","#ef4444"],"➕":["plus","#16a34a"],"⚙️":["gear","#64748b"],"🎉":["sparkles","#eab308"],"🆕":["sparkles","#0ea5e9"],
   "⛔":["no","#ef4444"],"🔒":["lock","#0f766e"],"👆":["finger","#0f766e"],"📷":["camera","#8b5cf6"],
   "🛟":["support","#0e7490"],"❓":["help","#7c3aed"],"💡":["bulb","#eab308"],"🐢":["wait","#f59e0b"],"📱":["mobile","#0891b2"],"📲":["phone","#16a34a"],
-  "⭐":["star","#eab308"],"↩️":["reply","#0e7490"],"👋":["hand","#f59e0b"],"✉️":["mail","#2563eb"],"📌":["pin","#ef4444"],"🔴":["dot","#dc2626"],"🟡":["dot","#eab308"],
+  "⭐":["star","#eab308"],"↩️":["reply","#0e7490"],"↪️":["send","#0e7490"],"👋":["hand","#f59e0b"],"✉️":["mail","#2563eb"],"📌":["pin","#ef4444"],"🔴":["dot","#dc2626"],"🟡":["dot","#eab308"],
   "📊":["chart","#16a34a"],"✏️":["pen","#0891b2"],"✍️":["pen","#7c3aed"],"🔍":["search","#0891b2"],"🛂":["idcard","#7c3aed"],"🗺️":["map","#16a34a"],"📣":["megaphone","#ea580c"],
   "🖨️":["printer","#475569"],"❤️":["heart","#e11d48"],"🔁":["refresh","#0891b2"],"🔀":["shuffle","#7c3aed"],"⏭️":["skip","#f59e0b"],"✔️":["ok","#16a34a"],"🍎":["mobile","#475569"],
   "🔢":["hash","#0891b2"],"🔓":["unlock","#16a34a"],"⏱️":["clock","#f59e0b"],"🛠️":["gear","#475569"],
@@ -9170,7 +9263,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.14-3";
+const APP_VERSION = "2026.11.15-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -11184,6 +11277,10 @@ supApi = { feed: uid => Cloud.rpc("support_feed", {p_uid:uid || null}),
   old: () => Cloud.rpc("support_img_old"), move: (id, url) => Cloud.rpc("support_img_move", {p_id:id, p_url:url}),
   img: id => Cloud.rpc("support_img", {p_id:id}),
   close: (uid, rating) => Cloud.rpc("support_close", {p_uid:uid || null, p_rating:rating || null}),
+  self: (topic, path, rating) => Cloud.rpc("support_self", {p_topic:topic, p_path:path, p_rating:rating}),
+  reopen: () => Cloud.rpc("support_reopen", {}),
+  fwd: (msg, note) => Cloud.rpc("support_fwd", {p_msg:msg, p_note:note || ""}),
+  fwdSeen: id => Cloud.rpc("support_fwd_seen", {p_id:id}),
   seen: uid => Cloud.rpc("support_seen", {p_uid:uid || null}),
   list: () => Cloud.rpc("support_list") };
 chatApi = { feed: (room, since) => Cloud.rpc("chat_feed", {p_room:room, p_since:since}),
