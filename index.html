@@ -446,6 +446,40 @@ body.chat-open .chat-fab{display:none}
 .nb-cheer{display:grid;gap:4px;margin-top:6px} .nb-cheer .row{gap:6px} .nb-like.on{background:color-mix(in srgb,var(--gold) 22%,transparent);border-color:var(--gold)}
 .nb-said{color:var(--gold-ink)} .nb-word-box input{flex:1;min-width:160px}
 .nb-fword{border-color:var(--gold)!important;background:color-mix(in srgb,var(--gold) 10%,var(--surface))}
+.lamp-card{border-color:var(--gold)!important;background:radial-gradient(120% 90% at 85% 40%,color-mix(in srgb,#ffcf5a 16%,var(--surface)),var(--surface) 70%);display:flex;gap:14px;align-items:center}
+.lamp-card .lamp-art{flex:0 0 auto;width:112px;display:flex;justify-content:center}
+.lamp-card .lamp-body{flex:1;min-width:0;display:grid;gap:6px}
+.lamp-card h3{margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lamp-card p{margin:0}
+.lamp-stage{font-size:.78em;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid var(--gold);color:var(--gold-ink);background:color-mix(in srgb,var(--gold) 12%,var(--surface))}
+.lamp-dots{display:flex;gap:5px;flex-wrap:wrap}
+.lamp-dots i{width:26px;height:26px;border-radius:50%;font-style:normal;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--ink-2) 12%,var(--surface));color:var(--ink-2)}
+.lamp-dots i.on{background:radial-gradient(circle,#fff1b8,#f0b429);color:#7a4a00;box-shadow:0 0 8px rgba(240,180,41,.55)}
+.lamp-dots i.today{outline:2px solid var(--gold);outline-offset:1px}
+.lamp-dots i.later{opacity:.45}
+.lamp-bar{height:9px;border-radius:6px;overflow:hidden;background:color-mix(in srgb,var(--ink-2) 14%,var(--surface))}
+.lamp-bar b{display:block;height:100%;border-radius:6px;background:var(--gold-grad)}
+.lamp-verse{color:var(--gold-ink);font-size:.9em}
+.lamp-mini{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--gold-line);border-radius:14px;background:color-mix(in srgb,#ffcf5a 9%,var(--surface))}
+.lamp-mini .lamp-txt{display:grid;gap:2px;min-width:0}
+.lamp-svg{overflow:visible}
+.lamp-svg .lamp-flame{transform-box:fill-box;transform-origin:50% 100%;animation:lampFlick 1.9s ease-in-out infinite}
+.lamp-svg .lamp-core{transform-box:fill-box;transform-origin:50% 100%;animation:lampFlick 1.3s ease-in-out infinite reverse}
+.lamp-svg .lamp-halo{transform-box:fill-box;transform-origin:50% 50%;animation:lampHalo 2.8s ease-in-out infinite}
+.lamp-svg .lamp-glass{animation:lampGlass 2.2s ease-in-out infinite}
+.lamp-svg .lamp-rays{transform-box:view-box;transform-origin:60px 72px;animation:lampRays 24s linear infinite}
+.lamp-svg .lamp-spark{animation:lampSpark 2.4s ease-in-out infinite}
+.lamp-svg .lamp-spark:nth-of-type(2){animation-delay:.6s}.lamp-svg .lamp-spark:nth-of-type(3){animation-delay:1.2s}.lamp-svg .lamp-spark:nth-of-type(4){animation-delay:1.8s}
+.lamp-svg.lamp-up .lamp-halo{animation:lampUp 1.6s ease-out 1,lampHalo 2.8s ease-in-out 1.6s infinite}
+.lamp-svg.lamp-dark .lamp-flame{animation-duration:3.2s}
+@keyframes lampFlick{0%,100%{transform:scale(1,1) skewX(0)}18%{transform:scale(.93,1.07) skewX(3deg)}37%{transform:scale(1.05,.95) skewX(-2deg)}55%{transform:scale(.97,1.04) skewX(4deg)}74%{transform:scale(1.03,.97) skewX(-3deg)}88%{transform:scale(.96,1.05) skewX(1deg)}}
+@keyframes lampHalo{0%,100%{transform:scale(.9);opacity:.75}35%{transform:scale(1.06);opacity:1}60%{transform:scale(.97);opacity:.85}80%{transform:scale(1.08);opacity:1}}
+@keyframes lampGlass{0%,100%{opacity:1}40%{opacity:.8}70%{opacity:.95}}
+@keyframes lampRays{to{transform:rotate(360deg)}}
+@keyframes lampSpark{0%,100%{opacity:.15}50%{opacity:1}}
+@keyframes lampUp{0%{transform:scale(.5);opacity:.3}60%{transform:scale(1.3);opacity:1}100%{transform:scale(.95);opacity:.85}}
+@media (max-width:420px){.lamp-card{gap:10px}.lamp-card .lamp-art{width:86px}.lamp-dots i{width:23px;height:23px;font-size:11px}}
+@media (prefers-reduced-motion:reduce){.lamp-svg .lamp-rays{animation:none}.lamp-svg .lamp-flame,.lamp-svg .lamp-core,.lamp-svg .lamp-halo{animation-duration:3.6s}}
 .nb-sum{border-color:var(--gold)!important;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 12%,var(--surface)),var(--surface))}
 .nb-sum-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:10px 0}
 .nb-sum-t{display:grid;gap:2px;text-align:center;padding:10px 6px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)} .nb-sum-t b{font-size:1.4rem;color:var(--gold-ink)} .nb-sum-t span{font-size:.8rem}
@@ -5056,7 +5090,7 @@ function personDetail(all){
   if (p.onApp && !isNew){
     const pk = S.draft.nbPick && S.draft.nbPick.uid === p.id ? S.draft.nbPick : null;
     const pick = (ds, r) => { S.draft.nbPick = pk && pk.date === ds ? null : {uid:p.id, date:ds, r}; render(); };
-    card.append(h("h3",null,"النوتة الروحية"), notebookMonth(p.id, S.selNotebook, pick, pk && pk.date));
+    card.append(h("h3",null,"النوتة الروحية"), lampMini(S.selNotebook, p.self), notebookMonth(p.id, S.selNotebook, pick, pk && pk.date));
     const last = pk ? [Object.assign({date:pk.date}, pk.r || {})] : S.selNotebook.slice(0,5);
     const ask = nbApi && !Store.preview && accRole() === "priest" && isMyChild(p.id);
     if (ask && (!S.nbNotes || S.nbNotes.uid !== p.id)){ S.nbNotes = {uid:p.id, m:{}, ok:false}; nbApi.notes(p.id).then(m => { if (S.nbNotes && S.nbNotes.uid === p.id){ S.nbNotes.m = m || {}; S.nbNotes.ok = true; scheduleRender(); } }).catch(() => {}); }
@@ -8116,7 +8150,7 @@ function memberToday(){
   wrap.append(h("section",{class:"half"}, sectionHead("تأمل اليوم"), pick ? h("div",{class:"card"}, meditationBlock(pick), pick===personal ? h("span",{class:"pill acc", style:"width:max-content"},"مبعوت ليك مخصوص") : null) : h("div",{class:"empty"},"أبونا لسه ما بعتش تأمل النهارده.")));
   { const ms = nbMonthSum(true); if (ms) wrap.append(ms); }
   const todayNote = S.notebook.find(n=>n.date===TODAY_S);
-  wrap.append(h("section",{class:"half"}, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), notebookGrid(S.notebook)));
+  wrap.append(h("section",{class:"half"}, sectionHead("النوتة الروحية", h("button",{class:"btn sm", onclick:()=>{S.tab="notebook"; render();}}, todayNote ? "كمّل نوتة النهارده" : "سجّل نوتة النهارده")), lampMini(null, null, true), notebookGrid(S.notebook)));
   wrap.append(h("section",null, sectionHead("قراءات اليوم"), readingCard(false)));
   return wrap;
 }
@@ -8178,6 +8212,7 @@ function memberNotebook(){
   { const fw = (S.inbox || []).find(m => m.type === "nbnote" && m.date === date);
     if (fw) wrap.append(h("div",{class:"card nb-fword", id:"nbFword"}, h("b",null, "🕊️ أبونا شاف نوتتك"), fw.text ? h("p",{style:"margin:4px 0 0"}, "«" + fw.text + "»") : h("p",{style:"margin:4px 0 0"}, "👍 ربنا يقويك، كمّل"))); }
   { const ms = nbMonthSum(); if (ms) wrap.append(ms); }
+  { const lc = lampCard(); if (lc) wrap.append(lc); }
   wrap.append(h("div",{class:"checks"}, NOTE_ITEMS.map(([k,l]) => h("label",{class:"check"},
     h("input",{type:"checkbox", id:"nb_"+k, checked:!!nb.items[k], onchange:e=>{ nb.items[k]=e.target.checked; }}), l))));
   wrap.append(h("div",{class:"card form"},
@@ -8195,6 +8230,93 @@ function memberNotebook(){
   wrap.append(h("section",null, h("h3",null,"متابعتك"), notebookMonth(S.uid, S.notebook, pick, date)));
   wrap.append(nbRemindRow());
   return wrap;
+}
+// «مصباحك الروحي» (2026-11-17): a kerosene lamp on the notebook. Its light = the days written this week (Sunday to Saturday, 0–7);
+// its look = «fruitful weeks» (3 days or more): 1 week → brass, 3 → gold, 5 → engraved with a cross, 8 → «مصباح العذارى الحكيمات».
+// A stage never goes back (best count kept in members/<uid>.lamp.w); a missed week only dims the light. Built from the notebook rows already loaded.
+const LAMP_STAGES = [["مصباح بسيط",0],["مصباح نحاسي",1],["مصباح ذهبي",3],["مصباح منقوش بالصليب",5],["مصباح العذارى الحكيمات",8]];
+const LAMP_WD = [["ح","الأحد"],["ن","الاثنين"],["ث","الثلاثاء"],["ر","الأربعاء"],["خ","الخميس"],["ج","الجمعة"],["س","السبت"]];
+let LAMP_N = 0;
+const lampWrote = r => !!r && ((r.items && Object.values(r.items).some(Boolean)) || +r.metanias > 0 || !!String(r.portion || "").trim() || !!String(r.reflection || "").trim());
+const lampWeek = s => { const d = new Date(s + "T00:00:00"); d.setDate(d.getDate() - d.getDay()); return ymd(d); };
+function lampState(rows, self){
+  const ws = lampWeek(TODAY_S), wrote = new Set((rows || []).filter(lampWrote).map(r => r.date)), per = {};
+  for (const ds of wrote) { const k = lampWeek(ds); per[k] = (per[k] || 0) + 1; }
+  const days = LAMP_WD.map((_, i) => { const d = new Date(ws + "T00:00:00"); d.setDate(d.getDate() + i); const s = ymd(d); return {s, on:wrote.has(s), today:s === TODAY_S, later:s > TODAY_S}; });
+  const lvl = days.filter(d => d.on).length, got = Object.values(per).filter(n => n >= 3).length;
+  const kept = Math.max(0, +((self && self.lamp && self.lamp.w) || 0)), w = Math.max(got, kept);
+  let st = 0; LAMP_STAGES.forEach(([, n], i) => { if (w >= n) st = i; });
+  const next = LAMP_STAGES[st + 1];
+  return {ws, days, lvl, w, got, kept, stage:st + 1, name:LAMP_STAGES[st][0], next:next ? next[0] : "", need:next ? next[1] - w : 0, from:LAMP_STAGES[st][1], to:next ? next[1] : 0};
+}
+const lampDays = n => n === 1 ? "يومًا واحدًا" : n === 2 ? "يومين" : arDigits(n) + " أيام";
+const lampWeeks = n => n === 1 ? "أسبوع مثمر واحد" : n === 2 ? "أسبوعان مثمران" : n <= 10 ? arDigits(n) + " أسابيع مثمرة" : arDigits(n) + " أسبوعًا مثمرًا";
+const lampLeft = n => n === 1 ? "أسبوع واحد" : n === 2 ? "أسبوعان" : n <= 10 ? arDigits(n) + " أسابيع" : arDigits(n) + " أسبوعًا";
+function lampSvg(stage, lvl, size, up){
+  const L = Math.max(0, Math.min(7, lvl)) / 7, id = "lmp" + (++LAMP_N);
+  const M = [null,["#9aa5ab","#6b767c","#c9d1d5"],["#c7773a","#8a4b1f","#e9a46a"],["#e2b23c","#9a6a12","#f7dc83"],["#e2b23c","#8a5d0c","#fbe59a"],["#f0c64a","#8a5d0c","#fff1b8"]][stage];
+  const fh = lvl ? 10 + 22 * L : 6, fw = lvl ? 5 + 6 * L : 4, glow = 16 + 40 * L, gop = lvl ? .5 + .45 * L : 0, f = n => +n.toFixed(1);
+  let s = '<defs><radialGradient id="' + id + 'g"><stop offset="0" stop-color="#ffd76a" stop-opacity="' + f(gop) + '"/><stop offset=".5" stop-color="#ffb347" stop-opacity="' + f(gop * .45) + '"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>'
+    + '<linearGradient id="' + id + 'm" x1="0" x2="1"><stop offset="0" stop-color="' + M[1] + '"/><stop offset=".45" stop-color="' + M[2] + '"/><stop offset="1" stop-color="' + M[1] + '"/></linearGradient>'
+    + '<linearGradient id="' + id + 'f" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + (lvl ? "#ff7a00" : "#5b8bd6") + '"/><stop offset=".55" stop-color="' + (lvl ? "#ffc93c" : "#9cc0f0") + '"/><stop offset="1" stop-color="#fff6d0"/></linearGradient>'
+    + '<linearGradient id="' + id + 's" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".15"/><stop offset=".3" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient></defs>';
+  const mg = 'url(#' + id + 'm)';
+  if (stage === 5 && lvl){ s += '<g class="lamp-rays">'; for (let a = 0; a < 12; a++){ const r = a * Math.PI / 6; s += '<line x1="' + f(60 + 30 * Math.cos(r)) + '" y1="' + f(72 + 30 * Math.sin(r)) + '" x2="' + f(60 + (48 + 8 * L) * Math.cos(r)) + '" y2="' + f(72 + (48 + 8 * L) * Math.sin(r)) + '" stroke="#f2d06b" stroke-width="2" stroke-linecap="round" opacity="' + f(.3 + .5 * L) + '"/>'; } s += '</g>'; }
+  s += '<g class="lamp-halo"><circle cx="60" cy="74" r="' + f(glow) + '" fill="url(#' + id + 'g)"/></g>';
+  s += '<path d="M24 118 Q14 60 60 22 Q106 60 96 118" fill="none" stroke="' + M[1] + '" stroke-width="2.5"/>';
+  s += '<rect x="46" y="28" width="28" height="10" rx="3" fill="' + mg + '"/>';
+  if (stage >= 4) s += '<path d="M46 31 h28" stroke="' + M[1] + '" stroke-width=".8"/>';
+  if (stage === 5) s += '<g fill="' + mg + '" stroke="' + M[1] + '" stroke-width=".6"><rect x="57" y="8" width="6" height="20" rx="1"/><rect x="51" y="13" width="18" height="6" rx="1"/></g>';
+  else if (stage === 4) s += '<circle cx="60" cy="24" r="4" fill="' + mg + '"/>';
+  s += '<path class="lamp-glass" d="M48 38 C48 50 34 58 34 78 C34 96 46 104 48 108 L72 108 C74 104 86 96 86 78 C86 58 72 50 72 38 Z" fill="' + (lvl ? "rgba(255,214,120," + f(.2 + .35 * L) + ")" : "rgba(200,225,235,.35)") + '" stroke="' + (stage >= 3 ? "#d4a630" : "#9fb4bc") + '" stroke-width="' + (stage >= 3 ? 1.6 : 1) + '"/>';
+  s += '<path class="lamp-flame" d="M60 ' + f(104 - fh) + ' C' + f(60 + fw) + ' ' + f(104 - fh * .55) + ' ' + f(60 + fw * .9) + ' 102 60 104 C' + f(60 - fw * .9) + ' 102 ' + f(60 - fw) + ' ' + f(104 - fh * .55) + ' 60 ' + f(104 - fh) + ' Z" fill="url(#' + id + 'f)"/>';
+  if (lvl) s += '<ellipse class="lamp-core" cx="60" cy="' + f(104 - fh * .3) + '" rx="' + f(fw * .38) + '" ry="' + f(fh * .28) + '" fill="#fffbe6" opacity=".85"/>';
+  s += '<path d="M44 46 C40 60 38 72 40 88" fill="none" stroke="url(#' + id + 's)" stroke-width="4" stroke-linecap="round"/>';
+  s += '<rect x="42" y="106" width="36" height="9" rx="2" fill="' + mg + '"/>';
+  if (stage >= 2) s += '<circle cx="84" cy="112" r="4" fill="' + mg + '" stroke="' + M[1] + '" stroke-width=".6"/>';
+  s += '<path d="M26 128 C26 116 40 114 60 114 C80 114 94 116 94 128 C94 146 80 152 60 152 C40 152 26 146 26 128 Z" fill="' + mg + '" stroke="' + M[1] + '"/>';
+  if (stage >= 3) s += '<path d="M28 132 Q60 140 92 132" fill="none" stroke="' + (stage >= 4 ? "#fff1b8" : M[1]) + '" stroke-width="1.6"/>';
+  if (stage >= 4){ s += '<g fill="none" stroke="' + M[1] + '"><path d="M60 120 v16 M53 127 h14"/><circle cx="60" cy="128" r="9"/></g>'; for (const x of [38, 82]) s += '<path d="M' + x + ' 124 q4 4 0 8 q-4 -4 0 -8" fill="' + M[1] + '" opacity=".6"/>'; }
+  if (stage === 5) for (const [x, y, c] of [[40, 139, "#2bb3c0"], [80, 139, "#2bb3c0"], [60, 143, "#c0392b"]]) s += '<circle cx="' + x + '" cy="' + y + '" r="3.2" fill="' + c + '" stroke="#fff1b8"/>';
+  s += '<rect x="22" y="150" width="76" height="8" rx="4" fill="' + mg + '" stroke="' + M[1] + '" stroke-width=".8"/>';
+  if (stage === 5 && lvl) for (const [x, y] of [[18, 40], [102, 52], [14, 96], [106, 98]]) s += '<path d="M' + x + ' ' + (y - 5) + ' L' + (x + 1.5) + ' ' + (y - 1.5) + ' L' + (x + 5) + ' ' + y + ' L' + (x + 1.5) + ' ' + (y + 1.5) + ' L' + x + ' ' + (y + 5) + ' L' + (x - 1.5) + ' ' + (y + 1.5) + ' L' + (x - 5) + ' ' + y + ' L' + (x - 1.5) + ' ' + (y - 1.5) + 'Z" class="lamp-spark" fill="#f2d06b"/>';
+  const w = document.createElement("span"); w.className = "lamp-wrap"; w.style.display = "inline-flex";
+  w.innerHTML = '<svg class="lamp-svg' + (up ? " lamp-up" : "") + (lvl ? "" : " lamp-dark") + '" viewBox="0 0 120 170" width="' + size + '" height="' + Math.round(size * 170 / 120) + '" role="img" aria-label="' + LAMP_STAGES[stage - 1][0] + '، النور ' + lvl + ' من ٧">' + s + '</svg>';
+  return w;
+}
+// own lamp: the best count is kept on the server, and the light flares once when it grows
+function lampMine(){
+  if (!S.uid) return null;
+  const st = lampState(S.notebook, S.profile);
+  if (S.notebookLoaded && S.profile && !Store.preview && st.got > st.kept && S.lampSaving !== st.got){ S.lampSaving = st.got;
+    Store.update("members/" + S.uid, {lamp:{w:st.got}}).then(() => { if (S.profile) S.profile.lamp = {w:st.got}; }).catch(() => { S.lampSaving = null; }); }
+  const k = "menrit_lamp_" + S.uid + "_" + st.ws, was = +(lsGet(k) || 0);
+  st.up = S.notebookLoaded && st.lvl > was; if (st.up) lsSet(k, String(st.lvl));
+  return st;
+}
+function lampCard(){
+  const st = lampMine(); if (!st) return null;
+  const say = st.lvl === 0 ? "لم تُسجَّل النوتة هذا الأسبوع بعد. سجّل اليوم ليُضاء مصباحك."
+    : st.lvl === 7 ? "سجّلت كل أيام هذا الأسبوع، فصار نور مصباحك كاملًا." : "سجّلت " + lampDays(st.lvl) + " هذا الأسبوع، ونور مصباحك يزداد.";
+  const pct = st.next ? Math.round(100 * (st.w - st.from) / (st.to - st.from)) : 100;
+  return h("div",{class:"card lamp-card", id:"lampCard", "data-stage":st.stage, "data-lvl":st.lvl},
+    h("div",{class:"lamp-art"}, lampSvg(st.stage, st.lvl, 104, st.up)),
+    h("div",{class:"lamp-body"},
+      h("h3",null, "مصباحك الروحي", h("span",{class:"lamp-stage"}, st.name)),
+      h("p",null, say),
+      h("div",{class:"lamp-dots"}, st.days.map((d, i) => h("i",{class:(d.on ? "on " : "") + (d.today ? "today " : "") + (d.later ? "later" : ""), title:LAMP_WD[i][1] + " " + fmtShort(d.s)}, LAMP_WD[i][0]))),
+      h("div",{class:"lamp-bar"}, h("b",{style:"width:" + Math.max(4, pct) + "%"})),
+      h("p",{class:"small muted"}, (st.w ? lampWeeks(st.w) : "لا توجد أسابيع مثمرة بعد") + (st.next ? " · باقٍ " + lampLeft(st.need) + " على «" + st.next + "»" : " · بلغتَ أجمل مصباح، فحافظ على نوره")),
+      h("p",{class:"small muted"}, "الأسبوع المثمر: ثلاثة أيام أو أكثر في النوتة."),
+      h("p",{class:"lamp-verse small"}, "«لِتَكُنْ أَحْقَاؤُكُمْ مُمَنْطَقَةً وَسُرُجُكُمْ مُوقَدَةً» (لو ١٢: ٣٥)")));
+}
+// small lamp: on the home screen (own) and on the father's card of a confessee (rows = what that card already loaded)
+function lampMini(rows, self, own){
+  const st = own ? lampMine() : lampState(rows, self); if (!st) return null;
+  return h("div",{class:"lamp-mini", id:own ? "lampMini" : "lampChild", "data-stage":st.stage, "data-lvl":st.lvl},
+    lampSvg(st.stage, st.lvl, 40, own && st.up),
+    h("div",{class:"lamp-txt"}, h("b",null, (own ? "مصباحك: " : "مصباح النوتة: ") + st.name),
+      h("span",{class:"small muted"}, st.lvl ? (own ? "سجّلت " : "سجّل ") + lampDays(st.lvl) + " هذا الأسبوع · النور " + arDigits(st.lvl) + " من ٧" : "لم يُسجَّل شيء هذا الأسبوع بعد")));
 }
 // «🌙 تذكير بالليل» (2026-11-11): at the chosen time, when today's notebook is still empty (server job nb_nudge)
 function nbRemindRow(){
@@ -8759,8 +8881,9 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-17a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-17b", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🕯️","مصباح النوتة الروحية","يظهر للأبناء في «النوتة الروحية» مصباح يزداد نوره مع كل يوم يسجّلون فيه، ويصير أجمل مع كل أسبوع مثمر. لا يحتاج إلى أي إعداد."],
     ["📝","الاسم بالحروف العربية فقط","عند كتابة أي اسم جديد أو تعديله (التسجيل، «بياناتي»، حساب جديد، تعديل البيانات) يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح. الأسماء المسجلة من قبل تبقى كما هي."],
     ["📓","من كتب في النوتة ومن لم يكتب","في «الإحصائيات» كارت «📓 النوتة الروحية: مين كتب ومين لسه»: لكل أب اعتراف سطر فيه عدد من كتبوا من أبنائه، واضغط عليه لعرض أسماء من كتبوا ومن لم يكتبوا بعد. اختر المدة: اليوم أو آخر ٧ أيام أو آخر ٣٠ يومًا. يظهر الاسم وآخر يوم كتب فيه فقط، دون أي شيء مما كتبه."],
     ["↪️","تحويل رسالة لأب الاعتراف","في محادثة الدعم الفني، تحت كل رسالة من الشخص زر «↪️ تحويل إلى أب الاعتراف» مع سطر منك إن أردت. تصل الرسالة إلى أب اعترافه فقط مع تنبيه، ولا يظهر للشخص أي شيء. ويظهر لك تحت الرسالة أنها حُوّلت، وهل اطّلع عليها أبونا."],
@@ -8799,6 +8922,7 @@ const NEWS = {id:"2026-11-17a", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🕯️","مصباحك الروحي","في «النوتة الروحية» مصباح يزداد نوره مع كل يوم تُسجَّل فيه النوتة خلال الأسبوع، ويصير شكله أجمل مع كل أسبوع مثمر (ثلاثة أيام أو أكثر)، حتى يبلغ «مصباح العذارى الحكيمات». ويظهر لك مصباح كل ابن صغيرًا في كارته تحت «النوتة الروحية»."],
     ["📝","الاسم بالحروف العربية فقط","عند كتابة اسم معترف جديد أو تعديل اسمه يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح."],
     ["📓","من كتب في النوتة ومن لم يكتب","في آخر شاشة «الطلبات» كارت «📓 النوتة الروحية: مين كتب ومين لسه» بأسماء أبنائك الذين كتبوا والذين لم يكتبوا بعد، اليوم أو في آخر ٧ أيام أو ٣٠ يومًا. اضغط على أي اسم لفتح بياناته وتشجيعه."],
     ["🗑","حذف اعتراف مسجّل بالخطأ","في بيانات أي شخص من أبنائك، تحت «سجل الاعتراف» يظهر كل تاريخ في سطر وبجواره ✕ لحذفه بعد التأكيد، مثل سجل الافتقاد. وإذا حذفت آخر اعتراف يُحسب «آخر اعتراف» من التواريخ الباقية."],
@@ -8829,6 +8953,7 @@ const NEWS = {id:"2026-11-17a", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["🕯️","مصباحك الروحي","في «النوتة الروحية» مصباح يزداد نوره مع كل يوم تسجّل فيه خلال الأسبوع، ويصير شكله أجمل مع كل أسبوع مثمر (ثلاثة أيام أو أكثر): نحاسي ثم ذهبي ثم منقوش بالصليب، حتى «مصباح العذارى الحكيمات». وإذا غبت أسبوعًا لا يرجع شكله، بل يخفت نوره فقط حتى تعود."],
     ["📝","الاسم بالحروف العربية فقط","يُكتب الاسم في «بياناتي» وعند التسجيل بالحروف العربية فقط، ويظهر تنبيه بجوار الخانة إذا كُتب حرف إنجليزي أو رقم أو رمز."],
     ["⭐","تقييم الدعم الفني","بعد حل طلبك في «الدعم الفني» يُطلب منك تقييم الخدمة بالنجوم، أو اختيار «ما زالت المشكلة قائمة» إذا لم تُحل."],
     ["❌","اعتذار أبونا عن الموعد","إذا أغلق أبونا يوم موعدك أو أخلاه، يصلك تنبيه ورسالة اعتذار، ويمكنك حجز موعد آخر من «المواعيد»."],
@@ -9304,7 +9429,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.17-1";
+const APP_VERSION = "2026.11.17-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
