@@ -163,6 +163,9 @@ ul.list li.click:hover{background:var(--surface-2)}
 .acc-row > .nid-row{grid-column:1/-1}
 .nid-box{display:grid;gap:6px}
 .nid-mask{direction:ltr;unicode-bidi:isolate;display:inline-block;letter-spacing:.5px}
+.ar-hint{display:block;margin:4px 0 0;color:var(--bad);font-size:.85em;font-weight:600;line-height:1.5}
+.ar-hint::before{content:"!";display:inline-flex;align-items:center;justify-content:center;width:1.25em;height:1.25em;margin-inline-end:5px;border-radius:50%;background:var(--bad);color:#fff;font-size:.8em;font-weight:800;vertical-align:1px}
+input[aria-invalid="true"]{border-color:var(--bad)!important}
 .nid-hint{margin:0;color:var(--ink-2)}
 .nid-hint.ok{color:var(--ok-ink)}
 .nid-hint.bad{color:var(--bad);font-weight:600}
@@ -388,7 +391,13 @@ body.chat-open .chat-fab{display:none}
 .sup-list .sup-row.hot strong{color:var(--gold-d,#8a6414)}
 .sup-meta{display:grid;justify-items:end;gap:2px;flex:none}
 .sup-st{font-size:.74rem;font-weight:800;border-radius:99px;padding:1px 8px;background:var(--surface-2)}
-.sup-st.new{color:#b91c1c} .sup-st.open{color:#a16207} .sup-st.done{color:#15803d}
+.sup-st.new{color:#b91c1c} .sup-st.open{color:#a16207} .sup-st.done{color:#15803d} .sup-st.self{color:#0e7490}
+.sup-rate-box .sup-stars{justify-content:center;margin:8px 0}.sup-rate-box .sup-stars .star{font-size:2.4rem}.sup-rate-box{text-align:center}
+.sup-rate-ic{font-size:2.2rem}
+.sup-fwd-b{margin-top:6px;font-size:.8rem;padding:3px 10px}.sup-fwd-done{margin-top:6px;font-size:.78rem;color:var(--a);font-weight:700}
+.sup-fwd-f{display:grid;gap:6px;margin-top:8px}.sup-fwd-f textarea{width:100%;min-height:54px}
+.fwd-card{border-inline-start:4px solid #e11d48}.fwd-card .fwd-txt{white-space:pre-wrap;margin:0;background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.fwd-card .fwd-note{margin:0}.sup-row-rt{color:#f5b301;font-size:.8rem;letter-spacing:1px}
 .sup-av{width:30px;height:30px;flex:none;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1.5px var(--gold,#c9a227);background:#fff}
 .sup-av img{width:100%;height:100%;object-fit:cover;display:block} .sup-av.lg{width:38px;height:38px}
 .sup-title{display:flex;align-items:center;gap:10px} .sup-title > span:last-child{display:grid}
@@ -424,7 +433,7 @@ body.chat-open .chat-fab{display:none}
 .sup-q:hover{background:var(--surface-2)}
 .sup-welcome b{color:var(--gold-ink)} .sup-closed{color:var(--bad);font-weight:700}
 .sup-hours{gap:8px;align-items:center;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:8px;margin-top:8px} .sup-hours input{max-width:120px}
-.sup-sum-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.sup-sum-g{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
 .sup-sum-t{display:grid;gap:2px;text-align:center;padding:10px 6px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2)}
 .sup-sum-t b{font-size:1.35rem} .sup-sum-t.new b{color:var(--bad)} .sup-sum-t.open b{color:var(--warn-ink)} .sup-sum-t.done b{color:var(--ok-ink)} .sup-sum-t.rate b{color:var(--gold-ink)}
 @media (max-width:560px){.sup-sum-g{grid-template-columns:repeat(2,1fr)}}
@@ -1338,6 +1347,16 @@ body.one-tab{--nav-h:0px}
 .st-donut{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#0ea5e9 calc(var(--m)*1%),#ec4899 0)}
 .st-donut span{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--surface);font-weight:800}
 .st-tips ul{margin:0;padding-inline-start:4px;list-style:none;display:grid;gap:6px} .st-tips li{line-height:1.6}
+.nbw-card{display:grid;gap:10px}
+.nbw-card h3{margin:0}
+.nbw-lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:4px}
+.nbw-lists h4{margin:0;font-size:.95rem}
+.nbw-names button small{margin-inline-start:2px}
+.nbw-names.not button{border-color:color-mix(in oklab,#f59e0b 45%,var(--line, #e5e7eb))}
+.nbw-fathers{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.nbw-f{border-radius:14px}
+.nbw-f.on{background:color-mix(in oklab,var(--a) 5%,transparent);padding:6px 8px 10px}
+.nbw-fbtn{width:100%;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) auto 3.2em}
 .st-names{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
 .st-names button{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:99px;border:1px solid var(--line, #e5e7eb);background:var(--surface);font:inherit;cursor:pointer}
 .st-ftable{overflow-x:auto} .st-ftable table{width:100%;border-collapse:collapse;font-size:.88rem} .st-ftable th,.st-ftable td{padding:6px 8px;border-bottom:1px solid var(--line, #e5e7eb);text-align:start;white-space:nowrap}
@@ -4331,7 +4350,7 @@ function sectionHead(title, extra){ const m = HEAD_ICONS.find(([w])=>title.inclu
 
 /* ---------- PRIEST ---------- */
 function priestTabs(all){
-  const req = all.filter(p=>p.request||p.visitReq).length;
+  const req = all.filter(p=>p.request||p.visitReq).length + (accRole() === "priest" ? (SUP.fwd || []).filter(f => !f.seen_at).length : 0);
   const t = [["today","اليوم", (S.pending||[]).length],["people","أبنائي"],["requests","الطلبات", req],["meditations","التأملات"],["settings","الإعدادات"]];
   // on the server the admin has a screen of its own (شاشة الأدمن)
   if (accRole() === "admin" && Store.mode !== "cloud") t.push(["admin","الأدمن", (S.pwreqs||[]).length]);
@@ -4516,7 +4535,7 @@ async function routeNotify(stops, r, etas){
     toast("تم إبلاغ "+arDigits(items.length)+" بمواعيدهم في البرنامج.");
   } catch(e){ toast(typeof cloudMsg === "function" ? cloudMsg(e) : "تعذّر الإبلاغ، برجاء المحاولة مرة أخرى."); }
 }
-let visitApi = null, nbApi = null, photoApi = null, statsApi = null;
+let visitApi = null, nbApi = null, photoApi = null, statsApi = null, nbWhoApi = null;
 // who was not visited goes first next time; whoever was visited leaves that list
 function routeCarry(stops, r){
   const missed = stops.filter(p => !visitedOn(p, r.date)).map(p => p.id), inTrip = new Set(stops.map(p => p.id));
@@ -4964,6 +4983,7 @@ function personDetail(all){
     for (const k of FAM_KEYS) delete data[k];
     if (data.lastConfession && data.lastConfession !== pr.lastConfession) data.confessions = [...new Set([...(pr.confessions||[]), data.lastConfession])].sort();
     if (!p.onApp || isNew){ Object.assign(data, {name:f("fName"), phone:f("fPhone"), birthday:f("fBirth")}); if(!data.name){ toast("اكتب الاسم أولًا"); return; }
+      if (data.name !== (pr.name || "") && nameNotAr(data.name)){ await arNameStop(data.name, "fName"); return; }
       // national ID (optional): checked, and it gives the birthday when none is written
       const nr = f("fNid");
       if (nidDigits(nr)){ const x = parseNid(nr); if (x.error){ toast("⚠️ "+x.error); return; }
@@ -5294,6 +5314,24 @@ function periodRows(o, key, places){
 }
 // (2026-11-13, user: «أي حاجة أبونا بيعملها وماتحفظتش أو مش هتشتغل طلّع رسالة في بوكس في وسط الشاشة واشرح له المشكلة بالفصحى»)
 // a box in the middle of the screen; resolves with the key of the pressed button (null when closed). Runs on the device only.
+// «الاسم بالحروف العربية فقط» (2026-11-17): Arabic letters (also ی/ک of Persian keyboards) and spaces; no Latin letters, digits, symbols or emoji.
+// Names already saved stay as they are until someone edits them; the sign-in and search boxes are not checked.
+const AR_NAME_RE = /^[\u0621-\u063A\u0640-\u0652\u0670-\u06D3\u06FA-\u06FC\uFEF5-\uFEFC\s]*$/, AR_NAME_MSG = "يُكتب الاسم بالحروف العربية فقط";
+const nameNotAr = s => !AR_NAME_RE.test(String(s || ""));
+const AR_NAME_IDS = {fName:1, ceName:1, pName:1, ncName:1, naName:1};
+const arNameField = el => !!el && el.tagName === "INPUT" && (AR_NAME_IDS[el.id] === 1 || (el.id === "gName" && !!el.closest(".reg-form")));
+function arNameHint(el){
+  const nx = el.nextElementSibling, t = nx && nx.classList.contains("ar-hint") ? nx : null, bad = nameNotAr(el.value);
+  if (bad && !t) el.after(h("span",{class:"ar-hint", role:"alert"}, AR_NAME_MSG));
+  else if (!bad && t) t.remove();
+  if (bad) el.setAttribute("aria-invalid", "true"); else el.removeAttribute("aria-invalid");
+}
+document.addEventListener("input", e => { if (arNameField(e.target)) arNameHint(e.target); }, true);
+// a centred box (rule of 2026-11-13: what was not saved is explained in the middle of the screen)
+function arNameStop(name, id){
+  return schedMsg({title:"لم يتم الحفظ", text:["الاسم «"+name+"» يحتوي على حروف إنجليزية أو أرقام أو رموز.", AR_NAME_MSG+"، برجاء تصحيحه ثم المحاولة مرة أخرى."]})
+    .then(() => { const el = id && document.getElementById(id); if (el){ arNameHint(el); el.focus(); } });
+}
 function schedMsg(o){
   const old = $("#scMsg"); if (old) old.remove();
   return new Promise(res => {
@@ -5614,6 +5652,7 @@ function priestRequests(all){
     .sort((a,b)=>String(a.r.date||"9").localeCompare(String(b.r.date||"9")));
   const wrap = h("div",{style:"display:grid;gap:14px"}, sectionHead("طلبات الاعتراف والافتقاد"));
   { const rs = reqSumPriestCard(); if (rs) wrap.append(rs); }
+  if (accRole() === "priest") wrap.append(...fwdCards(all));
   const wa = S.draft.waAfter;
   if (wa) wrap.append(h("div",{class:"card wa-after"},
     h("p",{style:"margin:0"}, wa.noshow ? "📋 تم تسجيل عدم حضور "+wa.name+" في الموعد. هل تريد إرسال رسالة له عبر واتساب لحجز موعد آخر؟" : wa.cancel ? "❌ تم إلغاء الموعد، ووصلت رسالة الاعتذار إلى "+wa.name+" في البرنامج. هل تريد إرسالها عبر واتساب أيضًا؟" : "✅ الميعاد وصل لـ "+wa.name+" في البرنامج. تحب تبعتهوله واتساب كمان؟"),
@@ -5692,6 +5731,7 @@ function priestRequests(all){
     k==="confession"
       ? h("button",{class:"btn sm ghost up-done", onclick:async()=>{ if (!isPast(when)) return void apptDoneAsk(p, k, when); const d = doneDay(when); await editDoc(PP()+"/"+p.id, cur => Object.assign(cur, {lastConfession:maxD(cur.lastConfession, d), nextConfession:"", nextConfessionMins:undefined, confessions:[...new Set([...(cur.confessions||[]), d])].sort()})); S.reqSum = null; toast("تم تسجيل الاعتراف"+(d !== TODAY_S ? " بتاريخ "+fmtShort(d) : "")); }},"اعترف")
       : h("button",{class:"btn sm ghost up-done", onclick:async()=>{ if (!isPast(when)) return void apptDoneAsk(p, k, when); const d = doneDay(when); await editDoc(PP()+"/"+p.id, cur => { const vs = [...(cur.visits||[]), {date:d, type:"زيارة منزلية", note:""}]; return Object.assign(cur, {lastVisit:maxD(cur.lastVisit, d), nextVisit:"", nextVisitMins:undefined, visits:vs}); }); S.reqSum = null; toast("تم تسجيل الافتقاد"+(d !== TODAY_S ? " بتاريخ "+fmtShort(d) : "")); }},"تم الافتقاد"))))));
+  if (accRole() === "priest") wrap.append(nbWhoCard("father", id => { selectPerson(id); render(); window.scrollTo({top:0}); }));
   return wrap;
 }
 // «📅 ضيفه لتقويمي» (2026-11-05): an .ics file the phone's calendar opens, with a reminder at 8 in the morning and one an hour before
@@ -5823,7 +5863,18 @@ const cleanKids = kids => (kids||[]).filter(k => (k.name||"").trim()).map(k => c
 function ageOf(b){ const d = parseYmd(b); if (!d) return ""; let y = TODAY.getFullYear()-d.getFullYear(); if (TODAY < new Date(TODAY.getFullYear(), d.getMonth(), d.getDate())) y--; return y >= 0 ? arDigits(y)+" سنة" : ""; }
 function historyBlock(p, pr){
   const visits = [...(pr.visits||[])].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
-  const conf = [...(pr.confessions||[])].sort().reverse();
+  // older records may have only «آخر اعتراف» without the list
+  const conf = [...new Set([...(pr.confessions||[]), ...(pr.lastConfession && !(pr.confessions||[]).length ? [pr.lastConfession] : [])])].filter(Boolean).sort().reverse();
+  // (2026-11-15, user: «حسابي كان متسجل فيه اعترافات … ومش عارف ألغيها») the father can delete a confession written by mistake, like a visit
+  const dropConf = async d => {
+    if (!confirm("هل تريد حذف اعتراف يوم "+fmtShort(d)+"؟")) return;
+    try {
+      await editDoc(PP()+"/"+p.id, cur => { const cs = [...new Set([...(cur.confessions||[]), ...(cur.lastConfession && !(cur.confessions||[]).length ? [cur.lastConfession] : [])])].filter(x => x && x !== d).sort();
+        const last = cur.lastConfession === d || !cur.lastConfession ? (cs[cs.length - 1] || "") : cur.lastConfession;
+        return Object.assign(cur, {confessions:cs, lastConfession:last}); });
+      S.reqSum = null; toast("تم حذف الاعتراف");
+    } catch(x){ toast("تعذّر الحذف. حاول مرة أخرى."); }
+  };
   // one tap = one visit (2026-11-05: a slow save let the button be pressed again and the visit was saved several times)
   const addVisit = async e => {
     const btn = e && e.currentTarget; if (addVisit.busy) return;
@@ -5857,7 +5908,10 @@ function historyBlock(p, pr){
     visits.length ? h("ul",{class:"list"}, visits.slice(0,6).map(v => h("li",null, h("div",{class:"who"}, h("strong",{class:"num"}, fmtShort(v.date)), v.note ? h("span",{class:"small muted"}, v.note) : null), h("div",{class:"row", style:"gap:6px;align-items:center"}, h("span",{class:"pill"}, v.type),
         h("button",{class:"btn sm quiet visit-del", type:"button", title:"امسح الافتقاد ده", "aria-label":"امسح "+v.type+" يوم "+fmtShort(v.date), onclick:()=>dropVisit(v)},"✕"))))) : h("p",{class:"small muted"},"لسه مفيش افتقاد متسجل."),
     h("h3",null,"سجل الاعتراف"),
-    conf.length ? h("p",{class:"small"}, "اعترف "+arDigits(conf.length)+" مرة متسجلة. آخر مرات: "+conf.slice(0,6).map(fmtShort).join("، ")) : h("p",{class:"small muted"},"لسه مفيش اعترافات متسجلة."),
+    conf.length ? h("p",{class:"small"}, "اعترف "+arDigits(conf.length)+" مرة متسجلة.") : h("p",{class:"small muted"},"لسه مفيش اعترافات متسجلة."),
+    conf.length ? h("ul",{class:"list conf-list"}, conf.slice(0, S.draft.confAll === p.id ? conf.length : 6).map(d => h("li",{"data-conf":d}, h("div",{class:"who"}, h("strong",{class:"num"}, WDAYS[parseYmd(d).getDay()]+" "+fmtShort(d))),
+        h("button",{class:"btn sm quiet conf-del", type:"button", title:"حذف هذا الاعتراف", "aria-label":"حذف اعتراف يوم "+fmtShort(d), onclick:()=>dropConf(d)},"✕")))) : null,
+    conf.length > 6 && S.draft.confAll !== p.id ? h("div",null, h("button",{class:"btn sm ghost", type:"button", id:"confAll", onclick:()=>{ S.draft.confAll = p.id; render(); }}, "عرض الكل ("+arDigits(conf.length)+")")) : null,
     noShowLine(pr));
 }
 // «لم يحضر» in his record: the father's own data, never shown to the admin
@@ -7045,7 +7099,7 @@ async function supList(){
   if (!supOn()) return;
   try { const r = await supApi.list(); if (!r) return;
     const sig = JSON.stringify(r); if (sig === SUP.sig) return; SUP.sig = sig;
-    SUP.unread = Number(r.unread) || 0; SUP.rate = !!r.rate; SUP.threads = r.threads || []; scheduleRender(); } catch(e){ console.warn("support", e.message); }
+    SUP.unread = Number(r.unread) || 0; SUP.rate = !!r.rate; SUP.rateTopic = r.topic || ""; SUP.fwd = Array.isArray(r.fwd) ? r.fwd : []; SUP.threads = r.threads || []; scheduleRender(); supRateCheck(); } catch(e){ console.warn("support", e.message); }
 }
 const supWaiting = () => SUP.threads.filter(t => t.status === "new" || t.unread > 0).length;
 // a person's card: «🛟 الدعم الفني» (in «بياناتي», «الإعدادات», and on the first screen while an answer waits)
@@ -7086,7 +7140,7 @@ function supSumCard(){
   const tile = (v, label, cls) => h("div",{class:"sup-sum-t " + cls}, h("b",{class:"num"}, v), h("span",{class:"small"}, label));
   return h("div",{class:"card sup-sum", id:"supSum"}, h("div",{class:"row between", style:"align-items:center"}, h("h3",{style:"margin:0"}, "🛟 الدعم الفني", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
       h("button",{type:"button", class:"btn sm", id:"supGo", onclick:()=>{ S.tab = "support"; render(); window.scrollTo({top:0}); }}, "فتح الدعم الفني")),
-    h("div",{class:"sup-sum-g"}, tile(arDigits(n("new")), "طلبات جديدة", "new"), tile(arDigits(n("open")), "جارٍ العمل عليها", "open"), tile(arDigits(n("done")), "تم حلها", "done"),
+    h("div",{class:"sup-sum-g"}, tile(arDigits(n("new")), "طلبات جديدة", "new"), tile(arDigits(n("open")), "جارٍ العمل عليها", "open"), tile(arDigits(n("done")), "تم حلها", "done"), tile(arDigits(th.reduce((a, t) => a + (+t.self_n || 0), 0)), "حلّوها بأنفسهم", "self"),
       tile(rated.length ? arDigits(avg.toFixed(1).replace(/\.0$/, "")) + " ★" : "—", rated.length ? "متوسط التقييم (" + arDigits(rated.length) + ")" : "لا توجد تقييمات بعد", "rate")));
 }
 // «المساحة المستخدمة» (2026-11-11, like the service program): what each kind of the church's data takes, sizes only
@@ -7309,14 +7363,14 @@ function vidAdminCard(){
 function supInbox(){
   if (!supOn() || !supIsAdmin()) return null;
   const th = SUP.threads, wait = supWaiting();
-  const pill = t => t.status === "done" ? h("span",{class:"sup-st done"},"✅ تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
+  const pill = t => t.status === "done" && t.self ? h("span",{class:"sup-st self"},"💡 حلّها بنفسه") : t.status === "done" ? h("span",{class:"sup-st done"},"✅ تم الحل") : t.status === "open" ? h("span",{class:"sup-st open"},"🟡 جارٍ") : h("span",{class:"sup-st new"},"🔴 جديد");
   return h("div",{class:"card sup-inbox", id:"supInbox"},
     h("h3",null, "🛟 طلبات الدعم", wait ? h("span",{class:"badge"}, arDigits(wait)) : null),
     th.length ? h("ul",{class:"list sup-list"}, th.slice(0, 30).map(t => h("li",{class:"sup-row" + (t.unread || t.status === "new" ? " hot" : ""), "data-uid":t.uid, onclick:()=>supOpen(t.uid)},
       avatar({name:t.name, photo:t.photo}, "sm"),
       h("div",{class:"who"}, h("strong",null, t.name, t.role === "priest" ? h("small",{class:"muted"}," · أب") : t.role === "supervisor" ? h("small",{class:"muted"}," · مشرف") : null),
         h("span",{class:"small muted"}, (t.topic ? t.topic + " · " : "") + (t.last_admin ? "أنت: " : "") + String(t.last_text || "").replace(/\s+/g, " ").slice(0, 70))),
-      h("div",{class:"sup-meta"}, pill(t), h("span",{class:"small muted"}, supAgo(t.last_at)), t.unread ? h("span",{class:"badge"}, arDigits(t.unread)) : null))))
+      h("div",{class:"sup-meta"}, pill(t), t.status === "done" && t.rating > 0 ? h("span",{class:"sup-row-rt", "aria-label":"التقييم " + arDigits(t.rating) + " من ٥"}, "★".repeat(t.rating)) : null, h("span",{class:"small muted"}, supAgo(t.last_at)), t.unread ? h("span",{class:"badge"}, arDigits(t.unread)) : null))))
     : h("p",{class:"small muted", style:"margin:0"}, "لا توجد طلبات دعم. عندما يكتب أحد يظهر هنا، ويصلك تنبيه على الموبايل."), supHoursRow());
 }
 function supMount(){
@@ -7328,9 +7382,10 @@ async function supOpen(uid){
   if (typeof chatOpen === "function" && CH.open) chatOpen(false);
   SUP.open = true; SUP.uid = supIsAdmin() ? uid : null; SUP.data = null; SUP.flow = null; SUP.reopen = false; SUP.rated = false; SUP.scrolled = false;
   SUP.seq = (SUP.seq || 0) + 1; SUP.busy = 0; SUP.err = null; SUP.dsig = ""; SUP.painted = false;
-  const p = supMount(); p.hidden = false; document.body.classList.add("chat-open"); supPaint(); await supPoll();
+  const p = supMount(); p.hidden = false; document.body.classList.add("chat-open"); supRateCheck(); supPaint(); await supPoll();
 }
-function supClose(){ SUP.open = false; clearTimeout(SUP.timer); const p = document.getElementById("supPanel"); if (p) p.hidden = true; document.body.classList.remove("chat-open"); supList(); }
+function supClose(){ const due = supRateDue(); if (due && SUP.open){ toast(due); const st = document.querySelector("#supPanel .sup-stars"); if (st) st.scrollIntoView({block:"center", behavior:"smooth"}); return; }
+  SUP.open = false; setTimeout(supRateCheck, 300); clearTimeout(SUP.timer); const p = document.getElementById("supPanel"); if (p) p.hidden = true; document.body.classList.remove("chat-open"); supList(); }
 async function supPoll(){
   clearTimeout(SUP.timer); const my = SUP.seq; if (!SUP.open || SUP.busy === my) return; SUP.busy = my;
   try { const r = await Promise.race([supApi.feed(SUP.uid), new Promise((ok, no) => setTimeout(() => no(new Error("timeout")), 15000))]);
@@ -7384,9 +7439,67 @@ async function supSend(text){
     SUP.reopen = false; SUP.scrolled = false; SUP.dsig = ""; await supPoll(); return true;
   } catch(e){ toast(/too many/.test(e.message || "") ? "برجاء الانتظار قليلًا قبل إرسال رسائل أخرى." : "لم تُرسل الرسالة. برجاء التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى."); return false; }
 }
-function supStars(){
+// (2026-11-15) the admin sends one of the person's messages to his confession father; the person is not told
+function supFwdRow(m, r){
+  if (String(m.text || "").startsWith("💡 حلّها بنفسه")) return null;
+  const done = (r.fwd || []).find(x => x.msg_id === m.id);
+  if (done) return h("div",{class:"sup-fwd-done", "data-fwd":String(m.id)}, "↪️ حُوّلت إلى " + (done.father || "أب الاعتراف") + " · " + supAgo(done.at) + (done.seen_at ? " · ✅ اطّلع عليها" : " · لم يطّلع عليها بعد"));
+  if (!r.father) return null;
+  if (SUP.fwdFor !== m.id) return h("button",{type:"button", class:"chip-btn sup-fwd-b", "data-fwd":String(m.id), onclick:()=>{ SUP.fwdFor = m.id; SUP.fwdNote = ""; supPaint(true); }}, "↪️ تحويل إلى أب الاعتراف");
+  return h("div",{class:"sup-fwd-f", id:"supFwdF"},
+    h("span",{class:"small"}, "ستُرسل هذه الرسالة إلى " + r.father + " فقط، ولن يظهر للشخص أي شيء."),
+    h("textarea",{id:"supFwdNote", maxlength:"300", placeholder:"سطر منك مع الرسالة (اختياري)، مثلًا: برجاء التواصل معه", oninput:e=>{ SUP.fwdNote = e.target.value; }}, SUP.fwdNote || ""),
+    h("div",{class:"row"},
+      h("button",{type:"button", class:"btn sm", id:"supFwdGo", onclick:async e=>{ e.currentTarget.disabled = true;
+        try { await supApi.fwd(m.id, (SUP.fwdNote || "").trim()); SUP.fwdFor = null; SUP.fwdNote = ""; SUP.dsig = ""; toast("تم تحويل الرسالة إلى " + r.father); await supPoll(); }
+        catch(x){ e.currentTarget.disabled = false; toast(/no father/.test(x.message || "") ? "لا يوجد أب اعتراف لهذا الشخص." : /already/.test(x.message || "") ? "تم تحويل هذه الرسالة من قبل." : "تعذّر التحويل. حاول مرة أخرى."); } }}, "تحويل"),
+      h("button",{type:"button", class:"btn sm quiet", onclick:()=>{ SUP.fwdFor = null; supPaint(true); }}, "رجوع")));
+}
+// the father: what the support forwarded to him, in «الطلبات» until he presses «تم الاطلاع»
+function fwdCards(all){
+  return (SUP.fwd || []).filter(f => !f.seen_at).map(f => { const p = all.find(x => x.id === f.uid);
+    return h("div",{class:"card fwd-card", "data-fwd":String(f.id)},
+      h("div",{class:"person-line"}, avatar(p || {name:f.name, photo:f.photo}), h("h3",null, "📨 من الدعم الفني بخصوص " + f.name)),
+      f.text ? h("p",{class:"fwd-txt"}, f.text) : null,
+      f.img && f.msg_id ? supImg(f.msg_id) : null,
+      f.note ? h("p",{class:"fwd-note small"}, h("b",null,"ملاحظة الدعم الفني: "), f.note) : null,
+      h("span",{class:"small muted"}, supAgo(f.at)),
+      h("div",{class:"row"},
+        p ? h("button",{type:"button", class:"btn sm ghost", onclick:()=>{ selectPerson(p.id); S.tab = "people"; render(); window.scrollTo({top:0}); }}, "فتح بياناته") : null,
+        h("button",{type:"button", class:"btn sm", "data-seen":String(f.id), onclick:async e=>{ e.currentTarget.disabled = true;
+          try { await supApi.fwdSeen(f.id); f.seen_at = new Date().toISOString(); SUP.sig = ""; render(); } catch(x){ e.currentTarget.disabled = false; toast("تعذّر الحفظ. حاول مرة أخرى."); } }}, "تم الاطلاع"))); });
+}
+function supStars(pick){
+  pick = pick || (async n => { await supApi.close(null, n); SUP.rated = true; SUP.rate = false; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); supList(); });
+  let busy = false;
   return h("div",{class:"sup-stars", role:"group", "aria-label":"تقييم الخدمة"}, [1,2,3,4,5].map(n => h("button",{type:"button", class:"star", "data-n":String(n), "aria-label":arDigits(n) + " من ٥",
-    onclick:async()=>{ try { await supApi.close(null, n); SUP.rated = true; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); } catch(e){ toast("لم يُحفظ التقييم. حاول مرة أخرى."); } }}, "★")));
+    onclick:async()=>{ if (busy) return; busy = true; try { await pick(n); } catch(e){ toast("لم يُحفظ التقييم. حاول مرة أخرى."); } finally { busy = false; } }}, "★")));
+}
+// the rating is required (2026-11-15, user: «التقييم عاوز لازم يقيم»): a closed request (last 14 days) not rated yet keeps asking
+function supRateDue(){
+  if (SUP.uid) return "";
+  if (SUP.flow && SUP.flow.rate) return "برجاء تقييم الحل أولًا.";
+  const r = SUP.data, th = r && r.thread; if (!th || th.status !== "done" || th.rating || SUP.rated || SUP.reopen) return "";
+  const last = [...(r.msgs || [])].reverse().find(m => m.kind === "sys" && (m.text === "done" || m.text === "solved"));
+  return last && Date.now() - new Date(last.at).getTime() < 14 * 864e5 ? "برجاء تقييم الخدمة أولًا، أو اختيار «لا، ما زالت المشكلة قائمة»." : "";
+}
+async function supStill(){
+  try { await supApi.reopen(); } catch(e){ toast("تعذّر الحفظ. حاول مرة أخرى."); return false; }
+  SUP.rate = false; SUP.reopen = true; SUP.dsig = ""; return true;
+}
+function supRateCheck(){
+  const old = document.getElementById("supRateBox");
+  if (!SUP.rate || !supOn() || supIsAdmin() || SUP.open){ if (old) old.remove(); return; }
+  if (old || document.getElementById("renameBox")) return;
+  const box = h("div",{class:"news-wrap", id:"supRateBox", role:"alertdialog", "aria-modal":"true", "aria-label":"تقييم الدعم الفني"},
+    h("div",{class:"news-box sup-rate-box"},
+      h("div",{class:"sup-rate-ic", "aria-hidden":"true"}, "🛟"),
+      h("h2",null, "تقييم خدمة الدعم الفني"),
+      h("p",null, "تم حل طلبك" + (SUP.rateTopic ? " «" + SUP.rateTopic + "»" : "") + ". برجاء تقييم الخدمة للمتابعة."),
+      supStars(async n => { await supApi.close(null, n); SUP.rate = false; box.remove(); toast("شكرًا لتقييمك 🙏"); supList(); }),
+      h("div",{class:"row", style:"justify-content:center"}, h("button",{type:"button", class:"btn quiet", id:"supRateStill", onclick:async()=>{
+        if (await supStill()){ box.remove(); supOpen(null); } }}, "لا، ما زالت المشكلة قائمة"))));
+  document.body.append(box);
 }
 function supPaint(force){
   const panel = document.getElementById("supPanel"); if (!panel || !SUP.open) return; SUP.painted = true;
@@ -7414,12 +7527,13 @@ function supPaint(force){
     const day = chatDay(m.at); if (day !== lastDay){ box.append(h("div",{class:"chat-day"}, day)); lastDay = day; }
     if (m.kind === "sys"){
       const rt = /^rated:(\d)$/.exec(m.text);
-      box.append(h("div",{class:"sup-sys"}, m.text === "done" ? (adm ? "✅ أغلقت هذا الطلب" : "✅ أغلق فريق الدعم هذا الطلب") : rt ? "⭐ التقييم: " + "★".repeat(+rt[1]) + "☆".repeat(5 - rt[1]) : "✅ تم حل المشكلة"));
+      box.append(h("div",{class:"sup-sys"}, m.text === "done" ? (adm ? "✅ أغلقت هذا الطلب" : "✅ أغلق فريق الدعم هذا الطلب") : rt ? "⭐ التقييم: " + "★".repeat(+rt[1]) + "☆".repeat(5 - rt[1])
+        : m.text === "still" ? (adm ? "❗ أخبرك أن المشكلة ما زالت قائمة" : "❗ أخبرت فريق الدعم أن المشكلة ما زالت قائمة") : "✅ تم حل المشكلة"));
       continue;
     }
     const mine = adm ? m.admin : !m.admin, pic = m.img ? supImg(m.id) : null;
     if (mine){ const el = supMine(supRich(m.text)); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
-    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, supRich(m.text)) : null, pic, h("div",{class:"tm"}, chatTime(m.at))))); }
+    else if (adm){ box.append(h("div",{class:"chat-msg"}, avatar({name:r.name, photo:supPhoto(SUP.uid)}, "sm"), h("div",{class:"bub"}, h("div",{class:"by"}, r.name), m.text ? h("div",{class:"txt", style:"white-space:pre-wrap"}, supRich(m.text)) : null, pic, h("div",{class:"tm"}, chatTime(m.at)), supFwdRow(m, r)))); }
     else { const el = supBot(supRich(m.text)); if (!m.text) el.querySelector(".txt").remove(); el.querySelector(".bub").append(...[pic, h("div",{class:"tm"}, chatTime(m.at))].filter(Boolean)); box.append(el); }
   }
   if (!adm && r) box.prepend(supBot(supWelcome(), h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supVids", onclick:()=>vidList(false)}, "🎬 فيديوهات الشرح"))));
@@ -7429,7 +7543,7 @@ function supPaint(force){
   if (!adm && r){
     if (th && th.status === "done" && !SUP.reopen && !SUP.flow){
       if (!th.rating && !SUP.rated) box.append(supBot("هل تم حل مشكلتك؟ يسعدنا تقييمك للخدمة.", supStars(),
-        h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supStill", onclick:()=>{ SUP.reopen = true; supPaint(true); }}, "لا، ما زالت المشكلة قائمة"))));
+        h("div",{class:"sup-opts"}, h("button",{type:"button", class:"chip-btn", id:"supStill", onclick:async()=>{ if (await supStill()){ supPaint(true); await supPoll(); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); } }}, "لا، ما زالت المشكلة قائمة"))));
     }
     if (!active && !SUP.reopen){
       const f = SUP.flow;
@@ -7439,11 +7553,16 @@ function supPaint(force){
         const top = SUP_FLOW[f.topic]; box.append(supMine(top.ic + " " + top.t));
         let n = top;
         for (const a of f.path){ box.append(supBot(n.q), supMine(a)); n = n.o.find(o => o[0] === a)[1]; }
-        if (n.tip && !f.ask){
+        if (n.tip && !f.ask && f.rate){
+          box.append(supMine("✅ تم الحل، شكرًا"), supBot("يسعدنا ذلك 🙏 برجاء تقييم الحل:", supStars(async v => {
+            let m = top; const lines = []; for (const a of f.path){ lines.push("• " + m.q + " " + a); m = m.o.find(o => o[0] === a)[1]; }
+            await supApi.self(top.ic + " " + top.t, lines.join("\n"), v);
+            SUP.flow = null; SUP.thanks = true; SUP.rated = true; SUP.dsig = ""; toast("شكرًا لتقييمك 🙏"); await supPoll(); })));
+        } else if (n.tip && !f.ask){
           const tv = n.vid && vidAll(false).find(v => v.id === n.vid);
           box.append(supBot(supTipText(n), h("div",{class:"sup-opts"},
             tv ? h("button",{type:"button", class:"chip-btn", id:"supTipVid", onclick:()=>vidShow(tv)}, "🎬 شاهد الفيديو") : null,
-            h("button",{type:"button", class:"chip-btn ok", id:"supSolved", onclick:()=>{ SUP.flow = null; SUP.thanks = true; supPaint(true); }}, "✅ تم الحل، شكرًا"),
+            h("button",{type:"button", class:"chip-btn ok", id:"supSolved", onclick:()=>{ f.rate = true; supPaint(true); }}, "✅ تم الحل، شكرًا"),
             h("button",{type:"button", class:"chip-btn", id:"supNotSolved", onclick:()=>{ f.ask = true; supPaint(true); setTimeout(() => { const i = document.getElementById("supInput"); if (i) i.focus(); }, 30); }}, "✉️ لم تُحل، أريد مراسلة الدعم"))));
         } else if (n.o && !n.ask && !f.ask){
           box.append(supBot(n.q, h("div",{class:"sup-opts"}, n.o.map(([a]) => h("button",{type:"button", class:"chip-btn sup-ans", onclick:()=>{ f.path.push(a); supPaint(true); }}, a)))));
@@ -7746,6 +7865,7 @@ function childEdit(uid, m){
     const d = {name:v("ceName").replace(/\s+/g, " "), job:v("ceJob"), phone:v("cePhone"), birthday:v("ceBirth"), sex:v("ceSex"), address:v("ceAddr"), loc:v("ceLoc")};
     if (!m.passport) d.nid = nidDigits(v("ceNid"));
     if (d.name.split(" ").length < 3){ toast("اكتب الاسم ثلاثيًا"); return; }
+    if (d.name !== (m.name || "") && nameNotAr(d.name)){ await arNameStop(d.name, "ceName"); return; }
     d.phone = m.passport && !phoneOk(d.phone) ? nidDigits(d.phone) : phoneDigits(d.phone);
     if (!(phoneOk(d.phone) || (m.passport && /^\d{8,15}$/.test(d.phone)))){ toast("رقم الموبايل يجب أن يكون ١١ رقمًا ويبدأ بـ 01"); return; }
     if (d.nid){ const x = parseNid(d.nid); if (x.error){ toast(x.error); return; } d.nid = x.nid; } else delete d.nid;
@@ -8346,6 +8466,7 @@ function memberMe(){
       const data = Object.assign({}, p, {name:v("pName"), job:v("pJob"), phone:v("pPhone"), birthday:v("pBirth"), address:v("pAddr"), loc:locOk(v("pLoc"))});
       for (const k of FAM_KEYS) delete data[k];
       delete data.id; if (!data.name){ toast("اكتب اسمك"); return; }
+      if (data.name !== (p.name || "") && nameNotAr(data.name)){ await arNameStop(data.name, "pName"); return; }
       const nidRaw = v("pNid"), nx = nidRaw ? parseNid(nidRaw) : null;
       if (nx && nx.error){ toast(nx.error); $("#pNid") && $("#pNid").focus(); return; }
       if (!nx && nidNeeded && !p.passport){ toast("اكتب الرقم القومي، أبونا محتاجه عشان يتأكد من بياناتك. لو معاك باسبور بس، دوس «معاك باسبور؟» تحت الخانة."); $("#pNid") && $("#pNid").focus(); return; }
@@ -8638,8 +8759,13 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-17a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["📝","الاسم بالحروف العربية فقط","عند كتابة أي اسم جديد أو تعديله (التسجيل، «بياناتي»، حساب جديد، تعديل البيانات) يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح. الأسماء المسجلة من قبل تبقى كما هي."],
+    ["📓","من كتب في النوتة ومن لم يكتب","في «الإحصائيات» كارت «📓 النوتة الروحية: مين كتب ومين لسه»: لكل أب اعتراف سطر فيه عدد من كتبوا من أبنائه، واضغط عليه لعرض أسماء من كتبوا ومن لم يكتبوا بعد. اختر المدة: اليوم أو آخر ٧ أيام أو آخر ٣٠ يومًا. يظهر الاسم وآخر يوم كتب فيه فقط، دون أي شيء مما كتبه."],
+    ["↪️","تحويل رسالة لأب الاعتراف","في محادثة الدعم الفني، تحت كل رسالة من الشخص زر «↪️ تحويل إلى أب الاعتراف» مع سطر منك إن أردت. تصل الرسالة إلى أب اعترافه فقط مع تنبيه، ولا يظهر للشخص أي شيء. ويظهر لك تحت الرسالة أنها حُوّلت، وهل اطّلع عليها أبونا."],
+    ["💡","«حلّها بنفسه» في الدعم الفني","عندما يحل شخص مشكلته من الحلول الجاهزة ويضغط «✅ تم الحل، شكرًا»، يظهر عندك في «الدعم الفني» سطر مغلق بعلامة «💡 حلّها بنفسه»، وفيه الموضوع والإجابات التي اختارها وتقييمه، بدون تنبيه على الموبايل. وفي «الملخص» رقم جديد «حلّوها بأنفسهم»."],
+    ["⭐","التقييم إجباري","بعد إغلاق أي طلب دعم، يظهر للشخص في وسط الشاشة طلب تقييم بالنجوم، ويتكرر عند كل فتح للبرنامج حتى يقيّم، أو يختار «ما زالت المشكلة قائمة» فيُفتح الطلب من جديد ويصلك تنبيه. ويظهر التقييم بجوار كل طلب."],
     ["🗓️","إغلاق يوم فيه حجوزات","إذا أغلق أب الاعتراف يومًا فيه حجوزات، تظهر أسماء أصحابها ومواعيدهم، ويختار: «إلغاء هذه المواعيد وإبلاغهم» (يصل لكل منهم اعتذار وتنبيه، مع زر واتساب لكل واحد) أو «الإبقاء عليها». وأصبح «إخلاء الموعد» يرسل الاعتذار أيضًا."],
     ["📌","تنبيه عند نسيان «+ إضافة»","إذا اختار أب الاعتراف تاريخ يوم إضافي (أو يوم مُغلق) في «🗓️ مواعيدي» وضغط «حفظ المواعيد» دون أن يضغط «+ إضافة»، تظهر رسالة: «إضافة اليوم ثم الحفظ» أو «الحفظ بدون هذا اليوم»، حتى لا يضيع اليوم دون أن يعرف."],
     ["🙏","«اعترف بالفعل» قبل الموعد","إذا قابل أب الاعتراف شخصًا له موعد أو حجز قادم واعترف بالفعل، يضغط «اعترف» في «مواعيد قادمة»، أو «🙏 اعترف بالفعل» في الطلب، أو «اعترف اليوم» في كارته. يُسجَّل الاعتراف اليوم، ويصبح الموعد متاحًا لغيره، ويستطيع الشخص الحجز من جديد، وتصله رسالة وتنبيه. وكذلك الافتقاد."],
@@ -8673,6 +8799,11 @@ const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["📝","الاسم بالحروف العربية فقط","عند كتابة اسم معترف جديد أو تعديل اسمه يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح."],
+    ["📓","من كتب في النوتة ومن لم يكتب","في آخر شاشة «الطلبات» كارت «📓 النوتة الروحية: مين كتب ومين لسه» بأسماء أبنائك الذين كتبوا والذين لم يكتبوا بعد، اليوم أو في آخر ٧ أيام أو ٣٠ يومًا. اضغط على أي اسم لفتح بياناته وتشجيعه."],
+    ["🗑","حذف اعتراف مسجّل بالخطأ","في بيانات أي شخص من أبنائك، تحت «سجل الاعتراف» يظهر كل تاريخ في سطر وبجواره ✕ لحذفه بعد التأكيد، مثل سجل الافتقاد. وإذا حذفت آخر اعتراف يُحسب «آخر اعتراف» من التواريخ الباقية."],
+    ["📨","رسائل من الدعم الفني","إذا وصلت للدعم الفني رسالة تخص أحد أبنائك، قد تُحوَّل إليك، فيصلك تنبيه وتظهر في «الطلبات» بعنوان «📨 من الدعم الفني» مع زر «فتح بياناته» وزر «تم الاطلاع»."],
+    ["⭐","تقييم الدعم الفني","بعد حل طلبك في «الدعم الفني» يُطلب منك تقييم الخدمة بالنجوم، أو اختيار «ما زالت المشكلة قائمة» إذا لم تُحل."],
     ["🗓️","إغلاق يوم فيه حجوزات","إذا أغلق أب الاعتراف يومًا فيه حجوزات، تظهر أسماء أصحابها ومواعيدهم، ويختار: «إلغاء هذه المواعيد وإبلاغهم» (يصل لكل منهم اعتذار وتنبيه، مع زر واتساب لكل واحد) أو «الإبقاء عليها». وأصبح «إخلاء الموعد» يرسل الاعتذار أيضًا."],
     ["📌","تنبيه عند نسيان «+ إضافة»","إذا اختار أب الاعتراف تاريخ يوم إضافي (أو يوم مُغلق) في «🗓️ مواعيدي» وضغط «حفظ المواعيد» دون أن يضغط «+ إضافة»، تظهر رسالة: «إضافة اليوم ثم الحفظ» أو «الحفظ بدون هذا اليوم»، حتى لا يضيع اليوم دون أن يعرف."],
     ["🙏","«اعترف بالفعل» قبل الموعد","إذا قابل أب الاعتراف شخصًا له موعد أو حجز قادم واعترف بالفعل، يضغط «اعترف» في «مواعيد قادمة»، أو «🙏 اعترف بالفعل» في الطلب، أو «اعترف اليوم» في كارته. يُسجَّل الاعتراف اليوم، ويصبح الموعد متاحًا لغيره، ويستطيع الشخص الحجز من جديد، وتصله رسالة وتنبيه. وكذلك الافتقاد."],
@@ -8698,6 +8829,8 @@ const NEWS = {id:"2026-11-14b", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["📝","الاسم بالحروف العربية فقط","يُكتب الاسم في «بياناتي» وعند التسجيل بالحروف العربية فقط، ويظهر تنبيه بجوار الخانة إذا كُتب حرف إنجليزي أو رقم أو رمز."],
+    ["⭐","تقييم الدعم الفني","بعد حل طلبك في «الدعم الفني» يُطلب منك تقييم الخدمة بالنجوم، أو اختيار «ما زالت المشكلة قائمة» إذا لم تُحل."],
     ["❌","اعتذار أبونا عن الموعد","إذا أغلق أبونا يوم موعدك أو أخلاه، يصلك تنبيه ورسالة اعتذار، ويمكنك حجز موعد آخر من «المواعيد»."],
     ["✅","تسجيل الاعتراف قبل الموعد","إذا اعترفت عند أبونا قبل موعدك المحجوز، يسجّل أبونا ذلك، فيصلك تنبيه ورسالة «تم تسجيل اعترافك»، ويُلغى الموعد القديم، ويمكنك حجز موعد جديد في أي وقت."],
     ["📶","استهلاك أقل للإنترنت","أصبح البرنامج يحمّل ما تغيّر فقط، فيقلّ استهلاك باقة الإنترنت على موبايلك."],
@@ -8805,6 +8938,7 @@ function newChildCard(all){
   const go = async e => {
     const btn = e.currentTarget, name = $("#ncName").value.trim().replace(/\s+/g, " "), phone = ncDigits($("#ncPhone").value);
     if (name.split(" ").length < 3){ toast("برجاء كتابة الاسم الثلاثي."); return; }
+    if (nameNotAr(name)){ await arNameStop(name, "ncName"); return; }
     if (name.length > 60){ toast("الاسم طويل جدًا (أقصى حد ٦٠ حرفًا)."); return; }
     if (!NC_PHONE.test(phone)){ toast("برجاء كتابة رقم موبايل صحيح من ١١ رقمًا يبدأ بـ 01."); return; }
     btn.disabled = true; btn.setAttribute("aria-busy","true");
@@ -9009,7 +9143,7 @@ const EMO = {"🗜️":["image","#0d9488"],"📦":["image","#7c3aed"],"🎨":["p
   "🟢":["active","#16a34a"],"⏸":["pause","#f59e0b"],"🗑":["trash","#ef4444"],"➕":["plus","#16a34a"],"⚙️":["gear","#64748b"],"🎉":["sparkles","#eab308"],"🆕":["sparkles","#0ea5e9"],
   "⛔":["no","#ef4444"],"🔒":["lock","#0f766e"],"👆":["finger","#0f766e"],"📷":["camera","#8b5cf6"],
   "🛟":["support","#0e7490"],"❓":["help","#7c3aed"],"💡":["bulb","#eab308"],"🐢":["wait","#f59e0b"],"📱":["mobile","#0891b2"],"📲":["phone","#16a34a"],
-  "⭐":["star","#eab308"],"↩️":["reply","#0e7490"],"👋":["hand","#f59e0b"],"✉️":["mail","#2563eb"],"📌":["pin","#ef4444"],"🔴":["dot","#dc2626"],"🟡":["dot","#eab308"],
+  "⭐":["star","#eab308"],"↩️":["reply","#0e7490"],"↪️":["send","#0e7490"],"👋":["hand","#f59e0b"],"✉️":["mail","#2563eb"],"📌":["pin","#ef4444"],"🔴":["dot","#dc2626"],"🟡":["dot","#eab308"],
   "📊":["chart","#16a34a"],"✏️":["pen","#0891b2"],"✍️":["pen","#7c3aed"],"🔍":["search","#0891b2"],"🛂":["idcard","#7c3aed"],"🗺️":["map","#16a34a"],"📣":["megaphone","#ea580c"],
   "🖨️":["printer","#475569"],"❤️":["heart","#e11d48"],"🔁":["refresh","#0891b2"],"🔀":["shuffle","#7c3aed"],"⏭️":["skip","#f59e0b"],"✔️":["ok","#16a34a"],"🍎":["mobile","#475569"],
   "🔢":["hash","#0891b2"],"🔓":["unlock","#16a34a"],"⏱️":["clock","#f59e0b"],"🛠️":["gear","#475569"],
@@ -9170,7 +9304,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.14-3";
+const APP_VERSION = "2026.11.17-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -9704,6 +9838,57 @@ function stPerson(m, acc){
     age, sex:m.sex === "m" || m.sex === "f" ? m.sex : nidOk ? x.sex : "", job:stJob(m.job), area:stArea(m.address), gov:nidOk ? x.gov : "",
     app:dAgo == null ? "never" : dAgo <= 7 ? "w" : dAgo <= 30 ? "m" : "old", phone:!!m.phone, hasPhoto:!!(m.photo || (acc && acc.photo))};
 }
+// «مين كتب في النوتة ومين لسه» (2026-11-15): names and the day of the last entry only, never what was written
+const NBW_P = [[1, "اليوم"], [7, "آخر ٧ أيام"], [30, "آخر ٣٠ يومًا"]];
+function nbWhoLoad(){
+  if (!nbWhoApi || Store.preview || (S.nbWho && (S.nbWho.busy || Date.now() - S.nbWho.at < 120000))) return;
+  S.nbWho = Object.assign(S.nbWho || {}, {busy:true});
+  nbWhoApi.list().then(r => { S.nbWho = {rows:r || [], at:Date.now()}; scheduleRender(); }).catch(() => { S.nbWho = {rows:null, at:Date.now(), err:true}; scheduleRender(); });
+}
+function nbWhoSplit(rows){
+  const d = S.draft.nbwP || 7, from = ymd(new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (d - 1)));
+  const did = [], not = [];
+  for (const r of rows) (r.last && r.last >= from ? did : not).push(r);
+  did.sort((a, b) => String(b.last).localeCompare(String(a.last)) || String(a.name).localeCompare(String(b.name), "ar"));
+  not.sort((a, b) => String(a.last || "").localeCompare(String(b.last || "")) || String(a.name).localeCompare(String(b.name), "ar"));
+  return {did, not};
+}
+function nbWhoCard(mode, open){
+  nbWhoLoad();
+  const W = S.nbWho, d = S.draft.nbwP || 7, who = id => (S.members || []).find(m => m.id === id) || {};
+  const person = r => Object.assign({}, who(r.uid), {id:r.uid, name:who(r.uid).name || r.name});
+  const lastTxt = r => !r.last ? "لم يكتب بعد" : r.last === TODAY_S ? "اليوم" : "آخر مرة: " + fmtShort(r.last);
+  const names = (list, cls) => list.length ? h("ul",{class:"st-names nbw-names " + cls}, list.map(r => h("li",null,
+      h("button",{type:"button", "data-id":r.uid, onclick:() => open(r.uid)}, avatar(person(r), "sm"), h("span",null, person(r).name), h("small",{class:"muted num"}, lastTxt(r))))))
+    : h("p",{class:"small muted", style:"margin:4px 0 0"}, cls === "not" ? "الجميع كتبوا 👏" : "لا أحد بعد.");
+  const chips = h("div",{class:"row nbw-chips", style:"gap:6px;flex-wrap:wrap"}, NBW_P.map(([n, l]) =>
+    h("button",{type:"button", class:"chip-btn", "aria-pressed":String(d === n), onclick:() => { S.draft.nbwP = n; render(); }}, l)));
+  const body = !W || !W.rows ? h("p",{class:"small muted"}, W && W.err ? "تعذّر التحميل." : "جارٍ التحميل…") : null;
+  const lists = sp => h("div",{class:"nbw-lists"},
+    h("div",null, h("h4",null, "✅ كتبوا (" + arDigits(sp.did.length) + ")"), names(sp.did, "did")),
+    h("div",null, h("h4",null, "⏳ لم يكتبوا بعد (" + arDigits(sp.not.length) + ")"), names(sp.not, "not")));
+  const bar = (n, all) => h("span",{class:"st-track"}, h("i",{style:"width:" + Math.max(n ? 3 : 0, stPct(n, all)) + "%;background:#10b981"}));
+  const head = h("h3",null, "📓 النوتة الروحية: مين كتب ومين لسه");
+  const foot = h("small",{class:"muted"}, "يظهر الاسم وآخر يوم كتب فيه فقط، دون أي شيء مما كتبه.");
+  if (body) return h("div",{class:"card nbw-card", id:"nbWho"}, head, chips, body);
+  if (mode === "father"){ const sp = nbWhoSplit(W.rows);
+    return h("div",{class:"card nbw-card", id:"nbWho"}, head, chips,
+      h("div",{class:"st-bar static nbw-sum"}, h("span",{class:"st-l"}, "كتبوا " + arDigits(sp.did.length) + " من " + arDigits(W.rows.length)), bar(sp.did.length, W.rows.length), h("b",{class:"num"}, arDigits(stPct(sp.did.length, W.rows.length)) + "٪")),
+      W.rows.length ? lists(sp) : h("p",{class:"small muted"}, "لا يوجد أبناء على البرنامج بعد."), foot); }
+  // the admin: one line per father, a tap shows the two lists
+  const fid = S.draft.stF || "", accs = S.accounts || [];
+  const groups = new Map(); for (const r of W.rows){ if (fid && r.father !== (fid === "none" ? "" : fid)) continue; if (!groups.has(r.father)) groups.set(r.father, []); groups.get(r.father).push(r); }
+  const fname = f => f ? ((accs.find(a => a.id === f) || {}).name || "أب اعتراف") : "بدون أب اعتراف";
+  const gs = [...groups.entries()].sort((a, b) => !a[0] - !b[0] || fname(a[0]).localeCompare(fname(b[0]), "ar"));
+  const one = gs.length === 1;
+  return h("div",{class:"card nbw-card", id:"nbWho"}, head, chips,
+    gs.length ? h("ul",{class:"nbw-fathers"}, gs.map(([f, rows]) => { const sp = nbWhoSplit(rows), on = one || S.draft.nbwOpen === f;
+      return h("li",{class:"nbw-f" + (on ? " on" : ""), "data-father":f},
+        h("button",{type:"button", class:"st-bar nbw-fbtn", "aria-expanded":String(on), onclick:() => { S.draft.nbwOpen = S.draft.nbwOpen === f ? null : f; render(); }},
+          h("span",{class:"st-l"}, fname(f)), bar(sp.did.length, rows.length), h("b",{class:"num"}, arDigits(sp.did.length) + " من " + arDigits(rows.length)), h("small",{class:"muted num"}, arDigits(stPct(sp.did.length, rows.length)) + "٪")),
+        on ? lists(sp) : null); }))
+      : h("p",{class:"small muted"}, "لا يوجد معترفون على البرنامج بعد."), foot);
+}
 function statsPeople(){
   const accs = new Map((S.accounts || []).map(a => [a.id, a]));
   return (S.members || []).filter(m => { const a = accs.get(m.id); return a && a.role === "user" && a.active !== false && !a.pending; }).map(m => stPerson(m, accs.get(m.id)));
@@ -9762,6 +9947,7 @@ function statsView(){
       kpi("🙏", fr && fn ? arDigits(stPct(sum("conf"), fn)) + "٪" : "…", "اعترفوا خلال " + arDigits(days) + " يومًا", "k5"), kpi("📔", fr && fn ? arDigits(stPct(sum("nb7"), fn)) + "٪" : "…", "كتبوا في النوتة هذا الأسبوع", "k6"))
       : h("div",{class:"empty"}, "لا يوجد معترفون على البرنامج بعد."),
     N && tips.length ? h("div",{class:"card st-tips", id:"stTips"}, h("h3",null, "💡 ملاحظات"), h("ul",null, tips.map(t => h("li",null, t)))) : null,
+    nbWhoCard("admin", id => openP(id)()),
     pk ? h("div",{class:"card st-pick", id:"stPick"}, h("div",{class:"row between", style:"align-items:center"}, h("h3",{style:"margin:0"}, pk.title + " · " + arDigits(pkList.length)),
         h("button",{type:"button", class:"chat-x sm", id:"stPickX", "aria-label":"إغلاق", onclick:() => { S.draft.stPick = null; render(); }}, "✕")),
       h("ul",{class:"st-names"}, pkList.map(x => h("li",null, h("button",{type:"button", onclick:openP(x.id)}, avatar(x, "sm"), h("span",null, x.name)))))) : null,
@@ -10119,6 +10305,7 @@ function adminView(all, part){
     h("div",{class:"row"}, h("button",{class:"btn", onclick:async()=>{
       const name = $("#naName").value.trim(), role = $("#naRole").value, pw = $("#naPw").value.trim() || genPassword();
       if (!name){ toast("اكتب الاسم"); return; }
+      if (nameNotAr(name)){ await arNameStop(name, "naName"); return; }
       { const pe = pwProblem(pw, {name}); if (pe){ toast(pe); return; } }
       if (!(await createAccount(name, role, pw))) return;
       await logAct("عمل حساب "+ROLES[role].label+": "+name);
@@ -10214,6 +10401,7 @@ function cloudMsg(e){
   if (/no schedule/.test(m)) return "أبونا لسه ما حددش المواعيد دي.";
   if (/PGRST202|Could not find the function|p_kind/.test(m)) return "السيرفر محتاج تحديث: الأدمن يشغّل ملف SQL الجديد.";
   if (/name taken/.test(m)) return "الاسم ده مستخدم لشخص تاني في الكنيسة. اكتبه بشكل مختلف (مثلًا زوّد اسم الجد).";
+  if (/name not arabic/.test(m)) return AR_NAME_MSG+".";
   if (/name too long/.test(m)) return "الاسم طويل جدًا لاسم الدخول (أقصى حد ٦٠ حرف).";
   if (/already registered|already exists|already a member|duplicate key/i.test(m)) return "فيه حساب بالاسم ده.";
   if (/bad passport code/.test(m)) return "كود الباسبور غلط أو خلص. خد كود جديد من أدمن الكنيسة.";
@@ -10955,6 +11143,7 @@ async function showCloudGate(){
       // what is still missing or wrong, in the order of the form
       const missing = () => { const m = [];
         if (rf.name.trim().split(/\s+/).filter(Boolean).length < 3) m.push("الاسم ثلاثيًا");
+        if (nameNotAr(rf.name)) m.push("الاسم بالحروف العربية فقط");
         if (rf.pw.length < PW_MIN) m.push("كلمة السر ("+arDigits(PW_MIN)+" حروف أو أرقام على الأقل)"); else if (pwProblem(rf.pw, rf)) m.push("كلمة سر أقوى: "+pwProblem(rf.pw, rf)); else if (rf.pw !== rf.pw2) m.push("تأكيد كلمة السر مطابقًا");
         if (needCode() && nidDigits(rf.code).length !== 6) m.push("كود التسجيل (٦ أرقام)");
         if (fl.length && !pickFather) m.push("أب الاعتراف");
@@ -10974,7 +11163,7 @@ async function showCloudGate(){
         missBox.replaceChildren(...(m.length ? [h("strong",null,"ما زال مطلوبًا:"), h("ul",null, m.map(x => h("li",null, x)))] : [h("span",{class:"ok"},"✅ البيانات مكتملة، يمكنك الإرسال الآن.")]));
         sendBtn.disabled = m.length > 0; };
       const prev = h("div",{class:"gate-photo"}, newPhoto ? h("img",{src:newPhoto, alt:"صورتك"}) : h("span",null,"📷"));
-      form = h("form",{class:"form reg-form", onsubmit:e => { e.preventDefault(); if (missing().length){ refresh(); return; } busy(e.target, async () => {
+      form = h("form",{class:"form reg-form", onsubmit:e => { e.preventDefault(); if (nameNotAr(rf.name)){ arNameStop(rf.name.trim(), "gName"); return; } if (missing().length){ refresh(); return; } busy(e.target, async () => {
         const name = rf.name.trim().replace(/\s+/g, " "), pw = rf.pw;
         if (name.length > 60) fail("الاسم طويل جدًا.");
         if (info && info.live === false) fail("انتهت رخصة الكنيسة، ولا يمكن التسجيل الآن.");
@@ -11158,6 +11347,7 @@ nbApi = { note: (uid, date, like, text) => Cloud.rpc("nb_note", {p_uid:uid, p_da
 dbApi = { usage: () => Cloud.rpc("db_usage"), detail: () => Cloud.rpc("storage_usage"), loginDays: () => Cloud.rpc("login_days", {p_days:14}) };
 onlineApi = { list: () => Cloud.rpc("online_list"), since: s => Cloud.rpc("online_since", {p_since:s}) };
 statsApi = { church: days => Cloud.rpc("church_stats", {p_days:days}) };
+nbWhoApi = { list: () => Cloud.rpc("nb_who") };
 reqSumApi = { get: (from, to) => Cloud.rpc("req_summary", {p_from:from, p_to:to}) };
 // «🛟 الدعم الفني» (2026-11-10)
 // pictures as files (2026-11-11): one file in this project's storage, in the church's folder, under a random name;
@@ -11184,6 +11374,10 @@ supApi = { feed: uid => Cloud.rpc("support_feed", {p_uid:uid || null}),
   old: () => Cloud.rpc("support_img_old"), move: (id, url) => Cloud.rpc("support_img_move", {p_id:id, p_url:url}),
   img: id => Cloud.rpc("support_img", {p_id:id}),
   close: (uid, rating) => Cloud.rpc("support_close", {p_uid:uid || null, p_rating:rating || null}),
+  self: (topic, path, rating) => Cloud.rpc("support_self", {p_topic:topic, p_path:path, p_rating:rating}),
+  reopen: () => Cloud.rpc("support_reopen", {}),
+  fwd: (msg, note) => Cloud.rpc("support_fwd", {p_msg:msg, p_note:note || ""}),
+  fwdSeen: id => Cloud.rpc("support_fwd_seen", {p_id:id}),
   seen: uid => Cloud.rpc("support_seen", {p_uid:uid || null}),
   list: () => Cloud.rpc("support_list") };
 chatApi = { feed: (room, since) => Cloud.rpc("chat_feed", {p_room:room, p_since:since}),
