@@ -4941,8 +4941,9 @@ function personRow(p){
       accRole()==="admin" && p.father && p.father !== S.account.id ? h("span",{class:"pill"},"⛪ "+(((S.accounts||[]).find(a=>a.id===p.father)||{}).name||"؟")) : null));
 }
 function priestPeople(all){
-  const q = (S.draft.q||"").trim(), qk = arKey(q), qd = q.replace(/\D/g,"");
-  const hit = p => arKey(p.name+" "+p.area).includes(qk) || (qd.length >= 3 && String(p.phone||"").replace(/\D/g,"").includes(qd));
+  const q = (S.draft.q||"").trim(), qk = arKey(q), qd = nidDigits(q);
+  const hit = p => arKey(p.name+" "+p.area).includes(qk) || (qd.length >= 3 && String(p.phone||"").replace(/\D/g,"").includes(qd))
+    || (qd.length >= 6 && String((p.self||{}).nid || (p.pr||{}).nid || "").includes(qd));
   const flt = PEOPLE_FILTERS.find(f => f[0] === S.draft.pf), srt = S.draft.sort || "name";
   const base = q ? all.filter(hit) : all, list = flt ? base.filter(flt[3]) : base;
   const by = S.draft.groupBy === "area" ? "area" : "letter";
@@ -4959,7 +4960,7 @@ function priestPeople(all){
     ncOk ? h("button",{class:"btn sm wa", id:"ncOpen", onclick:()=>{ S.draft.newAcc = true; render(); const c = $("#ncCard"); if (c){ c.scrollIntoView({block:"center"}); const n = $("#ncName"); n && n.focus(); } }},"📲 حساب جديد لمعترف") : null,
     h("button",{class:"btn sm", onclick:()=>{ S.sel="__new"; S.draft.newPid = null; render(); }},"إضافة شخص غير مسجّل في البرنامج"))));
   if (ncOk && S.draft.newAcc) wrap.append(newChildCard(all));
-  wrap.append(h("input",{id:"q", type:"search", placeholder: Store.mode==="cloud" && accRole()==="priest" ? "دوّر في أولادك وفي ولاد الكنيسة" : "البحث بالاسم أو التليفون", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
+  wrap.append(h("input",{id:"q", type:"search", placeholder: Store.mode==="cloud" && accRole()==="priest" ? "دوّر بالاسم أو التليفون أو الرقم القومي" : "البحث بالاسم أو التليفون أو الرقم القومي", value:S.draft.q||"", oninput:e=>{ S.draft.q=e.target.value; render(); const q=$("#q"); q.focus(); q.setSelectionRange(q.value.length,q.value.length); }}));
   const counts = PEOPLE_FILTERS.map(f => [f, base.filter(f[3]).length]).filter(([f,n]) => n || (flt && flt[0] === f[0]));
   if (counts.length) wrap.append(h("div",{class:"chips filters"}, counts.map(([f,n]) => h("button",{class:"chip-btn f-"+f[0], "aria-pressed":String(!!flt && flt[0]===f[0]),
     onclick:()=>{ S.draft.pf = flt && flt[0]===f[0] ? null : f[0]; render(); }}, f[1]+" "+f[2]+" ", h("b",{class:"num"}, arDigits(n))))));
@@ -4983,7 +4984,7 @@ function priestPeople(all){
 // (accounts rows; the server never gives him their data, notes or family)
 const arKey = s => String(s||"").replace(/[\u064B-\u0652\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim();
 function churchSearch(q){
-  if (Store.mode !== "cloud" || accRole() !== "priest" || Store.preview || arKey(q).length < 2) return null;
+  if (Store.mode !== "cloud" || accRole() !== "priest" || Store.preview || arKey(q).length < 2 || /^[\d\s٠-٩۰-۹+-]+$/.test(q)) return null;
   const c = S.churchAcc;
   if (!c || (!c.loading && Date.now() - c.at > 120000)){
     S.churchAcc = {loading:true, at:Date.now(), list:(c&&c.list)||[]};
@@ -8881,8 +8882,9 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-17b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-18a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🔍","البحث بالرقم القومي","في «الحسابات» اكتب الرقم القومي (أو جزءًا منه، ٦ أرقام على الأقل) في خانة البحث فيظهر صاحبه مباشرة. وإذا لم يكن الرقم مسجّلًا يظهر تنبيه بذلك."],
     ["🕯️","مصباح النوتة الروحية","يظهر للأبناء في «النوتة الروحية» مصباح يزداد نوره مع كل يوم يسجّلون فيه، ويصير أجمل مع كل أسبوع مثمر. لا يحتاج إلى أي إعداد."],
     ["📝","الاسم بالحروف العربية فقط","عند كتابة أي اسم جديد أو تعديله (التسجيل، «بياناتي»، حساب جديد، تعديل البيانات) يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح. الأسماء المسجلة من قبل تبقى كما هي."],
     ["📓","من كتب في النوتة ومن لم يكتب","في «الإحصائيات» كارت «📓 النوتة الروحية: مين كتب ومين لسه»: لكل أب اعتراف سطر فيه عدد من كتبوا من أبنائه، واضغط عليه لعرض أسماء من كتبوا ومن لم يكتبوا بعد. اختر المدة: اليوم أو آخر ٧ أيام أو آخر ٣٠ يومًا. يظهر الاسم وآخر يوم كتب فيه فقط، دون أي شيء مما كتبه."],
@@ -8922,6 +8924,7 @@ const NEWS = {id:"2026-11-17b", title:"الجديد في آخر تحديث", ite
     ["⛪","تصميمان جديدان بالصور","في «تصميم المناسبة» صار «أسبوع الآلام» بلوحة السيد المسيح بإكليل الشوك، وأُضيف تصميم «صورة الكنيسة» بصورة كنيستنا من أعلى، ويظهر في أي وقت تختاره."],
   ],
   priest:[
+    ["🔍","البحث بالرقم القومي","في «أولادي» يمكن البحث بالرقم القومي (٦ أرقام على الأقل) بين أبنائك في الاعتراف فقط."],
     ["🕯️","مصباحك الروحي","في «النوتة الروحية» مصباح يزداد نوره مع كل يوم تُسجَّل فيه النوتة خلال الأسبوع، ويصير شكله أجمل مع كل أسبوع مثمر (ثلاثة أيام أو أكثر)، حتى يبلغ «مصباح العذارى الحكيمات». ويظهر لك مصباح كل ابن صغيرًا في كارته تحت «النوتة الروحية»."],
     ["📝","الاسم بالحروف العربية فقط","عند كتابة اسم معترف جديد أو تعديل اسمه يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح."],
     ["📓","من كتب في النوتة ومن لم يكتب","في آخر شاشة «الطلبات» كارت «📓 النوتة الروحية: مين كتب ومين لسه» بأسماء أبنائك الذين كتبوا والذين لم يكتبوا بعد، اليوم أو في آخر ٧ أيام أو ٣٠ يومًا. اضغط على أي اسم لفتح بياناته وتشجيعه."],
@@ -9429,7 +9432,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.17-2";
+const APP_VERSION = "2026.11.18-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -10279,7 +10282,7 @@ function adminView(all, part){
   const accCard = a => {
     const open = S.draft.accOpen === a.id, manage = canManage(a), self = a.id === S.account.id;
     const miss = cloudAdm && S.membersReady && ["user","pending"].includes(a.role) ? profileMissing(memberOf(a.id), a.photo) : [];
-    const li = h("li",{class:"acc-row"+(open ? " open" : ""), "data-name":arKey(a.name+" "+((memberOf(a.id)||{}).name||"")), "data-miss":miss.length ? "1" : ""},
+    const li = h("li",{class:"acc-row"+(open ? " open" : ""), "data-name":arKey(a.name+" "+((memberOf(a.id)||{}).name||"")), "data-nid":accRole()==="admin" ? ((memberOf(a.id)||{}).nid||"") : "", "data-miss":miss.length ? "1" : ""},
       h("div",{class:"person-line", style:"cursor:pointer", onclick:()=>{ S.draft.accOpen = open ? null : a.id; render(); }},
         cloudAdm ? avatar({name:a.name, photo:a.photo || (memberOf(a.id)||{}).photo}) : h("span",{class:"prep-emo"}, (ROLES[a.role]||ROLES.user).emo),
         h("div",{class:"who"}, h("strong",null, a.name, self ? " (إنت)" : ""),
@@ -10356,9 +10359,10 @@ function adminView(all, part){
   if (!only("people")) return wrap;
   const grp = GROUPS.some(g => g[0] === S.draft.accGroup) ? S.draft.accGroup : "all";
   const onlyMiss = !!S.draft.accMiss;
-  const sift = () => { const q = arKey(($("#accSearch")||{}).value || ""); let first = null;
+  const sift = () => { const raw = ($("#accSearch")||{}).value || "", q = arKey(raw), qd = nidDigits(raw), byNid = qd.length >= 6 && /^[\d\s٠-٩۰-۹-]+$/.test(raw.trim()); let first = null;
     document.querySelectorAll("#accLists li.acc-row, #accLists li.dir-row").forEach(li => {
-      li.hidden = (!!q && !li.dataset.name.includes(q)) || (onlyMiss && !li.dataset.miss); if (!li.hidden && !first) first = li; });
+      li.hidden = (!!q && !(byNid ? (li.dataset.nid||"").includes(qd) : li.dataset.name.includes(q))) || (onlyMiss && !li.dataset.miss); if (!li.hidden && !first) first = li; });
+    const none = $("#accNidNone"); if (none) none.hidden = !(byNid && !first);
     document.querySelectorAll("#accLists .acc-group, #accLists .dir-sec").forEach(g => { g.hidden = !g.querySelector("li.acc-row:not([hidden]), li.dir-row:not([hidden])"); });
     document.querySelectorAll(".dir-rail button").forEach(b => { const sec = document.getElementById(b.dataset.to); b.disabled = !sec || sec.hidden; });
     if (q && first && cloudAdm) first.scrollIntoView({block:"nearest"}); };
@@ -10369,7 +10373,7 @@ function adminView(all, part){
     const sub = a.role === "priest" ? "⛪ أب اعتراف · "+arDigits(accs.filter(x => x.id !== a.id && x.role !== "priest" && x.father === a.id && !x.pending).length)+" معترف"
       : a.role === "user" || a.father ? (a.father ? h("span",{class:"fa-line"}, "أب الاعتراف: ", h("bdi",null,(accs.find(x => x.id === a.father)||{}).name||"؟")) : "من غير أب اعتراف") : (ROLES[a.role]||ROLES.user).label;
     return h("li",{class:"dir-row"+(on ? " on" : ""), role:"button", tabindex:"0", "aria-pressed":on ? "true" : "false", "data-id":a.id,
-        "data-name":arKey(a.name+" "+(m.name||"")), "data-miss":miss.length ? "1" : "",
+        "data-name":arKey(a.name+" "+(m.name||"")), "data-nid":accRole()==="admin" ? (m.nid||"") : "", "data-miss":miss.length ? "1" : "",
         onclick:()=>{ S.draft.accOpen = on ? null : a.id; S.draft.delAsk = null; render(); },
         onkeydown:e=>{ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.currentTarget.click(); } }},
       avatar({name:a.name, photo:a.photo || m.photo}, "sm"),
@@ -10417,7 +10421,8 @@ function adminView(all, part){
       missN ? h("button",{type:"button", class:"chip-btn acc-miss-btn", "aria-pressed":onlyMiss ? "true" : "false", onclick:()=>{ S.draft.accMiss = !onlyMiss; render(); }},"📝 بياناته ناقصة · "+arDigits(missN)) : null),
     ff ? h("div",{class:"row father-on", style:"margin-top:8px;align-items:center"}, h("span",{class:"pill ok"}, ff === "none" ? "اللي من غير أب بس" : "أولاد "+((fathers.find(f => f.id === ff)||{}).name||"")+" بس"),
       h("button",{type:"button", class:"btn sm quiet father-clear", onclick:()=>{ S.draft.accFather = ""; S.draft.accGroup = "all"; render(); }},"✕ عرض الكل")) : null,
-    h("input",{id:"accSearch", type:"search", placeholder:"🔍 دوّر بالاسم", style:"margin:10px 0", oninput:sift}),
+    h("input",{id:"accSearch", type:"search", placeholder: accRole()==="admin" ? "🔍 دوّر بالاسم أو الرقم القومي" : "🔍 دوّر بالاسم", style:"margin:10px 0", oninput:sift}),
+    h("p",{id:"accNidNone", class:"small acc-miss", hidden:true, style:"margin:0 0 8px"},"لا يوجد أحد مسجّل بهذا الرقم القومي في الكنيسة. تأكّد من الأرقام."),
     lists));
   if (onlyMiss) setTimeout(sift);
   // add account
