@@ -717,6 +717,10 @@ body.locked .band, body.locked nav.tabs, body.locked main, body.locked footer{di
 .pend-facts dt{font-weight:700;color:var(--muted);font-size:.9rem}
 .pend-facts dd{margin:0}
 .news-wrap{position:fixed;inset:0;z-index:998;background:rgba(15,23,42,.55);display:grid;place-items:center;padding:14px;overflow:auto}
+.lampday-box{text-align:center;justify-items:center;width:min(380px,100%);background:radial-gradient(circle at 50% 28%,rgba(255,214,106,.28),transparent 62%),var(--surface)}
+.lampday-box h2{margin:0}.lampday-stage{margin:-6px 0 0;color:var(--gold-ink,#8a6a12);font-weight:700}.lampday-say{margin:0;line-height:1.8;font-size:1.05rem}
+.lampday-art{margin-top:4px;filter:drop-shadow(0 8px 18px rgba(255,170,60,.35))}
+.lampday-go{width:100%;font-size:1.1rem;padding:12px 16px}
 .news-box{width:min(560px,100%);max-height:calc(100vh - 28px);overflow:auto;background:var(--surface);border-radius:20px;border:2px solid var(--gold,#c9a227);padding:18px 18px 14px;display:grid;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
 .sc-msg .news-box{border-color:#dc2626}.sc-msg.info .news-box{border-color:var(--gold,#c9a227)}.sc-msg-ic{text-align:center;font-size:2.2rem;line-height:1}.sc-msg h2{text-align:center}.sc-msg p{margin:0;line-height:1.7}.sc-msg ul{margin:0;padding-inline-start:22px;display:grid;gap:4px;font-weight:700}.sc-msg .row{justify-content:center;flex-wrap:wrap;gap:8px}.sc-dirty{margin:0;background:#fff4dc;border:1.5px solid var(--gold,#c9a227);color:#6b4200;border-radius:12px;padding:8px 12px;font-weight:700}.sc-dirty[hidden]{display:none}.ap-done-msg{display:grid;gap:6px}.ap-done-msg h3{margin:0;color:var(--ok,#16a34a)}.ap-was-pill.dn{background:#dcfce7;color:#166534}
 .news-box h2{margin:0;font-size:1.25rem}.news-box h4{margin:6px 0 0;color:var(--gold-ink,#8a6414)}
@@ -8882,7 +8886,7 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-18a", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-18b", title:"الجديد في آخر تحديث", items:{
   admin:[
     ["🔍","البحث بالرقم القومي","في «الحسابات» اكتب الرقم القومي (أو جزءًا منه، ٦ أرقام على الأقل) في خانة البحث فيظهر صاحبه مباشرة. وإذا لم يكن الرقم مسجّلًا يظهر تنبيه بذلك."],
     ["🕯️","مصباح النوتة الروحية","يظهر للأبناء في «النوتة الروحية» مصباح يزداد نوره مع كل يوم يسجّلون فيه، ويصير أجمل مع كل أسبوع مثمر. لا يحتاج إلى أي إعداد."],
@@ -8956,6 +8960,7 @@ const NEWS = {id:"2026-11-18a", title:"الجديد في آخر تحديث", ite
     ["📊","Excel وطباعة PDF","في «أبنائي» و«الإعدادات»: ملف Excel بشكل رسمي فيه شعار البرنامج واسم الكنيسة وعناوين ملونة ثابتة وفلتر، والتواريخ بالعربي، وتظليل من تأخر في الاعتراف، وفي آخره أنه صادر من برنامج ⲙⲉⲛⲣⲓⲧ. وزر «طباعة / PDF» يطبع نفس القائمة أو يحفظها PDF من شاشة الطباعة."]
   ],
   user:[
+    ["🕯️","مصباحك عند فتح البرنامج","عند أول فتح للبرنامج في اليوم، وإذا كانت نوتة اليوم فارغة، يظهر مصباحك في وسط الشاشة مع زر «✍️ سجّل نوتة اليوم» لتسجيلها مباشرة."],
     ["🕯️","مصباحك الروحي","في «النوتة الروحية» مصباح يزداد نوره مع كل يوم تسجّل فيه خلال الأسبوع، ويصير شكله أجمل مع كل أسبوع مثمر (ثلاثة أيام أو أكثر): نحاسي ثم ذهبي ثم منقوش بالصليب، حتى «مصباح العذارى الحكيمات». وإذا غبت أسبوعًا لا يرجع شكله، بل يخفت نوره فقط حتى تعود."],
     ["📝","الاسم بالحروف العربية فقط","يُكتب الاسم في «بياناتي» وعند التسجيل بالحروف العربية فقط، ويظهر تنبيه بجوار الخانة إذا كُتب حرف إنجليزي أو رقم أو رمز."],
     ["⭐","تقييم الدعم الفني","بعد حل طلبك في «الدعم الفني» يُطلب منك تقييم الخدمة بالنجوم، أو اختيار «ما زالت المشكلة قائمة» إذا لم تُحل."],
@@ -8987,7 +8992,7 @@ function newsBox(again){
   const aud = newsAud(); if (!aud) return;
   $("#newsBox") && $("#newsBox").remove();
   const st = S.settings || {}, I = NEWS.items;
-  const close = async () => { box.remove(); S.newsClosed = NEWS.id; if (!again) try { await newsApi.mark(NEWS.id); } catch(e){} };
+  const close = async () => { box.remove(); S.newsClosed = NEWS.id; setTimeout(lampDayCheck, 500); if (!again) try { await newsApi.mark(NEWS.id); } catch(e){} };
   const share = (key, label, done) => st[key] === NEWS.id ? h("p",{class:"small", style:"margin:0;font-weight:700;color:var(--ok-ink)"}, done)
     : h("button",{class:"btn sm", id: key === "newsFathers" ? "newsToFathers" : "newsToMembers", onclick:async e => { e.currentTarget.disabled = true;
         await editDoc("settings/app", cur => Object.assign(cur, {[key]: NEWS.id})); S.settings = Object.assign({}, S.settings, {[key]: NEWS.id}); toast("✅ "+done); newsBox(again); }}, label);
@@ -9003,6 +9008,26 @@ function newsBox(again){
   document.body.append(box);
 }
 function newsCheck(){ if ($("#renameBox")) return; if (!$("#newsBox") && newsDue()) newsBox(false); }
+// «مصباحك ينتظر» (2026-11-18): once a day, only a confessee, only while today's notebook is empty, after «الجديد» and the name notice
+function lampDayCheck(){
+  if (!S.uid || S.role !== "member" || accRole() !== "user" || Store.preview || !S.notebookLoaded || S.tab === "notebook") return;
+  if ($("#lampDay") || $("#newsBox") || $("#renameBox") || document.querySelector(".news-wrap")) return;
+  const k = "menrit_lampday_" + S.uid; if (lsGet(k) === TODAY_S) return;
+  if ((S.notebook || []).some(r => r.date === TODAY_S && lampWrote(r))) return;
+  const st = lampMine(); if (!st) return;
+  lsSet(k, TODAY_S);
+  const go = () => { box.remove(); S.draft.nbDate = TODAY_S; S.tab = "notebook"; render(); window.scrollTo({top:0}); };
+  const say = st.lvl ? "سجّلت " + lampDays(st.lvl) + " هذا الأسبوع. أضف زيت اليوم ليزداد نور مصباحك." : "مصباحك ينتظر زيت اليوم. سجّل نوتتك ولو ببند واحد ليُضاء.";
+  const box = h("div",{class:"news-wrap lampday-wrap", id:"lampDay", role:"dialog", "aria-modal":"true", "aria-label":"مصباحك الروحي"},
+    h("div",{class:"news-box lampday-box"},
+      h("div",{class:"lampday-art"}, lampSvg(st.stage, st.lvl, 150, true)),
+      h("h2",null, "مصباحك الروحي"), h("p",{class:"lampday-stage"}, st.name),
+      h("p",{class:"lampday-say"}, say),
+      h("button",{class:"btn lampday-go", id:"lampDayGo", onclick:go}, "✍️ سجّل نوتة اليوم"),
+      h("button",{class:"btn quiet sm", id:"lampDayLater", onclick:() => box.remove()}, "لاحقًا"),
+      h("p",{class:"lamp-verse small"}, "«لِتَكُنْ أَحْقَاؤُكُمْ مُمَنْطَقَةً وَسُرُجُكُمْ مُوقَدَةً» (لو ١٢: ٣٥)")));
+  document.body.append(box);
+}
 // the sign-in name follows the name (2026-11-10, user): a big notice the first time he opens the app, until he confirms he read it
 function renameCheck(){
   const a = S.account; if (Store.mode !== "cloud" || !a || !a.renamedFrom || Store.preview) return false;
@@ -9346,7 +9371,7 @@ function render(){
     if (el.type !== "file") keep.push([el.id, el.type === "checkbox" || el.type === "radio" ? {c:el.checked} : {v:el.value}]);
   render.scope = scope;
   app.replaceChildren(view);
-  if (!renameCheck()) newsCheck();
+  if (!renameCheck()){ newsCheck(); lampDayCheck(); }
   for (const [id, k] of keep){ const el = document.getElementById(id); if (!el || !app.contains(el)) continue;
     if ("c" in k) el.checked = k.c; else el.value = k.v; el.dataset.dirty = "1"; }
 }
@@ -9432,7 +9457,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.18-1";
+const APP_VERSION = "2026.11.18-3";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
