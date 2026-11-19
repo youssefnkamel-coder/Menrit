@@ -8886,8 +8886,9 @@ function mapBtn(o, label){ const u = mapUrl(o); if (!u) return null; const exact
 function waNum(ph){ const d = String(ph||"").replace(/\D/g,""); return d.startsWith("00") ? d.slice(2) : d.startsWith("0") ? "2"+d : d; }
 // «🆕 الجديد في البرنامج» (2026-11-05): after an update the admin sees everything first and decides when the fathers
 // (and the confessees) see their part; each person reads it once and presses «تمام» (saved on the server)
-const NEWS = {id:"2026-11-18b", title:"الجديد في آخر تحديث", items:{
+const NEWS = {id:"2026-11-19a", title:"الجديد في آخر تحديث", items:{
   admin:[
+    ["🛡️","شاشة مشرف تجريبية","بجوار «👀 شاشة أب تجريبية» في أعلى شاشة الأدمن زر جديد «🛡️ شاشة مشرف تجريبية». يفتح شاشة المشرف كما يراها هو تمامًا، ببيانات وهمية: حسابات، وحسابات في انتظار الموافقة، وطلبات كلمة سر، وسجل نشاط. يمكن تجربة كل الأزرار فيها، ولا يُحفظ منها شيء. للعودة اضغط «🛠️ رجوع لشاشة الأدمن»."],
     ["🔍","البحث بالرقم القومي","في «الحسابات» اكتب الرقم القومي (أو جزءًا منه، ٦ أرقام على الأقل) في خانة البحث فيظهر صاحبه مباشرة. وإذا لم يكن الرقم مسجّلًا يظهر تنبيه بذلك."],
     ["🕯️","مصباح النوتة الروحية","يظهر للأبناء في «النوتة الروحية» مصباح يزداد نوره مع كل يوم يسجّلون فيه، ويصير أجمل مع كل أسبوع مثمر. لا يحتاج إلى أي إعداد."],
     ["📝","الاسم بالحروف العربية فقط","عند كتابة أي اسم جديد أو تعديله (التسجيل، «بياناتي»، حساب جديد، تعديل البيانات) يُقبل بالحروف العربية فقط. إذا كُتب حرف إنجليزي أو رقم أو رمز يظهر تنبيه بجوار الخانة، ولا يتم الحفظ حتى يُصحَّح. الأسماء المسجلة من قبل تبقى كما هي."],
@@ -9354,7 +9355,7 @@ function render(){
   if (!S.tab || !tabs.some(t=>t[0]===S.tab)) S.tab = tabs[0][0];
   document.body.classList.toggle("one-tab", tabs.length < 2);
   $("#tabs").replaceChildren(...tabs.map(([k,l,b]) => h("button",{"aria-current":S.tab===k?"page":null, onclick:async()=>{ if (k !== S.tab && !(await scLeave())) return; S.tab=k; if(k!=="people") S.sel=S.sel; render(); window.scrollTo({top:0}); }}, icon(k), h("span",null,l), b ? h("span",{class:"badge num"}, arDigits(b)) : null)));
-  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? (Store.mode === "cloud" ? " · شاشتي كمعترف" : " (معاينة شاشة المعترف)") : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
+  $("#roleLabel").textContent = accRole() === "pending" ? "⏳ "+S.account.name+" · مستني الموافقة" : S.account ? (ROLES[S.account.role]||ROLES.user).emo+" "+S.account.name+" · "+(ROLES[S.account.role]||ROLES.user).label+(S.account.role!=="user" && S.role==="member" ? (Store.mode === "cloud" ? " · شاشتي كمعترف" : " (معاينة شاشة المعترف)") : S.pvSup ? " (شاشة تجريبية)" : Store.preview ? " (معاينة شاشة أبونا)" : "") : priest ? "شاشة أبونا" : "شاشة المعترف";
   renderNotice(); renderMe(); chatSync(); supSync(); occSync();
   let view;
   if (!priest && !S.uid) view = h("div",{class:"empty"},"لازم تسجّل دخول بحسابك عشان تستخدم البرنامج.");
@@ -9384,17 +9385,22 @@ function renderNotice(){
     Store.mode === "cloud" && accRole() === "admin" ? h("button",{class:"btn sm "+(Store.preview?"on":""), onclick:()=>startPreview()},"👀 معاينة شاشة أبونا") : null);
   // server: the admin is also a confessee, so one real switch between his admin screen and his own screen as a confessee;
   // since 2026-11-07 (user) also «شاشة أب تجريبية»: the father's screen filled with sample data, kept in memory only
+  const pvBtns = () => [h("button",{class:"btn sm", id:"pvFather", onclick:()=>startPreview()},"👀 شاشة أب تجريبية"),
+    h("button",{class:"btn sm", id:"pvSup", onclick:()=>startSupPreview()},"🛡️ شاشة مشرف تجريبية")];
+  const pvBack = () => h("button",{class:"btn sm", id:"admBack", onclick:()=>switchRole("admin")},"🛠️ رجوع لشاشة الأدمن");
   const admSwitch = () => { const me = S.role === "member", pv = !!Store.preview;
-    return h("div",{class:"row adm-switch"}, h("span",{class:"small", style:"font-weight:700"}, pv ? "شاشة أب تجريبية" : me ? "دي شاشتك إنت كمعترف" : "شاشة الأدمن"),
-      pv || me ? h("button",{class:"btn sm", id:"admBack", onclick:()=>switchRole("admin")},"🛠️ رجوع لشاشة الأدمن")
-        : [h("button",{class:"btn sm", onclick:()=>switchRole("member")},"🙏 شاشتي كمعترف"),
-           h("button",{class:"btn sm", id:"pvFather", onclick:()=>startPreview()},"👀 شاشة أب تجريبية")]); };
+    return h("div",{class:"row adm-switch"}, h("span",{class:"small", style:"font-weight:700"}, S.pvSup ? "شاشة مشرف تجريبية" : pv ? "شاشة أب تجريبية" : me ? "دي شاشتك إنت كمعترف" : "شاشة الأدمن"),
+      pv || me ? pvBack()
+        : [h("button",{class:"btn sm", onclick:()=>switchRole("member")},"🙏 شاشتي كمعترف"), ...pvBtns()]); };
+  // ⲁⲣⲭⲏ ⲙⲉⲛⲣⲓⲧ inside a church: the two sample screens beside «كل الكنائس»
+  const gmRow = () => h("div",{class:"row adm-switch"}, gmBar(), Store.preview ? pvBack() : pvBtns());
   if (Store.mode === "cloud"){
     const c = S.church || {}, left = c.expires_at ? daysBetween(TODAY, parseYmd(c.expires_at)) : 999;
     const lic = c.live === false ? h("span",{style:"color:var(--bad);font-weight:700"}, "⛔ رخصة الكنيسة خلصت يوم "+fmtShort(c.expires_at)+"، والبرنامج للقراءة بس. كلّم المطوّر على "+DEV.phone+".")
       : left <= 30 && accRole() === "admin" ? h("span",{style:"color:var(--warn-ink);font-weight:700"}, "⏳ رخصة الكنيسة هتخلص بعد "+arDigits(left)+" يوم. جدّدها مع المطوّر على "+DEV.phone+".") : null;
-    const staff = S.account && ["admin","priest"].includes(S.account.role);
-    if (lic || staff) slot.append(h("div",{class:"notice"}, Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 شاشة أب تجريبية ببيانات وهمية: لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), isGM() ? gmBar() : S.account && S.account.role === "admin" ? admSwitch() : null));
+    const staff = S.pvSup || (S.account && ["admin","priest"].includes(S.account.role));
+    if (lic || staff) slot.append(h("div",{class:"notice"}, S.pvSup ? h("span",{id:"pvSupNote", style:"font-weight:700;color:var(--warn-ink)"}, "🛡️ شاشة مشرف تجريبية ببيانات وهمية: لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية.")
+      : Store.preview ? h("span",{style:"font-weight:700;color:var(--warn-ink)"}, "👀 شاشة أب تجريبية ببيانات وهمية: لا يُحفظ فيها شيء، ولا تظهر فيها بيانات حقيقية.") : lic || h("span",null, "🔒 "+(c.name||"")+" · كود الكنيسة ", h("b",{dir:"ltr"}, c.slug||"")), isGM() ? gmRow() : S.pvSup || (S.account && S.account.role === "admin") ? admSwitch() : null));
   } else if (Store.mode === "demo"){
     slot.append(h("div",{class:"notice"}, h("span",null, h("strong",null,"وضع التجربة: "), "البيانات دي أمثلة ومش بتتحفظ."),
       h("div",{class:"row"}, roleBtns(), S.liveAvailable ? h("button",{class:"btn sm quiet", onclick:()=>goLive()},"العودة إلى البيانات الحقيقية") : null)));
@@ -9410,7 +9416,65 @@ function startPreview(){
   S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[];
   subscribe(); render(); window.scrollTo({top:0});
 }
+// «🛡️ شاشة مشرف تجريبية» (2026-11-19, user): the real supervisor screen over sample accounts, kept in memory only.
+// The admin's own account is put aside while it is open and comes back on «رجوع لشاشة الأدمن» (or on sign-out).
+const PV_SUP = "demo-sup";
+function seedSupDemo(){
+  Mem.data.clear();
+  const now = Date.now(), at = (d, hr) => new Date(now - d*864e5 - (hr||0)*36e5).toISOString();
+  const acc = (id, o) => Mem.set("accounts/"+id, Object.assign({active:true, logins:0, createdAt:at(60), photo:""}, o));
+  acc(PV_SUP, {name:"المشرف (مثال)", role:"supervisor", lastLogin:at(0), logins:34});
+  acc("demo-adm", {name:"الأدمن (مثال)", role:"admin", lastLogin:at(0, 2), logins:120});
+  acc("demo-pr1", {name:"أبونا بولس (مثال)", role:"priest", lastLogin:at(1), logins:80});
+  acc("demo-pr2", {name:"أبونا مرقس (مثال)", role:"priest", lastLogin:at(3), logins:41});
+  acc("demo-u1", {name:"مينا عادل (مثال)", role:"user", father:"demo-pr1", lastLogin:at(0, 5), logins:22, by:"الأدمن (مثال)"});
+  acc("demo-u2", {name:"مارينا سمير (مثال)", role:"user", father:"demo-pr1", lastLogin:at(2), logins:15, approvedBy:"المشرف (مثال)", approvedAt:at(20)});
+  acc("demo-u3", {name:"كيرلس ناجي (مثال)", role:"user", father:"demo-pr2", lastLogin:at(9), logins:6, by:"المشرف (مثال)"});
+  acc("demo-u4", {name:"بيتر وديع (مثال)", role:"user", father:"demo-pr2", lastLogin:at(35), logins:3});
+  acc("demo-u5", {name:"ماريان فادي (مثال)", role:"user", father:"demo-pr1", mustChange:true, by:"المشرف (مثال)", createdAt:at(1)});
+  acc("demo-u6", {name:"جرجس فهمي (مثال)", role:"user", father:"demo-pr2", active:false, lastLogin:at(70), logins:2});
+  const wait = (id, name, d, profile, fatherName) => {
+    acc(id, {name, role:"user", pending:true, by:"سجّل بنفسه", createdAt:at(d)});
+    Mem.set("pending/"+id, {name, at:at(d), photo:"", fatherName, profile:Object.assign({name}, profile)}); };
+  wait("demo-w1", "أبانوب رأفت (مثال)", 0, {phone:"0100 000 0011", birthday:"2001-03-14", sex:"m", job:"طالب", address:"شبرا، شارع خلوصي"}, "أبونا بولس (مثال)");
+  wait("demo-w2", "دميانة صموئيل (مثال)", 1, {phone:"0122 000 0012", birthday:"1995-08-02", sex:"f", job:"معلمة", address:"روض الفرج، شارع الساحل"}, "");
+  Mem.set("pwreq/demo-u3", {accId:"demo-u3", name:"كيرلس ناجي (مثال)", at:at(0, 3)});
+  Mem.set("pwreq/demo-u4", {accId:"demo-u4", name:"بيتر وديع (مثال)", at:at(2)});
+  const log = (d, hr, who, role, action) => Mem.set("log/pv"+d+"_"+hr+"_"+arKey(action).length, {at:at(d, hr), who, role, action});
+  log(0, 1, "المشرف (مثال)", "supervisor", "دخل البرنامج");
+  log(0, 4, "مينا عادل (مثال)", "user", "دخل البرنامج");
+  log(1, 2, "المشرف (مثال)", "supervisor", "عمل حساب مستخدم: ماريان فادي (مثال)");
+  log(1, 6, "الأدمن (مثال)", "admin", "دخل البرنامج");
+  log(3, 1, "المشرف (مثال)", "supervisor", "عمل كلمة سر جديدة بطلب كيرلس ناجي (مثال)");
+  log(5, 2, "المشرف (مثال)", "supervisor", "وقّف حساب جرجس فهمي (مثال)");
+  log(20, 3, "المشرف (مثال)", "supervisor", "وافق على حساب مارينا سمير (مثال)");
+}
+function startSupPreview(){
+  if (S.pvSup) return;
+  S.pvReal = S.account; Store.preview = true; S.pvSup = true; seedSupDemo(); if (S.settings) Mem.set("settings/app", S.settings);
+  S.account = Object.assign({id:PV_SUP}, Mem.data.get("accounts/"+PV_SUP));
+  S.role = "supervisor"; S.uid = PV_SUP; S.tab = null; S.sel = null; S.draft = {};
+  S.profile=null; S.profileLoaded=false; S.inbox=[]; S.notebook=[];
+  subscribe(); render(); window.scrollTo({top:0});
+}
+function pvSupEnd(){ if (!S.pvSup) return; S.pvSup = false; if (S.pvReal) S.account = S.pvReal; S.pvReal = null; }
+// what the supervisor screen saves goes to the sample data while the preview is open (never to the server)
+const pvAcc = {
+  async create(name, role, pw){
+    if ([...Mem.data.entries()].some(([k, v]) => k.startsWith("accounts/") && arKey(v.name) === arKey(name))){ toast("يوجد حساب بهذا الاسم"); return false; }
+    Mem.set("accounts/u"+newId(), {name, role, active:true, mustChange:true, createdAt:new Date().toISOString(), logins:0, by:S.account.name}); return true; },
+  async save(acc, patch){ const k = "accounts/"+acc.id; Mem.set(k, Object.assign({}, Mem.data.get(k) || {}, patch)); },
+  async del(acc){ Mem.del("accounts/"+acc.id); Mem.del("pwreq/"+acc.id); },
+  async review(id, okk){ const k = "accounts/"+id, a = Mem.data.get(k) || {}; Mem.del("pending/"+id);
+    if (okk){ Mem.set(k, Object.assign({}, a, {pending:false, approvedBy:S.account.name, approvedAt:new Date().toISOString()})); await logAct("وافق على حساب "+(a.name||"")); }
+    else { Mem.del(k); await logAct("رفض حساب "+(a.name||"")); }
+    return true; },
+  async dismiss(id){ Mem.del("pwreq/"+id); },
+  async pw(acc, pw, why){ const k = "accounts/"+acc.id; Mem.set(k, Object.assign({}, Mem.data.get(k) || {}, {mustChange:true, pwSetAt:new Date().toISOString()}));
+    Mem.del("pwreq/"+acc.id); await logAct((why || "عمل كلمة سر جديدة لـ")+" "+acc.name); }
+};
 function switchRole(r){
+  pvSupEnd();
   if (Store.preview){ Store.preview = false; Mem.data.clear(); }
   S.role = r; S.tab = null; S.sel = null; S.draft = {};
   if (Store.mode === "demo") S.uid = r==="member" ? "demo-me" : S.uid;
@@ -9457,7 +9521,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.19-1";
+const APP_VERSION = "2026.11.19-2";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -9569,7 +9633,7 @@ function navFixSoon(){ [0, 120, 400, 900].forEach(t => setTimeout(navFix, t)); }
 window.addEventListener("orientationchange", navFixSoon); window.addEventListener("resize", navFixSoon); window.addEventListener("pageshow", navFixSoon);
 if (window.visualViewport){ visualViewport.addEventListener("resize", navFixSoon); visualViewport.addEventListener("scroll", navFix); }
 { const r0 = render; render = function(){ const r = r0.apply(this, arguments); navFix(); return r; }; }
-function logout(){ clearTimeout(idleTimer); chatStop(); { const hero = document.querySelector(".band .hero"); if (hero) OCCASION.dress(hero, ""); OCCASION.snow(false); } if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.membersReady=false; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
+function logout(){ pvSupEnd(); clearTimeout(idleTimer); chatStop(); { const hero = document.querySelector(".band .hero"); if (hero) OCCASION.dress(hero, ""); OCCASION.snow(false); } if (Store.preview){ Store.preview = false; Mem.data.clear(); } if (S.account) logAct("خرج من البرنامج"); ssSet(okKey(), null); stopAll(); S.ready=false; S.tab=null; S.sel=null; S.draft={}; S.account=null; S.members=[]; S.membersReady=false; S.people=[]; S.accounts=[]; S.log=[]; S.pwreqs=[]; S.meta={}; S.profile=null; S.inbox=[]; S.notebook=[]; S.pending=[]; S.meditations=[]; S.push=null; S.cal=null; S.signup=null; S.newsClosed=null; const nb = document.getElementById("newsBox"); if (nb) nb.remove(); S.autoDb=null; S.churchAcc=null; S.sel=null; if (Store.mode==="cloud") S.settings={}; renderMe.key=null; if (Store.mode==="cloud"){ Cloud.signOut(); S.church=null; } if (Store.mode==="local"){ S.uid="local-me"; S.role="priest"; } showGate(); }
 /* ---------- accounts & roles (standalone file) ----------
    On the shared device every person signs in with their own account. The admin follows the program and sets
    passwords; أبونا sees the priest screens; a supervisor follows the accounts and handles users' passwords;
@@ -10836,7 +10900,7 @@ const Cloud = {
 
 /* account operations on the server */
 const accTry = async (fn) => { try { await fn(); return true; } catch(e){ toast(cloudMsg(e)); return false; } };
-createAccount = async (name, role, pw) => {
+createAccount = async (name, role, pw) => { if (Store.preview) return pvAcc.create(name, role, pw);
   if (!S.church || !S.church.live){ toast(cloudMsg("licence expired")); return false; }
   return accTry(async () => {
     const email = await mailFor(S.church.slug, name);
@@ -10849,13 +10913,13 @@ createAccount = async (name, role, pw) => {
     Cloud.refresh("accounts/x");
   });
 };
-saveAccount = async (acc, patch) => {
+saveAccount = async (acc, patch) => { if (Store.preview) return pvAcc.save(acc, patch);
   const p = {}; for (const k of ["role","active","photo","father"]) if (k in patch) p[k] = patch[k];
   const okk = await accTry(() => Cloud.rpc("update_account", {p_uid:acc.id, p_patch:p}));
   Cloud.refresh("accounts/x"); if (!okk) throw new Error("not saved");
 };
-deleteAccount = async (acc) => { const okk = await accTry(() => Cloud.rpc("delete_account", {p_uid:acc.id})); Cloud.refresh("accounts/x"); Cloud.refresh("pwreq/x"); if (!okk) throw new Error("not deleted"); };
-reviewAccount = async (id, okk) => { const done = await accTry(() => Cloud.rpc("review_account", {p_uid:id, p_ok:okk}));
+deleteAccount = async (acc) => { if (Store.preview) return pvAcc.del(acc); const okk = await accTry(() => Cloud.rpc("delete_account", {p_uid:acc.id})); Cloud.refresh("accounts/x"); Cloud.refresh("pwreq/x"); if (!okk) throw new Error("not deleted"); };
+reviewAccount = async (id, okk) => { if (Store.preview) return pvAcc.review(id, okk); const done = await accTry(() => Cloud.rpc("review_account", {p_uid:id, p_ok:okk}));
   Cloud.refresh("pending/x"); Cloud.refresh("accounts/x"); Cloud.refresh("members/x"); return done; };
 // someone who signed themselves up: check now and then whether they were approved, then open the whole app
 function watchApproval(){
@@ -10887,13 +10951,13 @@ function watchApproval(){
     } catch(e){ if (e.status === 401 || /no account/.test(e.message||"")) { clearInterval(watchApproval.t); logout(); } }
   }, 20000);
 }
-dismissPwreq = async (id) => { await accTry(() => Cloud.rpc("dismiss_pwreq", {p_uid:id})); Cloud.refresh("pwreq/x"); };
-setPassword = async (acc, pw, why) => {
+dismissPwreq = async (id) => { if (Store.preview) return pvAcc.dismiss(id); await accTry(() => Cloud.rpc("dismiss_pwreq", {p_uid:id})); Cloud.refresh("pwreq/x"); };
+setPassword = async (acc, pw, why) => { if (Store.preview) return pvAcc.pw(acc, pw, why);
   const okk = await accTry(() => Cloud.rpc("set_password", {p_uid:acc.id, p_pw:pw}));
   Cloud.refresh("accounts/x"); Cloud.refresh("pwreq/x");
   if (!okk) throw new Error("not saved");  // the server writes the activity entry itself
 };
-changeOwnPassword = async (oldPw, pw) => {
+changeOwnPassword = async (oldPw, pw) => { if (Store.preview){ toast("لا يمكن تغيير كلمة السر في الشاشة التجريبية."); return null; }
   try { await Cloud.signIn(await mailFor(S.church.slug, S.account.name), oldPw); } catch(e){ if (e.offline) toast(cloudMsg(e)); return false; }
   // none of the last 5 again (2026-11-08, user)
   try { if (await Cloud.rpc("pw_reused", {p_pw:pw})){ toast("لا يمكن استخدام كلمة سر من آخر خمس كلمات سر. برجاء اختيار كلمة سر جديدة."); return null; } } catch(e){}
