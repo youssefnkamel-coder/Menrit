@@ -4,13 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://bchxqstesohcsdczvvvv.supabase.co https://i.ytimg.com; media-src 'self'; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://bchxqstesohcsdczvvvv.supabase.co https://api.katameros.app https://api.open-meteo.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-F8NQsMFE8oAJdr/o+eIyL2BOdmvW5NBg64F85tAvIiE=' 'sha256-Wsya+3tgKYamL3nkaVbN5xcW0BmBb0S3s/kwOci2s0U=' 'sha256-QnJxew/kEY4vZxwHeX1TFFPV9nMqyDpoa2C8itIlVn8=' 'sha256-kVmnIuuIQ3iiLg7oWl55WfdFJ+5hT4SQEDQmK8Kw0sQ='; style-src 'self' 'sha256-Iuij42C/rjzlCYYku2T/AlB9JrwKV8BmihlWtLq2En4=' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://bchxqstesohcsdczvvvv.supabase.co https://i.ytimg.com; media-src 'self'; frame-src https://www.youtube-nocookie.com; connect-src 'self' https://bchxqstesohcsdczvvvv.supabase.co https://api.katameros.app https://api.open-meteo.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>ⲙⲉⲛⲣⲓⲧ · المتابعة الروحية</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <script>
+if (window.top !== window.self){ document.documentElement.style.display = "none"; try { window.top.location.replace(window.self.location.href); } catch(e){} }
 // إعدادات السيرفر (مشروع Supabase). المفتاح ده publishable ومعمول إنه يبقى علني.
 window.RUHIYA_CONFIG = {
   url: "https://bchxqstesohcsdczvvvv.supabase.co",
@@ -3836,6 +3838,7 @@ function h(tag, attrs, ...kids){
       r.finally(() => { el.removeAttribute("aria-busy"); if (lock) el.disabled = false; });
     });
     else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (k === "style") el.style.cssText = v;
     else if (k === "value") el.value = v;
     else if (k === "checked") el.checked = !!v;
     else el.setAttribute(k, v === true ? "" : DIG_EN && (k === "placeholder" || k === "title" || k === "aria-label") ? enDig(v) : v);
@@ -5972,7 +5975,7 @@ function confessionChart(all){
   const colors = ["#3b82f6","#8b5cf6","#ec4899","#f97316","#14b8a6","#22c55e"];
   const ns="http://www.w3.org/2000/svg", svg=document.createElementNS(ns,"svg");
   svg.setAttribute("viewBox","0 0 "+W+" "+(H+30)); svg.setAttribute("role","img"); svg.setAttribute("aria-label","عدد الاعترافات في كل شهر");
-  const el=(t,a,txt)=>{ const e=document.createElementNS(ns,t); for(const k in a) e.setAttribute(k,a[k]); if(txt!=null) e.textContent=txt; svg.append(e); return e; };
+  const el=(t,a,txt)=>{ const e=document.createElementNS(ns,t); for(const k in a){ if (k === "style") e.style.cssText = a[k]; else e.setAttribute(k,a[k]); } if(txt!=null) e.textContent=txt; svg.append(e); return e; };
   el("line",{x1:pad,x2:W-pad,y1:H,y2:H,stroke:"currentColor","stroke-opacity":".15"});
   months.forEach((b,i)=>{
     const x = W-pad-(i+1)*bw+bw*.2, w = bw*.6, hgt = (H-30)*b.n/max, y = H-hgt;
@@ -9046,7 +9049,10 @@ function renameCheck(){
   document.body.append(box); return true;
 }
 // ---- one-time sign-in link (2026-11-13) ----
-const invTok = () => { try { const t = new URLSearchParams(location.search).get("i") || ""; return /^[A-Za-z0-9_-]{20,40}$/.test(t) ? t : ""; } catch(e){ return ""; } };
+let INV_T = (() => { try { const t = new URLSearchParams(location.search).get("i") || ""; return /^[A-Za-z0-9_-]{20,40}$/.test(t) ? t : ""; } catch(e){ return ""; } })();
+const URL_K = (() => { try { return (new URLSearchParams(location.search).get("k") || "").replace(/\D/g, "").slice(0, 6); } catch(e){ return ""; } })();
+(() => { try { const u = new URL(location.href); if (u.searchParams.has("i") || u.searchParams.has("k")){ u.searchParams.delete("i"); u.searchParams.delete("k"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } } catch(e){} })();
+const invTok = () => INV_T;
 function inviteUrl(r){
   const base = ((window.RUHIYA_CONFIG && window.RUHIYA_CONFIG.appUrl) || (location.origin + location.pathname.replace(/[^/]*$/, ""))).replace(/\/+$/, "");
   return base + "/?c=" + encodeURIComponent(r.slug) + "&i=" + r.token;
@@ -9521,7 +9527,7 @@ function ssSet(k,v){ try { v==null ? sessionStorage.removeItem(k) : sessionStora
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 // shown under the developer card, so anyone can tell which version their phone has opened
-const APP_VERSION = "2026.11.19-2";
+const APP_VERSION = "2026.11.20-1";
 function devBlock(withLogo){
   return h("div",{class:"dev"+(withLogo?" dev-foot":"")},
     h("div",{class:"dev-rule", "aria-hidden":"true"}, h("i"), "✦", h("i")),
@@ -11210,7 +11216,7 @@ async function showCloudGate(){
   const gate = $("#gate"); gate.hidden = false;
   let slug = savedChurch(), info = null, mode = slug ? "login" : "church", lic = null, licCode = "";
   let inv = null; if (invTok() && inviteApi) mode = "invite";
-  const invDrop = () => { try { const u = new URL(location.href); u.searchParams.delete("i"); history.replaceState(null, "", u.pathname + u.search + u.hash); } catch(e){} };
+  const invDrop = () => { INV_T = ""; try { const u = new URL(location.href); u.searchParams.delete("i"); history.replaceState(null, "", u.pathname + u.search + u.hash); } catch(e){} };
   if (!SB || !SB_KEY || /XXXX|PASTE/.test(SB+SB_KEY)){ gate.replaceChildren(h("div",{class:"gate-card"}, churchMark(), h("h1",null,"المتابعة الروحية"),
     h("p",{class:"gate-err"},"البرنامج لسه مش متوصّل بالسيرفر. المطوّر لازم يكتب بيانات Supabase في ملف config.js."), devBlock())); return; }
   const loadInfo = async () => { info = null; if (!slug) return; try { info = await Cloud.rpc("church_public", {p_slug:slug}); } catch(e){ info = {error:cloudMsg(e)}; } };
@@ -11224,7 +11230,7 @@ async function showCloudGate(){
   const ppClean = s => String(s||"").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^A-Za-z0-9]/g, "").toUpperCase();
   // since 2026-11-05 a new account needs the church's sign-up code (the link the admin sends can carry it as &k=)
   const needCode = () => !!(info && info.signup);
-  const urlCode = () => { try { return (new URLSearchParams(location.search).get("k") || "").replace(/\D/g, "").slice(0, 6); } catch(e){ return ""; } };
+  const urlCode = () => URL_K;
   rf.code = urlCode();
   // the list of confession fathers as big tappable cards
   // each father's photo beside his name (2026-11-07): fetched once, only when the list is shown
